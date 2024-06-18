@@ -3,18 +3,17 @@
 namespace GraphQL\Tests;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Parser;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
 
-class StarWarsValidationTest extends TestCase
+final class StarWarsValidationTest extends TestCase
 {
     // Star Wars Validation Tests
     // Basic Queries
 
-    /**
-     * @see it('Validates a complex but valid query')
-     */
+    /** @see it('Validates a complex but valid query') */
     public function testValidatesAComplexButValidQuery(): void
     {
         $query = '
@@ -42,6 +41,10 @@ class StarWarsValidationTest extends TestCase
     /**
      * Helper function to test a query and the expected response.
      *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
+     *
      * @return array<int, Error>
      */
     private function validationErrors(string $query): array
@@ -52,9 +55,7 @@ class StarWarsValidationTest extends TestCase
         return DocumentValidator::validate($schema, $ast);
     }
 
-    /**
-     * @see it('Notes that non-existent fields are invalid')
-     */
+    /** @see it('Notes that non-existent fields are invalid') */
     public function testThatNonExistentFieldsAreInvalid(): void
     {
         $query = '
@@ -68,9 +69,20 @@ class StarWarsValidationTest extends TestCase
         self::assertCount(1, $errors);
     }
 
-    /**
-     * @see it('Requires fields on objects')
-     */
+    public function testThatInvisibleFieldsAreInvalid(): void
+    {
+        $query = '
+        query HeroSpaceshipQuery {
+          hero {
+            secretName
+          }
+        }
+        ';
+        $errors = $this->validationErrors($query);
+        self::assertCount(1, $errors);
+    }
+
+    /** @see it('Requires fields on objects') */
     public function testRequiresFieldsOnObjects(): void
     {
         $query = '
@@ -83,9 +95,7 @@ class StarWarsValidationTest extends TestCase
         self::assertCount(1, $errors);
     }
 
-    /**
-     * @see it('Disallows fields on scalars')
-     */
+    /** @see it('Disallows fields on scalars') */
     public function testDisallowsFieldsOnScalars(): void
     {
         $query = '
@@ -101,9 +111,7 @@ class StarWarsValidationTest extends TestCase
         self::assertCount(1, $errors);
     }
 
-    /**
-     * @see it('Disallows object fields on interfaces')
-     */
+    /** @see it('Disallows object fields on interfaces') */
     public function testDisallowsObjectFieldsOnInterfaces(): void
     {
         $query = '
@@ -118,9 +126,7 @@ class StarWarsValidationTest extends TestCase
         self::assertCount(1, $errors);
     }
 
-    /**
-     * @see it('Allows object fields in fragments')
-     */
+    /** @see it('Allows object fields in fragments') */
     public function testAllowsObjectFieldsInFragments(): void
     {
         $query = '
@@ -139,9 +145,7 @@ class StarWarsValidationTest extends TestCase
         self::assertCount(0, $errors);
     }
 
-    /**
-     * @see it('Allows object fields in inline fragments')
-     */
+    /** @see it('Allows object fields in inline fragments') */
     public function testAllowsObjectFieldsInInlineFragments(): void
     {
         $query = '

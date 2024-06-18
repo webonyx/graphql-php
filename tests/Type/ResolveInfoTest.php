@@ -9,7 +9,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-class ResolveInfoTest extends TestCase
+final class ResolveInfoTest extends TestCase
 {
     public function testFieldSelection(): void
     {
@@ -188,7 +188,7 @@ class ResolveInfoTest extends TestCase
                 'ping' => [
                     'type' => Type::string(),
                     'resolve' => static function ($value, array $args, $context, ResolveInfo $info): string {
-                        self::assertEquals([], $info->getFieldSelection());
+                        self::assertSame([], $info->getFieldSelection());
 
                         return 'pong';
                     },
@@ -199,7 +199,7 @@ class ResolveInfoTest extends TestCase
         $schema = new Schema(['query' => $pingPongQuery]);
         $result = GraphQL::executeQuery($schema, $query)->toArray();
 
-        self::assertEquals(['data' => ['ping' => 'pong']], $result);
+        self::assertSame(['data' => ['ping' => 'pong']], $result);
     }
 
     public function testMergedFragmentsFieldSelection(): void
@@ -276,14 +276,14 @@ class ResolveInfoTest extends TestCase
       fragment MyImage on Image {
         url
       }
-      
+
       fragment Replies01 on Article {
         _replies012: replies {
             body
         }
       }
       fragment Replies02 on Article {
-        _replies012: replies {            
+        _replies012: replies {
             author {
                 id
                 name
@@ -337,7 +337,6 @@ class ResolveInfoTest extends TestCase
         ];
 
         $hasCalled = false;
-        $actualDefaultSelection = null;
         $actualDeepSelection = null;
 
         $blogQuery = new ObjectType([
@@ -369,5 +368,154 @@ class ResolveInfoTest extends TestCase
         self::assertTrue($hasCalled);
         self::assertEquals(['data' => ['article' => null]], $result);
         self::assertEquals($expectedDeepSelection, $actualDeepSelection);
+    }
+
+    public function testDeepFieldSelectionOnDuplicatedFields(): void
+    {
+        $level2 = new ObjectType([
+            'name' => 'level2',
+            'fields' => [
+                'scalar1' => ['type' => Type::int()],
+                'scalar2' => ['type' => Type::int()],
+            ],
+        ]);
+        $level1 = new ObjectType([
+            'name' => 'level1',
+            'fields' => [
+                'scalar1' => ['type' => Type::int()],
+                'scalar2' => ['type' => Type::int()],
+                'level2' => $level2,
+            ],
+        ]);
+
+        $hasCalled = false;
+        $actualDeepSelection = null;
+
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'level1' => [
+                    'type' => $level1,
+                    'resolve' => static function (
+                        $value,
+                        array $args,
+                        $context,
+                        ResolveInfo $info
+                    ) use (
+                        &$hasCalled,
+                        &$actualDeepSelection
+                    ) {
+                        $hasCalled = true;
+                        $actualDeepSelection = $info->getFieldSelection(2);
+
+                        return null;
+                    },
+                ],
+            ],
+        ]);
+
+        $doc = '
+        query deepMerge {
+          level1 {
+            level2 {
+              scalar1
+            }
+            level2 {
+              scalar2
+            }
+            scalar1
+            scalar2
+          }
+        }
+      ';
+
+        $expectedDeepSelection = [
+            'level2' => [
+                'scalar1' => true,
+                'scalar2' => true,
+            ],
+            'scalar1' => true,
+            'scalar2' => true,
+        ];
+
+        $schema = new Schema(['query' => $query]);
+        $result = GraphQL::executeQuery($schema, $doc)->toArray();
+
+        self::assertTrue($hasCalled);
+        self::assertEquals(['data' => ['level1' => null]], $result);
+        self::assertEquals($expectedDeepSelection, $actualDeepSelection);
+    }
+
+    public function testPathAndUnaliasedPath(): void
+    {
+        $level2 = new ObjectType([
+            'name' => 'level2',
+            'fields' => [
+                'scalar1' => [
+                    'type' => Type::string(),
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) {
+                        return 'path: ' . implode('.', $info->path) . ', unaliasedPath: ' . implode('.', $info->unaliasedPath);
+                    },
+                ],
+                'scalar2' => [
+                    'type' => Type::string(),
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) {
+                        return 'path: ' . implode('.', $info->path) . ', unaliasedPath: ' . implode('.', $info->unaliasedPath);
+                    },
+                ],
+            ],
+        ]);
+        $level1 = new ObjectType([
+            'name' => 'level1',
+            'fields' => [
+                'level2' => [
+                    'type' => $level2,
+                    'resolve' => function () {
+                        return true;
+                    },
+                ],
+            ],
+        ]);
+
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'level1' => [
+                    'type' => $level1,
+                    'resolve' => function () {
+                        return true;
+                    },
+                ],
+            ],
+        ]);
+
+        $result = GraphQL::executeQuery(
+            new Schema(['query' => $query]),
+            <<<GRAPHQL
+            query {
+              level1 {
+                level2 {
+                  scalar1
+                }
+                level1000: level2 {
+                  scalar2
+                }
+              }
+            }
+            GRAPHQL
+        )->toArray();
+
+        self::assertSame([
+            'data' => [
+                'level1' => [
+                    'level2' => [
+                        'scalar1' => 'path: level1.level2.scalar1, unaliasedPath: level1.level2.scalar1',
+                    ],
+                    'level1000' => [
+                        'scalar2' => 'path: level1.level1000.scalar2, unaliasedPath: level1.level2.scalar2',
+                    ],
+                ],
+            ],
+        ], $result);
     }
 }

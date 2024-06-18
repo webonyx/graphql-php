@@ -19,6 +19,8 @@ use GraphQL\Language\SourceLocation;
  *
  * Class extends standard PHP `\Exception`, so all standard methods of base `\Exception` class
  * are available in addition to those listed below.
+ *
+ * @see \GraphQL\Tests\Error\ErrorTest
  */
 class Error extends \Exception implements \JsonSerializable, ClientAware, ProvidesExtensions
 {
@@ -32,10 +34,20 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
     /**
      * An array describing the JSON-path into the execution response which
      * corresponds to this error. Only included for errors during execution.
+     * When fields are aliased, the path includes aliases.
      *
-     * @var array<int, int|string>|null
+     * @var list<int|string>|null
      */
     public ?array $path;
+
+    /**
+     * An array describing the JSON-path into the execution response which
+     * corresponds to this error. Only included for errors during execution.
+     * This will never include aliases.
+     *
+     * @var list<int|string>|null
+     */
+    public ?array $unaliasedPath;
 
     /**
      * An array of GraphQL AST Nodes corresponding to this error.
@@ -62,9 +74,10 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
 
     /**
      * @param iterable<array-key, Node|null>|Node|null $nodes
-     * @param array<int, int>|null                $positions
-     * @param array<int, int|string>|null         $path
-     * @param array<string, mixed>|null           $extensions
+     * @param array<int, int>|null $positions
+     * @param list<int|string>|null $path
+     * @param array<string, mixed>|null $extensions
+     * @param list<int|string>|null $unaliasedPath
      */
     public function __construct(
         string $message = '',
@@ -73,7 +86,8 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         ?array $positions = null,
         ?array $path = null,
         ?\Throwable $previous = null,
-        ?array $extensions = null
+        ?array $extensions = null,
+        ?array $unaliasedPath = null
     ) {
         parent::__construct($message, 0, $previous);
 
@@ -91,8 +105,9 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         $this->source = $source;
         $this->positions = $positions;
         $this->path = $path;
+        $this->unaliasedPath = $unaliasedPath;
 
-        if (\is_array($extensions) && \count($extensions) > 0) {
+        if (\is_array($extensions) && $extensions !== []) {
             $this->extensions = $extensions;
         } elseif ($previous instanceof ProvidesExtensions) {
             $this->extensions = $previous->getExtensions();
@@ -110,11 +125,12 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
      * GraphQL operation, produce a new GraphQLError aware of the location in the
      * document responsible for the original Error.
      *
-     * @param mixed                       $error
-     * @param iterable<Node>|Node|null    $nodes
-     * @param array<int, int|string>|null $path
+     * @param mixed $error
+     * @param iterable<Node>|Node|null $nodes
+     * @param list<int|string>|null $path
+     * @param list<int|string>|null $unaliasedPath
      */
-    public static function createLocatedError($error, $nodes = null, ?array $path = null): Error
+    public static function createLocatedError($error, $nodes = null, ?array $path = null, ?array $unaliasedPath = null): Error
     {
         if ($error instanceof self) {
             if ($error->isLocated()) {
@@ -123,6 +139,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
 
             $nodes ??= $error->getNodes();
             $path ??= $error->getPath();
+            $unaliasedPath ??= $error->getUnaliasedPath();
         }
 
         $source = null;
@@ -157,7 +174,8 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
             $positions,
             $path,
             $originalError,
-            $extensions
+            $extensions,
+            $unaliasedPath
         );
     }
 
@@ -167,9 +185,9 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         $nodes = $this->getNodes();
 
         return $path !== null
-            && \count($path) > 0
+            && $path !== []
             && $nodes !== null
-            && \count($nodes) > 0;
+            && $nodes !== [];
     }
 
     public function isClientSafe(): bool
@@ -184,9 +202,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
             ?? null;
     }
 
-    /**
-     * @return array<int, int>
-     */
+    /** @return array<int, int> */
     public function getPositions(): array
     {
         if (! isset($this->positions)) {
@@ -227,11 +243,11 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
             $nodes = $this->getNodes();
 
             $this->locations = [];
-            if ($source !== null && \count($positions) !== 0) {
+            if ($source !== null && $positions !== []) {
                 foreach ($positions as $position) {
                     $this->locations[] = $source->getLocation($position);
                 }
-            } elseif ($nodes !== null && \count($nodes) !== 0) {
+            } elseif ($nodes !== null && $nodes !== []) {
                 foreach ($nodes as $node) {
                     if (isset($node->loc->source)) {
                         $this->locations[] = $node->loc->source->getLocation($node->loc->start);
@@ -243,9 +259,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         return $this->locations;
     }
 
-    /**
-     * @return array<Node>|null
-     */
+    /** @return array<Node>|null */
     public function getNodes(): ?array
     {
         return $this->nodes;
@@ -253,9 +267,9 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
 
     /**
      * Returns an array describing the path from the root value to the field which produced this error.
-     * Only included for execution errors.
+     * Only included for execution errors. When fields are aliased, the path includes aliases.
      *
-     * @return array<int, int|string>|null
+     * @return list<int|string>|null
      *
      * @api
      */
@@ -265,8 +279,19 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
     }
 
     /**
-     * @return array<string, mixed>|null
+     * Returns an array describing the path from the root value to the field which produced this error.
+     * Only included for execution errors. This will never include aliases.
+     *
+     * @return list<int|string>|null
+     *
+     * @api
      */
+    public function getUnaliasedPath(): ?array
+    {
+        return $this->unaliasedPath;
+    }
+
+    /** @return array<string, mixed>|null */
     public function getExtensions(): ?array
     {
         return $this->extensions;
@@ -278,7 +303,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
      * @see http://php.net/manual/en/jsonserializable.jsonserialize.php
      *
      * @return array<string, mixed> data which can be serialized by <b>json_encode</b>,
-     * which is a value of any type other than a resource
+     *                              which is a value of any type other than a resource
      */
     #[\ReturnTypeWillChange]
     public function jsonSerialize(): array

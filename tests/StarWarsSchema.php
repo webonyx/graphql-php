@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NonNull;
@@ -54,8 +55,9 @@ use GraphQL\Type\Schema;
  *
  * We begin by setting up our schema.
  */
-class StarWarsSchema
+final class StarWarsSchema
 {
+    /** @throws InvariantViolation */
     public static function build(): Schema
     {
         /**
@@ -127,10 +129,15 @@ class StarWarsSchema
                         'type' => Type::string(),
                         'description' => 'All secrets about their past.',
                     ],
+                    'secretName' => [
+                        'type' => Type::string(),
+                        'description' => 'The secret name of the character.',
+                        'visible' => false,
+                    ],
                 ];
             },
             'resolveType' => static function (array $obj) use (&$humanType, &$droidType): ObjectType {
-                return StarWarsData::getHuman($obj['id']) === null
+                return StarWarsData::human($obj['id']) === null
                     ? $droidType
                     : $humanType;
             },
@@ -171,7 +178,7 @@ class StarWarsSchema
                             static function ($friend) use ($fieldSelection): array {
                                 return \array_intersect_key($friend, $fieldSelection);
                             },
-                            StarWarsData::getFriends($human)
+                            StarWarsData::friends($human)
                         );
                     },
                 ],
@@ -223,7 +230,7 @@ class StarWarsSchema
                 'friends' => [
                     'type' => Type::listOf($characterInterface),
                     'description' => 'The friends of the droid, or an empty list if they have none.',
-                    'resolve' => static fn (array $droid): array => StarWarsData::getFriends($droid),
+                    'resolve' => static fn (array $droid): array => StarWarsData::friends($droid),
                 ],
                 'appearsIn' => [
                     'type' => Type::listOf($episodeEnum),
@@ -269,7 +276,7 @@ class StarWarsSchema
                             'type' => $episodeEnum,
                         ],
                     ],
-                    'resolve' => static fn ($rootValue, array $args): array => StarWarsData::getHero($args['episode'] ?? null),
+                    'resolve' => static fn ($rootValue, array $args): array => StarWarsData::hero($args['episode'] ?? null),
                 ],
                 'human' => [
                     'type' => $humanType,

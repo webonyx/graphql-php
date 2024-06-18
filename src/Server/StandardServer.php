@@ -30,6 +30,8 @@ use Psr\Http\Message\StreamInterface;
  *     $server->handleRequest();
  *
  * See [dedicated section in docs](executing-queries.md#using-server) for details.
+ *
+ * @see \GraphQL\Tests\Server\StandardServerTest
  */
 class StandardServer
 {
@@ -41,6 +43,8 @@ class StandardServer
      * @param ServerConfig|array<string, mixed> $config
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public function __construct($config)
     {
@@ -71,6 +75,10 @@ class StandardServer
      * @param OperationParams|array<OperationParams> $parsedBody
      *
      * @api
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
+     * @throws RequestError
      */
     public function handleRequest($parsedBody = null): void
     {
@@ -89,6 +97,10 @@ class StandardServer
      * PSR-7 compatible method executePsrRequest() does exactly this.
      *
      * @param OperationParams|array<OperationParams> $parsedBody
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
+     * @throws RequestError
      *
      * @return ExecutionResult|array<int, ExecutionResult>|Promise
      *
@@ -113,6 +125,13 @@ class StandardServer
      * See `executePsrRequest()` if you prefer to create response yourself
      * (e.g. using specific JsonResponse instance of some framework).
      *
+     * @throws \Exception
+     * @throws \InvalidArgumentException
+     * @throws \JsonException
+     * @throws \RuntimeException
+     * @throws InvariantViolation
+     * @throws RequestError
+     *
      * @return ResponseInterface|Promise
      *
      * @api
@@ -130,6 +149,11 @@ class StandardServer
     /**
      * Executes GraphQL operation and returns execution result
      * (or promise when promise adapter is different from SyncPromiseAdapter).
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws InvariantViolation
+     * @throws RequestError
      *
      * @return ExecutionResult|array<int, ExecutionResult>|Promise
      *

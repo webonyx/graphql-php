@@ -2,6 +2,7 @@
 
 namespace GraphQL\Executor;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
@@ -15,6 +16,8 @@ use GraphQL\Utils\Utils;
  *
  * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
  * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable): ExecutorImplementation
+ *
+ * @see \GraphQL\Tests\Executor\ExecutorTest
  */
 class Executor
 {
@@ -34,9 +37,7 @@ class Executor
      */
     private static $implementationFactory = [ReferenceExecutor::class, 'create'];
 
-    /**
-     * @phpstan-return FieldResolver
-     */
+    /** @phpstan-return FieldResolver */
     public static function getDefaultFieldResolver(): callable
     {
         return self::$defaultFieldResolver;
@@ -57,17 +58,13 @@ class Executor
         return self::$defaultPromiseAdapter ??= new SyncPromiseAdapter();
     }
 
-    /**
-     * Set a custom default promise adapter.
-     */
+    /** Set a custom default promise adapter. */
     public static function setPromiseAdapter(?PromiseAdapter $defaultPromiseAdapter = null): void
     {
         self::$defaultPromiseAdapter = $defaultPromiseAdapter;
     }
 
-    /**
-     * @phpstan-return ImplementationFactory
-     */
+    /** @phpstan-return ImplementationFactory */
     public static function getImplementationFactory(): callable
     {
         return self::$implementationFactory;
@@ -89,13 +86,15 @@ class Executor
      * Always returns ExecutionResult and never throws.
      * All errors which occur during operation execution are collected in `$result->errors`.
      *
-     * @param mixed                     $rootValue
-     * @param mixed                     $contextValue
+     * @param mixed $rootValue
+     * @param mixed $contextValue
      * @param array<string, mixed>|null $variableValues
      *
      * @phpstan-param FieldResolver|null $fieldResolver
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public static function execute(
         Schema $schema,
@@ -128,8 +127,8 @@ class Executor
      *
      * Useful for async PHP platforms.
      *
-     * @param mixed                     $rootValue
-     * @param mixed                     $contextValue
+     * @param mixed $rootValue
+     * @param mixed $contextValue
      * @param array<string, mixed>|null $variableValues
      *
      * @phpstan-param FieldResolver|null $fieldResolver

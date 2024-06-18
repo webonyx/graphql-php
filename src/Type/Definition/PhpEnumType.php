@@ -14,15 +14,14 @@ class PhpEnumType extends EnumType
     public const MULTIPLE_DESCRIPTIONS_DISALLOWED = 'Using more than 1 Description attribute is not supported.';
     public const MULTIPLE_DEPRECATIONS_DISALLOWED = 'Using more than 1 Deprecated attribute is not supported.';
 
-    /**
-     * @var class-string<\UnitEnum>
-     */
+    /** @var class-string<\UnitEnum> */
     protected string $enumClass;
 
     /**
      * @param class-string<\UnitEnum> $enum
+     * @param string|null $name The name the enum will have in the schema, defaults to the basename of the given class
      */
-    public function __construct(string $enum)
+    public function __construct(string $enum, ?string $name = null)
     {
         $this->enumClass = $enum;
         $reflection = new \ReflectionEnum($enum);
@@ -40,7 +39,7 @@ class PhpEnumType extends EnumType
         }
 
         parent::__construct([
-            'name' => $this->baseName($enum),
+            'name' => $name ?? $this->baseName($enum),
             'values' => $enumDefinitions,
             'description' => $this->extractDescription($reflection),
         ]);
@@ -48,7 +47,7 @@ class PhpEnumType extends EnumType
 
     public function serialize($value): string
     {
-        if (! is_a($value, $this->enumClass)) {
+        if (! ($value instanceof $this->enumClass)) {
             $notEnum = Utils::printSafe($value);
             throw new SerializationError("Cannot serialize value as enum: {$notEnum}, expected instance of {$this->enumClass}.");
         }
@@ -56,9 +55,17 @@ class PhpEnumType extends EnumType
         return $value->name;
     }
 
-    /**
-     * @param class-string $class
-     */
+    public function parseValue($value)
+    {
+        // Can happen when variable values undergo a serialization cycle before execution
+        if ($value instanceof $this->enumClass) {
+            return $value;
+        }
+
+        return parent::parseValue($value);
+    }
+
+    /** @param class-string $class */
     protected function baseName(string $class): string
     {
         $parts = explode('\\', $class);

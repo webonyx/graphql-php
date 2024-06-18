@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Type\Definition\Argument;
@@ -18,6 +19,7 @@ use GraphQL\Validator\QueryValidationContext;
  */
 class KnownArgumentNames extends ValidationRule
 {
+    /** @throws InvariantViolation */
     public function getVisitor(QueryValidationContext $context): array
     {
         $knownArgumentNamesOnDirectives = new KnownArgumentNamesOnDirectives();
@@ -58,14 +60,12 @@ class KnownArgumentNames extends ValidationRule
         ];
     }
 
-    /**
-     * @param array<string> $suggestedArgs
-     */
+    /** @param array<string> $suggestedArgs */
     public static function unknownArgMessage(string $argName, string $fieldName, string $typeName, array $suggestedArgs): string
     {
         $message = "Unknown argument \"{$argName}\" on field \"{$fieldName}\" of type \"{$typeName}\".";
 
-        if (\count($suggestedArgs) > 0) {
+        if ($suggestedArgs !== []) {
             $suggestions = Utils::quotedOrList($suggestedArgs);
             $message .= " Did you mean {$suggestions}?";
         }

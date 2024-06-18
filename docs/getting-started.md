@@ -100,7 +100,7 @@ try {
     ];
 }
 header('Content-Type: application/json');
-echo json_encode($output);
+echo json_encode($output, JSON_THROW_ON_ERROR);
 ```
 
 Our example is finished. Try it by running:

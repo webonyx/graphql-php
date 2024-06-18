@@ -47,6 +47,8 @@ class ImageType extends ObjectType
 
     /**
      * @param array<never> $args
+     *
+     * @throws \UnexpectedValueException
      */
     public function resolveUrl(Image $value, array $args, AppContext $context, ResolveInfo $info): string
     {

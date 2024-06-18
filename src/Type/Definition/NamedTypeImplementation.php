@@ -18,6 +18,7 @@ trait NamedTypeImplementation
         return $this->name;
     }
 
+    /** @throws InvariantViolation */
     protected function inferName(): string
     {
         if (isset($this->name)) {
@@ -42,7 +43,7 @@ trait NamedTypeImplementation
 
     public function isBuiltInType(): bool
     {
-        return \array_key_exists($this->name, Type::builtInTypes());
+        return \in_array($this->name, Type::BUILT_IN_TYPE_NAMES, true);
     }
 
     public function name(): string

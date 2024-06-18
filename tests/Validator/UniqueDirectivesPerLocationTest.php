@@ -10,19 +10,19 @@ use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class UniqueDirectivesPerLocationTest extends ValidatorTestCase
+final class UniqueDirectivesPerLocationTest extends ValidatorTestCase
 {
     /**
      * @param array<int, array<string, mixed>> $errors
+     *
+     * @throws \Exception
      */
     private function expectSDLErrors(string $sdlString, ?Schema $schema = null, array $errors = []): void
     {
         $this->expectSDLErrorsFromRule(new UniqueDirectivesPerLocation(), $sdlString, $schema, $errors);
     }
 
-    /**
-     * @see it('no directives')
-     */
+    /** @see it('no directives') */
     public function testNoDirectives(): void
     {
         $this->expectPassesRule(
@@ -35,9 +35,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('unique directives in different locations')
-     */
+    /** @see it('unique directives in different locations') */
     public function testUniqueDirectivesInDifferentLocations(): void
     {
         $this->expectPassesRule(
@@ -50,9 +48,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('unique directives in same locations')
-     */
+    /** @see it('unique directives in same locations') */
     public function testUniqueDirectivesInSameLocations(): void
     {
         $this->expectPassesRule(
@@ -65,9 +61,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('same directives in different locations')
-     */
+    /** @see it('same directives in different locations') */
     public function testSameDirectivesInDifferentLocations(): void
     {
         $this->expectPassesRule(
@@ -80,9 +74,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('same directives in similar locations')
-     */
+    /** @see it('same directives in similar locations') */
     public function testSameDirectivesInSimilarLocations(): void
     {
         $this->expectPassesRule(
@@ -96,9 +88,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('repeatable directives in same location', () => {
-     */
+    /** @see it('repeatable directives in same location', () => { */
     public function testRepeatableDirectivesInSameLocation(): void
     {
         $this->expectPassesRule(
@@ -111,9 +101,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('unknown directives must be ignored', () => {
-     */
+    /** @see it('unknown directives must be ignored', () => { */
     public function testUnknownDirectivesMustBeIgnored(): void
     {
         $this->expectPassesRule(
@@ -129,9 +117,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate directives in one location')
-     */
+    /** @see it('duplicate directives in one location') */
     public function testDuplicateDirectivesInOneLocation(): void
     {
         $this->expectFailsRule(
@@ -145,9 +131,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @phpstan-return ErrorArray
-     */
+    /** @phpstan-return ErrorArray */
     private function duplicateDirective(string $directiveName, int $l1, int $c1, int $l2, int $c2)
     {
         return ErrorHelper::create(
@@ -156,9 +140,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('many duplicate directives in one location')
-     */
+    /** @see it('many duplicate directives in one location') */
     public function testManyDuplicateDirectivesInOneLocation(): void
     {
         $this->expectFailsRule(
@@ -175,9 +157,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('different duplicate directives in one location')
-     */
+    /** @see it('different duplicate directives in one location') */
     public function testDifferentDuplicateDirectivesInOneLocation(): void
     {
         $this->expectFailsRule(
@@ -194,9 +174,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate directives in many locations')
-     */
+    /** @see it('duplicate directives in many locations') */
     public function testDuplicateDirectivesInManyLocations(): void
     {
         $this->expectFailsRule(
@@ -213,9 +191,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate directives on SDL definitions')
-     */
+    /** @see it('duplicate directives on SDL definitions') */
     public function testDuplicateDirectivesOnSDLDefinitions(): void
     {
         $this->expectSDLErrors(

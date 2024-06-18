@@ -2,6 +2,7 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
@@ -42,7 +43,11 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     private array $fields;
 
     /**
+     * @throws InvariantViolation
+     *
      * @phpstan-param InputObjectConfig $config
+     *
+     * @throws InvariantViolation
      */
     public function __construct(array $config)
     {
@@ -54,9 +59,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         $this->config = $config;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function getField(string $name): InputObjectField
     {
         $field = $this->findField($name);
@@ -68,6 +71,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         return $field;
     }
 
+    /** @throws InvariantViolation */
     public function findField(string $name): ?InputObjectField
     {
         if (! isset($this->fields)) {
@@ -77,6 +81,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         return $this->fields[$name] ?? null;
     }
 
+    /** @throws InvariantViolation */
     public function hasField(string $name): bool
     {
         if (! isset($this->fields)) {
@@ -87,6 +92,8 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<string, InputObjectField>
      */
     public function getFields(): array
@@ -98,6 +105,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         return $this->fields;
     }
 
+    /** @throws InvariantViolation */
     protected function initializeFields(): void
     {
         $fields = $this->config['fields'];
@@ -115,16 +123,20 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      * @param string|int $nameOrIndex
      *
      * @phpstan-param FieldConfig $field
+     *
+     * @throws InvariantViolation
      */
     protected function initializeField($nameOrIndex, $field): void
     {
         if (\is_callable($field)) {
             $field = $field();
         }
+        assert($field instanceof Type || is_array($field) || $field instanceof InputObjectField);
 
         if ($field instanceof Type) {
             $field = ['type' => $field];
         }
+        assert(is_array($field) || $field instanceof InputObjectField); // @phpstan-ignore-line TODO remove when using actual union types
 
         if (\is_array($field)) {
             $field['name'] ??= $nameOrIndex;
@@ -133,8 +145,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
                 throw new InvariantViolation("{$this->name} fields must be an associative array with field names as keys, an array of arrays with a name attribute, or a callable which returns one of those.");
             }
 
-            $field = new InputObjectField($field);
+            $field = new InputObjectField($field); // @phpstan-ignore-line array type is wrongly inferred
         }
+        assert($field instanceof InputObjectField); // @phpstan-ignore-line TODO remove when using actual union types
 
         $this->fields[$field->name] = $field;
     }
@@ -161,6 +174,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      * Validates type config and throws if one of type options is invalid.
      * Note: this method is shallow, it won't validate object fields and their arguments.
      *
+     * @throws Error
      * @throws InvariantViolation
      */
     public function assertValid(): void

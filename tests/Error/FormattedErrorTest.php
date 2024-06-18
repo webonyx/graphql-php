@@ -3,11 +3,12 @@
 namespace GraphQL\Tests\Error;
 
 use GraphQL\Error\FormattedError;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
 
-class FormattedErrorTest extends TestCase
+final class FormattedErrorTest extends TestCase
 {
     /**
      * @param mixed $var
@@ -20,21 +21,21 @@ class FormattedErrorTest extends TestCase
     }
 
     /**
-     * @return array<int, array{mixed, string}>
+     * @throws InvariantViolation
+     *
+     * @return iterable<array{mixed, string}>
      */
-    public function printVar(): array
+    public static function printVar(): iterable
     {
-        return [
-            [Type::string(), 'GraphQLType: String'],
-            [new NodeList([]), 'instance of GraphQL\Language\AST\NodeList(0)'],
-            [[2], 'array(1)'],
-            ['', '(empty string)'],
-            ["'", "'\\''"],
-            [true, 'true'],
-            [false, 'false'],
-            [1, '1'],
-            [2.3, '2.3'],
-            [null, 'null'],
-        ];
+        yield [Type::string(), 'GraphQLType: String'];
+        yield [new NodeList([]), 'instance of GraphQL\Language\AST\NodeList(0)'];
+        yield [[2], 'array(1)'];
+        yield ['', '(empty string)'];
+        yield ["'", "'\\''"];
+        yield [true, 'true'];
+        yield [false, 'false'];
+        yield [1, '1'];
+        yield [2.3, '2.3'];
+        yield [null, 'null'];
     }
 }

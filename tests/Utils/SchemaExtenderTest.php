@@ -5,6 +5,8 @@ namespace GraphQL\Tests\Utils;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SerializationError;
+use GraphQL\Error\SyntaxError;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\IntValueNode;
@@ -17,6 +19,7 @@ use GraphQL\Tests\Utils\SchemaExtenderTest\SomeInterfaceClassType;
 use GraphQL\Tests\Utils\SchemaExtenderTest\SomeObjectClassType;
 use GraphQL\Tests\Utils\SchemaExtenderTest\SomeScalarClassType;
 use GraphQL\Tests\Utils\SchemaExtenderTest\SomeUnionClassType;
+use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -37,9 +40,7 @@ use GraphQL\Validator\Rules\KnownDirectives;
 
 final class SchemaExtenderTest extends TestCaseBase
 {
-    /**
-     * @param NamedType|Schema $obj
-     */
+    /** @param NamedType|Schema $obj */
     private function printExtensionNodes($obj): string
     {
         assert(isset($obj->extensionASTNodes));
@@ -50,6 +51,12 @@ final class SchemaExtenderTest extends TestCaseBase
     }
 
     /**
+     * @throws \JsonException
+     * @throws Error
+     * @throws InvariantViolation
+     * @throws SerializationError
+     * @throws SyntaxError
+     *
      * @return array<string>
      */
     private static function schemaDefinitions(Schema $schema): array
@@ -62,6 +69,13 @@ final class SchemaExtenderTest extends TestCaseBase
         return $definitions;
     }
 
+    /**
+     * @throws \JsonException
+     * @throws Error
+     * @throws InvariantViolation
+     * @throws SerializationError
+     * @throws SyntaxError
+     */
     private static function printSchemaChanges(Schema $schema, Schema $extendedSchema): string
     {
         $schemaDefinitions = self::schemaDefinitions($schema);
@@ -84,6 +98,12 @@ final class SchemaExtenderTest extends TestCaseBase
         return Printer::doPrint($astNode);
     }
 
+    /**
+     * @throws \GraphQL\Error\SerializationError
+     * @throws \JsonException
+     * @throws Error
+     * @throws InvariantViolation
+     */
     private static function assertSchemaEquals(Schema $expectedSchema, Schema $actualSchema): void
     {
         self::assertSame(
@@ -92,9 +112,7 @@ final class SchemaExtenderTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('returns the original schema when there are no type definitions')
-     */
+    /** @see it('returns the original schema when there are no type definitions') */
     public function testReturnsTheOriginalSchemaWhenThereAreNoTypeDefinitions(): void
     {
         $schema = BuildSchema::build('type Query');
@@ -102,9 +120,7 @@ final class SchemaExtenderTest extends TestCaseBase
         self::assertSchemaEquals($schema, $extendedSchema);
     }
 
-    /**
-     * @see it('can be used for limited execution')
-     */
+    /** @see it('can be used for limited execution') */
     public function testCanBeUsedForLimitedExecution(): void
     {
         $schema = BuildSchema::build('type Query');
@@ -131,9 +147,7 @@ final class SchemaExtenderTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('extends objects by adding new fields')
-     */
+    /** @see it('extends objects by adding new fields') */
     public function testExtendsObjectsByAddingNewFields(): void
     {
         $schema = BuildSchema::build('
@@ -180,9 +194,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('describes extended fields with strings when present')
-     */
+    /** @see it('describes extended fields with strings when present') */
     public function testDescribesExtendedFieldsWithStringsWhenPresent(): void
     {
         $schema = BuildSchema::build('type Query');
@@ -207,9 +219,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('ignores comment description on extended fields if location is not provided')
-     */
+    /** @see it('ignores comment description on extended fields if location is not provided') */
     public function testIgnoresCommentDescriptionOnExtendedFieldsIfLocationIsNotProvided(): void
     {
         $schema = BuildSchema::build('type Query');
@@ -233,9 +243,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('extends objects with standard type fields')
-     */
+    /** @see it('extends objects with standard type fields') */
     public function testExtendsObjectsWithStandardTypeFields(): void
     {
         // @phpstan-ignore-next-line
@@ -281,9 +289,7 @@ GRAPHQL,
         self::assertSame(Type::id(), $extendedTwiceSchema->getType('ID'));
     }
 
-    /**
-     * @see it('extends enums by adding new values')
-     */
+    /** @see it('extends enums by adding new values') */
     public function testExtendsEnumsByAddingNewValues(): void
     {
         $schema = BuildSchema::build('
@@ -320,9 +326,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('extends unions by adding new types')
-     */
+    /** @see it('extends unions by adding new types') */
     public function testExtendsUnionsByAddingNewTypes(): void
     {
         $schema = BuildSchema::build('
@@ -350,9 +354,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('allows extension of union by adding itself')
-     */
+    /** @see it('allows extension of union by adding itself') */
     public function testAllowsExtensionOfUnionByAddingItself(): void
     {
         $schema = BuildSchema::build('
@@ -372,9 +374,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('extends inputs by adding new fields')
-     */
+    /** @see it('extends inputs by adding new fields') */
     public function testExtendsInputsByAddingNewFields(): void
     {
         $schema = BuildSchema::build('
@@ -411,9 +411,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('extends scalars by adding new directives')
-     */
+    /** @see it('extends scalars by adding new directives') */
     public function testExtendsScalarsByAddingNewDirectives(): void
     {
         $schema = BuildSchema::build('
@@ -444,9 +442,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('extends scalars by adding specifiedBy directive')
-     */
+    /** @see it('extends scalars by adding specifiedBy directive') */
     public function testExtendsScalarsByAddingSpecifiedByDirective(): void
     {
         // @phpstan-ignore-next-line
@@ -476,9 +472,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('correctly assign AST nodes to new and extended types')
-     */
+    /** @see it('correctly assign AST nodes to new and extended types') */
     public function testCorrectlyAssignASTNodesToNewAndExtendedTypes(): void
     {
         $schema = BuildSchema::build('
@@ -663,19 +657,21 @@ GRAPHQL,
         self::assertASTMatches('arg: Int', $testDirective->args[0]->astNode);
     }
 
-    /**
-     * @see it('builds types with deprecated fields/values')
-     */
+    /** @see it('builds types with deprecated fields/values') */
     public function testBuildsTypesWithDeprecatedFieldsOrValues(): void
     {
         $schema = new Schema([]);
         $extendAST = Parser::parse('
           type SomeObject {
-            deprecatedField: String @deprecated(reason: "not used anymore")
+            deprecatedField(deprecatedArg: String @deprecated(reason: "unusable")): String @deprecated(reason: "not used anymore")
           }
 
           enum SomeEnum {
             DEPRECATED_VALUE @deprecated(reason: "do not use")
+          }
+
+          input SomeInputObject {
+            deprecatedField: String @deprecated(reason: "redundant")
           }
         ');
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
@@ -688,6 +684,12 @@ GRAPHQL,
         self::assertTrue($deprecatedFieldDef->isDeprecated());
         self::assertSame('not used anymore', $deprecatedFieldDef->deprecationReason);
 
+        $deprecatedArgument = $deprecatedFieldDef->getArg('deprecatedArg');
+
+        self::assertInstanceOf(Argument::class, $deprecatedArgument);
+        self::assertTrue($deprecatedArgument->isDeprecated());
+        self::assertSame('unusable', $deprecatedArgument->deprecationReason);
+
         $someEnum = $extendedSchema->getType('SomeEnum');
         assert($someEnum instanceof EnumType);
 
@@ -696,11 +698,17 @@ GRAPHQL,
 
         self::assertTrue($deprecatedEnumDef->isDeprecated());
         self::assertSame('do not use', $deprecatedEnumDef->deprecationReason);
+
+        $someInput = $extendedSchema->getType('SomeInputObject');
+        assert($someInput instanceof InputObjectType);
+
+        $deprecatedInputField = $someInput->getField('deprecatedField');
+
+        self::assertTrue($deprecatedInputField->isDeprecated());
+        self::assertSame('redundant', $deprecatedInputField->deprecationReason);
     }
 
-    /**
-     * @see it('extends objects with deprecated fields')
-     */
+    /** @see it('extends objects with deprecated fields') */
     public function testExtendsObjectsWithDeprecatedFields(): void
     {
         $schema = BuildSchema::build('type SomeObject');
@@ -720,9 +728,7 @@ GRAPHQL,
         self::assertSame('not used anymore', $deprecatedFieldDef->deprecationReason);
     }
 
-    /**
-     * @see it('extends enums with deprecated values')
-     */
+    /** @see it('extends enums with deprecated values') */
     public function testExtendsEnumsWithDeprecatedValues(): void
     {
         $schema = BuildSchema::build('enum SomeEnum');
@@ -743,9 +749,7 @@ GRAPHQL,
         self::assertSame('do not use', $deprecatedEnumDef->deprecationReason);
     }
 
-    /**
-     * @see it('adds new unused types')
-     */
+    /** @see it('adds new unused types') */
     public function testAddsNewUnusedTypes(): void
     {
         $schema = BuildSchema::build('
@@ -785,9 +789,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('extends objects by adding new fields with arguments')
-     */
+    /** @see it('extends objects by adding new fields with arguments') */
     public function testExtendsObjectsByAddingNewFieldsWithArguments(): void
     {
         $schema = BuildSchema::build('
@@ -827,9 +829,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('extends objects by adding new fields with existing types')
-     */
+    /** @see it('extends objects by adding new fields with existing types') */
     public function testExtendsObjectsByAddingNewFieldsWithExistingTypes(): void
     {
         $schema = BuildSchema::build('
@@ -858,9 +858,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('extends objects by adding implemented interfaces')
-     */
+    /** @see it('extends objects by adding implemented interfaces') */
     public function testExtendsObjectsByAddingImplementedInterfaces(): void
     {
         $schema = BuildSchema::build('
@@ -892,9 +890,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('extends objects by including new types')
-     */
+    /** @see it('extends objects by including new types') */
     public function testExtendsObjectsByIncludingNewTypes(): void
     {
         $schema = BuildSchema::build('
@@ -955,9 +951,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('extends objects by adding implemented new interfaces')
-     */
+    /** @see it('extends objects by adding implemented new interfaces') */
     public function testExtendsObjectsByAddingImplementedNewInterfaces(): void
     {
         $schema = BuildSchema::build('
@@ -1000,9 +994,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('extends different types multiple times')
-     */
+    /** @see it('extends different types multiple times') */
     public function testExtendsDifferentTypesMultipleTimes(): void
     {
         $schema = BuildSchema::build('
@@ -1126,9 +1118,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('extends interfaces by adding new fields')
-     */
+    /** @see it('extends interfaces by adding new fields') */
     public function testExtendsInterfacesByAddingNewFields(): void
     {
         $schema = BuildSchema::build('
@@ -1185,9 +1175,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('extends interfaces by adding new implemented interfaces')
-     */
+    /** @see it('extends interfaces by adding new implemented interfaces') */
     public function testExtendsInterfacesByAddingNewImplementedInterfaces(): void
     {
         $schema = BuildSchema::build('
@@ -1243,9 +1231,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('allows extension of interface with missing Object fields')
-     */
+    /** @see it('allows extension of interface with missing Object fields') */
     public function testAllowsExtensionOfInterfaceWithMissingObjectFields(): void
     {
         $schema = BuildSchema::build('
@@ -1280,9 +1266,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('extends interfaces multiple times')
-     */
+    /** @see it('extends interfaces multiple times') */
     public function testExtendsInterfacesMultipleTimes(): void
     {
         $schema = BuildSchema::build('
@@ -1318,9 +1302,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('may extend mutations and subscriptions')
-     */
+    /** @see it('may extend mutations and subscriptions') */
     public function testMayExtendMutationsAndSubscriptions(): void
     {
         $mutationSchema = BuildSchema::build('
@@ -1378,9 +1360,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('may extend directives with new directive')
-     */
+    /** @see it('may extend directives with new directive') */
     public function testMayExtendDirectivesWithNewDirective(): void
     {
         $schema = BuildSchema::build('
@@ -1401,9 +1381,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('Rejects invalid SDL')
-     */
+    /** @see it('Rejects invalid SDL') */
     public function testRejectsInvalidSDL(): void
     {
         $schema = new Schema([]);
@@ -1415,9 +1393,7 @@ GRAPHQL,
         SchemaExtender::extend($schema, $extendAST);
     }
 
-    /**
-     * @see it('Allows to disable SDL validation')
-     */
+    /** @see it('Allows to disable SDL validation') */
     public function testAllowsToDisableSDLValidation(): void
     {
         $schema = new Schema([]);
@@ -1429,9 +1405,7 @@ GRAPHQL,
         SchemaExtender::extend($schema, $extendAST, ['assumeValidSDL' => true]);
     }
 
-    /**
-     * @see it('Throws on unknown types')
-     */
+    /** @see it('Throws on unknown types') */
     public function testThrowsOnUnknownTypes(): void
     {
         $schema = new Schema([]);
@@ -1448,9 +1422,7 @@ GRAPHQL,
         $extendedSchema->assertValid();
     }
 
-    /**
-     * @see it('does not allow replacing a default directive')
-     */
+    /** @see it('does not allow replacing a default directive') */
     public function testDoesNotAllowReplacingADefaultDirective(): void
     {
         $schema = new Schema([]);
@@ -1465,9 +1437,7 @@ GRAPHQL,
         SchemaExtender::extend($schema, $extendAST);
     }
 
-    /**
-     * @see it('does not allow replacing an existing enum value')
-     */
+    /** @see it('does not allow replacing an existing enum value') */
     public function testDoesNotAllowReplacingAnExistingEnumValue(): void
     {
         $schema = BuildSchema::build('
@@ -1501,9 +1471,7 @@ GRAPHQL,
         self::assertNull($extendedSchema->getMutationType());
     }
 
-    /**
-     * @see it('adds schema definition missing in the original schema')
-     */
+    /** @see it('adds schema definition missing in the original schema') */
     public function testAddsSchemaDefinitionMissingInTheOriginalSchema(): void
     {
         $schema = BuildSchema::build('
@@ -1527,9 +1495,7 @@ GRAPHQL,
         self::assertSame($extensionSDL, $this->printASTSchema($extendedSchema));
     }
 
-    /**
-     * @see it('adds new root types via schema extension')
-     */
+    /** @see it('adds new root types via schema extension') */
     public function testAddsNewRootTypesViaSchemaExtension(): void
     {
         $schema = BuildSchema::build('
@@ -1553,9 +1519,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('adds directive via schema extension')
-     */
+    /** @see it('adds directive via schema extension') */
     public function testAddsDirectiveViaSchemaExtension(): void
     {
         $schema = BuildSchema::build('
@@ -1575,9 +1539,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see it('adds multiple new root types via schema extension')
-     */
+    /** @see it('adds multiple new root types via schema extension') */
     public function testAddsMultipleNewRootTypesViaSchemaExtension(): void
     {
         $schema = BuildSchema::build('type Query');
@@ -1601,9 +1563,7 @@ GRAPHQL,
         self::assertSame('Subscription', $subscriptionType->name);
     }
 
-    /**
-     * @see it('applies multiple schema extensions')
-     */
+    /** @see it('applies multiple schema extensions') */
     public function testAppliesMultipleSchemaExtensions(): void
     {
         $schema = BuildSchema::build('type Query');
@@ -1629,9 +1589,7 @@ GRAPHQL,
         self::assertSame('Subscription', $subscriptionType->name);
     }
 
-    /**
-     * @see it('schema extension AST are available from schema object')
-     */
+    /** @see it('schema extension AST are available from schema object') */
     public function testSchemaExtensionASTAreAvailableFromSchemaObject(): void
     {
         $schema = BuildSchema::build('
@@ -1672,9 +1630,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see https://github.com/webonyx/graphql-php/pull/381
-     */
+    /** @see https://github.com/webonyx/graphql-php/pull/381 */
     public function testOriginalResolversArePreserved(): void
     {
         $value = 'Hello World!';
@@ -1743,9 +1699,7 @@ GRAPHQL,
         self::assertSame(['data' => ['hello' => $value]], $result->toArray());
     }
 
-    /**
-     * @see https://github.com/webonyx/graphql-php/issues/180
-     */
+    /** @see https://github.com/webonyx/graphql-php/issues/180 */
     public function testShouldBeAbleToIntroduceNewTypesThroughExtension(): void
     {
         $sdl = /** @lang GraphQL */ '
@@ -1789,9 +1743,7 @@ GRAPHQL,
         );
     }
 
-    /**
-     * @see https://github.com/webonyx/graphql-php/pull/929
-     */
+    /** @see https://github.com/webonyx/graphql-php/pull/929 */
     public function testPreservesRepeatableInDirective(): void
     {
         $schema = BuildSchema::build(/** @lang GraphQL */ '
@@ -1840,10 +1792,8 @@ GRAPHQL,
 
         $fooValue = 'bar';
         $typeConfigDecorator = static function ($typeConfig) use ($fooValue) {
-            switch ($typeConfig['name']) {
-                case 'Foo':
-                    $typeConfig['resolveField'] = static fn (): string => $fooValue;
-                    break;
+            if ($typeConfig['name'] === 'Foo') {
+                $typeConfig['resolveField'] = static fn (): string => $fooValue;
             }
 
             return $typeConfig;

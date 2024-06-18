@@ -10,7 +10,7 @@ use GraphQL\Type\Definition\ResolveInfo;
  */
 final class SomeObjectClassType extends ObjectType
 {
-    public function isTypeOf($objectValue, $context, ResolveInfo $info)
+    public function isTypeOf($objectValue, $context, ResolveInfo $info): bool
     {
         return true;
     }

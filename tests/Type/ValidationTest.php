@@ -61,12 +61,9 @@ final class ValidationTest extends TestCaseBase
 
         $this->SomeScalarType = new CustomScalarType([
             'name' => 'SomeScalar',
-            'serialize' => static function (): void {
-            },
-            'parseValue' => static function (): void {
-            },
-            'parseLiteral' => static function (): void {
-            },
+            'serialize' => static function (): void {},
+            'parseValue' => static function (): void {},
+            'parseLiteral' => static function (): void {},
         ]);
 
         $this->SomeInterfaceType = new InterfaceType([
@@ -189,9 +186,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @param array<int, \Closure(): Type> $closures
-     */
+    /** @param array<int, \Closure(): Type> $closures */
     private function assertEachCallableThrows(array $closures, string $expectedError): void
     {
         foreach ($closures as $index => $factory) {
@@ -199,7 +194,7 @@ final class ValidationTest extends TestCaseBase
                 $factory();
                 self::fail('Expected exception not thrown for entry ' . $index);
             } catch (InvariantViolation $e) {
-                self::assertEquals($expectedError, $e->getMessage(), 'Error in callable #' . $index);
+                self::assertSame($expectedError, $e->getMessage(), 'Error in callable #' . $index);
             }
         }
     }
@@ -208,9 +203,7 @@ final class ValidationTest extends TestCaseBase
      * @see describe('Type System: A Schema must have Object root types')
      */
 
-    /**
-     * @see it('accepts a Schema whose query type is an object type')
-     */
+    /** @see it('accepts a Schema whose query type is an object type') */
     public function testAcceptsASchemaWhoseQueryTypeIsAnObjectType(): void
     {
         $schema = BuildSchema::build('
@@ -218,7 +211,7 @@ final class ValidationTest extends TestCaseBase
         test: String
       }
         ');
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
 
         $schemaWithDef = BuildSchema::build('
       schema {
@@ -228,12 +221,10 @@ final class ValidationTest extends TestCaseBase
         test: String
       }
     ');
-        self::assertEquals([], $schemaWithDef->validate());
+        self::assertSame([], $schemaWithDef->validate());
     }
 
-    /**
-     * @see it('accepts a Schema whose query and mutation types are object types')
-     */
+    /** @see it('accepts a Schema whose query and mutation types are object types') */
     public function testAcceptsASchemaWhoseQueryAndMutationTypesAreObjectTypes(): void
     {
         $schema = BuildSchema::build('
@@ -245,7 +236,7 @@ final class ValidationTest extends TestCaseBase
         test: String
       }
         ');
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
 
         $schema = BuildSchema::build('
       schema {
@@ -261,12 +252,10 @@ final class ValidationTest extends TestCaseBase
         test: String
       }
         ');
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('accepts a Schema whose query and subscription types are object types')
-     */
+    /** @see it('accepts a Schema whose query and subscription types are object types') */
     public function testAcceptsASchemaWhoseQueryAndSubscriptionTypesAreObjectTypes(): void
     {
         $schema = BuildSchema::build('
@@ -278,7 +267,7 @@ final class ValidationTest extends TestCaseBase
         test: String
       }
         ');
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
 
         $schema = BuildSchema::build('
       schema {
@@ -294,12 +283,10 @@ final class ValidationTest extends TestCaseBase
         test: String
       }
         ');
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('rejects a Schema without a query type')
-     */
+    /** @see it('rejects a Schema without a query type') */
     public function testRejectsASchemaWithoutAQueryType(): void
     {
         $schema = BuildSchema::build('
@@ -334,9 +321,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @return array<int, array{line: int, column: int}>
-     */
+    /** @return array<int, array{line: int, column: int}> */
     private function formatLocations(Error $error): array
     {
         return \array_map(
@@ -369,7 +354,7 @@ final class ValidationTest extends TestCaseBase
     }
 
     /**
-     * @param array<int, Error>                                                                         $errors
+     * @param array<int, Error> $errors
      * @param array<int, array{message: string, locations?: array<int, array{line: int, column: int}>}> $expected
      */
     private function assertMatchesValidationMessage(array $errors, array $expected): void
@@ -387,36 +372,33 @@ final class ValidationTest extends TestCaseBase
         self::assertEquals($expectedWithLocations, $this->formatErrors($errors));
     }
 
-    /**
-     * @dataProvider rootTypes
-     */
+    /** @dataProvider rootTypes */
     public function testRejectsASchemaWhoseRootTypeIsAnInputType(string $rootType): void
     {
-        $this->expectRootTypeMustBeObjectTypeNotInputType($rootType);
+        $ucfirstRootType = \ucfirst($rootType);
 
-        BuildSchema::build('
-      input ' . \ucfirst($rootType) . ' {
+        $this->expectRootTypeMustBeObjectTypeNotInputType();
+        BuildSchema::build("
+      input {$ucfirstRootType} {
         test: String
       }
-        ');
+        ");
     }
 
-    /**
-     * @dataProvider rootTypes
-     */
+    /** @dataProvider rootTypes */
     public function testRejectsASchemaWhoseNonStandardRootTypeIsAnInputType(string $rootType): void
     {
-        $this->expectRootTypeMustBeObjectTypeNotInputType($rootType);
+        $this->expectRootTypeMustBeObjectTypeNotInputType();
 
-        BuildSchema::build('
+        BuildSchema::build("
       schema {
-        ' . $rootType . ': SomeInputObject
+        {$rootType}: SomeInputObject
       }
 
       input SomeInputObject {
         test: String
       }
-        ');
+        ");
     }
 
     /**
@@ -432,39 +414,31 @@ final class ValidationTest extends TestCaseBase
             }
         ');
 
-        $this->expectRootTypeMustBeObjectTypeNotInputType($rootType);
+        $documentNode = Parser::parse("
+            extend schema {
+              {$rootType}: SomeInputObject
+            }
+        ");
 
-        SchemaExtender::extend(
-            $schema,
-            Parser::parse('
-                extend schema {
-                  ' . $rootType . ': SomeInputObject
-                }
-            ')
-        );
+        $this->expectRootTypeMustBeObjectTypeNotInputType();
+        SchemaExtender::extend($schema, $documentNode);
     }
 
-    /**
-     * @return array<int, array{string}>
-     */
-    public function rootTypes(): array
+    /** @return iterable<array{string}> */
+    public static function rootTypes(): iterable
     {
-        return [
-            ['query'],
-            ['mutation'],
-            ['subscription'],
-        ];
+        yield ['query'];
+        yield ['mutation'];
+        yield ['subscription'];
     }
 
-    private function expectRootTypeMustBeObjectTypeNotInputType(string $rootType): void
+    private function expectRootTypeMustBeObjectTypeNotInputType(): void
     {
-        $this->expectException(\TypeError::class);
-        $this->expectExceptionMessageMatches('/.*GraphQL\\\\Type\\\\SchemaConfig::set' . \ucfirst($rootType) . '.*GraphQL\\\\Type\\\\Definition\\\\ObjectType.*GraphQL\\\\Type\\\\Definition\\\\InputObjectType given.*/');
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage("Expected instanceof GraphQL\Type\Definition\ObjectType, a callable that returns such an instance, or null, got: GraphQL\Type\Definition\InputObjectType.");
     }
 
-    /**
-     * @see it('rejects a Schema whose directives are incorrectly typed')
-     */
+    /** @see it('rejects a Schema whose directives are incorrectly typed') */
     public function testRejectsASchemaWhoseDirectivesAreIncorrectlyTyped(): void
     {
         // @phpstan-ignore-next-line intentionally wrong
@@ -479,9 +453,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('accepts an Object type with fields object')
-     */
+    /** @see it('accepts an Object type with fields object') */
     public function testAcceptsAnObjectTypeWithFieldsObject(): void
     {
         $schema = BuildSchema::build('
@@ -494,12 +466,10 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('rejects an Object type with missing fields')
-     */
+    /** @see it('rejects an Object type with missing fields') */
     public function testRejectsAnObjectTypeWithMissingFields(): void
     {
         $schema = BuildSchema::build('
@@ -549,6 +519,8 @@ final class ValidationTest extends TestCaseBase
      * DESCRIBE: Type System: Fields args must be properly named.
      *
      * @param Type&NamedType $type
+     *
+     * @throws InvariantViolation
      */
     private function schemaWithFieldType(Type $type): Schema
     {
@@ -561,9 +533,7 @@ final class ValidationTest extends TestCaseBase
         ]);
     }
 
-    /**
-     * @see it('rejects an Object type with incorrectly named fields')
-     */
+    /** @see it('rejects an Object type with incorrectly named fields') */
     public function testRejectsAnObjectTypeWithIncorrectlyNamedFields(): void
     {
         $schema = $this->schemaWithFieldType(
@@ -579,16 +549,13 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but '
-                    . '"bad-name-with-dashes" does not.',
+                    'message' => 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "bad-name-with-dashes" does not.',
                 ],
             ]
         );
     }
 
-    /**
-     * DESCRIBE: Type System: Union types must be valid.
-     */
+    /** DESCRIBE: Type System: Union types must be valid. */
     public function testAcceptsShorthandNotationForFields(): void
     {
         $schema = $this->schemaWithFieldType(
@@ -600,12 +567,10 @@ final class ValidationTest extends TestCaseBase
             ])
         );
         $schema->assertValid();
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
-    /**
-     * @see it('accepts field args with valid names')
-     */
+    /** @see it('accepts field args with valid names') */
     public function testAcceptsFieldArgsWithValidNames(): void
     {
         $schema = $this->schemaWithFieldType(new ObjectType([
@@ -619,12 +584,10 @@ final class ValidationTest extends TestCaseBase
                 ],
             ],
         ]));
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('rejects field arg with invalid names')
-     */
+    /** @see it('rejects field arg with invalid names') */
     public function testRejectsFieldArgWithInvalidNames(): void
     {
         $QueryType = new ObjectType([
@@ -646,9 +609,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('accepts a Union type with member types')
-     */
+    /** @see it('accepts a Union type with member types') */
     public function testAcceptsAUnionTypeWithArrayTypes(): void
     {
         $schema = BuildSchema::build('
@@ -669,14 +630,12 @@ final class ValidationTest extends TestCaseBase
         | TypeB
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
     // DESCRIBE: Type System: Input Objects must have fields
 
-    /**
-     * @see it('rejects a Union type with empty types')
-     */
+    /** @see it('rejects a Union type with empty types') */
     public function testRejectsAUnionTypeWithEmptyTypes(): void
     {
         $schema = BuildSchema::build('
@@ -707,9 +666,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects a Union type with duplicated member type')
-     */
+    /** @see it('rejects a Union type with duplicated member type') */
     public function testRejectsAUnionTypeWithDuplicatedMemberType(): void
     {
         $schema = BuildSchema::build('
@@ -760,9 +717,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects a Union type with non-Object members types')
-     */
+    /** @see it('rejects a Union type with non-Object members types') */
     public function testRejectsAUnionTypeWithNonObjectMembersType(): void
     {
         $schema = BuildSchema::build('
@@ -835,9 +790,7 @@ final class ValidationTest extends TestCaseBase
 
     // DESCRIBE: Type System: Enum types must be well defined
 
-    /**
-     * @see it('accepts an Input Object type with fields')
-     */
+    /** @see it('accepts an Input Object type with fields') */
     public function testAcceptsAnInputObjectTypeWithFields(): void
     {
         $schema = BuildSchema::build('
@@ -849,12 +802,10 @@ final class ValidationTest extends TestCaseBase
         field: String
       }
         ');
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('rejects an Input Object type with missing fields')
-     */
+    /** @see it('rejects an Input Object type with missing fields') */
     public function testRejectsAnInputObjectTypeWithMissingFields(): void
     {
         $schema = BuildSchema::build('
@@ -885,9 +836,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('accepts an Input Object with breakable circular reference')
-     */
+    /** @see it('accepts an Input Object with breakable circular reference') */
     public function testAcceptsAnInputObjectWithBreakableCircularReference(): void
     {
         $schema = BuildSchema::build('
@@ -907,12 +856,10 @@ final class ValidationTest extends TestCaseBase
         intermediateSelf: AnotherInputObject
       }
         ');
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('rejects an Input Object with non-breakable circular reference')
-     */
+    /** @see it('rejects an Input Object with non-breakable circular reference') */
     public function testRejectsAnInputObjectWithNonBreakableCircularReference(): void
     {
         $schema = BuildSchema::build('
@@ -935,9 +882,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects Input Objects with non-breakable circular reference spread across them')
-     */
+    /** @see it('rejects Input Objects with non-breakable circular reference spread across them') */
     public function testRejectsInputObjectsWithNonBreakableCircularReferenceSpreadAcrossThem(): void
     {
         $schema = BuildSchema::build('
@@ -972,9 +917,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects Input Objects with multiple non-breakable circular reference')
-     */
+    /** @see it('rejects Input Objects with multiple non-breakable circular reference') */
     public function testRejectsInputObjectsWithMultipleNonBreakableCircularReferences(): void
     {
         $schema = BuildSchema::build('
@@ -1023,9 +966,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects an Input Object type with incorrectly typed fields')
-     */
+    /** @see it('rejects an Input Object type with incorrectly typed fields') */
     public function testRejectsAnInputObjectTypeWithIncorrectlyTypedFields(): void
     {
         $schema = BuildSchema::build('
@@ -1060,9 +1001,27 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects an Enum type without values')
-     */
+    /** @see it('rejects an Input Object type with required argument that is deprecated' */
+    public function testRejectsAnInputObjectTypeWithRequiredArgumentThatIsDeprecated(): void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        field(arg: SomeInputObject): String
+      }
+
+      input SomeInputObject {
+        optionalField: String @deprecated
+        anotherOptionalField: String! = "" @deprecated
+        badField: String! @deprecated
+      }
+        ');
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Required input field SomeInputObject.badField cannot be deprecated.');
+        $schema->assertValid();
+    }
+
+    /** @see it('rejects an Enum type without values') */
     public function testRejectsAnEnumTypeWithoutValues(): void
     {
         $schema = BuildSchema::build('
@@ -1096,18 +1055,16 @@ final class ValidationTest extends TestCaseBase
     /**
      * DESCRIBE: Type System: Object fields must have output types.
      *
-     * @return array<int, array{0: string, 1: string}>
+     * @return iterable<array{0: string, 1: string}>
      */
-    public function invalidEnumValueName(): array
+    public static function invalidEnumValueName(): iterable
     {
-        return [
-            ['#value', 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "#value" does not.'],
-            ['1value', 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "1value" does not.'],
-            ['KEBAB-CASE', 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "KEBAB-CASE" does not.'],
-            ['false', 'Enum type SomeEnum cannot include value: false.'],
-            ['true', 'Enum type SomeEnum cannot include value: true.'],
-            ['null', 'Enum type SomeEnum cannot include value: null.'],
-        ];
+        yield ['#value', 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "#value" does not.'];
+        yield ['1value', 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "1value" does not.'];
+        yield ['KEBAB-CASE', 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "KEBAB-CASE" does not.'];
+        yield ['false', 'Enum type SomeEnum cannot include value: false.'];
+        yield ['true', 'Enum type SomeEnum cannot include value: true.'];
+        yield ['null', 'Enum type SomeEnum cannot include value: null.'];
     }
 
     /**
@@ -1127,6 +1084,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
+    /** @throws InvariantViolation */
     private function schemaWithEnum(string $name): Schema
     {
         return $this->schemaWithFieldType(
@@ -1139,19 +1097,19 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('accepts an output type as an Object field type')
-     */
+    /** @see it('accepts an output type as an Object field type') */
     public function testAcceptsAnOutputTypeAsNnObjectFieldType(): void
     {
         foreach ($this->outputTypes as $type) {
             $schema = $this->schemaWithObjectFieldOfType($type);
-            self::assertEquals([], $schema->validate());
+            self::assertSame([], $schema->validate());
         }
     }
 
     /**
      * DESCRIBE: Type System: Objects can only implement unique interfaces.
+     *
+     * @throws InvariantViolation
      */
     private function schemaWithObjectFieldOfType(Type $fieldType): Schema
     {
@@ -1173,9 +1131,7 @@ final class ValidationTest extends TestCaseBase
         ]);
     }
 
-    /**
-     * @see it('rejects a non-output type as an Object field type')
-     */
+    /** @see it('rejects a non-output type as an Object field type') */
     public function testRejectsANonOutputTypeAsAnObjectFieldType(): void
     {
         foreach ($this->notOutputTypes as $type) {
@@ -1192,10 +1148,8 @@ final class ValidationTest extends TestCaseBase
         }
     }
 
-    /**
-     * @see it('rejects with relevant locations for a non-output type as an Object field type')
-     */
-    public function testRejectsWithReleventLocationsForANonOutputTypeAsAnObjectFieldType(): void
+    /** @see it('rejects with relevant locations for a non-output type as an Object field type') */
+    public function testRejectsWithRelevantLocationsForANonOutputTypeAsAnObjectFieldType(): void
     {
         $schema = BuildSchema::build('
       type Query {
@@ -1217,9 +1171,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects an Object implementing a non-Interface type')
-     */
+    /** @see it('rejects an Object implementing a non-Interface type') */
     public function testRejectsAnObjectImplementingANonInterfaceType(): void
     {
         $schema = BuildSchema::build('
@@ -1246,9 +1198,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects an Object implementing the same interface twice')
-     */
+    /** @see it('rejects an Object implementing the same interface twice') */
     public function testRejectsAnObjectImplementingTheSameInterfaceTwice(): void
     {
         $schema = BuildSchema::build('
@@ -1275,9 +1225,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects an Object implementing the same interface twice due to extension')
-     */
+    /** @see it('rejects an Object implementing the same interface twice due to extension') */
     public function testRejectsAnObjectImplementingTheSameInterfaceTwiceDueToExtension(): void
     {
         self::markTestIncomplete('extend does not work this way (yet).');
@@ -1309,9 +1257,7 @@ final class ValidationTest extends TestCaseBase
 
     // DESCRIBE: Type System: Interface extensions should be valid
 
-    /**
-     * @see it('rejects an Object implementing the extended interface due to missing field')
-     */
+    /** @see it('rejects an Object implementing the extended interface due to missing field') */
     public function testRejectsAnObjectImplementingTheExtendedInterfaceDueToMissingField(): void
     {
         $schema = BuildSchema::build('
@@ -1355,9 +1301,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects an Object implementing the extended interface due to missing field args')
-     */
+    /** @see it('rejects an Object implementing the extended interface due to missing field args') */
     public function testRejectsAnObjectImplementingTheExtendedInterfaceDueToMissingFieldArgs(): void
     {
         $schema = BuildSchema::build('
@@ -1400,9 +1344,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects Objects implementing the extended interface due to mismatching interface type')
-     */
+    /** @see it('rejects Objects implementing the extended interface due to mismatching interface type') */
     public function testRejectsObjectsImplementingTheExtendedInterfaceDueToMismatchingInterfaceType(): void
     {
         $schema = BuildSchema::build('
@@ -1457,17 +1399,16 @@ final class ValidationTest extends TestCaseBase
 
     // DESCRIBE: Type System: Field arguments must have input types
 
-    /**
-     * @see it('accepts an output type as an Interface field type')
-     */
+    /** @see it('accepts an output type as an Interface field type') */
     public function testAcceptsAnOutputTypeAsAnInterfaceFieldType(): void
     {
         foreach ($this->outputTypes as $type) {
             $schema = $this->schemaWithInterfaceFieldOfType($type);
-            self::assertEquals([], $schema->validate());
+            self::assertSame([], $schema->validate());
         }
     }
 
+    /** @throws InvariantViolation */
     private function schemaWithInterfaceFieldOfType(Type $fieldType): Schema
     {
         $BadInterfaceType = new InterfaceType([
@@ -1496,9 +1437,7 @@ final class ValidationTest extends TestCaseBase
         ]);
     }
 
-    /**
-     * @see it(`rejects a non-output type as an Interface field type: ${typeStr}`, () => {
-     */
+    /** @see it(`rejects a non-output type as an Interface field type: ${typeStr}`, () => { */
     public function testRejectsANonOutputTypeAsAnInterfaceFieldType(): void
     {
         foreach ($this->notOutputTypes as $type) {
@@ -1516,9 +1455,7 @@ final class ValidationTest extends TestCaseBase
 
     // DESCRIBE: Type System: Input Object fields must have input types
 
-    /**
-     * @see it('rejects a non-output type as an Interface field type with locations')
-     */
+    /** @see it('rejects a non-output type as an Interface field type with locations') */
     public function testRejectsANonOutputTypeAsAnInterfaceFieldTypeWithLocations(): void
     {
         $schema = BuildSchema::build('
@@ -1553,9 +1490,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('accepts an interface not implemented by at least one object')
-     */
+    /** @see it('accepts an interface not implemented by at least one object') */
     public function testRejectsAnInterfaceNotImplementedByAtLeastOneObject(): void
     {
         $schema = BuildSchema::build('
@@ -1573,17 +1508,16 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('accepts an input type as a field arg type')
-     */
+    /** @see it('accepts an input type as a field arg type') */
     public function testAcceptsAnInputTypeAsAFieldArgType(): void
     {
         foreach ($this->inputTypes as $type) {
             $schema = $this->schemaWithArgOfType($type);
-            self::assertEquals([], $schema->validate());
+            self::assertSame([], $schema->validate());
         }
     }
 
+    /** @throws InvariantViolation */
     private function schemaWithArgOfType(Type $argType): Schema
     {
         $BadObjectType = new ObjectType([
@@ -1611,9 +1545,7 @@ final class ValidationTest extends TestCaseBase
 
     // DESCRIBE: Objects must adhere to Interface they implement
 
-    /**
-     * @see it('rejects a non-input type as a field arg type')
-     */
+    /** @see it('rejects a non-input type as a field arg type') */
     public function testRejectsANonInputTypeAsAFieldArgType(): void
     {
         foreach ($this->notInputTypes as $type) {
@@ -1628,9 +1560,30 @@ final class ValidationTest extends TestCaseBase
         }
     }
 
-    /**
-     * @see it('rejects a non-input type as a field arg with locations')
-     */
+    /** @see it('rejects an required argument that is deprecated' */
+    public function testRejectsARequiredArgumentThatIsDeprecated(): void
+    {
+        $schema = BuildSchema::build('
+      directive @BadDirective(
+        badArg: String! @deprecated
+        optionalArg: String @deprecated
+        anotherOptionalArg: String! = "" @deprecated
+      ) on FIELD
+      type Query {
+        test(
+          badArg: String! @deprecated
+          optionalArg: String @deprecated
+          anotherOptionalArg: String! = "" @deprecated
+        ): String
+      }
+        ');
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Required argument String.test(badArg:) cannot be deprecated.');
+        $schema->assertValid();
+    }
+
+    /** @see it('rejects a non-input type as a field arg with locations') */
     public function testANonInputTypeAsAFieldArgWithLocations(): void
     {
         $schema = BuildSchema::build('
@@ -1653,17 +1606,16 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('accepts an input type as an input field type')
-     */
+    /** @see it('accepts an input type as an input field type') */
     public function testAcceptsAnInputTypeAsAnInputFieldType(): void
     {
         foreach ($this->inputTypes as $type) {
             $schema = $this->schemaWithInputFieldOfType($type);
-            self::assertEquals([], $schema->validate());
+            self::assertSame([], $schema->validate());
         }
     }
 
+    /** @throws InvariantViolation */
     private function schemaWithInputFieldOfType(Type $inputFieldType): Schema
     {
         // @phpstan-ignore-next-line intentionally wrong
@@ -1692,9 +1644,7 @@ final class ValidationTest extends TestCaseBase
         ]);
     }
 
-    /**
-     * @see it('rejects a non-input type as an input field type')
-     */
+    /** @see it('rejects a non-input type as an input field type') */
     public function testRejectsANonInputTypeAsAnInputFieldType(): void
     {
         foreach ($this->notInputTypes as $type) {
@@ -1711,9 +1661,7 @@ final class ValidationTest extends TestCaseBase
         }
     }
 
-    /**
-     * @see it('rejects a non-input type as an input object field with locations')
-     */
+    /** @see it('rejects a non-input type as an input object field with locations') */
     public function testRejectsANonInputTypeAsAnInputObjectFieldWithLocations(): void
     {
         $schema = BuildSchema::build('
@@ -1740,9 +1688,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('accepts an Object which implements an Interface')
-     */
+    /** @see it('accepts an Object which implements an Interface') */
     public function testAcceptsAnObjectWhichImplementsAnInterface(): void
     {
         $schema = BuildSchema::build('
@@ -1759,15 +1705,13 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals(
+        self::assertSame(
             [],
             $schema->validate()
         );
     }
 
-    /**
-     * @see it('accepts an Object which implements an Interface along with more fields')
-     */
+    /** @see it('accepts an Object which implements an Interface along with more fields') */
     public function testAcceptsAnObjectWhichImplementsAnInterfaceAlongWithMoreFields(): void
     {
         $schema = BuildSchema::build('
@@ -1785,15 +1729,13 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals(
+        self::assertSame(
             [],
             $schema->validate()
         );
     }
 
-    /**
-     * @see it('accepts an Object which implements an Interface field along with additional optional arguments')
-     */
+    /** @see it('accepts an Object which implements an Interface field along with additional optional arguments') */
     public function testAcceptsAnObjectWhichImplementsAnInterfaceFieldAlongWithAdditionalOptionalArguments(): void
     {
         $schema = BuildSchema::build('
@@ -1810,15 +1752,13 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals(
+        self::assertSame(
             [],
             $schema->validate()
         );
     }
 
-    /**
-     * @see it('rejects an Object missing an Interface field')
-     */
+    /** @see it('rejects an Object missing an Interface field') */
     public function testRejectsAnObjectMissingAnInterfaceField(): void
     {
         $schema = BuildSchema::build('
@@ -1839,17 +1779,14 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Interface field AnotherInterface.field expected but '
-                    . 'AnotherObject does not provide it.',
+                    'message' => 'Interface field AnotherInterface.field expected but AnotherObject does not provide it.',
                     'locations' => [['line' => 7, 'column' => 9], ['line' => 10, 'column' => 7]],
                 ],
             ]
         );
     }
 
-    /**
-     * @see it('rejects an Object with an incorrectly typed Interface field')
-     */
+    /** @see it('rejects an Object with an incorrectly typed Interface field') */
     public function testRejectsAnObjectWithAnIncorrectlyTypedInterfaceField(): void
     {
         $schema = BuildSchema::build('
@@ -1870,17 +1807,14 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Interface field AnotherInterface.field expects type String but '
-                    . 'AnotherObject.field is type Int.',
+                    'message' => 'Interface field AnotherInterface.field expects type String but AnotherObject.field is type Int.',
                     'locations' => [['line' => 7, 'column' => 31], ['line' => 11, 'column' => 31]],
                 ],
             ]
         );
     }
 
-    /**
-     * @see it('rejects an Object with a differently typed Interface field')
-     */
+    /** @see it('rejects an Object with a differently typed Interface field') */
     public function testRejectsAnObjectWithADifferentlyTypedInterfaceField(): void
     {
         $schema = BuildSchema::build('
@@ -1904,17 +1838,14 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Interface field AnotherInterface.field expects type A but '
-                    . 'AnotherObject.field is type B.',
+                    'message' => 'Interface field AnotherInterface.field expects type A but AnotherObject.field is type B.',
                     'locations' => [['line' => 10, 'column' => 16], ['line' => 14, 'column' => 16]],
                 ],
             ]
         );
     }
 
-    /**
-     * @see it('accepts an Object with a subtyped Interface field (interface)')
-     */
+    /** @see it('accepts an Object with a subtyped Interface field (interface)') */
     public function testAcceptsAnObjectWithASubtypedInterfaceFieldForInterface(): void
     {
         $schema = BuildSchema::build('
@@ -1931,12 +1862,10 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('accepts an Object with a subtyped Interface field (union)')
-     */
+    /** @see it('accepts an Object with a subtyped Interface field (union)') */
     public function testAcceptsAnObjectWithASubtypedInterfaceFieldForUnion(): void
     {
         $schema = BuildSchema::build('
@@ -1959,12 +1888,10 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('rejects an Object missing an Interface argument')
-     */
+    /** @see it('rejects an Object missing an Interface argument') */
     public function testRejectsAnObjectMissingAnInterfaceArgument(): void
     {
         $schema = BuildSchema::build('
@@ -1993,9 +1920,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects an Object with an incorrectly typed Interface argument')
-     */
+    /** @see it('rejects an Object with an incorrectly typed Interface argument') */
     public function testRejectsAnObjectWithAnIncorrectlyTypedInterfaceArgument(): void
     {
         $schema = BuildSchema::build('
@@ -2024,9 +1949,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects an Object with both an incorrectly typed field and argument')
-     */
+    /** @see it('rejects an Object with both an incorrectly typed field and argument') */
     public function testRejectsAnObjectWithBothAnIncorrectlyTypedFieldAndArgument(): void
     {
         $schema = BuildSchema::build('
@@ -2047,8 +1970,7 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Interface field AnotherInterface.field expects type String but '
-                        . 'AnotherObject.field is type Int.',
+                    'message' => 'Interface field AnotherInterface.field expects type String but AnotherObject.field is type Int.',
                     'locations' => [['line' => 7, 'column' => 31], ['line' => 11, 'column' => 28]],
                 ],
                 [
@@ -2060,9 +1982,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects an Object which implements an Interface field along with additional required arguments')
-     */
+    /** @see it('rejects an Object which implements an Interface field along with additional required arguments') */
     public function testRejectsAnObjectWhichImplementsAnInterfaceFieldAlongWithAdditionalRequiredArguments(): void
     {
         $schema = BuildSchema::build('
@@ -2097,9 +2017,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('accepts an Object with an equivalently wrapped Interface field type')
-     */
+    /** @see it('accepts an Object with an equivalently wrapped Interface field type') */
     public function testAcceptsAnObjectWithAnEquivalentlyWrappedInterfaceFieldType(): void
     {
         $schema = BuildSchema::build('
@@ -2116,12 +2034,10 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('rejects an Object with a non-list Interface field list type')
-     */
+    /** @see it('rejects an Object with a non-list Interface field list type') */
     public function testRejectsAnObjectWithANonListInterfaceFieldListType(): void
     {
         $schema = BuildSchema::build('
@@ -2150,9 +2066,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects an Object with a list Interface field non-list type')
-     */
+    /** @see it('rejects an Object with a list Interface field non-list type') */
     public function testRejectsAnObjectWithAListInterfaceFieldNonListType(): void
     {
         $schema = BuildSchema::build('
@@ -2181,9 +2095,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('accepts an Object with a subset non-null Interface field type')
-     */
+    /** @see it('accepts an Object with a subset non-null Interface field type') */
     public function testAcceptsAnObjectWithASubsetNonNullInterfaceFieldType(): void
     {
         $schema = BuildSchema::build('
@@ -2200,12 +2112,10 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('rejects an Object with a superset nullable Interface field type')
-     */
+    /** @see it('rejects an Object with a superset nullable Interface field type') */
     public function testRejectsAnObjectWithASupersetNullableInterfaceFieldType(): void
     {
         $schema = BuildSchema::build('
@@ -2226,17 +2136,14 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Interface field AnotherInterface.field expects type String! '
-                    . 'but AnotherObject.field is type String.',
+                    'message' => 'Interface field AnotherInterface.field expects type String! but AnotherObject.field is type String.',
                     'locations' => [['line' => 7, 'column' => 16], ['line' => 11, 'column' => 16]],
                 ],
             ]
         );
     }
 
-    /**
-     * @see it('rejects an Object missing a transitive interface')
-     */
+    /** @see it('rejects an Object missing a transitive interface') */
     public function testRejectsAnObjectMissingATransitiveInterface(): void
     {
         $schema = BuildSchema::build('
@@ -2261,17 +2168,14 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Type AnotherObject must implement SuperInterface '
-                    . 'because it is implemented by AnotherInterface.',
+                    'message' => 'Type AnotherObject must implement SuperInterface because it is implemented by AnotherInterface.',
                     'locations' => [['line' => 10, 'column' => 45], ['line' => 14, 'column' => 37]],
                 ],
             ]
         );
     }
 
-    /**
-     * @see it('accepts an Interface which implements an Interface')
-     */
+    /** @see it('accepts an Interface which implements an Interface') */
     public function testAcceptsAnInterfaceWhichImplementsAnInterface(): void
     {
         $schema = BuildSchema::build('
@@ -2288,12 +2192,10 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('accepts an Interface which implements an Interface along with more fields')
-     */
+    /** @see it('accepts an Interface which implements an Interface along with more fields') */
     public function testAcceptsAnInterfaceWhichImplementsAnInterfaceAlongWithMoreFields(): void
     {
         $schema = BuildSchema::build('
@@ -2311,12 +2213,10 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('accepts an Interface which implements an Interface field along with additional optional arguments')
-     */
+    /** @see it('accepts an Interface which implements an Interface field along with additional optional arguments') */
     public function testAcceptsAnInterfaceWhichImplementsAnInterfaceFieldAlongWithAdditionalOptionalArguments(): void
     {
         $schema = BuildSchema::build('
@@ -2333,12 +2233,10 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('rejects an Interface missing an Interface field')
-     */
+    /** @see it('rejects an Interface missing an Interface field') */
     public function testRejectsAnInterfaceMissingAnInterfaceField(): void
     {
         $schema = BuildSchema::build('
@@ -2359,17 +2257,14 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Interface field ParentInterface.field expected '
-                    . 'but ChildInterface does not provide it.',
+                    'message' => 'Interface field ParentInterface.field expected but ChildInterface does not provide it.',
                     'locations' => [['line' => 7, 'column' => 9], ['line' => 10, 'column' => 7]],
                 ],
             ]
         );
     }
 
-    /**
-     * @see it('rejects an Interface with an incorrectly typed Interface field')
-     */
+    /** @see it('rejects an Interface with an incorrectly typed Interface field') */
     public function testRejectsAnInterfaceWithAnIncorrectlyTypedInterfaceField(): void
     {
         $schema = BuildSchema::build('
@@ -2390,17 +2285,14 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Interface field ParentInterface.field expects type String '
-                    . 'but ChildInterface.field is type Int.',
+                    'message' => 'Interface field ParentInterface.field expects type String but ChildInterface.field is type Int.',
                     'locations' => [['line' => 7, 'column' => 31], ['line' => 11, 'column' => 31]],
                 ],
             ]
         );
     }
 
-    /**
-     * @see it('rejects an Interface with a differently typed Interface field')
-     */
+    /** @see it('rejects an Interface with a differently typed Interface field') */
     public function testRejectsAnInterfaceWithADifferentlyTypedInterfaceField(): void
     {
         $schema = BuildSchema::build('
@@ -2424,17 +2316,14 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Interface field ParentInterface.field expects type A '
-                    . 'but ChildInterface.field is type B.',
+                    'message' => 'Interface field ParentInterface.field expects type A but ChildInterface.field is type B.',
                     'locations' => [['line' => 10, 'column' => 16], ['line' => 14, 'column' => 16]],
                 ],
             ]
         );
     }
 
-    /**
-     * @see it('accepts an interface with a subtyped Interface field (interface)')
-     */
+    /** @see it('accepts an interface with a subtyped Interface field (interface)') */
     public function testAcceptsAnInterfaceWithASubtypedInterfaceFieldInterface(): void
     {
         $schema = BuildSchema::build('
@@ -2451,12 +2340,10 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('accepts an interface with a subtyped Interface field (union)')
-     */
+    /** @see it('accepts an interface with a subtyped Interface field (union)') */
     public function testAcceptsAnInterfaceWithASubtypedInterfaceFieldUnion(): void
     {
         $schema = BuildSchema::build('
@@ -2478,12 +2365,10 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('rejects an Interface with an Interface argument')
-     */
+    /** @see it('rejects an Interface with an Interface argument') */
     public function testRejectsAnInterfaceMissingAnInterfaceArgument(): void
     {
         $schema = BuildSchema::build('
@@ -2512,9 +2397,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects an Interface with an incorrectly typed Interface argument')
-     */
+    /** @see it('rejects an Interface with an incorrectly typed Interface argument') */
     public function testRejectsAnInterfaceWithAnIncorrectlyTypedInterfaceArgument(): void
     {
         $schema = BuildSchema::build('
@@ -2543,9 +2426,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects an Interface with both an incorrectly typed field and argument')
-     */
+    /** @see it('rejects an Interface with both an incorrectly typed field and argument') */
     public function testRejectsAnInterfaceWithBothAnIncorrectlyTypedFieldAndArgument(): void
     {
         $schema = BuildSchema::build('
@@ -2566,8 +2447,7 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Interface field ParentInterface.field expects type String '
-                        . 'but ChildInterface.field is type Int.',
+                    'message' => 'Interface field ParentInterface.field expects type String but ChildInterface.field is type Int.',
                     'locations' => [['line' => 7, 'column' => 31], ['line' => 11, 'column' => 28]],
                 ],
                 [
@@ -2579,9 +2459,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects an Interface which implements an Interface field along with additional required arguments')
-     */
+    /** @see it('rejects an Interface which implements an Interface field along with additional required arguments') */
     public function testRejectsAnInterfaceWhichImplementsAnInterfaceFieldAlongWithAdditionalRequiredArguments(): void
     {
         $schema = BuildSchema::build('
@@ -2615,9 +2493,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('accepts an Interface with an equivalently wrapped Interface field type')
-     */
+    /** @see it('accepts an Interface with an equivalently wrapped Interface field type') */
     public function testAcceptsAnInterfaceWithAnEquivalentlyWrappedInterfaceFieldType(): void
     {
         $schema = BuildSchema::build('
@@ -2634,12 +2510,10 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('rejects an Interface with a non-list Interface field list type')
-     */
+    /** @see it('rejects an Interface with a non-list Interface field list type') */
     public function testRejectsAnInterfaceWithANonListInterfaceFieldListType(): void
     {
         $schema = BuildSchema::build('
@@ -2668,9 +2542,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects an Interface with a list Interface field non-list type')
-     */
+    /** @see it('rejects an Interface with a list Interface field non-list type') */
     public function testRejectsAnInterfaceWithAListInterfaceFieldNonListType(): void
     {
         $schema = BuildSchema::build('
@@ -2699,9 +2571,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('accepts an Interface with a subset non-null Interface field type')
-     */
+    /** @see it('accepts an Interface with a subset non-null Interface field type') */
     public function testAcceptsAnInterfaceWithASubsetNonNullInterfaceFieldType(): void
     {
         $schema = BuildSchema::build('
@@ -2718,12 +2588,10 @@ final class ValidationTest extends TestCaseBase
       }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('rejects an Interface with a superset nullable interface field type')
-     */
+    /** @see it('rejects an Interface with a superset nullable interface field type') */
     public function testRejectsAnInterfaceWithASupsersetNullableInterfaceFieldType(): void
     {
         $schema = BuildSchema::build('
@@ -2744,17 +2612,14 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Interface field ParentInterface.field expects type String! '
-                    . 'but ChildInterface.field is type String.',
+                    'message' => 'Interface field ParentInterface.field expects type String! but ChildInterface.field is type String.',
                     'locations' => [['line' => 7, 'column' => 16], ['line' => 11, 'column' => 16]],
                 ],
             ]
         );
     }
 
-    /**
-     * @see it('rejects an Object missing a transitive interface')
-     */
+    /** @see it('rejects an Object missing a transitive interface') */
     public function testRejectsAnInterfaceMissingATransitiveInterface(): void
     {
         $schema = BuildSchema::build('
@@ -2779,17 +2644,14 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Type ChildInterface must implement SuperInterface '
-                    . 'because it is implemented by ParentInterface.',
+                    'message' => 'Type ChildInterface must implement SuperInterface because it is implemented by ParentInterface.',
                     'locations' => [['line' => 10, 'column' => 44], ['line' => 14, 'column' => 43]],
                 ],
             ]
         );
     }
 
-    /**
-     * @see it('rejects a self reference interface')
-     */
+    /** @see it('rejects a self reference interface') */
     public function testRejectsASelfReferenceInterface(): void
     {
         $schema = BuildSchema::build('
@@ -2806,17 +2668,14 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Type FooInterface cannot implement itself '
-                    . 'because it would create a circular reference.',
+                    'message' => 'Type FooInterface cannot implement itself because it would create a circular reference.',
                     'locations' => [['line' => 6, 'column' => 41]],
                 ],
             ]
         );
     }
 
-    /**
-     * @see it('rejects a circulare Interface implementation')
-     */
+    /** @see it('rejects a circulare Interface implementation') */
     public function testRejectsACircularInterfaceImplementation(): void
     {
         $schema = BuildSchema::build('
@@ -2837,13 +2696,11 @@ final class ValidationTest extends TestCaseBase
             $schema->validate(),
             [
                 [
-                    'message' => 'Type FooInterface cannot implement BarInterface '
-                        . 'because it would create a circular reference.',
+                    'message' => 'Type FooInterface cannot implement BarInterface because it would create a circular reference.',
                     'locations' => [['line' => 10, 'column' => 41], ['line' => 6, 'column' => 41]],
                 ],
                 [
-                    'message' => 'Type BarInterface cannot implement FooInterface '
-                        . 'because it would create a circular reference.',
+                    'message' => 'Type BarInterface cannot implement FooInterface because it would create a circular reference.',
                     'locations' => [['line' => 6, 'column' => 41], ['line' => 10, 'column' => 41]],
                 ],
             ]
@@ -2885,9 +2742,7 @@ final class ValidationTest extends TestCaseBase
 
     // DESCRIBE: Type System: Schema directives must validate
 
-    /**
-     * @see it('accepts a Schema with valid directives')
-     */
+    /** @see it('accepts a Schema with valid directives') */
     public function testAcceptsASchemaWithValidDirectives(): void
     {
         $schema = BuildSchema::build('
@@ -2930,12 +2785,10 @@ final class ValidationTest extends TestCaseBase
           }
         ');
 
-        self::assertEquals([], $schema->validate());
+        self::assertSame([], $schema->validate());
     }
 
-    /**
-     * @see it('rejects a Schema with directive defined multiple times')
-     */
+    /** @see it('rejects a Schema with directive defined multiple times') */
     public function testRejectsASchemaWithDirectiveDefinedMultipleTimes(): void
     {
         $schema = BuildSchema::build('
@@ -3022,9 +2875,7 @@ final class ValidationTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('rejects a Schema with directive used again in extension')
-     */
+    /** @see it('rejects a Schema with directive used again in extension') */
     public function testRejectsASchemaWithSameDefinitionDirectiveUsedTwice(): void
     {
         $schema = BuildSchema::build('

@@ -6,7 +6,7 @@ use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
-class MixedStoreTest extends TestCase
+final class MixedStoreTest extends TestCase
 {
     /** @var MixedStore<mixed> */
     private MixedStore $mixedStore;
@@ -23,9 +23,7 @@ class MixedStoreTest extends TestCase
         }
     }
 
-    /**
-     * @return array<int, mixed>
-     */
+    /** @return array<int, mixed> */
     public function possibleValues(): array
     {
         /** @var MixedStore<mixed> $mixedStore */
@@ -41,15 +39,16 @@ class MixedStoreTest extends TestCase
             'a',
             [],
             new \stdClass(),
-            static function (): void {
-            },
+            static function (): void {},
             $mixedStore,
         ];
     }
 
     /**
-     * @param mixed $key   anything goes
+     * @param mixed $key anything goes
      * @param mixed $value anything goes
+     *
+     * @throws \InvalidArgumentException
      */
     private function assertAcceptsKeyValue($key, $value): void
     {
@@ -70,8 +69,10 @@ class MixedStoreTest extends TestCase
     }
 
     /**
-     * @param mixed $key   anything goes
+     * @param mixed $key anything goes
      * @param mixed $value anything goes
+     *
+     * @throws \InvalidArgumentException
      */
     private function assertProvidesArrayAccess($key, $value): void
     {
@@ -141,8 +142,7 @@ class MixedStoreTest extends TestCase
             $this->assertAcceptsKeyValue(new \stdClass(), $value);
             $this->assertAcceptsKeyValue(new MixedStore(), $value);
             $this->assertAcceptsKeyValue(
-                static function (): void {
-                },
+                static function (): void {},
                 $value
             );
         }

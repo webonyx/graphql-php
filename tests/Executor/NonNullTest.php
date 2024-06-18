@@ -13,12 +13,11 @@ use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\Utils;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 
-use function Safe\json_encode;
-
-class NonNullTest extends TestCase
+final class NonNullTest extends TestCase
 {
     use ArraySubsetAsserts;
 
@@ -131,9 +130,7 @@ class NonNullTest extends TestCase
 
     // Execute: handles non-nullable types
 
-    /**
-     * @see it('nulls a nullable field that throws synchronously')
-     */
+    /** @see it('nulls a nullable field that throws synchronously') */
     public function testNullsANullableFieldThatThrowsSynchronously(): void
     {
         $doc = '
@@ -285,9 +282,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    /**
-     * @see it('nulls a complex tree of nullable fields that throw')
-     */
+    /** @see it('nulls a complex tree of nullable fields that throw') */
     public function testNullsAComplexTreeOfNullableFieldsThatThrow(): void
     {
         $doc = '
@@ -380,7 +375,8 @@ class NonNullTest extends TestCase
                 }
             }
 
-            self::assertTrue($found, 'Did not find error: ' . json_encode($expectedError));
+            $safeError = Utils::printSafeJson($expectedError);
+            self::assertTrue($found, "Did not find error: {$safeError}");
         }
     }
 
@@ -674,9 +670,7 @@ class NonNullTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
-    /**
-     * @see it('nulls the first nullable object after a field in a long chain of non-null fields')
-     */
+    /** @see it('nulls the first nullable object after a field in a long chain of non-null fields') */
     public function testNullsTheFirstNullableObjectAfterAFieldReturnsNullInALongChainOfFieldsThatAreNonNull(): void
     {
         $doc = '
@@ -763,9 +757,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    /**
-     * @see it('nulls the top level if non-nullable field')
-     */
+    /** @see it('nulls the top level if non-nullable field') */
     public function testNullsTheTopLevelIfSyncNonNullableFieldThrows(): void
     {
         $doc = '
@@ -785,7 +777,7 @@ class NonNullTest extends TestCase
      * @see describe('Handles non-null argument')
      * @see it('succeeds when passed non-null literal value')
      */
-    public function succeedsWhenPassedNonNullLiteralValue(): void
+    public function testSucceedsWhenPassedNonNullLiteralValue(): void
     {
         $result = Executor::execute(
             $this->schemaWithNonNullArg,
@@ -797,13 +789,11 @@ class NonNullTest extends TestCase
         );
 
         $expected = ['data' => ['withNonNullArg' => 'Passed: literal value']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
-    /**
-     * @see it('succeeds when passed non-null variable value')
-     */
-    public function succeedsWhenPassedNonNullVariableValue(): void
+    /** @see it('succeeds when passed non-null variable value') */
+    public function testSucceedsWhenPassedNonNullVariableValue(): void
     {
         $result = Executor::execute(
             $this->schemaWithNonNullArg,
@@ -818,12 +808,10 @@ class NonNullTest extends TestCase
         );
 
         $expected = ['data' => ['withNonNullArg' => 'Passed: variable value']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
-    /**
-     * @see it('succeeds when missing variable has default value')
-     */
+    /** @see it('succeeds when missing variable has default value') */
     public function testSucceedsWhenMissingVariableHasDefaultValue(): void
     {
         $result = Executor::execute(
@@ -839,12 +827,10 @@ class NonNullTest extends TestCase
         );
 
         $expected = ['data' => ['withNonNullArg' => 'Passed: default value']];
-        self::assertEquals($expected, $result->toArray());
+        self::assertSame($expected, $result->toArray());
     }
 
-    /**
-     * @see it('field error when missing non-null arg')
-     */
+    /** @see it('field error when missing non-null arg') */
     public function testFieldErrorWhenMissingNonNullArg(): void
     {
         // Note: validation should identify this issue first (missing args rule)
@@ -871,9 +857,7 @@ class NonNullTest extends TestCase
         self::assertEquals($expected, $result->toArray());
     }
 
-    /**
-     * @see it('field error when non-null arg provided null')
-     */
+    /** @see it('field error when non-null arg provided null') */
     public function testFieldErrorWhenNonNullArgProvidedNull(): void
     {
         // Note: validation should identify this issue first (values of correct
@@ -900,9 +884,7 @@ class NonNullTest extends TestCase
         self::assertEquals($expected, $result->toArray());
     }
 
-    /**
-     * @see it('field error when non-null arg not provided variable value')
-     */
+    /** @see it('field error when non-null arg not provided variable value') */
     public function testFieldErrorWhenNonNullArgNotProvidedVariableValue(): void
     {
         // Note: validation should identify this issue first (variables in allowed
@@ -934,9 +916,7 @@ class NonNullTest extends TestCase
         self::assertEquals($expected, $result->toArray());
     }
 
-    /**
-     * @see it('field error when non-null arg provided variable with explicit null value')
-     */
+    /** @see it('field error when non-null arg provided variable with explicit null value') */
     public function testFieldErrorWhenNonNullArgProvidedVariableWithExplicitNullValue(): void
     {
         $result = Executor::execute(

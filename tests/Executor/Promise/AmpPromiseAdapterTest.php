@@ -2,8 +2,6 @@
 
 namespace GraphQL\Tests\Executor\Promise;
 
-use function Amp\call;
-
 use Amp\Deferred;
 use Amp\Delayed;
 use Amp\Failure;
@@ -12,6 +10,8 @@ use Amp\Promise;
 use Amp\Success;
 use GraphQL\Executor\Promise\Adapter\AmpPromiseAdapter;
 use PHPUnit\Framework\TestCase;
+
+use function Amp\call;
 
 /**
  * @group AmpPromise
@@ -31,8 +31,7 @@ final class AmpPromiseAdapterTest extends TestCase
         self::assertTrue($ampAdapter->isThenable(new Failure(new \Exception())));
         self::assertTrue($ampAdapter->isThenable(new Delayed(0)));
         self::assertTrue(
-            $ampAdapter->isThenable(new LazyPromise(static function (): void {
-            }))
+            $ampAdapter->isThenable(new LazyPromise(static function (): void {}))
         );
         self::assertFalse($ampAdapter->isThenable(false));
         self::assertFalse($ampAdapter->isThenable(true));
@@ -44,7 +43,7 @@ final class AmpPromiseAdapterTest extends TestCase
         self::assertFalse($ampAdapter->isThenable(new \stdClass()));
     }
 
-    public function testConvertsReactPromisesToGraphQlOnes(): void
+    public function testConvertsReactPromisesToGraphQLOnes(): void
     {
         $ampAdapter = new AmpPromiseAdapter();
         $ampPromise = new Success(1);
@@ -124,7 +123,7 @@ final class AmpPromiseAdapterTest extends TestCase
         );
 
         self::assertInstanceOf(\Throwable::class, $exception);
-        self::assertEquals('I am a bad promise', $exception->getMessage());
+        self::assertSame('I am a bad promise', $exception->getMessage());
     }
 
     public function testAll(): void

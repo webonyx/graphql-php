@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\NodeKind;
@@ -30,11 +31,13 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
         return "Directive \"@{$directiveName}\" argument \"{$argName}\" of type \"{$type}\" is required but not provided.";
     }
 
+    /** @throws \Exception */
     public function getSDLVisitor(SDLValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
+    /** @throws \Exception */
     public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
@@ -42,6 +45,12 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
 
     /**
      * @phpstan-return VisitorArray
+     *
+     * @throws \Exception
+     * @throws \InvalidArgumentException
+     * @throws \ReflectionException
+     * @throws Error
+     * @throws InvariantViolation
      */
     public function getASTVisitor(ValidationContext $context): array
     {

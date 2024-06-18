@@ -22,55 +22,51 @@ use GraphQL\Utils\Utils;
 
 use function Safe\file_get_contents;
 
-class ParserTest extends TestCaseBase
+final class ParserTest extends TestCaseBase
 {
-    /**
-     * @return array<int, array{0: string, 1: string, 2: string, 3?: list<int>, 4?: list<SourceLocation>}>
-     */
-    public function parseProvidesUsefulErrors(): array
+    /** @return iterable<array{0: string, 1: string, 2: string, 3?: list<int>, 4?: list<SourceLocation>}> */
+    public static function parseProvidesUsefulErrors(): iterable
     {
-        return [
+        yield [
+            '{',
+            'Syntax Error: Expected Name, found <EOF>',
+            "Syntax Error: Expected Name, found <EOF>\n\nGraphQL request (1:2)\n1: {\n    ^\n",
+            [1],
             [
-                '{',
-                'Syntax Error: Expected Name, found <EOF>',
-                "Syntax Error: Expected Name, found <EOF>\n\nGraphQL request (1:2)\n1: {\n    ^\n",
-                [1],
-                [
-                    new SourceLocation(
-                        1,
-                        2
-                    ),
-                ],
+                new SourceLocation(
+                    1,
+                    2
+                ),
             ],
-            [
-                '{ ...MissingOn }
+        ];
+        yield [
+            '{ ...MissingOn }
 fragment MissingOn Type
 ',
-                'Syntax Error: Expected "on", found Name "Type"',
-                "Syntax Error: Expected \"on\", found Name \"Type\"\n\nGraphQL request (2:20)\n1: { ...MissingOn }\n2: fragment MissingOn Type\n                      ^\n3: \n",
-            ],
-            [
-                '{ field: {} }',
-                'Syntax Error: Expected Name, found {',
-                "Syntax Error: Expected Name, found {\n\nGraphQL request (1:10)\n1: { field: {} }\n            ^\n",
-            ],
-            [
-                'notanoperation Foo { field }',
-                'Syntax Error: Unexpected Name "notanoperation"',
-                "Syntax Error: Unexpected Name \"notanoperation\"\n\nGraphQL request (1:1)\n1: notanoperation Foo { field }\n   ^\n",
-            ],
-            [
-                '...',
-                'Syntax Error: Unexpected ...',
-                "Syntax Error: Unexpected ...\n\nGraphQL request (1:1)\n1: ...\n   ^\n",
-            ],
+            'Syntax Error: Expected "on", found Name "Type"',
+            "Syntax Error: Expected \"on\", found Name \"Type\"\n\nGraphQL request (2:20)\n1: { ...MissingOn }\n2: fragment MissingOn Type\n                      ^\n3: \n",
+        ];
+        yield [
+            '{ field: {} }',
+            'Syntax Error: Expected Name, found {',
+            "Syntax Error: Expected Name, found {\n\nGraphQL request (1:10)\n1: { field: {} }\n            ^\n",
+        ];
+        yield [
+            'notanoperation Foo { field }',
+            'Syntax Error: Unexpected Name "notanoperation"',
+            "Syntax Error: Unexpected Name \"notanoperation\"\n\nGraphQL request (1:1)\n1: notanoperation Foo { field }\n   ^\n",
+        ];
+        yield [
+            '...',
+            'Syntax Error: Unexpected ...',
+            "Syntax Error: Unexpected ...\n\nGraphQL request (1:1)\n1: ...\n   ^\n",
         ];
     }
 
     /**
-     * @see          it('parse provides useful errors')
+     * @see it('parse provides useful errors')
      *
-     * @param list<int>            $expectedPositions
+     * @param list<int> $expectedPositions
      * @param list<SourceLocation> $expectedLocations
      *
      * @dataProvider parseProvidesUsefulErrors
@@ -86,8 +82,8 @@ fragment MissingOn Type
             Parser::parse($str);
             self::fail('Expected exception not thrown');
         } catch (SyntaxError $e) {
-            self::assertEquals($expectedMessage, $e->getMessage());
-            self::assertEquals($stringRepresentation, (string) $e);
+            self::assertSame($expectedMessage, $e->getMessage());
+            self::assertSame($stringRepresentation, (string) $e);
 
             if (\is_array($expectedPositions)) {
                 self::assertEquals($expectedPositions, $e->getPositions());
@@ -99,34 +95,28 @@ fragment MissingOn Type
         }
     }
 
-    /**
-     * @see it('parse provides useful error when using source')
-     */
+    /** @see it('parse provides useful error when using source') */
     public function testParseProvidesUsefulErrorWhenUsingSource(): void
     {
         try {
             Parser::parse(new Source('query', 'MyQuery.graphql'));
             self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
-            self::assertEquals(
+            self::assertSame(
                 "Syntax Error: Expected {, found <EOF>\n\nMyQuery.graphql (1:6)\n1: query\n        ^\n",
                 (string) $error
             );
         }
     }
 
-    /**
-     * @see it('parses variable inline values')
-     */
+    /** @see it('parses variable inline values') */
     public function testParsesVariableInlineValues(): void
     {
         Parser::parse('{ field(complex: { a: { b: [ $var ] } }) }');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
-    /**
-     * @see it('parses constant default values')
-     */
+    /** @see it('parses constant default values') */
     public function testParsesConstantDefaultValues(): void
     {
         $this->expectSyntaxError(
@@ -136,15 +126,17 @@ fragment MissingOn Type
         );
     }
 
-    /**
-     * @see it('parses variable definition directives')
-     */
+    /** @see it('parses variable definition directives') */
     public function testParsesVariableDefinitionDirectives(): void
     {
         Parser::parse('query Foo($x: Boolean = false @bar) { field }');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
+    /**
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
     private function expectSyntaxError(string $text, string $message, SourceLocation $location): void
     {
         $this->expectException(SyntaxError::class);
@@ -163,9 +155,7 @@ fragment MissingOn Type
         return new SourceLocation($line, $column);
     }
 
-    /**
-     * @see it('does not accept fragments spread of "on"')
-     */
+    /** @see it('does not accept fragments spread of "on"') */
     public function testDoesNotAcceptFragmentsNamedOn(): void
     {
         $this->expectSyntaxError(
@@ -175,9 +165,7 @@ fragment MissingOn Type
         );
     }
 
-    /**
-     * @see it('does not accept fragments spread of "on"')
-     */
+    /** @see it('does not accept fragments spread of "on"') */
     public function testDoesNotAcceptFragmentSpreadOfOn(): void
     {
         $this->expectSyntaxError(
@@ -187,9 +175,7 @@ fragment MissingOn Type
         );
     }
 
-    /**
-     * @see it('parses multi-byte characters')
-     */
+    /** @see it('parses multi-byte characters') */
     public function testParsesMultiByteCharacters(): void
     {
         // Note: \u0A0A could be naively interpreted as two line-feed chars.
@@ -224,9 +210,7 @@ HEREDOC;
         self::assertEquals($expected, $operationDefinition->selectionSet);
     }
 
-    /**
-     * @see it('parses kitchen sink')
-     */
+    /** @see it('parses kitchen sink') */
     public function testParsesKitchenSink(): void
     {
         // Following should not throw:
@@ -235,9 +219,7 @@ HEREDOC;
         self::assertNotEmpty($result);
     }
 
-    /**
-     * allows non-keywords anywhere a Name is allowed.
-     */
+    /** allows non-keywords anywhere a Name is allowed. */
     public function testAllowsNonKeywordsAnywhereANameIsAllowed(): void
     {
         $nonKeywords = [
@@ -274,9 +256,7 @@ GRAPHQL
         }
     }
 
-    /**
-     * @see it('parses anonymous mutation operations')
-     */
+    /** @see it('parses anonymous mutation operations') */
     public function testParsessAnonymousMutationOperations(): void
     {
         Parser::parse('
@@ -284,12 +264,10 @@ GRAPHQL
             mutationField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
-    /**
-     * @see it('parses anonymous subscription operations')
-     */
+    /** @see it('parses anonymous subscription operations') */
     public function testParsesAnonymousSubscriptionOperations(): void
     {
         Parser::parse('
@@ -297,12 +275,10 @@ GRAPHQL
             subscriptionField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
-    /**
-     * @see it('parses named mutation operations')
-     */
+    /** @see it('parses named mutation operations') */
     public function testParsesNamedMutationOperations(): void
     {
         Parser::parse('
@@ -310,12 +286,10 @@ GRAPHQL
             mutationField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
-    /**
-     * @see it('parses named subscription operations')
-     */
+    /** @see it('parses named subscription operations') */
     public function testParsesNamedSubscriptionOperations(): void
     {
         Parser::parse('
@@ -323,12 +297,10 @@ GRAPHQL
             subscriptionField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
-    /**
-     * @see it('creates ast')
-     */
+    /** @see it('creates ast') */
     public function testParseCreatesAst(): void
     {
         $source = new Source('{
@@ -372,17 +344,17 @@ GRAPHQL
                                 'arguments' => [
                                     [
                                         'kind' => NodeKind::ARGUMENT,
-                                        'name' => [
-                                            'kind' => NodeKind::NAME,
-                                            'loc' => $loc(9, 11),
-                                            'value' => 'id',
-                                        ],
+                                        'loc' => $loc(9, 14),
                                         'value' => [
                                             'kind' => NodeKind::INT,
                                             'loc' => $loc(13, 14),
                                             'value' => '4',
                                         ],
-                                        'loc' => $loc(9, 14),
+                                        'name' => [
+                                            'kind' => NodeKind::NAME,
+                                            'loc' => $loc(9, 11),
+                                            'value' => 'id',
+                                        ],
                                     ],
                                 ],
                                 'directives' => [],
@@ -393,7 +365,7 @@ GRAPHQL
                                         [
                                             'kind' => NodeKind::FIELD,
                                             'loc' => $loc(22, 24),
-                                            // 'alias'        => undefined,
+                                            // 'alias' => undefined,
                                             'name' => [
                                                 'kind' => NodeKind::NAME,
                                                 'loc' => $loc(22, 24),
@@ -406,7 +378,7 @@ GRAPHQL
                                         [
                                             'kind' => NodeKind::FIELD,
                                             'loc' => $loc(30, 34),
-                                            // 'alias'        => undefined,
+                                            // 'alias' => undefined,
                                             'name' => [
                                                 'kind' => NodeKind::NAME,
                                                 'loc' => $loc(30, 34),
@@ -425,12 +397,10 @@ GRAPHQL
             ],
         ];
 
-        self::assertEquals($expected, $result->toArray());
+        self::assertArrayEquals($expected, $result->toArray());
     }
 
-    /**
-     * @see it('creates ast from nameless query without variables')
-     */
+    /** @see it('creates ast from nameless query without variables') */
     public function testParseCreatesAstFromNamelessQueryWithoutVariables(): void
     {
         $source = new Source('query {
@@ -498,12 +468,10 @@ GRAPHQL
             ],
         ];
 
-        self::assertEquals($expected, $result->toArray());
+        self::assertArrayEquals($expected, $result->toArray());
     }
 
-    /**
-     * @see it('allows parsing without source location information')
-     */
+    /** @see it('allows parsing without source location information') */
     public function testAllowsParsingWithoutSourceLocationInformation(): void
     {
         $source = new Source('{ id }');
@@ -512,9 +480,7 @@ GRAPHQL
         self::assertEquals(null, $result->loc);
     }
 
-    /**
-     * @see it('Experimental: allows parsing fragment defined variables')
-     */
+    /** @see it('Experimental: allows parsing fragment defined variables') */
     public function testExperimentalAllowsParsingFragmentDefinedVariables(): void
     {
         $source = new Source('fragment a($v: Boolean = false) on t { f(v: $v) }');
@@ -527,9 +493,7 @@ GRAPHQL
 
     // Describe: parseValue
 
-    /**
-     * @see it('contains location information that only stringifys start/end')
-     */
+    /** @see it('contains location information that only stringifys start/end') */
     public function testContainsLocationInformationThatOnlyStringifysStartEnd(): void
     {
         $source = new Source('{ id }');
@@ -537,12 +501,10 @@ GRAPHQL
         $location = $result->loc;
 
         self::assertInstanceOf(Location::class, $location);
-        self::assertEquals(['start' => 0, 'end' => '6'], $location->toArray());
+        self::assertSame(['start' => 0, 'end' => 6], $location->toArray());
     }
 
-    /**
-     * @see it('contains references to source')
-     */
+    /** @see it('contains references to source') */
     public function testContainsReferencesToSource(): void
     {
         $source = new Source('{ id }');
@@ -555,9 +517,7 @@ GRAPHQL
 
     // Describe: parseType
 
-    /**
-     * @see it('contains references to start and end tokens')
-     */
+    /** @see it('contains references to start and end tokens') */
     public function testContainsReferencesToStartAndEndTokens(): void
     {
         $source = new Source('{ id }');
@@ -568,33 +528,29 @@ GRAPHQL
 
         $startToken = $location->startToken;
         self::assertInstanceOf(Token::class, $startToken);
-        self::assertEquals('<SOF>', $startToken->kind);
+        self::assertSame('<SOF>', $startToken->kind);
 
         $endToken = $location->endToken;
         self::assertInstanceOf(Token::class, $endToken);
-        self::assertEquals('<EOF>', $endToken->kind);
+        self::assertSame('<EOF>', $endToken->kind);
     }
 
-    /**
-     * @see it('parses null value')
-     */
+    /** @see it('parses null value') */
     public function testParsesNullValues(): void
     {
-        self::assertEquals(
+        self::assertArrayEquals(
             [
-                'kind' => NodeKind::NULL,
                 'loc' => ['start' => 0, 'end' => 4],
+                'kind' => NodeKind::NULL,
             ],
             Parser::parseValue('null')->toArray()
         );
     }
 
-    /**
-     * @see it('parses list values')
-     */
+    /** @see it('parses list values') */
     public function testParsesListValues(): void
     {
-        self::assertEquals(
+        self::assertArrayEquals(
             [
                 'kind' => NodeKind::LST,
                 'loc' => ['start' => 0, 'end' => 11],
@@ -616,12 +572,10 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses well known types')
-     */
+    /** @see it('parses well known types') */
     public function testParsesWellKnownTypes(): void
     {
-        self::assertEquals(
+        self::assertArrayEquals(
             [
                 'kind' => NodeKind::NAMED_TYPE,
                 'loc' => ['start' => 0, 'end' => 6],
@@ -635,12 +589,10 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses custom types')
-     */
+    /** @see it('parses custom types') */
     public function testParsesCustomTypes(): void
     {
-        self::assertEquals(
+        self::assertArrayEquals(
             [
                 'kind' => NodeKind::NAMED_TYPE,
                 'loc' => ['start' => 0, 'end' => 6],
@@ -654,12 +606,10 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses list types')
-     */
+    /** @see it('parses list types') */
     public function testParsesListTypes(): void
     {
-        self::assertEquals(
+        self::assertArrayEquals(
             [
                 'kind' => NodeKind::LIST_TYPE,
                 'loc' => ['start' => 0, 'end' => 8],
@@ -677,12 +627,10 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses non-null types')
-     */
+    /** @see it('parses non-null types') */
     public function testParsesNonNullTypes(): void
     {
-        self::assertEquals(
+        self::assertArrayEquals(
             [
                 'kind' => NodeKind::NON_NULL_TYPE,
                 'loc' => ['start' => 0, 'end' => 7],
@@ -700,12 +648,10 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses nested types')
-     */
+    /** @see it('parses nested types') */
     public function testParsesNestedTypes(): void
     {
-        self::assertEquals(
+        self::assertArrayEquals(
             [
                 'kind' => NodeKind::LIST_TYPE,
                 'loc' => ['start' => 0, 'end' => 9],

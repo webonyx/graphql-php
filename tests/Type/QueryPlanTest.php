@@ -273,12 +273,12 @@ final class QueryPlanTest extends TestCase
         $schema = new Schema(['query' => $blogQuery]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
-        self::assertEquals(['data' => ['article' => null]], $result);
+        self::assertSame(['data' => ['article' => null]], $result);
         self::assertInstanceOf(QueryPlan::class, $queryPlan);
         self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
-        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
-        self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
-        self::assertEquals(['url', 'width', 'height'], $queryPlan->subFields('Image'));
+        self::assertSame($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertSame($expectedReferencedFields, $queryPlan->getReferencedFields());
+        self::assertSame(['url', 'width', 'height'], $queryPlan->subFields('Image'));
 
         self::assertTrue($queryPlan->hasField('url'));
         self::assertFalse($queryPlan->hasField('test'));
@@ -388,25 +388,15 @@ final class QueryPlanTest extends TestCase
             'name',
         ];
 
-        /** @var QueryPlan $queryPlan */
+        /** @var QueryPlan|null $queryPlan */
         $queryPlan = null;
-        $hasCalled = false;
 
         $petsQuery = new ObjectType([
             'name' => 'Query',
             'fields' => [
                 'pets' => [
                     'type' => Type::listOf($petType),
-                    'resolve' => static function (
-                        $value,
-                        $args,
-                        $context,
-                        ResolveInfo $info
-                    ) use (
-                        &$hasCalled,
-                        &$queryPlan
-                    ): array {
-                        $hasCalled = true;
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) use (&$queryPlan): array {
                         $queryPlan = $info->lookAhead();
 
                         return [];
@@ -428,17 +418,72 @@ final class QueryPlanTest extends TestCase
         ]);
         GraphQL::executeQuery($schema, $query)->toArray();
 
-        self::assertTrue($hasCalled);
+        self::assertInstanceOf(QueryPlan::class, $queryPlan);
         self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
-        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
-        self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
-        self::assertEquals(['woofs'], $queryPlan->subFields('Dog'));
+        self::assertSame($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertSame($expectedReferencedFields, $queryPlan->getReferencedFields());
+        self::assertSame(['woofs'], $queryPlan->subFields('Dog'));
 
         self::assertTrue($queryPlan->hasField('name'));
         self::assertFalse($queryPlan->hasField('test'));
 
         self::assertTrue($queryPlan->hasType('Dog'));
         self::assertFalse($queryPlan->hasType('Test'));
+    }
+
+    public function testQueryPlanTypenameOnUnion(): void
+    {
+        $dogType = new ObjectType([
+            'name' => 'Dog',
+            'isTypeOf' => static fn ($obj): bool => $obj instanceof Dog,
+            'fields' => static fn (): array => [
+                'name' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $petType = new UnionType([
+            'name' => 'Pet',
+            'types' => [$dogType],
+        ]);
+
+        /** @var QueryPlan|null $queryPlan */
+        $queryPlan = null;
+        $petsQuery = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'pets' => [
+                    'type' => Type::listOf($petType),
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) use (&$queryPlan): array {
+                        $queryPlan = $info->lookAhead();
+
+                        return [];
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $petsQuery]);
+        GraphQL::executeQuery($schema, /** @lang GraphQL */ '
+        {
+          pets {
+            __typename
+          }
+        }
+        ');
+
+        self::assertInstanceOf(QueryPlan::class, $queryPlan);
+        self::assertSame([], $queryPlan->queryPlan());
+        self::assertSame(['Pet'], $queryPlan->getReferencedTypes());
+        self::assertSame([], $queryPlan->getReferencedFields());
+        self::assertSame([], $queryPlan->subFields('Dog'));
+
+        // TODO really? maybe change in next major version
+        self::assertFalse($queryPlan->hasField('__typename'));
+        self::assertFalse($queryPlan->hasField('non-existent'));
+
+        self::assertTrue($queryPlan->hasType('Pet'));
+        self::assertFalse($queryPlan->hasType('Dog'));
+        self::assertFalse($queryPlan->hasType('Non-Existent'));
     }
 
     public function testMergedFragmentsQueryPlan(): void
@@ -719,11 +764,11 @@ final class QueryPlanTest extends TestCase
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
         self::assertTrue($hasCalled);
-        self::assertEquals(['data' => ['article' => null]], $result);
+        self::assertSame(['data' => ['article' => null]], $result);
         self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
-        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
-        self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
-        self::assertEquals(['url', 'width', 'height'], $queryPlan->subFields('Image'));
+        self::assertSame($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertSame($expectedReferencedFields, $queryPlan->getReferencedFields());
+        self::assertSame(['url', 'width', 'height'], $queryPlan->subFields('Image'));
 
         self::assertTrue($queryPlan->hasField('url'));
         self::assertFalse($queryPlan->hasField('test'));
@@ -943,12 +988,12 @@ final class QueryPlanTest extends TestCase
         $result = GraphQL::executeQuery($schema, $query)->toArray();
 
         self::assertTrue($hasCalled);
-        self::assertEquals($expectedResult, $result);
-        self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
-        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
-        self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
-        self::assertEquals($expectedItemSubFields, $queryPlan->subFields('Item'));
-        self::assertEquals($expectedBuildingSubFields, $queryPlan->subFields('Building'));
+        self::assertSame($expectedResult, $result);
+        self::assertSame($expectedQueryPlan, $queryPlan->queryPlan());
+        self::assertSame($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertSame($expectedReferencedFields, $queryPlan->getReferencedFields());
+        self::assertSame($expectedItemSubFields, $queryPlan->subFields('Item'));
+        self::assertSame($expectedBuildingSubFields, $queryPlan->subFields('Building'));
     }
 
     public function testQueryPlanForMultipleFieldNodes(): void

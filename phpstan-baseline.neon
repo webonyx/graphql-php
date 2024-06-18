@@ -26,7 +26,7 @@ parameters:
 			path: src/Language/Visitor.php
 
 		-
-			message: "#^Parameter \\#1 \\$config of class GraphQL\\\\Type\\\\Definition\\\\Argument constructor expects array\\{name\\: string, type\\: \\(callable\\(\\)\\: GraphQL\\\\Type\\\\Definition\\\\InputType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|\\(GraphQL\\\\Type\\\\Definition\\\\InputType&GraphQL\\\\Type\\\\Definition\\\\Type\\), defaultValue\\?\\: mixed, description\\?\\: string\\|null, astNode\\?\\: GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\|null\\}, non\\-empty\\-array given\\.$#"
+			message: "#^Parameter \\#1 \\$config of class GraphQL\\\\Type\\\\Definition\\\\Argument constructor expects array\\{name\\: string, type\\: \\(callable\\(\\)\\: \\(GraphQL\\\\Type\\\\Definition\\\\InputType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\)\\|\\(GraphQL\\\\Type\\\\Definition\\\\InputType&GraphQL\\\\Type\\\\Definition\\\\Type\\), defaultValue\\?\\: mixed, description\\?\\: string\\|null, deprecationReason\\?\\: string\\|null, astNode\\?\\: GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\|null\\}, non\\-empty\\-array given\\.$#"
 			count: 1
 			path: src/Type/Definition/Argument.php
 
@@ -94,19 +94,3 @@ parameters:
 			message: "#^SplObjectStorage\\<GraphQL\\\\Language\\\\AST\\\\SelectionSetNode, array\\{array\\<string, array\\<int, array\\{GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Language\\\\AST\\\\FieldNode, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null\\}\\>\\>, array\\<int, string\\>\\}\\> does not accept array\\<int, mixed\\>\\.$#"
 			count: 1
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
-
-		-
-			message: "#^Method GraphQL\\\\Tests\\\\Language\\\\VisitorTest\\:\\:getNodeByPath\\(\\) return type with generic class GraphQL\\\\Language\\\\AST\\\\NodeList does not specify its types\\: T$#"
-			count: 1
-			path: tests/Language/VisitorTest.php
-
-		-
-			message: "#^Variable property access on mixed\\.$#"
-			count: 2
-			path: tests/Language/VisitorTest.php
-
-		-
-			message: "#^Property GraphQL\\\\Tests\\\\Type\\\\SchemaTest\\:\\:\\$implementingType is never read, only written\\.$#"
-			count: 1
-			path: tests/Type/SchemaTest.php
-

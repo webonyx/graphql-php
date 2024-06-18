@@ -7,13 +7,11 @@ use GraphQL\Tests\Type\TestClasses\ObjectIdStub;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
 
-class ScalarSerializationTest extends TestCase
+final class ScalarSerializationTest extends TestCase
 {
     // Type System: Scalar coercion
 
-    /**
-     * @see it('serializes output as Int')
-     */
+    /** @see it('serializes output as Int') */
     public function testSerializesOutputAsInt(): void
     {
         $intType = Type::int();
@@ -28,26 +26,22 @@ class ScalarSerializationTest extends TestCase
         self::assertSame(1, $intType->serialize(true));
     }
 
-    /**
-     * @return iterable<array{mixed, string}>
-     */
-    public function badIntValues(): iterable
+    /** @return iterable<array{mixed, string}> */
+    public static function badIntValues(): iterable
     {
-        return [
-            [0.1, 'Int cannot represent non-integer value: 0.1'],
-            [1.1, 'Int cannot represent non-integer value: 1.1'],
-            [-1.1, 'Int cannot represent non-integer value: -1.1'],
-            ['-1.1', 'Int cannot represent non-integer value: "-1.1"'],
-            [9876504321, 'Int cannot represent non 32-bit signed integer value: 9876504321'],
-            [-9876504321, 'Int cannot represent non 32-bit signed integer value: -9876504321'],
-            [1e100, 'Int cannot represent non 32-bit signed integer value: 1.0E+100'],
-            [-1e100, 'Int cannot represent non 32-bit signed integer value: -1.0E+100'],
-            [\log(0), 'Int cannot represent non 32-bit signed integer value: -INF'],
-            [\acos(8), 'Int cannot represent non-integer value: NAN'],
-            ['one', 'Int cannot represent non-integer value: "one"'],
-            ['', 'Int cannot represent non-integer value: (empty string)'],
-            [[5], 'Int cannot represent non-integer value: [5]'],
-        ];
+        yield [0.1, 'Int cannot represent non-integer value: 0.1'];
+        yield [1.1, 'Int cannot represent non-integer value: 1.1'];
+        yield [-1.1, 'Int cannot represent non-integer value: -1.1'];
+        yield ['-1.1', 'Int cannot represent non-integer value: "-1.1"'];
+        yield [9876504321, 'Int cannot represent non 32-bit signed integer value: 9876504321'];
+        yield [-9876504321, 'Int cannot represent non 32-bit signed integer value: -9876504321'];
+        yield [1e100, 'Int cannot represent non 32-bit signed integer value: 1.0E+100'];
+        yield [-1e100, 'Int cannot represent non 32-bit signed integer value: -1.0E+100'];
+        yield [\log(0), 'Int cannot represent non 32-bit signed integer value: -INF'];
+        yield [\acos(8), 'Int cannot represent non-integer value: NAN'];
+        yield ['one', 'Int cannot represent non-integer value: "one"'];
+        yield ['', 'Int cannot represent non-integer value: (empty string)'];
+        yield [[5], 'Int cannot represent non-integer value: [5]'];
     }
 
     /**
@@ -66,9 +60,7 @@ class ScalarSerializationTest extends TestCase
         $intType->serialize($value);
     }
 
-    /**
-     * @see it('serializes output as Float')
-     */
+    /** @see it('serializes output as Float') */
     public function testSerializesOutputAsFloat(): void
     {
         $floatType = Type::float();
@@ -85,18 +77,14 @@ class ScalarSerializationTest extends TestCase
         self::assertSame(1.0, $floatType->serialize(true));
     }
 
-    /**
-     * @return iterable<array{mixed, string}>
-     */
-    public function badFloatValues(): iterable
+    /** @return iterable<array{mixed, string}> */
+    public static function badFloatValues(): iterable
     {
-        return [
-            ['one', 'Float cannot represent non numeric value: "one"'],
-            ['', 'Float cannot represent non numeric value: (empty string)'],
-            [\log(0), 'Float cannot represent non numeric value: -INF'],
-            [\acos(8), 'Float cannot represent non numeric value: NAN'],
-            [[5], 'Float cannot represent non numeric value: [5]'],
-        ];
+        yield ['one', 'Float cannot represent non numeric value: "one"'];
+        yield ['', 'Float cannot represent non numeric value: (empty string)'];
+        yield [\log(0), 'Float cannot represent non numeric value: -INF'];
+        yield [\acos(8), 'Float cannot represent non numeric value: NAN'];
+        yield [[5], 'Float cannot represent non numeric value: [5]'];
     }
 
     /**
@@ -113,9 +101,7 @@ class ScalarSerializationTest extends TestCase
         $floatType->serialize($value);
     }
 
-    /**
-     * @see it('serializes output as String')
-     */
+    /** @see it('serializes output as String') */
     public function testSerializesOutputAsString(): void
     {
         $stringType = Type::string();
@@ -133,15 +119,11 @@ class ScalarSerializationTest extends TestCase
         }));
     }
 
-    /**
-     * @return iterable<array{mixed, string}>
-     */
-    public function badStringValues(): iterable
+    /** @return iterable<array{mixed, string}> */
+    public static function badStringValues(): iterable
     {
-        return [
-            [[1], 'String cannot represent value: [1]'],
-            [new \stdClass(), 'String cannot represent value: instance of stdClass'],
-        ];
+        yield [[1], 'String cannot represent value: [1]'];
+        yield [new \stdClass(), 'String cannot represent value: instance of stdClass'];
     }
 
     /**
@@ -158,9 +140,7 @@ class ScalarSerializationTest extends TestCase
         $stringType->serialize($value);
     }
 
-    /**
-     * @see it('serializes output as Boolean')
-     */
+    /** @see it('serializes output as Boolean') */
     public function testSerializesOutputAsBoolean(): void
     {
         $boolType = Type::boolean();
@@ -176,9 +156,7 @@ class ScalarSerializationTest extends TestCase
         self::assertFalse($boolType->serialize(''));
     }
 
-    /**
-     * @see it('serializes output as ID')
-     */
+    /** @see it('serializes output as ID') */
     public function testSerializesOutputAsID(): void
     {
         $idType = Type::id();
@@ -193,18 +171,14 @@ class ScalarSerializationTest extends TestCase
         self::assertSame('2', $idType->serialize(new ObjectIdStub(2)));
     }
 
-    /**
-     * @return iterable<array{mixed, string}>
-     */
-    public function badIDValues(): iterable
+    /** @return iterable<array{mixed, string}> */
+    public static function badIDValues(): iterable
     {
-        return [
-            [new \stdClass(), 'ID cannot represent a non-string and non-integer value: instance of stdClass'],
-            [true, 'ID cannot represent a non-string and non-integer value: true'],
-            [false, 'ID cannot represent a non-string and non-integer value: false'],
-            [-1.1, 'ID cannot represent a non-string and non-integer value: -1.1'],
-            [['abc'], 'ID cannot represent a non-string and non-integer value: ["abc"]'],
-        ];
+        yield [new \stdClass(), 'ID cannot represent a non-string and non-integer value: instance of stdClass'];
+        yield [true, 'ID cannot represent a non-string and non-integer value: true'];
+        yield [false, 'ID cannot represent a non-string and non-integer value: false'];
+        yield [-1.1, 'ID cannot represent a non-string and non-integer value: -1.1'];
+        yield [['abc'], 'ID cannot represent a non-string and non-integer value: ["abc"]'];
     }
 
     /**

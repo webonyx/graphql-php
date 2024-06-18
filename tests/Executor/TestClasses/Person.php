@@ -2,22 +2,22 @@
 
 namespace GraphQL\Tests\Executor\TestClasses;
 
-class Person
+final class Person
 {
     /** @var string */
     public $name;
 
-    /** @var (Dog|Cat)[]|null */
-    public $pets;
+    /** @var array<Dog|Cat>|null */
+    public ?array $pets;
 
-    /** @var (Dog|Cat|Person)[]|null */
-    public $friends;
+    /** @var array<Dog|Cat|Person>|null */
+    public ?array $friends;
 
     /**
-     * @param (Cat|Dog)[]|null        $pets
-     * @param (Cat|Dog|Person)[]|null $friends
+     * @param array<Cat|Dog>|null $pets
+     * @param array<Cat|Dog|Person>|null $friends
      */
-    public function __construct(string $name, $pets = null, $friends = null)
+    public function __construct(string $name, ?array $pets = null, ?array $friends = null)
     {
         $this->name = $name;
         $this->pets = $pets;

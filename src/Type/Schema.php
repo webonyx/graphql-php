@@ -42,6 +42,8 @@ use GraphQL\Utils\Utils;
  *
  * @phpstan-import-type SchemaConfigOptions from SchemaConfig
  * @phpstan-import-type OperationType from OperationDefinitionNode
+ *
+ * @see \GraphQL\Tests\Type\SchemaTest
  */
 class Schema
 {
@@ -61,9 +63,7 @@ class Schema
      */
     private array $implementationsMap;
 
-    /**
-     * True when $resolvedTypes contains all possible schema types.
-     */
+    /** True when $resolvedTypes contains all possible schema types. */
     private bool $fullyLoaded = false;
 
     /** @var array<int, Error> */
@@ -78,6 +78,8 @@ class Schema
      * @param SchemaConfig|array<string, mixed> $config
      *
      * @phpstan-param SchemaConfig|SchemaConfigOptions $config
+     *
+     * @throws InvariantViolation
      *
      * @api
      */
@@ -103,6 +105,8 @@ class Schema
      * Returns all types in this schema.
      *
      * This operation requires a full schema scan. Do not use in production environment.
+     *
+     * @throws InvariantViolation
      *
      * @return array<string, Type&NamedType> Keys represent type names, values are instances of corresponding type definitions
      *
@@ -145,7 +149,7 @@ class Schema
                 TypeInfo::extractTypes($type, $allReferencedTypes);
             }
 
-            foreach ([$this->config->query, $this->config->mutation, $this->config->subscription] as $rootType) {
+            foreach ([$this->getQueryType(), $this->getMutationType(), $this->getSubscriptionType()] as $rootType) {
                 if ($rootType instanceof ObjectType) {
                     TypeInfo::extractTypes($rootType, $allReferencedTypes);
                 }
@@ -169,6 +173,8 @@ class Schema
     /**
      * Returns a list of directives supported by this schema.
      *
+     * @throws InvariantViolation
+     *
      * @return array<Directive>
      *
      * @api
@@ -178,9 +184,7 @@ class Schema
         return $this->config->directives ?? GraphQL::getStandardDirectives();
     }
 
-    /**
-     * @param mixed $typeLoaderReturn could be anything
-     */
+    /** @param mixed $typeLoaderReturn could be anything */
     public static function typeLoaderNotType($typeLoaderReturn): string
     {
         $typeClass = Type::class;
@@ -194,9 +198,7 @@ class Schema
         return "Type loader is expected to return type {$expectedTypeName}, but it returned type {$actualTypeName}.";
     }
 
-    /**
-     * Returns root type by operation name.
-     */
+    /** Returns root type by operation name. */
     public function getOperationType(string $operation): ?ObjectType
     {
         switch ($operation) {
@@ -214,7 +216,17 @@ class Schema
      */
     public function getQueryType(): ?ObjectType
     {
-        return $this->config->query;
+        $query = $this->config->query;
+
+        if ($query === null) {
+            return null;
+        }
+
+        if (is_callable($query)) {
+            return $this->config->query = $query();
+        }
+
+        return $query;
     }
 
     /**
@@ -224,7 +236,17 @@ class Schema
      */
     public function getMutationType(): ?ObjectType
     {
-        return $this->config->mutation;
+        $mutation = $this->config->mutation;
+
+        if ($mutation === null) {
+            return null;
+        }
+
+        if (is_callable($mutation)) {
+            return $this->config->mutation = $mutation();
+        }
+
+        return $mutation;
     }
 
     /**
@@ -234,12 +256,20 @@ class Schema
      */
     public function getSubscriptionType(): ?ObjectType
     {
-        return $this->config->subscription;
+        $subscription = $this->config->subscription;
+
+        if ($subscription === null) {
+            return null;
+        }
+
+        if (is_callable($subscription)) {
+            return $this->config->subscription = $subscription();
+        }
+
+        return $subscription;
     }
 
-    /**
-     * @api
-     */
+    /** @api */
     public function getConfig(): SchemaConfig
     {
         return $this->config;
@@ -247,6 +277,8 @@ class Schema
 
     /**
      * Returns a type by name.
+     *
+     * @throws InvariantViolation
      *
      * @return (Type&NamedType)|null
      *
@@ -276,22 +308,24 @@ class Schema
         return $this->resolvedTypes[$name] = self::resolveType($type);
     }
 
+    /** @throws InvariantViolation */
     public function hasType(string $name): bool
     {
         return $this->getType($name) !== null;
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return (Type&NamedType)|null
      */
     private function loadType(string $typeName): ?Type
     {
-        $typeLoader = $this->config->typeLoader;
-        if ($typeLoader === null) {
+        if (! isset($this->config->typeLoader)) {
             return $this->getTypeMap()[$typeName] ?? null;
         }
 
-        $type = $typeLoader($typeName);
+        $type = ($this->config->typeLoader)($typeName);
         if ($type === null) {
             return null;
         }
@@ -334,6 +368,8 @@ class Schema
      *
      * @param AbstractType&Type $abstractType
      *
+     * @throws InvariantViolation
+     *
      * @return array<ObjectType>
      *
      * @api
@@ -355,6 +391,8 @@ class Schema
      * This operation requires full schema scan. Do not use in production environment.
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public function getImplementations(InterfaceType $abstractType): InterfaceImplementations
     {
@@ -362,6 +400,8 @@ class Schema
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<string, InterfaceImplementations>
      */
     private function collectImplementations(): array
@@ -418,6 +458,8 @@ class Schema
      * @param ImplementingType&Type $maybeSubType
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public function isSubType(AbstractType $abstractType, ImplementingType $maybeSubType): bool
     {
@@ -434,6 +476,8 @@ class Schema
      * Returns instance of directive by name.
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public function getDirective(string $name): ?Directive
     {
@@ -451,6 +495,7 @@ class Schema
      *
      * This operation requires a full schema scan. Do not use in production environment.
      *
+     * @throws Error
      * @throws InvariantViolation
      *
      * @api
@@ -472,10 +517,8 @@ class Schema
             $type->assertValid();
 
             // Make sure type loader returns the same instance as registered in other places of schema
-            if (isset($this->config->typeLoader)) {
-                if ($this->loadType($name) !== $type) {
-                    throw new InvariantViolation("Type loader returns different instance for {$name} than field/argument definitions. Make sure you always return the same instance for the same type name.");
-                }
+            if (isset($this->config->typeLoader) && $this->loadType($name) !== $type) {
+                throw new InvariantViolation("Type loader returns different instance for {$name} than field/argument definitions. Make sure you always return the same instance for the same type name.");
             }
         }
     }
@@ -484,6 +527,8 @@ class Schema
      * Validate the schema and return any errors.
      *
      * This operation requires a full schema scan. Do not use in production environment.
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, Error>
      *

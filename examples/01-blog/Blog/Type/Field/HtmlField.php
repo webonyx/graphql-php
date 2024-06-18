@@ -2,6 +2,7 @@
 
 namespace GraphQL\Examples\Blog\Type\Field;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatType;
 use GraphQL\Examples\Blog\TypeRegistry;
 use GraphQL\Type\Definition\Type;
@@ -12,6 +13,8 @@ class HtmlField
      * @param array{
      * 	resolve: callable
      * } $config
+     *
+     * @throws InvariantViolation
      *
      * @return array<mixed>
      */
@@ -35,11 +38,9 @@ class HtmlField
                 $html = $resolver($rootValue, $args);
                 $text = \strip_tags($html);
 
-                if (isset($args['maxLength'])) {
-                    $safeText = \mb_substr($text, 0, $args['maxLength']);
-                } else {
-                    $safeText = $text;
-                }
+                $safeText = isset($args['maxLength'])
+                    ? \mb_substr($text, 0, $args['maxLength'])
+                    : $text;
 
                 switch ($args['format']) {
                     case ContentFormatType::FORMAT_HTML:

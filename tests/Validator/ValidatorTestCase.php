@@ -4,6 +4,8 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Error\UserError;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\DirectiveLocation;
@@ -25,6 +27,10 @@ abstract class ValidatorTestCase extends TestCase
 {
     /**
      * @param array<string, mixed> $options
+     *
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws InvariantViolation
      */
     protected function expectPassesRule(ValidationRule $rule, string $queryString, array $options = []): void
     {
@@ -33,17 +39,22 @@ abstract class ValidatorTestCase extends TestCase
 
     /**
      * @param array<ValidationRule> $rules
-     * @param array<string, mixed>  $options
+     * @param array<string, mixed> $options
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
      */
     protected function expectValid(Schema $schema, array $rules, string $queryString, array $options = []): void
     {
-        self::assertEquals(
+        self::assertSame(
             [],
             DocumentValidator::validate($schema, Parser::parse($queryString, $options), $rules),
             'Should validate'
         );
     }
 
+    /** @throws InvariantViolation */
     public static function getTestSchema(): Schema
     {
         $Being = new InterfaceType([
@@ -106,6 +117,10 @@ abstract class ValidatorTestCase extends TestCase
                 'isAtLocation' => [
                     'type' => Type::boolean(),
                     'args' => ['x' => ['type' => Type::int()], 'y' => ['type' => Type::int()]],
+                ],
+                'secretName' => [
+                    'type' => Type::string(),
+                    'visible' => false,
                 ],
             ],
             'interfaces' => [$Being, $Pet, $Canine],
@@ -411,7 +426,11 @@ abstract class ValidatorTestCase extends TestCase
 
     /**
      * @param array<int, array<string, mixed>> $errors
-     * @param array<string, mixed>             $options
+     * @param array<string, mixed> $options
+     *
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws InvariantViolation
      *
      * @return array<int, Error>
      */
@@ -425,9 +444,13 @@ abstract class ValidatorTestCase extends TestCase
     }
 
     /**
-     * @param array<ValidationRule>|null       $rules
+     * @param array<ValidationRule>|null $rules
      * @param array<int, array<string, mixed>> $expectedErrors
-     * @param array<string, mixed>             $options
+     * @param array<string, mixed> $options
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
      *
      * @return array<int, Error>
      */
@@ -441,6 +464,11 @@ abstract class ValidatorTestCase extends TestCase
         return $errors;
     }
 
+    /**
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
     protected function expectPassesRuleWithSchema(Schema $schema, ValidationRule $rule, string $queryString): void
     {
         $this->expectValid($schema, [$rule], $queryString);
@@ -448,6 +476,12 @@ abstract class ValidatorTestCase extends TestCase
 
     /**
      * @param array<int, array<string, mixed>> $errors
+     *
+     * @throws \Exception
+     * @throws \InvalidArgumentException
+     * @throws \ReflectionException
+     * @throws InvariantViolation
+     * @throws SyntaxError
      */
     protected function expectFailsRuleWithSchema(
         Schema $schema,
@@ -458,6 +492,12 @@ abstract class ValidatorTestCase extends TestCase
         $this->expectInvalid($schema, [$rule], $queryString, $errors);
     }
 
+    /**
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws \ReflectionException
+     * @throws SyntaxError
+     */
     protected function expectPassesCompleteValidation(string $queryString): void
     {
         $this->expectValid(self::getTestSchema(), DocumentValidator::allRules(), $queryString);
@@ -465,6 +505,11 @@ abstract class ValidatorTestCase extends TestCase
 
     /**
      * @param array<int, array<string, mixed>> $errors
+     *
+     * @throws \Exception
+     * @throws \InvalidArgumentException
+     * @throws \ReflectionException
+     * @throws InvariantViolation
      */
     protected function expectFailsCompleteValidation(string $queryString, array $errors): void
     {
@@ -473,6 +518,10 @@ abstract class ValidatorTestCase extends TestCase
 
     /**
      * @param array<int, array<string, mixed>> $errors
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws SyntaxError
      */
     protected function expectSDLErrorsFromRule(
         ValidationRule $rule,
@@ -487,6 +536,7 @@ abstract class ValidatorTestCase extends TestCase
         );
     }
 
+    /** @throws \Exception */
     protected function expectValidSDL(ValidationRule $rule, string $sdlString, ?Schema $schema = null): void
     {
         $this->expectSDLErrorsFromRule($rule, $sdlString, $schema, []);

@@ -15,15 +15,27 @@ abstract class TestCaseBase extends TestCase
      *
      * @see TestCase::expectNotToPerformAssertions()
      */
-    public static function assertDidNotCrash(): void
+    public function assertDidNotCrash(): void
     {
-        // @phpstan-ignore-next-line this truism is required to prevent a PHPUnit warning
-        self::assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     protected static function assertASTMatches(string $expected, ?Node $node): void
     {
         self::assertInstanceOf(Node::class, $node);
         self::assertSame($expected, Printer::doPrint($node));
+    }
+
+    /**
+     * Just defined so that we can use Rector to prefer assertSame() over assertEquals() everywhere else.
+     *
+     * Array output may differ between tested PHP versions.
+     *
+     * @param array<mixed> $expected
+     * @param array<mixed> $actual
+     */
+    protected static function assertArrayEquals(array $expected, array $actual): void
+    {
+        self::assertEquals($expected, $actual);
     }
 }

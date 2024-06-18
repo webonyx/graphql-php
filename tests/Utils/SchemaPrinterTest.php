@@ -2,6 +2,8 @@
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SerializationError;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
@@ -25,6 +27,11 @@ final class SchemaPrinterTest extends TestCase
 {
     /**
      * @param Options $options
+     *
+     * @throws \Exception
+     * @throws \JsonException
+     * @throws InvariantViolation
+     * @throws SerializationError
      */
     private static function assertPrintedSchemaEquals(string $expected, Schema $schema, array $options = []): void
     {
@@ -32,11 +39,15 @@ final class SchemaPrinterTest extends TestCase
         $builtSchema = BuildSchema::build($printedSchema);
         $cycledSchema = SchemaPrinter::doPrint($builtSchema, $options);
 
-        self::assertEquals($printedSchema, $cycledSchema);
-        self::assertEquals($expected, $printedSchema);
+        self::assertSame($printedSchema, $cycledSchema);
+        self::assertSame($expected, $printedSchema);
     }
 
-    /** @param array<string, mixed> $fieldConfig */
+    /**
+     * @param array<string, mixed> $fieldConfig
+     *
+     * @throws InvariantViolation
+     */
     private function buildSingleFieldSchema(array $fieldConfig): Schema
     {
         $query = new ObjectType([
@@ -47,9 +58,7 @@ final class SchemaPrinterTest extends TestCase
         return new Schema(['query' => $query]);
     }
 
-    /**
-     * @see it('Prints String Field')
-     */
+    /** @see it('Prints String Field') */
     public function testPrintsStringField(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -66,9 +75,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints [String] Field')
-     */
+    /** @see it('Prints [String] Field') */
     public function testPrintArrayStringField(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -85,9 +92,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints String! Field')
-     */
+    /** @see it('Prints String! Field') */
     public function testPrintNonNullStringField(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -104,9 +109,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints [String]! Field')
-     */
+    /** @see it('Prints [String]! Field') */
     public function testPrintNonNullArrayStringField(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -123,9 +126,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints [String!] Field')
-     */
+    /** @see it('Prints [String!] Field') */
     public function testPrintArrayNonNullStringField(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -142,9 +143,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints [String!]! Field')
-     */
+    /** @see it('Prints [String!]! Field') */
     public function testPrintNonNullArrayNonNullStringField(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -183,10 +182,8 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @return iterable<string, array{string|null, string}>
-     */
-    public function deprecationReasonDataProvider(): iterable
+    /** @return iterable<array{string|null, string}> */
+    public static function deprecationReasonDataProvider(): iterable
     {
         yield 'when deprecationReason is null' => [
             null,
@@ -209,9 +206,7 @@ final class SchemaPrinterTest extends TestCase
         ];
     }
 
-    /**
-     * @see it('Print Object Field')
-     */
+    /** @see it('Print Object Field') */
     public function testPrintObjectField(): void
     {
         $fooType = new ObjectType([
@@ -277,9 +272,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints String Field With Int Arg')
-     */
+    /** @see it('Prints String Field With Int Arg') */
     public function testPrintsStringFieldWithIntArg(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -297,9 +290,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints String Field With Int Arg With Default')
-     */
+    /** @see it('Prints String Field With Int Arg With Default') */
     public function testPrintsStringFieldWithIntArgWithDefault(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -317,9 +308,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints String Field With String Arg With Default')
-     */
+    /** @see it('Prints String Field With String Arg With Default') */
     public function testPrintsStringFieldWithStringArgWithDefault(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -337,9 +326,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints String Field With Int Arg With Default Null')
-     */
+    /** @see it('Prints String Field With Int Arg With Default Null') */
     public function testPrintsStringFieldWithIntArgWithDefaultNull(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -357,9 +344,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints String Field With Int! Arg')
-     */
+    /** @see it('Prints String Field With Int! Arg') */
     public function testPrintsStringFieldWithNonNullIntArg(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -377,9 +362,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints String Field With Multiple Args')
-     */
+    /** @see it('Prints String Field With Multiple Args') */
     public function testPrintsStringFieldWithMultipleArgs(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -400,9 +383,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints String Field With Multiple Args, First is Default')
-     */
+    /** @see it('Prints String Field With Multiple Args, First is Default') */
     public function testPrintsStringFieldWithMultipleArgsFirstIsDefault(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -424,9 +405,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints String Field With Multiple Args, Second is Default')
-     */
+    /** @see it('Prints String Field With Multiple Args, Second is Default') */
     public function testPrintsStringFieldWithMultipleArgsSecondIsDefault(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -448,9 +427,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints String Field With Multiple Args, Last is Default')
-     */
+    /** @see it('Prints String Field With Multiple Args, Last is Default') */
     public function testPrintsStringFieldWithMultipleArgsLastIsDefault(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -510,9 +487,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints custom query root types')
-     */
+    /** @see it('Prints custom query root types') */
     public function testPrintsCustomQueryRootTypes(): void
     {
         $schema = new Schema([
@@ -530,9 +505,7 @@ final class SchemaPrinterTest extends TestCase
         self::assertPrintedSchemaEquals($expected, $schema);
     }
 
-    /**
-     * @see it('Prints custom mutation root types')
-     */
+    /** @see it('Prints custom mutation root types') */
     public function testPrintsCustomMutationRootTypes(): void
     {
         $schema = new Schema([
@@ -552,9 +525,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints custom subscription root types')
-     */
+    /** @see it('Prints custom subscription root types') */
     public function testPrintsCustomSubscriptionRootTypes(): void
     {
         $schema = new Schema([
@@ -574,9 +545,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Print Interface')
-     */
+    /** @see it('Print Interface') */
     public function testPrintInterface(): void
     {
         $fooType = new InterfaceType([
@@ -607,9 +576,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Print Multiple Interface')
-     */
+    /** @see it('Print Multiple Interface') */
     public function testPrintMultipleInterface(): void
     {
         $fooType = new InterfaceType([
@@ -653,9 +620,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Print Hierarchical Interface')
-     */
+    /** @see it('Print Hierarchical Interface') */
     public function testPrintHierarchicalInterface(): void
     {
         $FooType = new InterfaceType([
@@ -716,9 +681,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Print Unions')
-     */
+    /** @see it('Print Unions') */
     public function testPrintUnions(): void
     {
         $fooType = new ObjectType([
@@ -768,9 +731,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Print Input Type')
-     */
+    /** @see it('Print Input Type') */
     public function testInputType(): void
     {
         $inputType = new InputObjectType([
@@ -791,9 +752,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Custom Scalar')
-     */
+    /** @see it('Custom Scalar') */
     public function testCustomScalar(): void
     {
         $oddType = new CustomScalarType([
@@ -812,9 +771,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Enum')
-     */
+    /** @see it('Enum') */
     public function testEnum(): void
     {
         $RGBType = new EnumType([
@@ -841,9 +798,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints empty types')
-     */
+    /** @see it('Prints empty types') */
     public function testPrintsEmptyTypes(): void
     {
         $schema = new Schema([
@@ -873,9 +828,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints custom directives')
-     */
+    /** @see it('Prints custom directives') */
     public function testPrintsCustomDirectives(): void
     {
         $simpleDirective = new Directive([
@@ -913,9 +866,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints an empty description')
-     */
+    /** @see it('Prints an empty description') */
     public function testPrintsAnEmptyDescription(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -935,9 +886,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Prints a description with only whitespace', () => {
-     */
+    /** @see it('Prints a description with only whitespace', () => { */
     public function testPrintsADescriptionWithOnlyWhitespace(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -957,9 +906,7 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('One-line prints a short description')
-     */
+    /** @see it('One-line prints a short description') */
     public function testOneLinePrintsAShortDescription(): void
     {
         $schema = $this->buildSingleFieldSchema([
@@ -998,9 +945,48 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
-    /**
-     * @see it('Print Introspection Schema')
-     */
+    public function testPrintsOneLineDescriptionWithUnicode(): void
+    {
+        $schema = $this->buildSingleFieldSchema([
+            'type' => Type::string(),
+            'description' => 'Съешь же ещё этих мягких французских булок, да выпей чаю',
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            type Query {
+              "Съешь же ещё этих мягких французских булок, да выпей чаю"
+              singleField: String
+            }
+
+            GRAPHQL,
+            $schema
+        );
+    }
+
+    public function testPrintsMultiLineDescriptionWithUnicode(): void
+    {
+        $schema = $this->buildSingleFieldSchema([
+            'type' => Type::string(),
+            'description' => "Съешь же ещё этих мягких французских булок,\nда выпей чаю",
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            type Query {
+              """
+              Съешь же ещё этих мягких французских булок,
+              да выпей чаю
+              """
+              singleField: String
+            }
+
+            GRAPHQL,
+            $schema
+        );
+    }
+
+    /** @see it('Print Introspection Schema') */
     public function testPrintIntrospectionSchema(): void
     {
         $schema = new Schema([]);
@@ -1023,7 +1009,7 @@ final class SchemaPrinterTest extends TestCase
       directive @deprecated(
         "Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https:\/\/commonmark.org\/)."
         reason: String = "No longer supported"
-      ) on FIELD_DEFINITION | ENUM_VALUE
+      ) on FIELD_DEFINITION | ENUM_VALUE | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
       "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations."
       type __Schema {
@@ -1056,7 +1042,7 @@ final class SchemaPrinterTest extends TestCase
         interfaces: [__Type!]
         possibleTypes: [__Type!]
         enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
-        inputFields: [__InputValue!]
+        inputFields(includeDeprecated: Boolean = false): [__InputValue!]
         ofType: __Type
       }
 
@@ -1091,7 +1077,7 @@ final class SchemaPrinterTest extends TestCase
       type __Field {
         name: String!
         description: String
-        args: [__InputValue!]!
+        args(includeDeprecated: Boolean = false): [__InputValue!]!
         type: __Type!
         isDeprecated: Boolean!
         deprecationReason: String
@@ -1105,6 +1091,9 @@ final class SchemaPrinterTest extends TestCase
 
         "A GraphQL-formatted string representing the default value for this input value."
         defaultValue: String
+
+        isDeprecated: Boolean!
+        deprecationReason: String
       }
 
       "One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string."
@@ -1189,12 +1178,10 @@ final class SchemaPrinterTest extends TestCase
       }
 
       GRAPHQL;
-        self::assertEquals($expected, $output);
+        self::assertSame($expected, $output);
     }
 
-    /**
-     * Additional functionality not present in the reference implementation.
-     */
+    /** Additional functionality not present in the reference implementation. */
     public function testPrintSchemaWithSortedTypes(): void
     {
         $schema = new Schema([
@@ -1222,6 +1209,187 @@ final class SchemaPrinterTest extends TestCase
             GRAPHQL,
             $schema,
             ['sortTypes' => true]
+        );
+    }
+
+    /** Additional functionality not present in the reference implementation. */
+    public function testPrintSchemaWithSortedFields(): void
+    {
+        $schema = new Schema([
+            'types' => [
+                new InputObjectType(['name' => 'InputObject', 'fields' => [
+                    'foo' => ['type' => Type::string()],
+                    'bar' => ['type' => Type::string()],
+                ]]),
+                new InterfaceType(['name' => 'FooInterface', 'fields' => [
+                    'foo' => ['type' => Type::string()],
+                    'bar' => ['type' => Type::string()],
+                ]]),
+                new ObjectType(['name' => 'Abc', 'fields' => [
+                    'foo' => ['type' => Type::string()],
+                    'bar' => ['type' => Type::string()],
+                ]]),
+            ],
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            input InputObject {
+              foo: String
+              bar: String
+            }
+            
+            interface FooInterface {
+              bar: String
+              foo: String
+            }
+            
+            type Abc {
+              bar: String
+              foo: String
+            }
+
+            GRAPHQL,
+            $schema,
+            ['sortFields' => true]
+        );
+    }
+
+    /** Additional functionality not present in the reference implementation. */
+    public function testPrintSchemaWithSortedInputFields(): void
+    {
+        $schema = new Schema([
+            'types' => [
+                new InputObjectType(['name' => 'InputObject', 'fields' => [
+                    'foo' => ['type' => Type::string()],
+                    'bar' => ['type' => Type::string()],
+                ]]),
+                new InterfaceType(['name' => 'FooInterface', 'fields' => [
+                    'foo' => ['type' => Type::string()],
+                    'bar' => ['type' => Type::string()],
+                ]]),
+                new ObjectType(['name' => 'Abc', 'fields' => [
+                    'foo' => ['type' => Type::string()],
+                    'bar' => ['type' => Type::string()],
+                ]]),
+            ],
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            input InputObject {
+              bar: String
+              foo: String
+            }
+            
+            interface FooInterface {
+              foo: String
+              bar: String
+            }
+            
+            type Abc {
+              foo: String
+              bar: String
+            }
+
+            GRAPHQL,
+            $schema,
+            ['sortInputFields' => true]
+        );
+    }
+
+    /** Additional functionality not present in the reference implementation. */
+    public function testPrintSchemaWithSortedEnumValues(): void
+    {
+        $schema = new Schema([
+            'types' => [
+                new EnumType([
+                    'name' => 'RGB',
+                    'values' => [
+                        'RED' => [],
+                        'GREEN' => [],
+                        'BLUE' => [],
+                    ],
+                ]),
+            ],
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            enum RGB {
+              BLUE
+              GREEN
+              RED
+            }
+
+            GRAPHQL,
+            $schema,
+            ['sortEnumValues' => true]
+        );
+    }
+
+    /** Additional functionality not present in the reference implementation. */
+    public function testPrintSchemaWithSortedArguments(): void
+    {
+        $schema = new Schema([
+            'types' => [
+                new InterfaceType(['name' => 'FooInterface', 'fields' => [
+                    'myField' => [
+                        'type' => Type::string(),
+                        'args' => [
+                            'foo' => ['type' => Type::int()],
+                            'bar' => ['type' => Type::int()],
+                        ],
+                    ],
+                ]]),
+                new ObjectType(['name' => 'Abc', 'fields' => [
+                    'myField' => [
+                        'type' => Type::string(),
+                        'args' => [
+                            'foo' => ['type' => Type::int()],
+                            'bar' => ['type' => Type::int()],
+                        ],
+                    ],
+                ]]),
+            ],
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            interface FooInterface {
+              myField(bar: Int, foo: Int): String
+            }
+            
+            type Abc {
+              myField(bar: Int, foo: Int): String
+            }
+
+            GRAPHQL,
+            $schema,
+            ['sortArguments' => true]
+        );
+    }
+
+    public function testPrintDeprecatedFieldArg(): void
+    {
+        $schema = $this->buildSingleFieldSchema([
+            'type' => Type::int(),
+            'args' => [
+                'id' => [
+                    'type' => Type::id(),
+                    'defaultValue' => '123',
+                    'deprecationReason' => 'this is deprecated',
+                ],
+            ],
+        ]);
+        self::assertPrintedSchemaEquals(
+            <<<GRAPHQL
+            type Query {
+              singleField(id: ID = 123 @deprecated(reason: "this is deprecated")): Int
+            }
+
+            GRAPHQL,
+            $schema
         );
     }
 }

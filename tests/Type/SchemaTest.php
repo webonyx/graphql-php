@@ -2,7 +2,6 @@
 
 namespace GraphQL\Tests\Type;
 
-use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\InputObjectType;
@@ -12,7 +11,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
-class SchemaTest extends TestCase
+final class SchemaTest extends TestCase
 {
     private InterfaceType $interfaceType;
 
@@ -92,9 +91,7 @@ class SchemaTest extends TestCase
     // Type System: Schema
     // Getting possible types
 
-    /**
-     * @see it('throws human-reable error if schema.types is not defined')
-     */
+    /** @see it('throws human-reable error if schema.types is not defined') */
     public function testThrowsHumanReableErrorIfSchemaTypesIsNotDefined(): void
     {
         self::markTestSkipped("Can't check interface implementations without full schema scan");
@@ -110,9 +107,7 @@ class SchemaTest extends TestCase
 
     // Type Map
 
-    /**
-     * @see it('includes input types only used in directives')
-     */
+    /** @see it('includes input types only used in directives') */
     public function testIncludesInputTypesOnlyUsedInDirectives(): void
     {
         $typeMap = $this->schema->getTypeMap();
@@ -120,9 +115,7 @@ class SchemaTest extends TestCase
         self::assertArrayHasKey('WrappedDirInput', $typeMap);
     }
 
-    /**
-     * @see https://github.com/webonyx/graphql-php/issues/997
-     */
+    /** @see https://github.com/webonyx/graphql-php/issues/997 */
     public function testSchemaReturnsNullForNonexistentType(): void
     {
         self::assertNull($this->schema->getType('UnknownType'));

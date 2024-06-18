@@ -5,6 +5,8 @@ namespace GraphQL\Language;
 /**
  * Represents a range of characters represented by a lexical token
  * within a Source.
+ *
+ * @see \GraphQL\Tests\Language\TokenTest
  */
 class Token
 {
@@ -32,29 +34,19 @@ class Token
     public const BLOCK_STRING = 'BlockString';
     public const COMMENT = 'Comment';
 
-    /**
-     * The kind of Token (see one of constants above).
-     */
+    /** The kind of Token (see one of constants above). */
     public string $kind;
 
-    /**
-     * The character offset at which this Node begins.
-     */
+    /** The character offset at which this Node begins. */
     public int $start;
 
-    /**
-     * The character offset at which this Node ends.
-     */
+    /** The character offset at which this Node ends. */
     public int $end;
 
-    /**
-     * The 1-indexed line number on which this Token appears.
-     */
+    /** The 1-indexed line number on which this Token appears. */
     public int $line;
 
-    /**
-     * The 1-indexed column number at which this Token begins.
-     */
+    /** The 1-indexed column number at which this Token begins. */
     public int $column;
 
     public ?string $value;

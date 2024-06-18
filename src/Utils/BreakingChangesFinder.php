@@ -2,6 +2,7 @@
 
 namespace GraphQL\Utils;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -25,6 +26,8 @@ use GraphQL\Type\Schema;
  *     breakingChanges: array<int, Change>,
  *     dangerousChanges: array<int, Change>
  * }
+ *
+ * @see \GraphQL\Tests\Utils\BreakingChangesFinderTest
  */
 class BreakingChangesFinder
 {
@@ -54,6 +57,9 @@ class BreakingChangesFinder
      * Given two schemas, returns an Array containing descriptions of all the types
      * of breaking changes covered by the other functions down below.
      *
+     * @throws \TypeError
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findBreakingChanges(Schema $oldSchema, Schema $newSchema): array
@@ -77,6 +83,8 @@ class BreakingChangesFinder
     /**
      * Given two schemas, returns an Array containing descriptions of any breaking
      * changes in the newSchema related to removing an entire type.
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, Change>
      */
@@ -103,6 +111,9 @@ class BreakingChangesFinder
     /**
      * Given two schemas, returns an Array containing descriptions of any breaking
      * changes in the newSchema related to changing the type of a type.
+     *
+     * @throws \TypeError
+     * @throws InvariantViolation
      *
      * @return array<int, Change>
      */
@@ -141,6 +152,8 @@ class BreakingChangesFinder
 
     /**
      * @param Type&NamedType $type
+     *
+     * @throws \TypeError
      */
     private static function typeKindName(NamedType $type): string
     {
@@ -172,6 +185,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findFieldsThatChangedTypeOnObjectOrInterfaceTypes(
@@ -185,8 +200,8 @@ class BreakingChangesFinder
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = $newTypeMap[$typeName] ?? null;
             if (
-                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType)
-                || ! ($newType instanceof ObjectType || $newType instanceof InterfaceType)
+                ! $oldType instanceof ObjectType && ! $oldType instanceof InterfaceType
+                || ! $newType instanceof ObjectType && ! $newType instanceof InterfaceType
                 || ! ($newType instanceof $oldType)
             ) {
                 continue;
@@ -254,6 +269,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return Changes
      */
     public static function findFieldsThatChangedTypeOnInputObjectTypes(
@@ -288,17 +305,12 @@ class BreakingChangesFinder
                         $newFieldType
                     );
                     if (! $isSafe) {
-                        if ($oldFieldType instanceof NamedType) {
-                            $oldFieldTypeString = $oldFieldType->name;
-                        } else {
-                            $oldFieldTypeString = $oldFieldType;
-                        }
-
-                        if ($newFieldType instanceof NamedType) {
-                            $newFieldTypeString = $newFieldType->name;
-                        } else {
-                            $newFieldTypeString = $newFieldType;
-                        }
+                        $oldFieldTypeString = $oldFieldType instanceof NamedType
+                            ? $oldFieldType->name
+                            : $oldFieldType;
+                        $newFieldTypeString = $newFieldType instanceof NamedType
+                            ? $newFieldType->name
+                            : $newFieldType;
 
                         $breakingChanges[] = [
                             'type' => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,
@@ -335,6 +347,7 @@ class BreakingChangesFinder
         ];
     }
 
+    /** @throws InvariantViolation */
     private static function isChangeSafeForInputObjectFieldOrFieldArg(
         Type $oldType,
         Type $newType
@@ -375,6 +388,8 @@ class BreakingChangesFinder
      * Given two schemas, returns an Array containing descriptions of any breaking
      * changes in the newSchema related to removing types from a union type.
      *
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findTypesRemovedFromUnions(
@@ -412,6 +427,8 @@ class BreakingChangesFinder
     /**
      * Given two schemas, returns an Array containing descriptions of any breaking
      * changes in the newSchema related to removing values from an enum type.
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, Change>
      */
@@ -453,6 +470,8 @@ class BreakingChangesFinder
      * (such as removal or change of type of an argument, or a change in an
      * argument's default value).
      *
+     * @throws InvariantViolation
+     *
      * @return Changes
      */
     public static function findArgChanges(
@@ -468,8 +487,8 @@ class BreakingChangesFinder
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = $newTypeMap[$typeName] ?? null;
             if (
-                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType)
-                || ! ($newType instanceof ObjectType || $newType instanceof InterfaceType)
+                ! $oldType instanceof ObjectType && ! $oldType instanceof InterfaceType
+                || ! $newType instanceof ObjectType && ! $newType instanceof InterfaceType
                 || ! ($newType instanceof $oldType)
             ) {
                 continue;
@@ -555,6 +574,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findInterfacesRemovedFromObjectTypes(
@@ -594,6 +615,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findRemovedDirectives(Schema $oldSchema, Schema $newSchema): array
@@ -614,6 +637,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<string, Directive>
      */
     private static function getDirectiveMapForSchema(Schema $schema): array
@@ -627,6 +652,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findRemovedDirectiveArgs(Schema $oldSchema, Schema $newSchema): array
@@ -655,9 +682,7 @@ class BreakingChangesFinder
         return $removedDirectiveArgs;
     }
 
-    /**
-     * @return array<int, Argument>
-     */
+    /** @return array<int, Argument> */
     public static function findRemovedArgsForDirectives(Directive $oldDirective, Directive $newDirective): array
     {
         $removedArgs = [];
@@ -671,9 +696,7 @@ class BreakingChangesFinder
         return $removedArgs;
     }
 
-    /**
-     * @return array<string, Argument>
-     */
+    /** @return array<string, Argument> */
     private static function getArgumentMapForDirective(Directive $directive): array
     {
         $args = [];
@@ -685,6 +708,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findAddedNonNullDirectiveArgs(Schema $oldSchema, Schema $newSchema): array
@@ -715,9 +740,7 @@ class BreakingChangesFinder
         return $addedNonNullableArgs;
     }
 
-    /**
-     * @return array<int, Argument>
-     */
+    /** @return array<int, Argument> */
     public static function findAddedArgsForDirective(Directive $oldDirective, Directive $newDirective): array
     {
         $addedArgs = [];
@@ -732,6 +755,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findRemovedDirectiveLocations(Schema $oldSchema, Schema $newSchema): array
@@ -760,9 +785,7 @@ class BreakingChangesFinder
         return $removedLocations;
     }
 
-    /**
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     public static function findRemovedLocationsForDirective(Directive $oldDirective, Directive $newDirective): array
     {
         $removedLocations = [];
@@ -780,6 +803,8 @@ class BreakingChangesFinder
      * Given two schemas, returns an Array containing descriptions of all the types
      * of potentially dangerous changes covered by the other functions down below.
      *
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findDangerousChanges(Schema $oldSchema, Schema $newSchema): array
@@ -796,6 +821,8 @@ class BreakingChangesFinder
     /**
      * Given two schemas, returns an Array containing descriptions of any dangerous
      * changes in the newSchema related to adding values to an enum type.
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, Change>
      */
@@ -832,6 +859,8 @@ class BreakingChangesFinder
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @return array<int, Change>
      */
     public static function findInterfacesAddedToObjectTypes(
@@ -845,8 +874,8 @@ class BreakingChangesFinder
         foreach ($newTypeMap as $typeName => $newType) {
             $oldType = $oldTypeMap[$typeName] ?? null;
             if (
-                ! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType)
-                || ! ($newType instanceof ObjectType || $newType instanceof InterfaceType)
+                ! $oldType instanceof ObjectType && ! $oldType instanceof InterfaceType
+                || ! $newType instanceof ObjectType && ! $newType instanceof InterfaceType
             ) {
                 continue;
             }
@@ -876,6 +905,8 @@ class BreakingChangesFinder
     /**
      * Given two schemas, returns an Array containing descriptions of any dangerous
      * changes in the newSchema related to adding types to a union type.
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, Change>
      */

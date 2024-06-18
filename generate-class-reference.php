@@ -2,69 +2,48 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-use GraphQL\Error\ClientAware;
-use GraphQL\Error\DebugFlag;
-use GraphQL\Error\Error;
-use GraphQL\Error\FormattedError;
-use GraphQL\Error\Warning;
-use GraphQL\Executor\ExecutionResult;
-use GraphQL\Executor\Executor;
-use GraphQL\Executor\Promise\PromiseAdapter;
-use GraphQL\GraphQL;
-use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\DirectiveLocation;
-use GraphQL\Language\Parser;
-use GraphQL\Language\Printer;
-use GraphQL\Language\Visitor;
-use GraphQL\Server\Helper;
-use GraphQL\Server\OperationParams;
-use GraphQL\Server\ServerConfig;
-use GraphQL\Server\StandardServer;
-use GraphQL\Type\Definition\ResolveInfo;
-use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Schema;
-use GraphQL\Type\SchemaConfig;
-use GraphQL\Utils\AST;
-use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\PhpDoc;
-use GraphQL\Utils\SchemaPrinter;
-use GraphQL\Validator\DocumentValidator;
+use Symfony\Component\VarExporter\Exception\ExceptionInterface;
 use Symfony\Component\VarExporter\VarExporter;
 
 const OUTPUT_FILE = __DIR__ . '/docs/class-reference.md';
 
 const ENTRIES = [
-    GraphQL::class => [],
-    Type::class => [],
-    ResolveInfo::class => [],
-    DirectiveLocation::class => ['constants' => true],
-    SchemaConfig::class => [],
-    Schema::class => [],
-    Parser::class => [],
-    Printer::class => [],
-    Visitor::class => [],
-    NodeKind::class => ['constants' => true],
-    Executor::class => [],
-    ExecutionResult::class => [],
-    PromiseAdapter::class => [],
-    DocumentValidator::class => [],
-    Error::class => ['constants' => true],
-    Warning::class => ['constants' => true],
-    ClientAware::class => [],
-    DebugFlag::class => ['constants' => true],
-    FormattedError::class => [],
-    StandardServer::class => [],
-    ServerConfig::class => [],
-    Helper::class => [],
-    OperationParams::class => [],
-    BuildSchema::class => [],
-    AST::class => [],
-    SchemaPrinter::class => [],
+    GraphQL\GraphQL::class => [],
+    GraphQL\Type\Definition\Type::class => [],
+    GraphQL\Type\Definition\ResolveInfo::class => [],
+    GraphQL\Language\DirectiveLocation::class => ['constants' => true],
+    GraphQL\Type\SchemaConfig::class => [],
+    GraphQL\Type\Schema::class => [],
+    GraphQL\Language\Parser::class => [],
+    GraphQL\Language\Printer::class => [],
+    GraphQL\Language\Visitor::class => [],
+    GraphQL\Language\AST\NodeKind::class => ['constants' => true],
+    GraphQL\Executor\Executor::class => [],
+    GraphQL\Executor\ScopedContext::class => [],
+    GraphQL\Executor\ExecutionResult::class => [],
+    GraphQL\Executor\Promise\PromiseAdapter::class => [],
+    GraphQL\Validator\DocumentValidator::class => [],
+    GraphQL\Error\Error::class => ['constants' => true],
+    GraphQL\Error\Warning::class => ['constants' => true],
+    GraphQL\Error\ClientAware::class => [],
+    GraphQL\Error\DebugFlag::class => ['constants' => true],
+    GraphQL\Error\FormattedError::class => [],
+    GraphQL\Server\StandardServer::class => [],
+    GraphQL\Server\ServerConfig::class => [],
+    GraphQL\Server\Helper::class => [],
+    GraphQL\Server\OperationParams::class => [],
+    GraphQL\Utils\BuildSchema::class => [],
+    GraphQL\Utils\AST::class => [],
+    GraphQL\Utils\SchemaPrinter::class => [],
 ];
 
 /**
- * @param ReflectionClass<object>                               $class
+ * @param ReflectionClass<object> $class
  * @param array{constants?: bool, props?: bool, methods?: bool} $options
+ *
+ * @throws ExceptionInterface
+ * @throws ReflectionException
  */
 function renderClass(ReflectionClass $class, array $options): string
 {
@@ -78,7 +57,7 @@ function renderClass(ReflectionClass $class, array $options): string
             $constants[] = "const {$name} = " . VarExporter::export($value) . ';';
         }
 
-        if (count($constants) > 0) {
+        if ($constants !== []) {
             $constants = "```php\n" . implode("\n", $constants) . "\n```";
             $content .= "### {$className} Constants\n\n{$constants}\n\n";
         }
@@ -92,7 +71,7 @@ function renderClass(ReflectionClass $class, array $options): string
             }
         }
 
-        if (count($props) > 0) {
+        if ($props !== []) {
             $props = "```php\n" . implode("\n\n", $props) . "\n```";
             $content .= "### {$className} Props\n\n{$props}\n\n";
         }
@@ -106,7 +85,7 @@ function renderClass(ReflectionClass $class, array $options): string
             }
         }
 
-        if (count($methods) > 0) {
+        if ($methods !== []) {
             $methods = implode("\n\n", $methods);
             $content .= "### {$className} Methods\n\n{$methods}\n\n";
         }
@@ -121,6 +100,10 @@ function renderClass(ReflectionClass $class, array $options): string
     TEMPLATE;
 }
 
+/**
+ * @throws ExceptionInterface
+ * @throws ReflectionException
+ */
 function renderMethod(ReflectionMethod $method): string
 {
     $args = array_map(

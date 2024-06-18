@@ -61,4 +61,30 @@ final class NodeListTest extends TestCase
         $nodeList[] = new NameNode(['value' => 'bar']);
         self::assertCount(2, $nodeList);
     }
+
+    public function testResetContiguousNumericIndexAfterUnset(): void
+    {
+        $foo = new NameNode(['value' => 'foo']);
+        $bar = new NameNode(['value' => 'bar']);
+        $baz = new NameNode(['value' => 'baz']);
+
+        $nodeList = new NodeList([$foo, $bar, $baz]);
+        unset($nodeList[0]);
+
+        self::assertArrayNotHasKey(0, $nodeList);
+        self::assertSame($bar, $nodeList[1]);
+        self::assertSame($baz, $nodeList[2]);
+
+        $nodeList->reindex();
+
+        self::assertSame($bar, $nodeList[0]);
+        self::assertSame($baz, $nodeList[1]);
+
+        $nodeList->offsetUnset(0);
+        self::assertArrayNotHasKey(0, $nodeList);
+        self::assertSame($baz, $nodeList[1]);
+
+        $nodeList->reindex();
+        self::assertSame($baz, $nodeList[0]);
+    }
 }

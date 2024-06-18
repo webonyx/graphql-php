@@ -5,13 +5,11 @@ namespace GraphQL\Tests\Validator;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\KnownTypeNames;
 
-class KnownTypeNamesTest extends ValidatorTestCase
+final class KnownTypeNamesTest extends ValidatorTestCase
 {
     // Validate: Known type names
 
-    /**
-     * @see it('known type names are valid')
-     */
+    /** @see it('known type names are valid') */
     public function testKnownTypeNamesAreValid(): void
     {
         $this->expectPassesRule(
@@ -34,9 +32,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('unknown type names are invalid')
-     */
+    /** @see it('unknown type names are invalid') */
     public function testUnknownTypeNamesAreInvalid(): void
     {
         $this->expectFailsRule(
@@ -69,9 +65,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('references to standard scalars that are missing in schema')
-     */
+    /** @see it('references to standard scalars that are missing in schema') */
     public function testReferencesToStandardScalarsThatAreMissingInSchema(): void
     {
         self::markTestSkipped('TODO we differ from graphql-js due to lazy loading, see https://github.com/webonyx/graphql-php/issues/964#issuecomment-945969162');
@@ -104,9 +98,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
 
     // within SDL
 
-    /**
-     * @see it('use standard types')
-     */
+    /** @see it('use standard types') */
     public function testUseStandardTypes(): void
     {
         $this->expectValidSDL(
@@ -124,9 +116,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('reference types defined inside the same document')
-     */
+    /** @see it('reference types defined inside the same document') */
     public function testReferenceTypesDefinedInsideTheSameDocument(): void
     {
         $this->expectValidSDL(
@@ -166,9 +156,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('unknown type references')
-     */
+    /** @see it('unknown type references') */
     public function testUnknownTypeReferences(): void
     {
         $this->expectSDLErrorsFromRule(
@@ -253,9 +241,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('does not consider non-type definitions')
-     */
+    /** @see it('does not consider non-type definitions') */
     public function testDoesNotConsiderNonTypeDefinitions(): void
     {
         $this->expectSDLErrorsFromRule(
@@ -279,9 +265,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('reference standard types inside extension document')
-     */
+    /** @see it('reference standard types inside extension document') */
     public function testReferenceStandardTypesInsideExtensionDocument(): void
     {
         $schema = BuildSchema::build('type Foo');
@@ -303,9 +287,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('reference types inside extension document')
-     */
+    /** @see it('reference types inside extension document') */
     public function testReferenceTypesInsideExtensionDocument(): void
     {
         $schema = BuildSchema::build('type Foo');
@@ -329,9 +311,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('unknown type references inside extension document')
-     */
+    /** @see it('unknown type references inside extension document') */
     public function testUnknownTypeReferencesInsideExtensionDocument(): void
     {
         $schema = BuildSchema::build('type A');

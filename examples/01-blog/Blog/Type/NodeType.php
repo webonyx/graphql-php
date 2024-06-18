@@ -27,6 +27,8 @@ class NodeType extends InterfaceType
     /**
      * @param mixed $object
      *
+     * @throws \Exception
+     *
      * @return callable(): ObjectType
      */
     public function resolveNodeType($object)

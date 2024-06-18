@@ -34,9 +34,7 @@ class KnownTypeNames extends ValidationRule
         return $this->getASTVisitor($context);
     }
 
-    /**
-     * @phpstan-return VisitorArray
-     */
+    /** @phpstan-return VisitorArray */
     public function getASTVisitor(ValidationContext $context): array
     {
         /** @var array<int, string> $definedTypes */
@@ -47,10 +45,8 @@ class KnownTypeNames extends ValidationRule
             }
         }
 
-        $standardTypeNames = \array_keys(Type::builtInTypes());
-
         return [
-            NodeKind::NAMED_TYPE => static function (NamedTypeNode $node, $_1, $parent, $_2, $ancestors) use ($context, $definedTypes, $standardTypeNames): void {
+            NodeKind::NAMED_TYPE => static function (NamedTypeNode $node, $_1, $parent, $_2, $ancestors) use ($context, $definedTypes): void {
                 $typeName = $node->name->value;
                 $schema = $context->getSchema();
 
@@ -64,7 +60,7 @@ class KnownTypeNames extends ValidationRule
 
                 $definitionNode = $ancestors[2] ?? $parent;
                 $isSDL = $definitionNode instanceof TypeSystemDefinitionNode || $definitionNode instanceof TypeSystemExtensionNode;
-                if ($isSDL && \in_array($typeName, $standardTypeNames, true)) {
+                if ($isSDL && \in_array($typeName, Type::BUILT_IN_TYPE_NAMES, true)) {
                     return;
                 }
 
@@ -81,7 +77,7 @@ class KnownTypeNames extends ValidationRule
                         Utils::suggestionList(
                             $typeName,
                             $isSDL
-                                ? [...$standardTypeNames, ...$typeNames]
+                                ? [...Type::BUILT_IN_TYPE_NAMES, ...$typeNames]
                                 : $typeNames
                         )
                     ),
@@ -91,13 +87,12 @@ class KnownTypeNames extends ValidationRule
         ];
     }
 
-    /**
-     * @param array<string> $suggestedTypes
-     */
+    /** @param array<string> $suggestedTypes */
     public static function unknownTypeMessage(string $type, array $suggestedTypes): string
     {
         $message = "Unknown type \"{$type}\".";
-        if (\count($suggestedTypes) > 0) {
+
+        if ($suggestedTypes !== []) {
             $suggestionList = Utils::quotedOrList($suggestedTypes);
             $message .= " Did you mean {$suggestionList}?";
         }

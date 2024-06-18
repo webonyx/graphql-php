@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Validator;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\InterfaceType;
@@ -10,13 +11,11 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 
-class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
+final class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
 {
     // Validate: Overlapping fields can be merged
 
-    /**
-     * @see it('unique fields')
-     */
+    /** @see it('unique fields') */
     public function testUniqueFields(): void
     {
         $this->expectPassesRule(
@@ -30,9 +29,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('identical fields')
-     */
+    /** @see it('identical fields') */
     public function testIdenticalFields(): void
     {
         $this->expectPassesRule(
@@ -46,9 +43,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('identical fields with identical args')
-     */
+    /** @see it('identical fields with identical args') */
     public function testIdenticalFieldsWithIdenticalArgs(): void
     {
         $this->expectPassesRule(
@@ -62,9 +57,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('identical fields with identical directives')
-     */
+    /** @see it('identical fields with identical directives') */
     public function testIdenticalFieldsWithIdenticalDirectives(): void
     {
         $this->expectPassesRule(
@@ -78,9 +71,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('different args with different aliases')
-     */
+    /** @see it('different args with different aliases') */
     public function testDifferentArgsWithDifferentAliases(): void
     {
         $this->expectPassesRule(
@@ -94,9 +85,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('different directives with different aliases')
-     */
+    /** @see it('different directives with different aliases') */
     public function testDifferentDirectivesWithDifferentAliases(): void
     {
         $this->expectPassesRule(
@@ -110,9 +99,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('different skip/include directives accepted')
-     */
+    /** @see it('different skip/include directives accepted') */
     public function testDifferentSkipIncludeDirectivesAccepted(): void
     {
         // Note: Differing skip/include directives don't create an ambiguous return
@@ -129,9 +116,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('Same aliases with different field targets')
-     */
+    /** @see it('Same aliases with different field targets') */
     public function testSameAliasesWithDifferentFieldTargets(): void
     {
         $this->expectFailsRule(
@@ -154,9 +139,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('Same aliases allowed on non-overlapping fields')
-     */
+    /** @see it('Same aliases allowed on non-overlapping fields') */
     public function testSameAliasesAllowedOnNonOverlappingFields(): void
     {
         // This is valid since no object can be both a "Dog" and a "Cat", thus
@@ -176,9 +159,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('Alias masking direct field access')
-     */
+    /** @see it('Alias masking direct field access') */
     public function testAliasMaskingDirectFieldAccess(): void
     {
         $this->expectFailsRule(
@@ -201,9 +182,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('different args, second adds an argument')
-     */
+    /** @see it('different args, second adds an argument') */
     public function testDifferentArgsSecondAddsAnArgument(): void
     {
         $this->expectFailsRule(
@@ -226,9 +205,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('different args, second missing an argument')
-     */
+    /** @see it('different args, second missing an argument') */
     public function testDifferentArgsSecondMissingAnArgument(): void
     {
         $this->expectFailsRule(
@@ -251,9 +228,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('conflicting args')
-     */
+    /** @see it('conflicting args') */
     public function testConflictingArgs(): void
     {
         $this->expectFailsRule(
@@ -276,9 +251,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('allows different args where no conflict is possible')
-     */
+    /** @see it('allows different args where no conflict is possible') */
     public function testAllowsDifferentArgsWhereNoConflictIsPossible(): void
     {
         // This is valid since no object can be both a "Dog" and a "Cat", thus
@@ -298,9 +271,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('encounters conflict in fragments')
-     */
+    /** @see it('encounters conflict in fragments') */
     public function testEncountersConflictInFragments(): void
     {
         $this->expectFailsRule(
@@ -326,9 +297,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('reports each conflict once')
-     */
+    /** @see it('reports each conflict once') */
     public function testReportsEachConflictOnce(): void
     {
         $this->expectFailsRule(
@@ -373,9 +342,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('deep conflict')
-     */
+    /** @see it('deep conflict') */
     public function testDeepConflict(): void
     {
         $this->expectFailsRule(
@@ -407,9 +374,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('deep conflict with multiple issues')
-     */
+    /** @see it('deep conflict with multiple issues') */
     public function testDeepConflictWithMultipleIssues(): void
     {
         $this->expectFailsRule(
@@ -448,9 +413,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('very deep conflict')
-     */
+    /** @see it('very deep conflict') */
     public function testVeryDeepConflict(): void
     {
         $this->expectFailsRule(
@@ -488,9 +451,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('reports deep conflict to nearest common ancestor')
-     */
+    /** @see it('reports deep conflict to nearest common ancestor') */
     public function testReportsDeepConflictToNearestCommonAncestor(): void
     {
         $this->expectFailsRule(
@@ -529,9 +490,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('reports deep conflict to nearest common ancestor in fragments')
-     */
+    /** @see it('reports deep conflict to nearest common ancestor in fragments') */
     public function testReportsDeepConflictToNearestCommonAncestorInFragments(): void
     {
         $this->expectFailsRule(
@@ -578,9 +537,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('reports deep conflict in nested fragments')
-     */
+    /** @see it('reports deep conflict in nested fragments') */
     public function testReportsDeepConflictInNestedFragments(): void
     {
         $this->expectFailsRule(
@@ -631,9 +588,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('ignores unknown fragments')
-     */
+    /** @see it('ignores unknown fragments') */
     public function testIgnoresUnknownFragments(): void
     {
         $this->expectPassesRule(
@@ -655,9 +610,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
 
     // Describe: return types must be unambiguous
 
-    /**
-     * @see it('conflicting return types which potentially overlap')
-     */
+    /** @see it('conflicting return types which potentially overlap') */
     public function testConflictingReturnTypesWhichPotentiallyOverlap(): void
     {
         // This is invalid since an object could potentially be both the Object
@@ -694,6 +647,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
+    /** @throws InvariantViolation */
     private function getSchema(): Schema
     {
         $SomeBox = new InterfaceType([
@@ -806,9 +760,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         ]);
     }
 
-    /**
-     * @see it('compatible return shapes on different return types')
-     */
+    /** @see it('compatible return shapes on different return types') */
     public function testCompatibleReturnShapesOnDifferentReturnTypes(): void
     {
         // In this case `deepBox` returns `SomeBox` in the first usage, and
@@ -836,9 +788,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('disallows differing return types despite no overlap')
-     */
+    /** @see it('disallows differing return types despite no overlap') */
     public function testDisallowsDifferingReturnTypesDespiteNoOverlap(): void
     {
         $this->expectFailsRuleWithSchema(
@@ -871,9 +821,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('reports correctly when a non-exclusive follows an exclusive')
-     */
+    /** @see it('reports correctly when a non-exclusive follows an exclusive') */
     public function testReportsCorrectlyWhenANonExclusiveFollowsAnExclusive(): void
     {
         $this->expectFailsRuleWithSchema(
@@ -940,9 +888,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('disallows differing return type nullability despite no overlap')
-     */
+    /** @see it('disallows differing return type nullability despite no overlap') */
     public function testDisallowsDifferingReturnTypeNullabilityDespiteNoOverlap(): void
     {
         $this->expectFailsRuleWithSchema(
@@ -975,9 +921,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('disallows differing return type list despite no overlap')
-     */
+    /** @see it('disallows differing return type list despite no overlap') */
     public function testDisallowsDifferingReturnTypeListDespiteNoOverlap(): void
     {
         $this->expectFailsRuleWithSchema(
@@ -1084,9 +1028,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('disallows differing deep return types despite no overlap')
-     */
+    /** @see it('disallows differing deep return types despite no overlap') */
     public function testDisallowsDifferingDeepReturnTypesDespiteNoOverlap(): void
     {
         $this->expectFailsRuleWithSchema(
@@ -1125,10 +1067,8 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('allows non-conflicting overlaping types')
-     */
-    public function testAllowsNonConflictingOverlapingTypes(): void
+    /** @see it('allows non-conflicting overlapping types') */
+    public function testAllowsNonConflictingOverlappingTypes(): void
     {
         $this->expectPassesRuleWithSchema(
             $this->getSchema(),
@@ -1148,9 +1088,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('same wrapped scalar return types')
-     */
+    /** @see it('same wrapped scalar return types') */
     public function testSameWrappedScalarReturnTypes(): void
     {
         $this->expectPassesRuleWithSchema(
@@ -1171,9 +1109,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('allows inline typeless fragments')
-     */
+    /** @see it('allows inline typeless fragments') */
     public function testAllowsInlineTypelessFragments(): void
     {
         $this->expectPassesRuleWithSchema(
@@ -1190,9 +1126,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('compares deep types including list')
-     */
+    /** @see it('compares deep types including list') */
     public function testComparesDeepTypesIncludingList(): void
     {
         $this->expectFailsRuleWithSchema(
@@ -1237,9 +1171,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('ignores unknown types')
-     */
+    /** @see it('ignores unknown types') */
     public function testIgnoresUnknownTypes(): void
     {
         $this->expectPassesRuleWithSchema(
@@ -1260,9 +1192,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('error message contains hint for alias conflict')
-     */
+    /** @see it('error message contains hint for alias conflict') */
     public function testErrorMessageContainsHintForAliasConflict(): void
     {
         // The error template should end with a hint for the user to try using
@@ -1273,9 +1203,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         self::assertStringEndsWith($hint, $error);
     }
 
-    /**
-     * @see it('does not infinite loop on recursive fragment')
-     */
+    /** @see it('does not infinite loop on recursive fragment') */
     public function testDoesNotInfiniteLoopOnRecursiveFragment(): void
     {
         $this->expectPassesRule(
@@ -1286,9 +1214,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('does not infinite loop on immediately recursive fragment')
-     */
+    /** @see it('does not infinite loop on immediately recursive fragment') */
     public function testDoesNotInfiniteLoopOnImmeditelyRecursiveFragment(): void
     {
         $this->expectPassesRule(
@@ -1299,9 +1225,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('does not infinite loop on transitively recursive fragment')
-     */
+    /** @see it('does not infinite loop on transitively recursive fragment') */
     public function testDoesNotInfiniteLoopOnTransitivelyRecursiveFragment(): void
     {
         $this->expectPassesRule(
@@ -1314,9 +1238,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('find invalid case even with immediately recursive fragment')
-     */
+    /** @see it('find invalid case even with immediately recursive fragment') */
     public function testFindInvalidCaseEvenWithImmediatelyRecursiveFragment(): void
     {
         $this->expectFailsRule(

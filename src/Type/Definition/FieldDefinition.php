@@ -16,12 +16,14 @@ use GraphQL\Utils\Utils;
  *
  * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
  * @phpstan-type ComplexityFn callable(int, array<string, mixed>): int
+ * @phpstan-type VisibilityFn callable(): bool
  * @phpstan-type FieldDefinitionConfig array{
  *     name: string,
  *     type: FieldType,
  *     resolve?: FieldResolver|null,
  *     args?: ArgumentListConfig|null,
  *     description?: string|null,
+ *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
  *     astNode?: FieldDefinitionNode|null,
  *     complexity?: ComplexityFn|null
@@ -31,6 +33,7 @@ use GraphQL\Utils\Utils;
  *     resolve?: FieldResolver|null,
  *     args?: ArgumentListConfig|null,
  *     description?: string|null,
+ *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
  *     astNode?: FieldDefinitionNode|null,
  *     complexity?: ComplexityFn|null
@@ -64,6 +67,13 @@ class FieldDefinition
 
     public ?string $description;
 
+    /**
+     * @var callable|bool
+     *
+     * @phpstan-var VisibilityFn|bool
+     */
+    public $visible;
+
     public ?string $deprecationReason;
 
     public ?FieldDefinitionNode $astNode;
@@ -85,9 +95,7 @@ class FieldDefinition
     /** @var Type&OutputType */
     private Type $type;
 
-    /**
-     * @param FieldDefinitionConfig $config
-     */
+    /** @param FieldDefinitionConfig $config */
     public function __construct(array $config)
     {
         $this->name = $config['name'];
@@ -96,6 +104,7 @@ class FieldDefinition
             ? Argument::listFromConfig($config['args'])
             : [];
         $this->description = $config['description'] ?? null;
+        $this->visible = $config['visible'] ?? true;
         $this->deprecationReason = $config['deprecationReason'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->complexityFn = $config['complexity'] ?? null;
@@ -108,6 +117,8 @@ class FieldDefinition
      * @param callable|iterable $fields
      *
      * @phpstan-param FieldsConfig $fields
+     *
+     * @throws InvariantViolation
      *
      * @return array<string, self|UnresolvedFieldDefinition>
      */
@@ -175,12 +186,19 @@ class FieldDefinition
         return $this->name;
     }
 
-    /**
-     * @return Type&OutputType
-     */
+    /** @return Type&OutputType */
     public function getType(): Type
     {
         return $this->type ??= Schema::resolveType($this->config['type']);
+    }
+
+    public function isVisible(): bool
+    {
+        if (is_bool($this->visible)) {
+            return $this->visible;
+        }
+
+        return $this->visible = ($this->visible)();
     }
 
     public function isDeprecated(): bool
@@ -204,12 +222,13 @@ class FieldDefinition
 
         if (! $type instanceof OutputType) {
             $safeType = Utils::printSafe($this->type);
-            throw new InvariantViolation("{$parentType->name}.{$this->name} field type must be Output Type but got: {$safeType}");
+            throw new InvariantViolation("{$parentType->name}.{$this->name} field type must be Output Type but got: {$safeType}.");
         }
 
+        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
         if ($this->resolveFn !== null && ! \is_callable($this->resolveFn)) {
             $safeResolveFn = Utils::printSafe($this->resolveFn);
-            throw new InvariantViolation("{$parentType->name}.{$this->name} field resolver must be a function if provided, but got: {$safeResolveFn}");
+            throw new InvariantViolation("{$parentType->name}.{$this->name} field resolver must be a function if provided, but got: {$safeResolveFn}.");
         }
 
         foreach ($this->args as $fieldArgument) {

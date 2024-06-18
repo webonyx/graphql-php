@@ -9,6 +9,7 @@ use GraphQL\Type\Introspection;
 
 /**
  * @BeforeMethods({"setUp"})
+ *
  * @OutputTimeUnit("milliseconds", precision=3)
  */
 class LexerBench
@@ -22,7 +23,9 @@ class LexerBench
 
     /**
      * @Warmup(2)
+     *
      * @Revs(100)
+     *
      * @Iterations(5)
      */
     public function benchIntrospectionQuery(): void

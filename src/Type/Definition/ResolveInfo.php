@@ -2,6 +2,8 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -17,7 +19,7 @@ use GraphQL\Type\Schema;
  *
  * @phpstan-import-type QueryPlanOptions from QueryPlan
  *
- * @phpstan-type Path array<int, string|int>
+ * @phpstan-type Path list<string|int>
  */
 class ResolveInfo
 {
@@ -59,15 +61,26 @@ class ResolveInfo
     public ObjectType $parentType;
 
     /**
-     * Path to this field from the very root value.
+     * Path to this field from the very root value. When fields are aliased, the path includes aliases.
      *
      * @api
      *
-     * @var array<int, string|int>
+     * @var list<string|int>
      *
      * @phpstan-var Path
      */
     public array $path;
+
+    /**
+     * Path to this field from the very root value. This will never include aliases.
+     *
+     * @api
+     *
+     * @var list<string|int>
+     *
+     * @phpstan-var Path
+     */
+    public array $unaliasedPath;
 
     /**
      * Instance of a schema used for execution.
@@ -112,9 +125,11 @@ class ResolveInfo
 
     /**
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param array<int, string|int> $path
+     * @param list<string|int> $path
+     * @param list<string|int> $unaliasedPath
      *
      * @phpstan-param Path $path
+     * @phpstan-param Path $unaliasedPath
      *
      * @param array<string, FragmentDefinitionNode> $fragments
      * @param mixed|null $rootValue
@@ -129,7 +144,8 @@ class ResolveInfo
         array $fragments,
         $rootValue,
         OperationDefinitionNode $operation,
-        array $variableValues
+        array $variableValues,
+        array $unaliasedPath = []
     ) {
         $this->fieldDefinition = $fieldDefinition;
         $this->fieldName = $fieldDefinition->name;
@@ -137,6 +153,7 @@ class ResolveInfo
         $this->fieldNodes = $fieldNodes;
         $this->parentType = $parentType;
         $this->path = $path;
+        $this->unaliasedPath = $unaliasedPath;
         $this->schema = $schema;
         $this->fragments = $fragments;
         $this->rootValue = $rootValue;
@@ -199,6 +216,10 @@ class ResolveInfo
 
     /**
      * @param QueryPlanOptions $options
+     *
+     * @throws \Exception
+     * @throws Error
+     * @throws InvariantViolation
      */
     public function lookAhead(array $options = []): QueryPlan
     {
@@ -212,9 +233,7 @@ class ResolveInfo
         );
     }
 
-    /**
-     * @return array<string, bool>
-     */
+    /** @return array<string, bool> */
     private function foldSelectionSet(SelectionSetNode $selectionSet, int $descend): array
     {
         /** @var array<string, bool> $fields */
@@ -223,7 +242,10 @@ class ResolveInfo
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
                 $fields[$selectionNode->name->value] = $descend > 0 && $selectionNode->selectionSet !== null
-                    ? $this->foldSelectionSet($selectionNode->selectionSet, $descend - 1)
+                    ? \array_merge_recursive(
+                        $fields[$selectionNode->name->value] ?? [],
+                        $this->foldSelectionSet($selectionNode->selectionSet, $descend - 1)
+                    )
                     : true;
             } elseif ($selectionNode instanceof FragmentSpreadNode) {
                 $spreadName = $selectionNode->name->value;

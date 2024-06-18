@@ -83,9 +83,7 @@ final class ServerConfigTest extends TestCase
         self::assertSame($closure, $config->getErrorFormatter());
     }
 
-    /**
-     * @return SerializableError
-     */
+    /** @return SerializableError */
     public static function formatError(): array
     {
         return ['message' => 'irrelevant'];
@@ -105,9 +103,7 @@ final class ServerConfigTest extends TestCase
         self::assertSame($closure, $config->getErrorsHandler());
     }
 
-    /**
-     * @return SerializableErrors
-     */
+    /** @return SerializableErrors */
     public static function handleError(): array
     {
         return [];
@@ -149,8 +145,7 @@ final class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $resolver = static function (): void {
-        };
+        $resolver = static function (): void {};
         $config->setFieldResolver($resolver);
         self::assertSame($resolver, $config->getFieldResolver());
 
@@ -183,10 +178,10 @@ final class ServerConfigTest extends TestCase
         $config = ServerConfig::create();
 
         $config->setDebugFlag(DebugFlag::INCLUDE_DEBUG_MESSAGE);
-        self::assertEquals(DebugFlag::INCLUDE_DEBUG_MESSAGE, $config->getDebugFlag());
+        self::assertSame(DebugFlag::INCLUDE_DEBUG_MESSAGE, $config->getDebugFlag());
 
         $config->setDebugFlag(DebugFlag::NONE);
-        self::assertEquals(DebugFlag::NONE, $config->getDebugFlag());
+        self::assertSame(DebugFlag::NONE, $config->getDebugFlag());
     }
 
     public function testAcceptsArray(): void
@@ -197,15 +192,11 @@ final class ServerConfigTest extends TestCase
             ]),
             'context' => new \stdClass(),
             'rootValue' => new \stdClass(),
-            'errorFormatter' => static function (): void {
-            },
+            'errorFormatter' => static function (): void {},
             'promiseAdapter' => new SyncPromiseAdapter(),
-            'validationRules' => static function (): void {
-            },
-            'fieldResolver' => static function (): void {
-            },
-            'persistedQueryLoader' => static function (): void {
-            },
+            'validationRules' => static function (): void {},
+            'fieldResolver' => static function (): void {},
+            'persistedQueryLoader' => static function (): void {},
             'debugFlag' => DebugFlag::INCLUDE_DEBUG_MESSAGE,
             'queryBatching' => true,
         ];

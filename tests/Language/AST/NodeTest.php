@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
 
-class NodeTest extends TestCase
+final class NodeTest extends TestCase
 {
     public function testCloneDeep(): void
     {
@@ -60,7 +60,7 @@ class NodeTest extends TestCase
             ]),
         ]);
 
-        self::assertJsonStringEqualsJsonString($json, json_encode($node));
+        self::assertJsonStringEqualsJsonString($json, json_encode($node, JSON_THROW_ON_ERROR));
         self::assertEquals($node, AST::fromArray(\json_decode($json, true)));
     }
 

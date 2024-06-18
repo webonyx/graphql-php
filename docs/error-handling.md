@@ -102,17 +102,19 @@ GraphQL\Error\FormattedError::setInternalErrorMessage("Unexpected error");
 
 ## Debugging tools
 
-During development or debugging use `$result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)` to add **debugMessage** key to
-each formatted error entry. If you also want to add exception trace - pass flags instead:
+During development or debugging, use `DebugFlag::INCLUDE_DEBUG_MESSAGE` to
+add hidden error messages each formatted error entry under the key `extensions.debugMessage`.
 
 ```php
+use GraphQL\GraphQL;
 use GraphQL\Error\DebugFlag;
 
-$debug = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE;
-$result = GraphQL::executeQuery(/*args*/)->toArray($debug);
+$result = GraphQL::executeQuery(/*args*/)
+    ->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE);
 ```
 
-This will make each error entry to look like this:
+If you also want to add the exception trace, pass `DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE` instead.
+This will make each error entry look like this:
 
 ```php
 [
@@ -130,24 +132,23 @@ This will make each error entry to look like this:
         'trace' => [
             /* Formatted original exception trace */
         ],
-    ]
-];
+    ],
+]
 ```
 
-If you prefer the first resolver exception to be re-thrown, use following flags:
+If you prefer the first resolver exception to be re-thrown, use the following flags:
 
 ```php
 use GraphQL\GraphQL;
 use GraphQL\Error\DebugFlag;
 
-$debug = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::RETHROW_INTERNAL_EXCEPTIONS;
+$executionResult = GraphQL::executeQuery(/*args*/);
 
-// Following will throw if there was an exception in resolver during execution:
-$result = GraphQL::executeQuery(/*args*/)->toArray($debug);
+// Will throw if there was an exception in resolver during execution
+$executionResult ->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::RETHROW_INTERNAL_EXCEPTIONS);
 ```
 
-If you only want to re-throw Exceptions that are not marked as safe through the `ClientAware` interface, use
-the flag `Debug::RETHROW_UNSAFE_EXCEPTIONS`.
+If you only want to re-throw Exceptions that are not marked as safe through the `ClientAware` interface, use `DebugFlag::RETHROW_UNSAFE_EXCEPTIONS`.
 
 ## Custom Error Handling and Formatting
 
@@ -200,5 +201,5 @@ try {
 }
 
 header('Content-Type: application/json', true, $status);
-echo json_encode($body);
+echo json_encode($body, JSON_THROW_ON_ERROR);
 ```

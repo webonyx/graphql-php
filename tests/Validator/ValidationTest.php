@@ -2,13 +2,11 @@
 
 namespace GraphQL\Tests\Validator;
 
-class ValidationTest extends ValidatorTestCase
+final class ValidationTest extends ValidatorTestCase
 {
     // Validate: Supports full validation
 
-    /**
-     * @see it('validates queries')
-     */
+    /** @see it('validates queries') */
     public function testValidatesQueries(): void
     {
         $this->expectPassesCompleteValidation('

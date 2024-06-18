@@ -21,13 +21,17 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 2, 3);
     }
 
+    /**
+     * @throws \Exception
+     * @throws \GraphQL\Error\SyntaxError
+     */
     private function assertDocumentValidators(string $query, int $queryComplexity, int $startComplexity): void
     {
         for ($maxComplexity = $startComplexity; $maxComplexity >= 0; --$maxComplexity) {
             $positions = [];
 
             if ($maxComplexity < $queryComplexity && $maxComplexity !== QueryComplexity::DISABLED) {
-                $positions = [$this->createFormattedError($maxComplexity, $queryComplexity)];
+                $positions = [self::createFormattedError($maxComplexity, $queryComplexity)];
             }
 
             $this->assertDocumentValidator($query, $maxComplexity, $positions);
@@ -85,6 +89,7 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 3, 4);
     }
 
+    /** @throws \InvalidArgumentException */
     protected function getRule(int $max = 0): QueryComplexity
     {
         self::$rule ??= new QueryComplexity($max);
@@ -159,7 +164,7 @@ final class QueryComplexityTest extends QuerySecurityTestCase
 
     public function testComplexityIntrospectionQuery(): void
     {
-        $this->assertIntrospectionQuery(181);
+        $this->assertIntrospectionQuery(187);
     }
 
     public function testIntrospectionTypeMetaFieldQuery(): void
@@ -194,11 +199,11 @@ final class QueryComplexityTest extends QuerySecurityTestCase
             [$otherRule, $this->getRule(1)]
         );
 
-        self::assertEquals(1, \count($errors));
+        self::assertCount(1, $errors);
         self::assertSame($reportedError, $errors[0]);
     }
 
-    protected function getErrorMessage(int $max, int $count): string
+    protected static function getErrorMessage(int $max, int $count): string
     {
         return QueryComplexity::maxQueryComplexityErrorMessage($max, $count);
     }

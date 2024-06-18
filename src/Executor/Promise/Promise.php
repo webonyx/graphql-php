@@ -12,13 +12,15 @@ use React\Promise\PromiseInterface as ReactPromise;
  */
 class Promise
 {
-    /** @var SyncPromise|ReactPromise|AmpPromise<mixed> */
+    /** @var SyncPromise|ReactPromise<mixed>|AmpPromise<mixed> */
     public $adoptedPromise;
 
     private PromiseAdapter $adapter;
 
     /**
      * @param mixed $adoptedPromise
+     *
+     * @throws InvariantViolation
      */
     public function __construct($adoptedPromise, PromiseAdapter $adapter)
     {

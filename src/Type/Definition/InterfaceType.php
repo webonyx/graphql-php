@@ -2,6 +2,7 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
@@ -37,6 +38,8 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     public array $config;
 
     /**
+     * @throws InvariantViolation
+     *
      * @phpstan-param InterfaceConfig $config
      */
     public function __construct(array $config)
@@ -74,15 +77,18 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     }
 
     /**
+     * @throws Error
      * @throws InvariantViolation
      */
     public function assertValid(): void
     {
         Utils::assertValidName($this->name);
 
-        if (isset($this->config['resolveType']) && ! \is_callable($this->config['resolveType'])) {
-            $notCallable = Utils::printSafe($this->config['resolveType']);
-            throw new InvariantViolation("{$this->name} must provide \"resolveType\" as a callable, but got: {$notCallable}");
+        $resolveType = $this->config['resolveType'] ?? null;
+        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
+        if ($resolveType !== null && ! \is_callable($resolveType)) {
+            $notCallable = Utils::printSafe($resolveType);
+            throw new InvariantViolation("{$this->name} must provide \"resolveType\" as null or a callable, but got: {$notCallable}.");
         }
 
         $this->assertValidInterfaces();

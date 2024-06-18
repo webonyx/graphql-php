@@ -10,7 +10,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
-abstract class TypeLoaderTest extends TestCaseBase
+abstract class TypeLoaderTestCaseBase extends TestCaseBase
 {
     use ArraySubsetAsserts;
 
@@ -18,7 +18,7 @@ abstract class TypeLoaderTest extends TestCaseBase
 
     protected ObjectType $mutation;
 
-    /** @var callable(string): ?(Type&NamedType) */
+    /** @var callable(string): ((Type&NamedType)|null) */
     protected $typeLoader;
 
     /** @var array<int, string> */
@@ -38,7 +38,7 @@ abstract class TypeLoaderTest extends TestCaseBase
             ]),
             'typeLoader' => static fn () => null,
         ]);
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     public function testSchemaRejectsNonCallableTypeLoader(): void
@@ -64,10 +64,10 @@ abstract class TypeLoaderTest extends TestCaseBase
         ]);
 
         $schema->getType('Node');
-        self::assertEquals(['Node'], $this->calls);
+        self::assertSame(['Node'], $this->calls);
 
         $schema->getType('Node');
-        self::assertEquals(['Node'], $this->calls);
+        self::assertSame(['Node'], $this->calls);
     }
 
     public function testIgnoresNonExistentType(): void

@@ -9,9 +9,7 @@ class OperationTypeDefinitionNode extends Node
 {
     public string $kind = NodeKind::OPERATION_TYPE_DEFINITION;
 
-    /**
-     * @var OperationType
-     */
+    /** @var OperationType */
     public string $operation;
 
     public NamedTypeNode $type;

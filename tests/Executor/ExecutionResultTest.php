@@ -6,7 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Executor\ExecutionResult;
 use PHPUnit\Framework\TestCase;
 
-class ExecutionResultTest extends TestCase
+final class ExecutionResultTest extends TestCase
 {
     public function testToArrayWithoutExtensions(): void
     {

@@ -9,15 +9,11 @@ use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils\Utils;
 
-class ComplexScalar extends ScalarType
+final class ComplexScalar extends ScalarType
 {
     public string $name = 'ComplexScalar';
 
-    public static function create(): self
-    {
-        return new self();
-    }
-
+    /** @throws SerializationError */
     public function serialize($value): string
     {
         if ($value === 'DeserializedValue') {
@@ -28,6 +24,7 @@ class ComplexScalar extends ScalarType
         throw new SerializationError("Cannot serialize value as ComplexScalar: {$notComplexScalar}");
     }
 
+    /** @throws Error */
     public function parseValue($value): string
     {
         if ($value === 'SerializedValue') {

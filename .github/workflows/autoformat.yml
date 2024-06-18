@@ -2,14 +2,12 @@ name: Autoformat
 
 on:
   push:
-    branches:
-      - '*'
 
 jobs:
   composer-normalize:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
 
@@ -17,58 +15,62 @@ jobs:
         with:
           coverage: none
           extensions: mbstring
-          php-version: 7.4
+          php-version: 8.3
 
       - uses: ramsey/composer-install@v2
 
       - run: composer normalize
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Normalize composer.json
 
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
+          token: ${{ secrets.GA_PAT == '' && secrets.GA_PAT || secrets.GITHUB_TOKEN }}
 
       - uses: shivammathur/setup-php@v2
         with:
           coverage: none
           extensions: mbstring
-          php-version: 8.1
+          php-version: 8.3
 
       - uses: ramsey/composer-install@v2
 
       - run: composer docs
 
-      - uses: creyD/prettier_action@v4.2
+      - uses: creyD/prettier_action@v4.3
         with:
           prettier_options: --write --tab-width=2 *.md **/*.md
-          branch: ${{ github.head_ref }}
           commit_message: Prettify docs
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   php-cs-fixer:
     runs-on: ubuntu-latest
+
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
+      contents: write
+
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
+          token: ${{ secrets.GA_PAT == '' && secrets.GA_PAT || secrets.GITHUB_TOKEN }}
 
       - uses: shivammathur/setup-php@v2
         with:
           coverage: none
           extensions: mbstring
-          php-version: 7.4
+          php-version: 8.3
 
       - uses: ramsey/composer-install@v2
 
       - run: vendor/bin/php-cs-fixer fix
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Apply php-cs-fixer changes

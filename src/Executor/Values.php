@@ -45,6 +45,8 @@ use GraphQL\Utils\Value;
  * @see ArgumentNode - force IDE import
  *
  * @phpstan-import-type ArgumentNodeValue from ArgumentNode
+ *
+ * @see \GraphQL\Tests\Executor\ValuesTest
  */
 class Values
 {
@@ -55,6 +57,8 @@ class Values
      *
      * @param NodeList<VariableDefinitionNode> $varDefNodes
      * @param array<string, mixed> $rawVariableValues
+     *
+     * @throws \Exception
      *
      * @return array{array<int, Error>, null}|array{null, array<string, mixed>}
      */
@@ -130,11 +134,9 @@ class Values
             }
         }
 
-        if (\count($errors) > 0) {
-            return [$errors, null];
-        }
-
-        return [null, $coercedValues];
+        return $errors === []
+            ? [null, $coercedValues]
+            : [$errors, null];
     }
 
     /**
@@ -146,6 +148,9 @@ class Values
      *
      * @param EnumTypeDefinitionNode|EnumTypeExtensionNode|EnumValueDefinitionNode|FieldDefinitionNode|FieldNode|FragmentDefinitionNode|FragmentSpreadNode|InlineFragmentNode|InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode|InputValueDefinitionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode|ObjectTypeDefinitionNode|ObjectTypeExtensionNode|OperationDefinitionNode|ScalarTypeDefinitionNode|ScalarTypeExtensionNode|SchemaExtensionNode|UnionTypeDefinitionNode|UnionTypeExtensionNode|VariableDefinitionNode $node
      * @param array<string, mixed>|null $variableValues
+     *
+     * @throws \Exception
+     * @throws Error
      *
      * @return array<string, mixed>|null
      */
@@ -170,13 +175,14 @@ class Values
      * @param FieldNode|DirectiveNode $node
      * @param array<string, mixed>|null $variableValues
      *
+     * @throws \Exception
      * @throws Error
      *
      * @return array<string, mixed>
      */
     public static function getArgumentValues($def, Node $node, ?array $variableValues = null): array
     {
-        if (\count($def->args) === 0) {
+        if ($def->args === []) {
             return [];
         }
 
@@ -198,6 +204,7 @@ class Values
      * @param array<string, ArgumentNodeValue> $argumentValueMap
      * @param array<string, mixed>|null $variableValues
      *
+     * @throws \Exception
      * @throws Error
      *
      * @return array<string, mixed>

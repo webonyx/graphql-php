@@ -48,10 +48,10 @@ class ExecutionContext
 
     /**
      * @param array<string, FragmentDefinitionNode> $fragments
-     * @param mixed                                 $rootValue
-     * @param mixed                                 $contextValue
-     * @param array<string, mixed>                  $variableValues
-     * @param array<int, Error>                     $errors
+     * @param mixed $rootValue
+     * @param mixed $contextValue
+     * @param array<string, mixed> $variableValues
+     * @param array<int, Error> $errors
      *
      * @phpstan-param FieldResolver $fieldResolver
      */

@@ -5,7 +5,7 @@ namespace GraphQL\Tests\Type\TestClasses;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\EnumType;
 
-class OtherEnumType extends EnumType
+final class OtherEnumType extends EnumType
 {
     public const SERIALIZE_RESULT = 'ONE';
     public const PARSE_LITERAL_RESULT = '1';

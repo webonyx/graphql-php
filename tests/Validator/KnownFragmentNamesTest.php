@@ -9,13 +9,11 @@ use GraphQL\Validator\Rules\KnownFragmentNames;
 /**
  * @phpstan-import-type ErrorArray from ErrorHelper
  */
-class KnownFragmentNamesTest extends ValidatorTestCase
+final class KnownFragmentNamesTest extends ValidatorTestCase
 {
     // Validate: Known fragment names
 
-    /**
-     * @see it('known fragment names are valid')
-     */
+    /** @see it('known fragment names are valid') */
     public function testKnownFragmentNamesAreValid(): void
     {
         $this->expectPassesRule(
@@ -43,9 +41,7 @@ class KnownFragmentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('unknown fragment names are invalid')
-     */
+    /** @see it('unknown fragment names are invalid') */
     public function testUnknownFragmentNamesAreInvalid(): void
     {
         $this->expectFailsRule(
@@ -72,9 +68,7 @@ class KnownFragmentNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @phpstan-return ErrorArray
-     */
+    /** @phpstan-return ErrorArray */
     private function undefFrag(string $fragName, int $line, int $column): array
     {
         return ErrorHelper::create(
