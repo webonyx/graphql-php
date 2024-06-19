@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.12.4
+
+### Fixed
+
+- Ensure unaliasedPath does not grow for each list item https://github.com/webonyx/graphql-php/pull/1579
+
 ## v15.12.3
 
 ### Fixed

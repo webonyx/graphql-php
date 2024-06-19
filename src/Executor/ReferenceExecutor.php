@@ -1012,13 +1012,13 @@ class ReferenceExecutor implements ExecutorImplementation
         $containsPromise = false;
         $completedItems = [];
         foreach ($results as $item) {
-            $fieldPath = [...$path, $i];
-            $info->path = $fieldPath;
-            $unaliasedPath = [...$unaliasedPath, $i];
-            $info->unaliasedPath = $unaliasedPath;
+            $itemPath = [...$path, $i];
+            $info->path = $itemPath;
+            $itemUnaliasedPath = [...$unaliasedPath, $i];
+            $info->unaliasedPath = $itemUnaliasedPath;
             ++$i;
 
-            $completedItem = $this->completeValueCatchingError($itemType, $fieldNodes, $info, $fieldPath, $unaliasedPath, $item, $contextValue);
+            $completedItem = $this->completeValueCatchingError($itemType, $fieldNodes, $info, $itemPath, $itemUnaliasedPath, $item, $contextValue);
 
             if (! $containsPromise && $this->getPromise($completedItem) !== null) {
                 $containsPromise = true;
