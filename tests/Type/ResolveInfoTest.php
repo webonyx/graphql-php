@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Type;
 
 use GraphQL\GraphQL;
+use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -513,6 +514,83 @@ final class ResolveInfoTest extends TestCase
                     ],
                     'level1000' => [
                         'scalar2' => 'path: level1.level1000.scalar2, unaliasedPath: level1.level2.scalar2',
+                    ],
+                ],
+            ],
+        ], $result);
+    }
+
+    public function testPathAndUnaliasedPathForList(): void
+    {
+        $level2 = new ObjectType([
+            'name' => 'level2',
+            'fields' => [
+                'scalar1' => [
+                    'type' => Type::string(),
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) {
+                        return 'path: ' . implode('.', $info->path) . ', unaliasedPath: ' . implode('.', $info->unaliasedPath);
+                    },
+                ],
+                'scalar2' => [
+                    'type' => Type::string(),
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) {
+                        return 'path: ' . implode('.', $info->path) . ', unaliasedPath: ' . implode('.', $info->unaliasedPath);
+                    },
+                ],
+            ],
+        ]);
+        $level1 = new ObjectType([
+            'name' => 'level1',
+            'fields' => [
+                'level2' => [
+                    'type' => ListOfType::listOf($level2),
+                    'resolve' => function () {
+                        return ['a', 'b', 'c'];
+                    },
+                ],
+            ],
+        ]);
+
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'level1' => [
+                    'type' => $level1,
+                    'resolve' => function () {
+                        return true;
+                    },
+                ],
+            ],
+        ]);
+
+        $result = GraphQL::executeQuery(
+            new Schema(['query' => $query]),
+            <<<GRAPHQL
+            query {
+              level1 {
+                level2 {
+                  scalar1
+                }
+                level1000: level2 {
+                  scalar2
+                }
+              }
+            }
+            GRAPHQL
+        )->toArray();
+
+        self::assertSame([
+            'data' => [
+                'level1' => [
+                    'level2' => [
+                        ['scalar1' => 'path: level1.level2.0.scalar1, unaliasedPath: level1.level2.0.scalar1'],
+                        ['scalar1' => 'path: level1.level2.1.scalar1, unaliasedPath: level1.level2.1.scalar1'],
+                        ['scalar1' => 'path: level1.level2.2.scalar1, unaliasedPath: level1.level2.2.scalar1'],
+                    ],
+                    'level1000' => [
+                        ['scalar2' => 'path: level1.level1000.0.scalar2, unaliasedPath: level1.level2.0.scalar2'],
+                        ['scalar2' => 'path: level1.level1000.1.scalar2, unaliasedPath: level1.level2.1.scalar2'],
+                        ['scalar2' => 'path: level1.level1000.2.scalar2, unaliasedPath: level1.level2.2.scalar2'],
                     ],
                 ],
             ],
