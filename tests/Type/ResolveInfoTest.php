@@ -449,31 +449,35 @@ final class ResolveInfoTest extends TestCase
 
     public function testPathAndUnaliasedPath(): void
     {
+        $resolveInfo = new ObjectType([
+            'name' => 'ResolveInfo',
+            'fields' => [
+                'path' => Type::listOf(Type::id()),
+                'unaliasedPath' => Type::listOf(Type::id()),
+            ],
+        ]);
+
+        $returnResolveInfo = static fn ($value, array $args, $context, ResolveInfo $info): ResolveInfo => $info;
         $level2 = new ObjectType([
             'name' => 'level2',
             'fields' => [
-                'scalar1' => [
-                    'type' => Type::string(),
-                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) {
-                        return 'path: ' . implode('.', $info->path) . ', unaliasedPath: ' . implode('.', $info->unaliasedPath);
-                    },
+                'info1' => [
+                    'type' => $resolveInfo,
+                    'resolve' => $returnResolveInfo,
                 ],
-                'scalar2' => [
-                    'type' => Type::string(),
-                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) {
-                        return 'path: ' . implode('.', $info->path) . ', unaliasedPath: ' . implode('.', $info->unaliasedPath);
-                    },
+                'info2' => [
+                    'type' => $resolveInfo,
+                    'resolve' => $returnResolveInfo,
                 ],
             ],
         ]);
+
         $level1 = new ObjectType([
             'name' => 'level1',
             'fields' => [
                 'level2' => [
                     'type' => $level2,
-                    'resolve' => function () {
-                        return true;
-                    },
+                    'resolve' => fn (): bool => true,
                 ],
             ],
         ]);
@@ -483,9 +487,7 @@ final class ResolveInfoTest extends TestCase
             'fields' => [
                 'level1' => [
                     'type' => $level1,
-                    'resolve' => function () {
-                        return true;
-                    },
+                    'resolve' => fn (): bool => true,
                 ],
             ],
         ]);
@@ -496,10 +498,16 @@ final class ResolveInfoTest extends TestCase
             query {
               level1 {
                 level2 {
-                  scalar1
+                  info1 {
+                    path
+                    unaliasedPath
+                  }
                 }
                 level1000: level2 {
-                  scalar2
+                  info2 {
+                    path
+                    unaliasedPath
+                  }
                 }
               }
             }
@@ -510,10 +518,16 @@ final class ResolveInfoTest extends TestCase
             'data' => [
                 'level1' => [
                     'level2' => [
-                        'scalar1' => 'path: level1.level2.scalar1, unaliasedPath: level1.level2.scalar1',
+                        'info1' => [
+                            'path' => ['level1', 'level2', 'info1'],
+                            'unaliasedPath' => ['level1', 'level2', 'info1'],
+                        ],
                     ],
                     'level1000' => [
-                        'scalar2' => 'path: level1.level1000.scalar2, unaliasedPath: level1.level2.scalar2',
+                        'info2' => [
+                            'path' => ['level1', 'level1000', 'info2'],
+                            'unaliasedPath' => ['level1', 'level2', 'info2'],
+                        ],
                     ],
                 ],
             ],
@@ -522,31 +536,35 @@ final class ResolveInfoTest extends TestCase
 
     public function testPathAndUnaliasedPathForList(): void
     {
+        $resolveInfo = new ObjectType([
+            'name' => 'ResolveInfo',
+            'fields' => [
+                'path' => Type::listOf(Type::id()),
+                'unaliasedPath' => Type::listOf(Type::id()),
+            ],
+        ]);
+
+        $returnResolveInfo = static fn ($value, array $args, $context, ResolveInfo $info): ResolveInfo => $info;
         $level2 = new ObjectType([
             'name' => 'level2',
             'fields' => [
-                'scalar1' => [
-                    'type' => Type::string(),
-                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) {
-                        return 'path: ' . implode('.', $info->path) . ', unaliasedPath: ' . implode('.', $info->unaliasedPath);
-                    },
+                'info1' => [
+                    'type' => $resolveInfo,
+                    'resolve' => $returnResolveInfo,
                 ],
-                'scalar2' => [
-                    'type' => Type::string(),
-                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) {
-                        return 'path: ' . implode('.', $info->path) . ', unaliasedPath: ' . implode('.', $info->unaliasedPath);
-                    },
+                'info2' => [
+                    'type' => $resolveInfo,
+                    'resolve' => $returnResolveInfo,
                 ],
             ],
         ]);
+
         $level1 = new ObjectType([
             'name' => 'level1',
             'fields' => [
                 'level2' => [
                     'type' => ListOfType::listOf($level2),
-                    'resolve' => function () {
-                        return ['a', 'b', 'c'];
-                    },
+                    'resolve' => fn (): array => ['a', 'b', 'c'],
                 ],
             ],
         ]);
@@ -556,9 +574,7 @@ final class ResolveInfoTest extends TestCase
             'fields' => [
                 'level1' => [
                     'type' => $level1,
-                    'resolve' => function () {
-                        return true;
-                    },
+                    'resolve' => fn (): bool => true,
                 ],
             ],
         ]);
@@ -569,10 +585,16 @@ final class ResolveInfoTest extends TestCase
             query {
               level1 {
                 level2 {
-                  scalar1
+                  info1 {
+                    path
+                    unaliasedPath
+                  }
                 }
                 level1000: level2 {
-                  scalar2
+                  info2 {
+                    path
+                    unaliasedPath
+                  }
                 }
               }
             }
@@ -583,14 +605,44 @@ final class ResolveInfoTest extends TestCase
             'data' => [
                 'level1' => [
                     'level2' => [
-                        ['scalar1' => 'path: level1.level2.0.scalar1, unaliasedPath: level1.level2.0.scalar1'],
-                        ['scalar1' => 'path: level1.level2.1.scalar1, unaliasedPath: level1.level2.1.scalar1'],
-                        ['scalar1' => 'path: level1.level2.2.scalar1, unaliasedPath: level1.level2.2.scalar1'],
+                        [
+                            'info1' => [
+                                'path' => ['level1', 'level2', '0', 'info1'],
+                                'unaliasedPath' => ['level1', 'level2', '0', 'info1'],
+                            ],
+                        ],
+                        [
+                            'info1' => [
+                                'path' => ['level1', 'level2', '1', 'info1'],
+                                'unaliasedPath' => ['level1', 'level2', '1', 'info1'],
+                            ],
+                        ],
+                        [
+                            'info1' => [
+                                'path' => ['level1', 'level2', '2', 'info1'],
+                                'unaliasedPath' => ['level1', 'level2', '2', 'info1'],
+                            ],
+                        ],
                     ],
                     'level1000' => [
-                        ['scalar2' => 'path: level1.level1000.0.scalar2, unaliasedPath: level1.level2.0.scalar2'],
-                        ['scalar2' => 'path: level1.level1000.1.scalar2, unaliasedPath: level1.level2.1.scalar2'],
-                        ['scalar2' => 'path: level1.level1000.2.scalar2, unaliasedPath: level1.level2.2.scalar2'],
+                        [
+                            'info2' => [
+                                'path' => ['level1', 'level1000', '0', 'info2'],
+                                'unaliasedPath' => ['level1', 'level2', '0', 'info2'],
+                            ],
+                        ],
+                        [
+                            'info2' => [
+                                'path' => ['level1', 'level1000', '1', 'info2'],
+                                'unaliasedPath' => ['level1', 'level2', '1', 'info2'],
+                            ],
+                        ],
+                        [
+                            'info2' => [
+                                'path' => ['level1', 'level1000', '2', 'info2'],
+                                'unaliasedPath' => ['level1', 'level2', '2', 'info2'],
+                            ],
+                        ],
                     ],
                 ],
             ],
