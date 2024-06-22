@@ -93,6 +93,12 @@ final class QueryDepthTest extends QuerySecurityTestCase
         $this->assertTypeNameMetaFieldQuery(1);
     }
 
+    public function testInfiniteRecursion(): void
+    {
+        $query = 'query MyQuery { human { ...F1 } } fragment F1 on Human { ...F1 }';
+        $this->assertDocumentValidator($query, 7, [self::createFormattedError(7, 8)]);
+    }
+
     /** @return iterable<array{0: int, 1?: int, 2?: array<int, array<string, mixed>>}> */
     public static function queryDataProvider(): iterable
     {
