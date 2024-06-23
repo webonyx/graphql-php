@@ -15,7 +15,7 @@ use GraphQL\Validator\QueryValidationContext;
 
 class QueryDepth extends QuerySecurityRule
 {
-    /** @var array<string, bool> hash of fragment names which are already calculated in recursion */
+    /** @var array<string, bool> Fragment names which are already calculated in recursion */
     protected array $calculatedFragments = [];
 
     protected int $maxQueryDepth;
