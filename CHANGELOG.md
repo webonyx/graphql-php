@@ -9,6 +9,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.12.5
+
 ### Fixed
 
 - Avoid infinite recursion in `QueryDepth` validator https://github.com/webonyx/graphql-php/pull/1581
