@@ -11,13 +11,13 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ### Fixed
 
-- Fix infinite recursion in QueryDepth validator https://github.com/webonyx/graphql-php/pull/1581
+- Fix infinite recursion in `QueryDepth` validator https://github.com/webonyx/graphql-php/pull/1581
 
 ## v15.12.4
 
 ### Fixed
 
-- Ensure unaliasedPath does not grow for each list item https://github.com/webonyx/graphql-php/pull/1579
+- Ensure `unaliasedPath` does not grow for each list item https://github.com/webonyx/graphql-php/pull/1579
 
 ## v15.12.3
 
