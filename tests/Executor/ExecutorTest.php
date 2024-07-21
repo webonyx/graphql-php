@@ -19,10 +19,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use LogicException;
 use PHPUnit\Framework\TestCase;
-
-use stdClass;
 
 use function Safe\json_encode;
 
@@ -363,9 +360,9 @@ final class ExecutorTest extends TestCase
                                         'argsMapper' => static function (array $args) use (
                                             &$mapperCount
                                         ): object {
-                                            $mapperCount++;
+                                            ++$mapperCount;
 
-                                            $stdClass = new stdClass();
+                                            $stdClass = new \stdClass();
                                             foreach ($args as $name => $value) {
                                                 $stdClass->$name = $value;
                                             }
@@ -382,9 +379,7 @@ final class ExecutorTest extends TestCase
                                 ],
                             ])
                         ),
-                        'resolve' => static function (): array {
-                            return [new \stdClass(), new \stdClass(), new \stdClass()];
-                        },
+                        'resolve' => static fn (): array => [new \stdClass(), new \stdClass(), new \stdClass()],
                     ],
                 ],
             ]),

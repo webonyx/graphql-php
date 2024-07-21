@@ -33,7 +33,6 @@ use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaValidationContext;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
-use SplObjectStorage;
 
 /**
  * @phpstan-import-type FieldResolver from Executor
@@ -738,7 +737,7 @@ class ReferenceExecutor implements ExecutorImplementation
         try {
             // Build a map of arguments from the field.arguments AST, using the
             // variables scope to fulfill any variable references.
-            $args = $this->fieldArgsCache[$fieldNode] ??= ($fieldDef->argsMapper ?? static fn(array $args): array => $args)(Values::getArgumentValues(
+            $args = $this->fieldArgsCache[$fieldNode] ??= ($fieldDef->argsMapper ?? static fn (array $args): array => $args)(Values::getArgumentValues(
                 $fieldDef,
                 $fieldNode,
                 $this->exeContext->variableValues
@@ -782,9 +781,7 @@ class ReferenceExecutor implements ExecutorImplementation
         try {
             $promise = $this->getPromise($result);
             if ($promise !== null) {
-                $completed = $promise->then(function (&$resolved) use ($contextValue, $returnType, $fieldNodes, $info, $path, $unaliasedPath) {
-                    return $this->completeValue($returnType, $fieldNodes, $info, $path, $unaliasedPath, $resolved, $contextValue);
-                });
+                $completed = $promise->then(fn (&$resolved) => $this->completeValue($returnType, $fieldNodes, $info, $path, $unaliasedPath, $resolved, $contextValue));
             } else {
                 $completed = $this->completeValue($returnType, $fieldNodes, $info, $path, $unaliasedPath, $result, $contextValue);
             }
