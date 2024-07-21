@@ -19,7 +19,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use LogicException;
 use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
@@ -377,10 +376,10 @@ final class ExecutorTest extends TestCase
                                             &$lastArgs,
                                             &$resolverCalledCount
                                         ): string {
-                                            $resolverCalledCount++;
+                                            ++$resolverCalledCount;
 
                                             if ($lastArgs !== null && $lastArgs !== $args) {
-                                                throw new LogicException('Should receive same args');
+                                                throw new \LogicException('Should receive same args');
                                             }
 
                                             $lastArgs = $args;
