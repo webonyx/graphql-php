@@ -741,7 +741,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 $fieldDef,
                 $fieldNode,
                 $this->exeContext->variableValues
-            ));
+            ), $fieldDef, $fieldNode);
 
             return $resolveFn($rootValue, $args, $contextValue, $info);
         } catch (\Throwable $error) {
