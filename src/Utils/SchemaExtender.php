@@ -500,6 +500,7 @@ class SchemaExtender
                 'type' => $this->extendType($field->getType()),
                 'args' => $this->extendArgs($field->args),
                 'resolve' => $field->resolveFn,
+                'argsMapper' => $field->argsMapper,
                 'astNode' => $field->astNode,
             ];
         }
