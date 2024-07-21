@@ -33,6 +33,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaValidationContext;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
+use SplObjectStorage;
 
 /**
  * @phpstan-import-type FieldResolver from Executor
@@ -60,6 +61,14 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected \SplObjectStorage $subFieldCache;
 
+    /**
+     * @var \SplObjectStorage<
+     *     FieldNode,
+     *     mixed
+     * >
+     */
+    protected \SplObjectStorage $fieldArgsCache;
+
     protected function __construct(ExecutionContext $context)
     {
         if (! isset(static::$UNDEFINED)) {
@@ -68,6 +77,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
         $this->exeContext = $context;
         $this->subFieldCache = new \SplObjectStorage();
+        $this->fieldArgsCache = new \SplObjectStorage();
     }
 
     /**
@@ -728,11 +738,11 @@ class ReferenceExecutor implements ExecutorImplementation
         try {
             // Build a map of arguments from the field.arguments AST, using the
             // variables scope to fulfill any variable references.
-            $args = Values::getArgumentValues(
+            $args = $this->fieldArgsCache[$fieldNode] ??= ($fieldDef->argsMapper ?? static fn(array $args): array => $args)(Values::getArgumentValues(
                 $fieldDef,
                 $fieldNode,
                 $this->exeContext->variableValues
-            );
+            ));
 
             return $resolveFn($rootValue, $args, $contextValue, $info);
         } catch (\Throwable $error) {

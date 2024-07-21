@@ -19,7 +19,10 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use LogicException;
 use PHPUnit\Framework\TestCase;
+
+use stdClass;
 
 use function Safe\json_encode;
 
@@ -328,6 +331,67 @@ final class ExecutorTest extends TestCase
         ]);
         Executor::execute($schema, $docAst, null, null, [], 'Example');
         self::assertSame($gotHere, true);
+    }
+
+    public function testArgsMapper(): void
+    {
+        $doc = '
+      query Example {
+        b {
+            testMapper(numArg: 123, stringArg: "foo")
+        }
+      }
+        ';
+
+        $mapperCount = 0;
+        $docAst = Parser::parse($doc);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'b' => [
+                        'type' => Type::listOf(
+                            new ObjectType([
+                                'name' => 'ArgsMapperObject',
+                                'fields' => [
+                                    'testMapper' => [
+                                        'type' => Type::string(),
+                                        'args' => [
+                                            'numArg' => ['type' => Type::int()],
+                                            'stringArg' => ['type' => Type::string()],
+                                        ],
+                                        'argsMapper' => static function (array $args) use (
+                                            &$mapperCount
+                                        ): object {
+                                            $mapperCount++;
+
+                                            $stdClass = new stdClass();
+                                            foreach ($args as $name => $value) {
+                                                $stdClass->$name = $value;
+                                            }
+
+                                            return $stdClass;
+                                        },
+                                        'resolve' => static function ($_, \stdClass $args): string {
+                                            self::assertSame(123, $args->numArg);
+                                            self::assertSame('foo', $args->stringArg);
+
+                                            return 'OK';
+                                        },
+                                    ],
+                                ],
+                            ])
+                        ),
+                        'resolve' => static function (): array {
+                            return [new \stdClass(), new \stdClass(), new \stdClass()];
+                        },
+                    ],
+                ],
+            ]),
+        ]);
+        $result = Executor::execute($schema, $docAst, null, null, [], 'Example');
+        self::assertEquals(1, $mapperCount);
+        self::assertCount(0, $result->errors);
     }
 
     /** @see it('nulls out error subtrees') */
