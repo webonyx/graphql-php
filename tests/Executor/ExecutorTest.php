@@ -19,6 +19,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
@@ -340,7 +341,10 @@ final class ExecutorTest extends TestCase
       }
         ';
 
-        $mapperCount = 0;
+        $mapperCalledCount = 0;
+        $resolverCalledCount = 0;
+        $lastArgs = null;
+
         $docAst = Parser::parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
@@ -358,9 +362,9 @@ final class ExecutorTest extends TestCase
                                             'stringArg' => ['type' => Type::string()],
                                         ],
                                         'argsMapper' => static function (array $args) use (
-                                            &$mapperCount
+                                            &$mapperCalledCount
                                         ): object {
-                                            ++$mapperCount;
+                                            ++$mapperCalledCount;
 
                                             $stdClass = new \stdClass();
                                             foreach ($args as $name => $value) {
@@ -369,7 +373,17 @@ final class ExecutorTest extends TestCase
 
                                             return $stdClass;
                                         },
-                                        'resolve' => static function ($_, \stdClass $args): string {
+                                        'resolve' => static function ($_, \stdClass $args) use (
+                                            &$lastArgs,
+                                            &$resolverCalledCount
+                                        ): string {
+                                            $resolverCalledCount++;
+
+                                            if ($lastArgs !== null && $lastArgs !== $args) {
+                                                throw new LogicException('Should receive same args');
+                                            }
+
+                                            $lastArgs = $args;
                                             self::assertSame(123, $args->numArg);
                                             self::assertSame('foo', $args->stringArg);
 
@@ -385,7 +399,8 @@ final class ExecutorTest extends TestCase
             ]),
         ]);
         $result = Executor::execute($schema, $docAst, null, null, [], 'Example');
-        self::assertEquals(1, $mapperCount);
+        self::assertEquals(1, $mapperCalledCount);
+        self::assertEquals(3, $resolverCalledCount);
         self::assertCount(0, $result->errors);
     }
 
