@@ -61,12 +61,7 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected \SplObjectStorage $subFieldCache;
 
-    /**
-     * @var \SplObjectStorage<
-     *     FieldNode,
-     *     mixed
-     * >
-     */
+    /** @var \SplObjectStorage<FieldNode, mixed> */
     protected \SplObjectStorage $fieldArgsCache;
 
     protected function __construct(ExecutionContext $context)
