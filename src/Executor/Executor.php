@@ -63,9 +63,7 @@ class Executor
         self::$defaultFieldResolver = $fieldResolver;
     }
 
-    /**
-     * @phpstan-param ArgsMapper $argsMapper
-     */
+    /** @phpstan-param ArgsMapper $argsMapper */
     public static function setDefaultArgsMapper(callable $argsMapper): void
     {
         self::$defaultArgsMapper = $argsMapper;
