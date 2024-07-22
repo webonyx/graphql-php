@@ -34,7 +34,7 @@ class Executor
     /**
      * @var callable
      *
-     * @phpstan-var FieldResolver
+     * @phpstan-var ArgsMapper
      */
     private static $defaultArgsMapper = [self::class, 'defaultArgsMapper'];
 
@@ -64,8 +64,6 @@ class Executor
     }
 
     /**
-     * Set a custom default resolve function.
-     *
      * @phpstan-param ArgsMapper $argsMapper
      */
     public static function setDefaultArgsMapper(callable $argsMapper): void
