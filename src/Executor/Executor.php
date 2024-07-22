@@ -3,16 +3,20 @@
 namespace GraphQL\Executor;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
 /**
  * Implements the "Evaluating requests" section of the GraphQL specification.
+ *
+ * @phpstan-import-type ArgsMapper from FieldDefinition
  *
  * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
  * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable): ExecutorImplementation
@@ -27,6 +31,13 @@ class Executor
      * @phpstan-var FieldResolver
      */
     private static $defaultFieldResolver = [self::class, 'defaultFieldResolver'];
+
+    /**
+     * @var callable
+     *
+     * @phpstan-var FieldResolver
+     */
+    private static $defaultArgsMapper = [self::class, 'defaultArgsMapper'];
 
     private static ?PromiseAdapter $defaultPromiseAdapter;
 
@@ -132,6 +143,7 @@ class Executor
      * @param array<string, mixed>|null $variableValues
      *
      * @phpstan-param FieldResolver|null $fieldResolver
+     * @phpstan-param ArgsMapper|null $argsMapper
      *
      * @api
      */
@@ -143,7 +155,8 @@ class Executor
         $contextValue = null,
         ?array $variableValues = null,
         ?string $operationName = null,
-        ?callable $fieldResolver = null
+        ?callable $fieldResolver = null,
+        ?callable $argsMapper = null
     ): Promise {
         $executor = (self::$implementationFactory)(
             $promiseAdapter,
@@ -153,7 +166,8 @@ class Executor
             $contextValue,
             $variableValues ?? [],
             $operationName,
-            $fieldResolver ?? self::$defaultFieldResolver
+            $fieldResolver ?? self::$defaultFieldResolver,
+            $argsMapper ?? self::$defaultArgsMapper,
         );
 
         return $executor->doExecute();
@@ -178,5 +192,10 @@ class Executor
         return $property instanceof \Closure
             ? $property($objectLikeValue, $args, $contextValue, $info)
             : $property;
+    }
+
+    public static function defaultArgsMapper(array $args): array
+    {
+        return $args;
     }
 }
