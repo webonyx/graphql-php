@@ -35,6 +35,7 @@ use GraphQL\Utils\Utils;
  *     type: FieldType,
  *     resolve?: FieldResolver|null,
  *     args?: ArgumentListConfig|null,
+ *     argsMapper?: ArgsMapper|null,
  *     description?: string|null,
  *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
