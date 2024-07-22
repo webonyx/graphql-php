@@ -656,8 +656,13 @@ class ReferenceExecutor implements ExecutorImplementation
             $unaliasedPath
         );
 
-        $resolveFn = $fieldDef->resolveFn ?? $parentType->resolveFieldFn ?? $this->exeContext->fieldResolver;
-        $argsMapper = $fieldDef->argsMapper ?? $parentType->argsMapper ?? $this->exeContext->argsMapper;
+        $resolveFn = $fieldDef->resolveFn
+            ?? $parentType->resolveFieldFn
+            ?? $this->exeContext->fieldResolver;
+
+        $argsMapper = $fieldDef->argsMapper
+            ?? $parentType->argsMapper
+            ?? $this->exeContext->argsMapper;
 
         // Get the resolve function, regardless of if its result is normal
         // or abrupt (error).
