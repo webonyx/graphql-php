@@ -60,7 +60,7 @@ class FieldDefinition
     public array $args;
 
     /**
-     * Callback for resolving field value given parent value.
+     * Callback to transform args to value object.
      *
      * @var callable|null
      *
