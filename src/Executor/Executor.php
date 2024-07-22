@@ -63,6 +63,16 @@ class Executor
         self::$defaultFieldResolver = $fieldResolver;
     }
 
+    /**
+     * Set a custom default resolve function.
+     *
+     * @phpstan-param ArgsMapper $argsMapper
+     */
+    public static function setDefaultArgsMapper(callable $argsMapper): void
+    {
+        self::$defaultArgsMapper = $argsMapper;
+    }
+
     public static function getPromiseAdapter(): PromiseAdapter
     {
         return self::$defaultPromiseAdapter ??= new SyncPromiseAdapter();
