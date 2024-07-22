@@ -195,7 +195,9 @@ class Executor
 
     /**
      * @template T of array<string, mixed>
+     *
      * @param T $args
+     *
      * @return T
      */
     public static function defaultArgsMapper(array $args): array
