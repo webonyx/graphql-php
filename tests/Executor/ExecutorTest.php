@@ -333,7 +333,7 @@ final class ExecutorTest extends TestCase
     public function testArgsMapper(): void
     {
         $doc = '
-      query Example {
+      {
         b {
             testMapper(numArg: 123, stringArg: "foo")
         }
@@ -397,7 +397,7 @@ final class ExecutorTest extends TestCase
                 ],
             ]),
         ]);
-        $result = Executor::execute($schema, $docAst, null, null, [], 'Example');
+        $result = Executor::execute($schema, $docAst);
         self::assertEquals(1, $mapperCalledCount);
         self::assertEquals(3, $resolverCalledCount);
         self::assertCount(0, $result->errors);
