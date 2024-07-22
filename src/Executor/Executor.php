@@ -3,7 +3,6 @@
 namespace GraphQL\Executor;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
@@ -19,7 +18,7 @@ use GraphQL\Utils\Utils;
  * @phpstan-import-type ArgsMapper from FieldDefinition
  *
  * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
- * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable): ExecutorImplementation
+ * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable, callable): ExecutorImplementation
  *
  * @see \GraphQL\Tests\Executor\ExecutorTest
  */
@@ -194,6 +193,11 @@ class Executor
             : $property;
     }
 
+    /**
+     * @template T of array<string, mixed>
+     * @param T $args
+     * @return T
+     */
     public static function defaultArgsMapper(array $args): array
     {
         return $args;
