@@ -772,9 +772,7 @@ class ReferenceExecutor implements ExecutorImplementation
         try {
             $promise = $this->getPromise($result);
             if ($promise !== null) {
-                $completed = $promise->then(function (&$resolved) use ($contextValue, $returnType, $fieldNodes, $info, $path, $unaliasedPath) {
-                    return $this->completeValue($returnType, $fieldNodes, $info, $path, $unaliasedPath, $resolved, $contextValue);
-                });
+                $completed = $promise->then(fn (&$resolved) => $this->completeValue($returnType, $fieldNodes, $info, $path, $unaliasedPath, $resolved, $contextValue));
             } else {
                 $completed = $this->completeValue($returnType, $fieldNodes, $info, $path, $unaliasedPath, $result, $contextValue);
             }
