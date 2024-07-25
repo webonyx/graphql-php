@@ -52,6 +52,7 @@ use GraphQL\Type\Definition\UnionType;
  *
  * @phpstan-type ResolveType callable(string, Node|null): Type&NamedType
  * @phpstan-type TypeConfigDecorator callable(array<string, mixed>, Node&TypeDefinitionNode, array<string, Node&TypeDefinitionNode>): array<string, mixed>
+ * @phpstan-type FieldConfigDecorator callable(array<string, mixed>, FieldDefinitionNode): array<string, mixed>
  */
 class ASTDefinitionBuilder
 {
@@ -72,6 +73,13 @@ class ASTDefinitionBuilder
      */
     private $typeConfigDecorator;
 
+    /**
+     * @var callable|null
+     *
+     * @phpstan-var FieldConfigDecorator|null
+     */
+    private $fieldConfigDecorator;
+
     /** @var array<string, Type&NamedType> */
     private array $cache;
 
@@ -91,12 +99,14 @@ class ASTDefinitionBuilder
         array $typeDefinitionsMap,
         array $typeExtensionsMap,
         callable $resolveType,
-        ?callable $typeConfigDecorator = null
+        ?callable $typeConfigDecorator = null,
+        ?callable $fieldConfigDecorator = null
     ) {
         $this->typeDefinitionsMap = $typeDefinitionsMap;
         $this->typeExtensionsMap = $typeExtensionsMap;
         $this->resolveType = $resolveType;
         $this->typeConfigDecorator = $typeConfigDecorator;
+        $this->fieldConfigDecorator = $fieldConfigDecorator;
 
         $this->cache = Type::builtInTypes();
     }
@@ -376,13 +386,19 @@ class ASTDefinitionBuilder
         /** @var OutputType&Type $type */
         $type = $this->buildWrappedType($field->type);
 
-        return [
+        $config = [
             'type' => $type,
             'description' => $field->description->value ?? null,
             'args' => $this->makeInputValues($field->arguments),
             'deprecationReason' => $this->getDeprecationReason($field),
             'astNode' => $field,
         ];
+
+        if (null !== $this->fieldConfigDecorator) {
+            $config = ($this->fieldConfigDecorator)($config, $field);
+        }
+
+        return $config;
     }
 
     /**
