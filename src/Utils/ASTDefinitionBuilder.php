@@ -374,6 +374,7 @@ class ASTDefinitionBuilder
 
     /**
      * @param ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode $node
+     *
      * @throws \Exception
      * @throws Error
      *
@@ -395,7 +396,7 @@ class ASTDefinitionBuilder
             'astNode' => $field,
         ];
 
-        if (null !== $this->fieldConfigDecorator) {
+        if ($this->fieldConfigDecorator !== null) {
             $config = ($this->fieldConfigDecorator)($config, $field, $node);
         }
 

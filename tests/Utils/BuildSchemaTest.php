@@ -1345,7 +1345,7 @@ final class BuildSchemaTest extends TestCaseBase
             return ['description' => 'My description of ' . $node->getName()->value] + $defaultConfig;
         };
 
-        $fieldResolver = static fn(): string => 'OK';
+        $fieldResolver = static fn (): string => 'OK';
         $fieldConfigDecorator = static function (array $defaultConfig, FieldDefinitionNode $node) use (&$fieldResolver): array {
             $defaultConfig['resolve'] = $fieldResolver;
 
