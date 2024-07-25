@@ -25,6 +25,7 @@ use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NamedType;
@@ -39,6 +40,9 @@ use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Validator\Rules\KnownDirectives;
 
+/**
+ * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ */
 final class SchemaExtenderTest extends TestCaseBase
 {
     /** @param NamedType|Schema $obj */
@@ -1802,6 +1806,7 @@ GRAPHQL,
 
         $resolveFn = static fn (): string => 'coming from field decorated resolver';
         $fieldConfigDecorator = static function (array $typeConfig, FieldDefinitionNode $fieldDefinitionNode) use ($resolveFn) {
+            /** @var UnnamedFieldDefinitionConfig $typeConfig */
             if ($fieldDefinitionNode->name->value === 'fieldDecorated') {
                 $typeConfig['resolve'] = $resolveFn;
             }
