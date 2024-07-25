@@ -52,7 +52,7 @@ use GraphQL\Type\Definition\UnionType;
  *
  * @phpstan-type ResolveType callable(string, Node|null): Type&NamedType
  * @phpstan-type TypeConfigDecorator callable(array<string, mixed>, Node&TypeDefinitionNode, array<string, Node&TypeDefinitionNode>): array<string, mixed>
- * @phpstan-type FieldConfigDecorator callable(array<string, mixed>, FieldDefinitionNode): array<string, mixed>
+ * @phpstan-type FieldConfigDecorator callable(UnnamedFieldDefinitionConfig, FieldDefinitionNode): UnnamedFieldDefinitionConfig
  */
 class ASTDefinitionBuilder
 {

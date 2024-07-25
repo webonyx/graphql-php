@@ -96,6 +96,7 @@ class BuildSchema
      * @param DocumentNode|Source|string $source
      *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
      *
      * @param array<string, bool> $options
      *
@@ -112,13 +113,14 @@ class BuildSchema
     public static function build(
         $source,
         ?callable $typeConfigDecorator = null,
-        array $options = []
+        array $options = [],
+        ?callable $fieldConfigDecorator = null,
     ): Schema {
         $doc = $source instanceof DocumentNode
             ? $source
             : Parser::parse($source);
 
-        return self::buildAST($doc, $typeConfigDecorator, $options);
+        return self::buildAST($doc, $typeConfigDecorator, $options, $fieldConfigDecorator);
     }
 
     /**

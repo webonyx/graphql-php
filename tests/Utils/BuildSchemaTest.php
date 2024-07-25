@@ -27,6 +27,7 @@ use GraphQL\Tests\TestCaseBase;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NamedType;
@@ -41,6 +42,9 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Validator\Rules\KnownDirectives;
 
+/**
+ * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ */
 final class BuildSchemaTest extends TestCaseBase
 {
     use ArraySubsetAsserts;
@@ -1342,8 +1346,10 @@ final class BuildSchemaTest extends TestCaseBase
         };
 
         $fieldResolver = static fn(): string => 'OK';
-        $fieldConfigDecorator = static function (array $defaultConfig, FieldDefinitionNode $node) use (&$fieldResolver) {
+        $fieldConfigDecorator = static function (array $defaultConfig, FieldDefinitionNode $node) use (&$fieldResolver): array {
             $defaultConfig['resolve'] = $fieldResolver;
+
+            /** @var UnnamedFieldDefinitionConfig $defaultConfig */
             return $defaultConfig;
         };
 
