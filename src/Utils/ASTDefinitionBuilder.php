@@ -52,7 +52,7 @@ use GraphQL\Type\Definition\UnionType;
  *
  * @phpstan-type ResolveType callable(string, Node|null): Type&NamedType
  * @phpstan-type TypeConfigDecorator callable(array<string, mixed>, Node&TypeDefinitionNode, array<string, Node&TypeDefinitionNode>): array<string, mixed>
- * @phpstan-type FieldConfigDecorator callable(UnnamedFieldDefinitionConfig, FieldDefinitionNode): UnnamedFieldDefinitionConfig
+ * @phpstan-type FieldConfigDecorator callable(UnnamedFieldDefinitionConfig, FieldDefinitionNode, ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode): UnnamedFieldDefinitionConfig
  */
 class ASTDefinitionBuilder
 {
@@ -365,7 +365,7 @@ class ASTDefinitionBuilder
         $map = [];
         foreach ($nodes as $node) {
             foreach ($node->fields as $field) {
-                $map[$field->name->value] = $this->buildField($field);
+                $map[$field->name->value] = $this->buildField($field, $node);
             }
         }
 
@@ -373,12 +373,13 @@ class ASTDefinitionBuilder
     }
 
     /**
+     * @param ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode $node
      * @throws \Exception
      * @throws Error
      *
      * @return UnnamedFieldDefinitionConfig
      */
-    public function buildField(FieldDefinitionNode $field): array
+    public function buildField(FieldDefinitionNode $field, object $node): array
     {
         // Note: While this could make assertions to get the correctly typed
         // value, that would throw immediately while type system validation
@@ -395,7 +396,7 @@ class ASTDefinitionBuilder
         ];
 
         if (null !== $this->fieldConfigDecorator) {
-            $config = ($this->fieldConfigDecorator)($config, $field);
+            $config = ($this->fieldConfigDecorator)($config, $field, $node);
         }
 
         return $config;

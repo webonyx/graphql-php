@@ -512,7 +512,7 @@ class SchemaExtender
                 );
 
                 foreach ($extension->fields as $field) {
-                    $newFieldMap[$field->name->value] = $this->astBuilder->buildField($field);
+                    $newFieldMap[$field->name->value] = $this->astBuilder->buildField($field, $extension);
                 }
             }
         }
