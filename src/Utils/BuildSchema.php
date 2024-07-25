@@ -114,7 +114,7 @@ class BuildSchema
         $source,
         ?callable $typeConfigDecorator = null,
         array $options = [],
-        ?callable $fieldConfigDecorator = null,
+        ?callable $fieldConfigDecorator = null
     ): Schema {
         $doc = $source instanceof DocumentNode
             ? $source
