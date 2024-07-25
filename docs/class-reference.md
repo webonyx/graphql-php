@@ -2440,6 +2440,7 @@ assumeValidSDL?: bool
  * @param DocumentNode|Source|string $source
  *
  * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+ * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
  *
  * @param array<string, bool> $options
  *
@@ -2453,7 +2454,12 @@ assumeValidSDL?: bool
  * @throws InvariantViolation
  * @throws SyntaxError
  */
-static function build($source, ?callable $typeConfigDecorator = null, array $options = []): GraphQL\Type\Schema
+static function build(
+    $source,
+    ?callable $typeConfigDecorator = null,
+    array $options = [],
+    ?callable $fieldConfigDecorator = null
+): GraphQL\Type\Schema
 ```
 
 ```php
