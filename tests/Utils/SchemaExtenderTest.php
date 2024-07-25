@@ -1800,7 +1800,7 @@ GRAPHQL,
             return $typeConfig;
         };
 
-        $resolveFn = static fn(): string => 'coming from field decorated resolver';
+        $resolveFn = static fn (): string => 'coming from field decorated resolver';
         $fieldConfigDecorator = static function (array $typeConfig, FieldDefinitionNode $fieldDefinitionNode) use ($resolveFn) {
             if ($fieldDefinitionNode->name->value === 'fieldDecorated') {
                 $typeConfig['resolve'] = $resolveFn;
@@ -1828,7 +1828,7 @@ GRAPHQL,
                 'foo' => [
                     'value' => $fooValue,
                 ],
-                'fieldDecorated' => 'coming from field decorated resolver'
+                'fieldDecorated' => 'coming from field decorated resolver',
             ],
         ], $result->toArray());
     }
