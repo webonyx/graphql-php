@@ -50,12 +50,14 @@ use GraphQL\Utils\Utils;
  *     ]);
  *
  * @phpstan-import-type FieldResolver from Executor
+ * @phpstan-import-type ArgsMapper from FieldDefinition
  *
  * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
  * @phpstan-type ObjectConfig array{
  *   name?: string|null,
  *   description?: string|null,
  *   resolveField?: FieldResolver|null,
+ *   argsMapper?: ArgsMapper|null,
  *   fields: (callable(): iterable<mixed>)|iterable<mixed>,
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
  *   isTypeOf?: (callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): (bool|Deferred|null))|null,
@@ -81,6 +83,13 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      */
     public $resolveFieldFn;
 
+    /**
+     * @var callable|null
+     *
+     * @phpstan-var ArgsMapper|null
+     */
+    public $argsMapper;
+
     /** @phpstan-var ObjectConfig */
     public array $config;
 
@@ -94,6 +103,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         $this->name = $config['name'] ?? $this->inferName();
         $this->description = $config['description'] ?? null;
         $this->resolveFieldFn = $config['resolveField'] ?? null;
+        $this->argsMapper = $config['argsMapper'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
 

@@ -5,6 +5,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Language\AST\FieldNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
@@ -14,6 +15,7 @@ use GraphQL\Utils\Utils;
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-import-type ArgumentListConfig from Argument
  *
+ * @phpstan-type ArgsMapper callable(array<string, mixed>, FieldDefinition, FieldNode): mixed
  * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
  * @phpstan-type ComplexityFn callable(int, array<string, mixed>): int
  * @phpstan-type VisibilityFn callable(): bool
@@ -22,6 +24,7 @@ use GraphQL\Utils\Utils;
  *     type: FieldType,
  *     resolve?: FieldResolver|null,
  *     args?: ArgumentListConfig|null,
+ *     argsMapper?: ArgsMapper|null,
  *     description?: string|null,
  *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
@@ -32,6 +35,7 @@ use GraphQL\Utils\Utils;
  *     type: FieldType,
  *     resolve?: FieldResolver|null,
  *     args?: ArgumentListConfig|null,
+ *     argsMapper?: ArgsMapper|null,
  *     description?: string|null,
  *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
@@ -55,6 +59,15 @@ class FieldDefinition
 
     /** @var array<int, Argument> */
     public array $args;
+
+    /**
+     * Callback to transform args to value object.
+     *
+     * @var callable|null
+     *
+     * @phpstan-var ArgsMapper|null
+     */
+    public $argsMapper;
 
     /**
      * Callback for resolving field value given parent value.
@@ -103,6 +116,7 @@ class FieldDefinition
         $this->args = isset($config['args'])
             ? Argument::listFromConfig($config['args'])
             : [];
+        $this->argsMapper = $config['argsMapper'] ?? null;
         $this->description = $config['description'] ?? null;
         $this->visible = $config['visible'] ?? true;
         $this->deprecationReason = $config['deprecationReason'] ?? null;

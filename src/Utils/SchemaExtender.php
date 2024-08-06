@@ -500,6 +500,7 @@ class SchemaExtender
                 'type' => $this->extendType($field->getType()),
                 'args' => $this->extendArgs($field->args),
                 'resolve' => $field->resolveFn,
+                'argsMapper' => $field->argsMapper,
                 'astNode' => $field->astNode,
             ];
         }
@@ -532,7 +533,8 @@ class SchemaExtender
             'interfaces' => fn (): array => $this->extendImplementedInterfaces($type),
             'fields' => fn (): array => $this->extendFieldMap($type),
             'isTypeOf' => [$type, 'isTypeOf'],
-            'resolveField' => $type->resolveFieldFn ?? null,
+            'resolveField' => $type->resolveFieldFn,
+            'argsMapper' => $type->argsMapper,
             'astNode' => $type->astNode,
             'extensionASTNodes' => $extensionASTNodes,
         ]);
