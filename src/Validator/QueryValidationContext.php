@@ -36,7 +36,7 @@ class QueryValidationContext implements ValidationContext
 
     protected DocumentNode $ast;
 
-    /** @var array<int, Error> */
+    /** @var list<Error> */
     protected array $errors = [];
 
     private TypeInfo $typeInfo;
@@ -73,7 +73,7 @@ class QueryValidationContext implements ValidationContext
         $this->errors[] = $error;
     }
 
-    /** @return array<int, Error> */
+    /** @return list<Error> */
     public function getErrors(): array
     {
         return $this->errors;

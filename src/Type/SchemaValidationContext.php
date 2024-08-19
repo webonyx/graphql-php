@@ -47,7 +47,7 @@ use GraphQL\Utils\Utils;
 
 class SchemaValidationContext
 {
-    /** @var array<int, Error> */
+    /** @var list<Error> */
     private array $errors = [];
 
     private Schema $schema;
@@ -60,7 +60,7 @@ class SchemaValidationContext
         $this->inputObjectCircularRefs = new InputObjectCircularRefs($this);
     }
 
-    /** @return array<int, Error> */
+    /** @return list<Error> */
     public function getErrors(): array
     {
         return $this->errors;

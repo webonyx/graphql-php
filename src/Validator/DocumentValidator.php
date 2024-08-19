@@ -90,7 +90,7 @@ class DocumentValidator
      *
      * @throws \Exception
      *
-     * @return array<int, Error>
+     * @return list<Error>
      *
      * @api
      */
@@ -263,7 +263,7 @@ class DocumentValidator
      *
      * @throws \Exception
      *
-     * @return array<int, Error>
+     * @return list<Error>
      */
     public static function validateSDL(
         DocumentNode $documentAST,
