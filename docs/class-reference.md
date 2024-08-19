@@ -1424,14 +1424,14 @@ locations?: array<int, array{line: int, column: int}>,
 path?: array<int, int|string>,
 extensions?: array<string, mixed>
 }
-@phpstan-type SerializableErrors array<int, SerializableError>
+@phpstan-type SerializableErrors list<SerializableError>
 @phpstan-type SerializableResult array{
 data?: array<string, mixed>,
 errors?: SerializableErrors,
 extensions?: array<string, mixed>
 }
 @phpstan-type ErrorFormatter callable(\Throwable): SerializableError
-@phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
+@phpstan-type ErrorsHandler callable(list<Error> $errors, ErrorFormatter $formatter): SerializableErrors
 
 @see \GraphQL\Tests\Executor\ExecutionResultTest
 
@@ -1455,7 +1455,7 @@ public $data;
  *
  * @api
  *
- * @var array<Error>
+ * @var list<Error>
  */
 public $errors;
 
@@ -1642,7 +1642,7 @@ will be created from the provided schema.
  *
  * @throws \Exception
  *
- * @return array<int, Error>
+ * @return list<Error>
  *
  * @api
  */
