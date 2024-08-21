@@ -21,7 +21,7 @@ class QueryGenerator
 
     private int $maxLeafFields;
 
-    private int $currentLeafFields;
+    private int $currentLeafFields = 0;
 
     public function __construct(Schema $schema, float $percentOfLeafFields)
     {
@@ -32,12 +32,11 @@ class QueryGenerator
         $totalFields = 0;
         foreach ($schema->getTypeMap() as $type) {
             if ($type instanceof ObjectType) {
-                $totalFields += \count($type->getFieldNames());
+                $totalFields += count($type->getFieldNames());
             }
         }
 
-        $this->maxLeafFields = \max(1, (int) \round($totalFields * $percentOfLeafFields));
-        $this->currentLeafFields = 0;
+        $this->maxLeafFields = max(1, (int) round($totalFields * $percentOfLeafFields));
     }
 
     public function buildQuery(): string
