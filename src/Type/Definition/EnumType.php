@@ -131,7 +131,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
      */
     public function serialize($value)
     {
-
         $lookup = $this->getValueLookup();
         if ($value instanceof \BackedEnum || $value instanceof \IntBackedEnum) {
             $value = $value->value;
