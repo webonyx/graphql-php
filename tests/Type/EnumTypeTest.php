@@ -6,6 +6,7 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\Type\PhpEnumType\StringPhpEnum;
 use GraphQL\Tests\Type\TestClasses\OtherEnumType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
@@ -660,5 +661,55 @@ final class EnumTypeTest extends TestCase
 
         // @phpstan-ignore-next-line $called is mutated
         self::assertSame(1, $called, 'Should call enum values callable exactly once');
+    }
+
+    public function testEnumsResolvedByNativePhpEnums()
+    {
+        if (version_compare(phpversion(), '8.1', '<')) {
+            self::markTestSkipped('Native PHP enums are only available with PHP 8.1');
+        }
+
+        $simpleType = new EnumType([
+            'name' => (new \ReflectionClass(StringPhpEnum::class))->getShortName(),
+            'values' => [
+                StringPhpEnum::A->value,
+                StringPhpEnum::B->value,
+                StringPhpEnum::C->value,
+            ],
+        ]);
+
+        $QueryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'simpleEnum' => [
+                    'type' => $simpleType,
+                    'args' => [
+                        'fromEnum' => ['type' => $simpleType],
+                    ],
+                    'resolve' => static function ($rootValue, array $args) {
+                        if (isset($args['fromEnum'])) {
+                            return StringPhpEnum::tryFrom($args['fromEnum']);
+                        }
+                        return null;
+                    },
+                ],
+            ],
+        ]);
+
+        $this->schema = new Schema([
+            'query' => $QueryType,
+        ]);
+
+
+        self::assertSame(
+            ['data' => ['simpleEnum' => StringPhpEnum::A->value]],
+            GraphQL::executeQuery($this->schema, '{ simpleEnum(fromEnum: Avalue) }')->toArray()
+        );
+
+
+        $result = GraphQL::executeQuery($this->schema, '{ simpleEnum(fromEnum: Dvalue) }');
+        self::assertCount(1, $result->errors);
+        $err = 'Value "Dvalue" does not exist in "StringPhpEnum" enum. Did you mean the enum value "Avalue", "Bvalue", or "Cvalue"?';
+        self::assertSame($err, $result->errors[0]->getMessage());
     }
 }
