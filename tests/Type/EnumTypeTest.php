@@ -690,6 +690,7 @@ final class EnumTypeTest extends TestCase
                         if (isset($args['fromEnum'])) {
                             return StringPhpEnum::tryFrom($args['fromEnum']);
                         }
+
                         return null;
                     },
                 ],
@@ -700,12 +701,10 @@ final class EnumTypeTest extends TestCase
             'query' => $QueryType,
         ]);
 
-
         self::assertSame(
             ['data' => ['simpleEnum' => StringPhpEnum::A->value]],
             GraphQL::executeQuery($this->schema, '{ simpleEnum(fromEnum: Avalue) }')->toArray()
         );
-
 
         $result = GraphQL::executeQuery($this->schema, '{ simpleEnum(fromEnum: Dvalue) }');
         self::assertCount(1, $result->errors);

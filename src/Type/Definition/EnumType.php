@@ -134,8 +134,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         $lookup = $this->getValueLookup();
         if ($value instanceof \BackedEnum) {
             $value = $value->value;
-        }
-        elseif ($value instanceof \UnitEnum) {
+        } elseif ($value instanceof \UnitEnum) {
             $value = $value->name;
         }
         if (isset($lookup[$value])) {
