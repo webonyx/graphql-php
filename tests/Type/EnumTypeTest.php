@@ -663,7 +663,7 @@ final class EnumTypeTest extends TestCase
         self::assertSame(1, $called, 'Should call enum values callable exactly once');
     }
 
-    public function testEnumsResolvedByNativePhpEnums()
+    public function testEnumsResolvedByNativePhpEnums(): void
     {
         if (version_compare(phpversion(), '8.1', '<')) {
             self::markTestSkipped('Native PHP enums are only available with PHP 8.1');
@@ -672,9 +672,9 @@ final class EnumTypeTest extends TestCase
         $simpleType = new EnumType([
             'name' => (new \ReflectionClass(StringPhpEnum::class))->getShortName(),
             'values' => [
-                StringPhpEnum::A->value, // @phpstan-ignore-line-until 8.1
-                StringPhpEnum::B->value, // @phpstan-ignore-line-until 8.1
-                StringPhpEnum::C->value, // @phpstan-ignore-line-until 8.1
+                StringPhpEnum::A->value,
+                StringPhpEnum::B->value,
+                StringPhpEnum::C->value,
             ],
         ]);
 
