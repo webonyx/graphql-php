@@ -672,9 +672,9 @@ final class EnumTypeTest extends TestCase
         $simpleType = new EnumType([
             'name' => (new \ReflectionClass(StringPhpEnum::class))->getShortName(),
             'values' => [
-                StringPhpEnum::A->value,
-                StringPhpEnum::B->value,
-                StringPhpEnum::C->value,
+                StringPhpEnum::A->value, // @phpstan-ignore-line-until 8.1
+                StringPhpEnum::B->value, // @phpstan-ignore-line-until 8.1
+                StringPhpEnum::C->value, // @phpstan-ignore-line-until 8.1
             ],
         ]);
 
