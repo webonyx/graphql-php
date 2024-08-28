@@ -670,7 +670,7 @@ final class EnumTypeTest extends TestCase
         }
 
         $simpleType = new EnumType([
-            'name' => (new \ReflectionClass(StringPhpEnum::class))->getShortName(),
+            'name' => class_exists(StringPhpEnum::class) ? (new \ReflectionClass(StringPhpEnum::class))->getShortName() : 'PhpStanDoesNotLikeThisForOlderPhpVersions',
             'values' => [
                 'Avalue',
                 'Bvalue',
@@ -702,7 +702,7 @@ final class EnumTypeTest extends TestCase
         ]);
 
         self::assertSame(
-            ['data' => ['simpleEnum' => StringPhpEnum::A->value]],
+            ['data' => ['simpleEnum' => 'Avalue']],
             GraphQL::executeQuery($this->schema, '{ simpleEnum(fromEnum: Avalue) }')->toArray()
         );
 
