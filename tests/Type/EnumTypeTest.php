@@ -672,9 +672,9 @@ final class EnumTypeTest extends TestCase
         $simpleType = new EnumType([
             'name' => (new \ReflectionClass(StringPhpEnum::class))->getShortName(),
             'values' => [
-                StringPhpEnum::A->value,
-                StringPhpEnum::B->value,
-                StringPhpEnum::C->value,
+                "Avalue",
+                "Bvalue",
+                "Cvalue",
             ],
         ]);
 
@@ -687,7 +687,7 @@ final class EnumTypeTest extends TestCase
                         'fromEnum' => ['type' => $simpleType],
                     ],
                     'resolve' => static function ($rootValue, array $args) {
-                        if (isset($args['fromEnum'])) {
+                        if (class_exists(StringPhpEnum::class) && isset($args['fromEnum'])) {
                             return StringPhpEnum::tryFrom($args['fromEnum']);
                         }
 
