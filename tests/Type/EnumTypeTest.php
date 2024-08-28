@@ -672,9 +672,9 @@ final class EnumTypeTest extends TestCase
         $simpleType = new EnumType([
             'name' => (new \ReflectionClass(StringPhpEnum::class))->getShortName(),
             'values' => [
-                "Avalue",
-                "Bvalue",
-                "Cvalue",
+                'Avalue',
+                'Bvalue',
+                'Cvalue',
             ],
         ]);
 
