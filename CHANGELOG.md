@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.13.0
+
+### Added
+
+- Serialize valid `\BackedEnum` values in `GraphQL\Type\Definition\PhpEnumType` https://github.com/webonyx/graphql-php/pull/1604
+
 ## v15.12.5
 
 ### Fixed
