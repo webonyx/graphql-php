@@ -145,7 +145,7 @@ GRAPHQL, SchemaPrinter::printType($enumType));
                 'fields' => [
                     'foo' => [
                         'type' => Type::nonNull($enumType),
-                        'resolve' => static fn (): int => IntPhpEnum::A->value,
+                        'resolve' => static fn (): int => 1,
                     ],
                 ],
             ]),
