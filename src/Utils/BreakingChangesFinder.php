@@ -90,7 +90,7 @@ class BreakingChangesFinder
      */
     public static function findRemovedTypes(
         Schema $oldSchema,
-        Schema $newSchema
+        Schema $newSchema,
     ): array {
         $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();
@@ -119,7 +119,7 @@ class BreakingChangesFinder
      */
     public static function findTypesThatChangedKind(
         Schema $schemaA,
-        Schema $schemaB
+        Schema $schemaB,
     ): array {
         $schemaATypeMap = $schemaA->getTypeMap();
         $schemaBTypeMap = $schemaB->getTypeMap();
@@ -191,7 +191,7 @@ class BreakingChangesFinder
      */
     public static function findFieldsThatChangedTypeOnObjectOrInterfaceTypes(
         Schema $oldSchema,
-        Schema $newSchema
+        Schema $newSchema,
     ): array {
         $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();
@@ -238,7 +238,7 @@ class BreakingChangesFinder
 
     private static function isChangeSafeForObjectOrInterfaceField(
         Type $oldType,
-        Type $newType
+        Type $newType,
     ): bool {
         if ($oldType instanceof NamedType) {
             return // if they're both named types, see if their names are equivalent
@@ -275,7 +275,7 @@ class BreakingChangesFinder
      */
     public static function findFieldsThatChangedTypeOnInputObjectTypes(
         Schema $oldSchema,
-        Schema $newSchema
+        Schema $newSchema,
     ): array {
         $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();
@@ -350,7 +350,7 @@ class BreakingChangesFinder
     /** @throws InvariantViolation */
     private static function isChangeSafeForInputObjectFieldOrFieldArg(
         Type $oldType,
-        Type $newType
+        Type $newType,
     ): bool {
         if ($oldType instanceof NamedType) {
             if (! $newType instanceof NamedType) {
@@ -394,7 +394,7 @@ class BreakingChangesFinder
      */
     public static function findTypesRemovedFromUnions(
         Schema $oldSchema,
-        Schema $newSchema
+        Schema $newSchema,
     ): array {
         $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();
@@ -434,7 +434,7 @@ class BreakingChangesFinder
      */
     public static function findValuesRemovedFromEnums(
         Schema $oldSchema,
-        Schema $newSchema
+        Schema $newSchema,
     ): array {
         $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();
@@ -476,7 +476,7 @@ class BreakingChangesFinder
      */
     public static function findArgChanges(
         Schema $oldSchema,
-        Schema $newSchema
+        Schema $newSchema,
     ): array {
         $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();
@@ -580,7 +580,7 @@ class BreakingChangesFinder
      */
     public static function findInterfacesRemovedFromObjectTypes(
         Schema $oldSchema,
-        Schema $newSchema
+        Schema $newSchema,
     ): array {
         $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();
@@ -828,7 +828,7 @@ class BreakingChangesFinder
      */
     public static function findValuesAddedToEnums(
         Schema $oldSchema,
-        Schema $newSchema
+        Schema $newSchema,
     ): array {
         $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();
@@ -865,7 +865,7 @@ class BreakingChangesFinder
      */
     public static function findInterfacesAddedToObjectTypes(
         Schema $oldSchema,
-        Schema $newSchema
+        Schema $newSchema,
     ): array {
         $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();
@@ -912,7 +912,7 @@ class BreakingChangesFinder
      */
     public static function findTypesAddedToUnions(
         Schema $oldSchema,
-        Schema $newSchema
+        Schema $newSchema,
     ): array {
         $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();

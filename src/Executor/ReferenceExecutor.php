@@ -87,7 +87,7 @@ class ReferenceExecutor implements ExecutorImplementation
         $contextValue,
         array $variableValues,
         ?string $operationName,
-        callable $fieldResolver
+        callable $fieldResolver,
     ): ExecutorImplementation {
         $exeContext = static::buildExecutionContext(
             $schema,
@@ -141,7 +141,7 @@ class ReferenceExecutor implements ExecutorImplementation
         array $rawVariableValues,
         ?string $operationName,
         callable $fieldResolver,
-        PromiseAdapter $promiseAdapter
+        PromiseAdapter $promiseAdapter,
     ) {
         /** @var array<int, Error> $errors */
         $errors = [];
@@ -394,7 +394,7 @@ class ReferenceExecutor implements ExecutorImplementation
         ObjectType $runtimeType,
         SelectionSetNode $selectionSet,
         \ArrayObject $fields,
-        \ArrayObject $visitedFragmentNames
+        \ArrayObject $visitedFragmentNames,
     ): \ArrayObject {
         $exeContext = $this->exeContext;
         foreach ($selectionSet->selections as $selection) {
@@ -606,7 +606,7 @@ class ReferenceExecutor implements ExecutorImplementation
         string $responseName,
         array $path,
         array $unaliasedPath,
-        $contextValue
+        $contextValue,
     ) {
         $exeContext = $this->exeContext;
 
@@ -723,7 +723,7 @@ class ReferenceExecutor implements ExecutorImplementation
         callable $resolveFn,
         $rootValue,
         ResolveInfo $info,
-        $contextValue
+        $contextValue,
     ) {
         try {
             // Build a map of arguments from the field.arguments AST, using the
@@ -765,7 +765,7 @@ class ReferenceExecutor implements ExecutorImplementation
         array $path,
         array $unaliasedPath,
         $result,
-        $contextValue
+        $contextValue,
     ) {
         // Otherwise, error protection is applied, logging the error and resolving
         // a null value for this field if one is encountered.
@@ -859,7 +859,7 @@ class ReferenceExecutor implements ExecutorImplementation
         array $path,
         array $unaliasedPath,
         &$result,
-        $contextValue
+        $contextValue,
     ) {
         // If result is an Error, throw a located error.
         if ($result instanceof \Throwable) {
@@ -1002,7 +1002,7 @@ class ReferenceExecutor implements ExecutorImplementation
         array $path,
         array $unaliasedPath,
         iterable &$results,
-        $contextValue
+        $contextValue,
     ) {
         $itemType = $returnType->getWrappedType();
 
@@ -1078,7 +1078,7 @@ class ReferenceExecutor implements ExecutorImplementation
         array $path,
         array $unaliasedPath,
         &$result,
-        $contextValue
+        $contextValue,
     ) {
         $typeCandidate = $returnType->resolveType($result, $contextValue, $info);
 
@@ -1211,7 +1211,7 @@ class ReferenceExecutor implements ExecutorImplementation
         array $path,
         array $unaliasedPath,
         &$result,
-        $contextValue
+        $contextValue,
     ) {
         // If there is an isTypeOf predicate function, call it with the
         // current result. If isTypeOf returns false, then raise an error rather
@@ -1266,7 +1266,7 @@ class ReferenceExecutor implements ExecutorImplementation
     protected function invalidReturnTypeError(
         ObjectType $returnType,
         $result,
-        \ArrayObject $fieldNodes
+        \ArrayObject $fieldNodes,
     ): Error {
         $safeResult = Utils::printSafe($result);
 
@@ -1294,7 +1294,7 @@ class ReferenceExecutor implements ExecutorImplementation
         array $path,
         array $unaliasedPath,
         &$result,
-        $contextValue
+        $contextValue,
     ) {
         $subFieldNodes = $this->collectSubFields($returnType, $fieldNodes);
 
@@ -1440,7 +1440,7 @@ class ReferenceExecutor implements ExecutorImplementation
         $runtimeTypeOrName,
         AbstractType $returnType,
         ResolveInfo $info,
-        &$result
+        &$result,
     ): ObjectType {
         $runtimeType = \is_string($runtimeTypeOrName)
             ? $this->exeContext->schema->getType($runtimeTypeOrName)
