@@ -77,7 +77,7 @@ final class RequestParsingTest extends TestCase
         $variables = null,
         ?string $operation = null,
         ?array $extensions = null,
-        string $message = ''
+        string $message = '',
     ): void {
         self::assertSame($query, $params->query, $message);
         self::assertSame($queryId, $params->queryId, $message);

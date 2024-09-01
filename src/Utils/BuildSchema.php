@@ -72,7 +72,7 @@ class BuildSchema
     public function __construct(
         DocumentNode $ast,
         ?callable $typeConfigDecorator = null,
-        array $options = []
+        array $options = [],
     ) {
         $this->ast = $ast;
         $this->typeConfigDecorator = $typeConfigDecorator;
@@ -102,7 +102,7 @@ class BuildSchema
     public static function build(
         $source,
         ?callable $typeConfigDecorator = null,
-        array $options = []
+        array $options = [],
     ): Schema {
         $doc = $source instanceof DocumentNode
             ? $source
@@ -135,7 +135,7 @@ class BuildSchema
     public static function buildAST(
         DocumentNode $ast,
         ?callable $typeConfigDecorator = null,
-        array $options = []
+        array $options = [],
     ): Schema {
         return (new self($ast, $typeConfigDecorator, $options))->buildSchema();
     }

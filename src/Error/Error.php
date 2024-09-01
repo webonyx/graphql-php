@@ -87,7 +87,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         ?array $path = null,
         ?\Throwable $previous = null,
         ?array $extensions = null,
-        ?array $unaliasedPath = null
+        ?array $unaliasedPath = null,
     ) {
         parent::__construct($message, 0, $previous);
 

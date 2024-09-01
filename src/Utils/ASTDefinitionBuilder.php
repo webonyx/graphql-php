@@ -91,7 +91,7 @@ class ASTDefinitionBuilder
         array $typeDefinitionsMap,
         array $typeExtensionsMap,
         callable $resolveType,
-        ?callable $typeConfigDecorator = null
+        ?callable $typeConfigDecorator = null,
     ) {
         $this->typeDefinitionsMap = $typeDefinitionsMap;
         $this->typeExtensionsMap = $typeExtensionsMap;
