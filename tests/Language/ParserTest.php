@@ -76,7 +76,7 @@ fragment MissingOn Type
         string $expectedMessage,
         string $stringRepresentation,
         ?array $expectedPositions = null,
-        ?array $expectedLocations = null
+        ?array $expectedLocations = null,
     ): void {
         try {
             Parser::parse($str);

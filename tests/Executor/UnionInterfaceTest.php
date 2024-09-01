@@ -526,7 +526,7 @@ final class UnionInterfaceTest extends TestCase
             'resolveType' => static function (
                 $obj,
                 $context,
-                ResolveInfo $info
+                ResolveInfo $info,
             ) use (
                 &$encounteredContext,
                 &$encounteredSchema,

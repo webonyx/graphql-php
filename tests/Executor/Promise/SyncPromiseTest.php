@@ -42,7 +42,7 @@ final class SyncPromiseTest extends TestCaseBase
         ?callable $onFulfilled,
         ?string $expectedNextValue,
         ?string $expectedNextReason,
-        ?string $expectedNextState
+        ?string $expectedNextState,
     ): void {
         $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);
@@ -61,7 +61,7 @@ final class SyncPromiseTest extends TestCaseBase
         ?callable $onFulfilled,
         ?string $expectedNextValue,
         ?string $expectedNextReason,
-        ?string $expectedNextState
+        ?string $expectedNextState,
     ): void {
         $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);
@@ -84,7 +84,7 @@ final class SyncPromiseTest extends TestCaseBase
         ?callable $onFulfilled,
         $expectedNextValue,
         ?string $expectedNextReason,
-        ?string $expectedNextState
+        ?string $expectedNextState,
     ): void {
         $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);
@@ -139,7 +139,7 @@ final class SyncPromiseTest extends TestCaseBase
         SyncPromise $promise,
         $expectedNextValue,
         ?string $expectedNextReason,
-        ?string $expectedNextState
+        ?string $expectedNextState,
     ): void {
         $actualNextValue = null;
         $actualNextReason = null;
@@ -204,7 +204,7 @@ final class SyncPromiseTest extends TestCaseBase
         ?callable $onRejected,
         ?string $expectedNextValue,
         ?string $expectedNextReason,
-        string $expectedNextState
+        string $expectedNextState,
     ): void {
         $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);
@@ -223,7 +223,7 @@ final class SyncPromiseTest extends TestCaseBase
         ?callable $onRejected,
         ?string $expectedNextValue,
         ?string $expectedNextReason,
-        string $expectedNextState
+        string $expectedNextState,
     ): void {
         $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);
@@ -242,7 +242,7 @@ final class SyncPromiseTest extends TestCaseBase
         ?callable $onRejected,
         ?string $expectedNextValue,
         ?string $expectedNextReason,
-        string $expectedNextState
+        string $expectedNextState,
     ): void {
         $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);

@@ -103,7 +103,7 @@ class Executor
         $contextValue = null,
         ?array $variableValues = null,
         ?string $operationName = null,
-        ?callable $fieldResolver = null
+        ?callable $fieldResolver = null,
     ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
@@ -143,7 +143,7 @@ class Executor
         $contextValue = null,
         ?array $variableValues = null,
         ?string $operationName = null,
-        ?callable $fieldResolver = null
+        ?callable $fieldResolver = null,
     ): Promise {
         $executor = (self::$implementationFactory)(
             $promiseAdapter,

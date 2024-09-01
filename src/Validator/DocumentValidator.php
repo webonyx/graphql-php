@@ -98,7 +98,7 @@ class DocumentValidator
         Schema $schema,
         DocumentNode $ast,
         ?array $rules = null,
-        ?TypeInfo $typeInfo = null
+        ?TypeInfo $typeInfo = null,
     ): array {
         $rules ??= static::allRules();
 
@@ -268,7 +268,7 @@ class DocumentValidator
     public static function validateSDL(
         DocumentNode $documentAST,
         ?Schema $schemaToExtend = null,
-        ?array $rules = null
+        ?array $rules = null,
     ): array {
         $rules ??= self::sdlRules();
 

@@ -746,7 +746,7 @@ final class QueryPlanTest extends TestCase
                         $value,
                         array $args,
                         $context,
-                        ResolveInfo $info
+                        ResolveInfo $info,
                     ) use (
                         &$hasCalled,
                         &$queryPlan
@@ -1061,7 +1061,7 @@ GRAPHQL;
                             $value,
                             array $args,
                             $context,
-                            ResolveInfo $info
+                            ResolveInfo $info,
                         ) use (
                             &$hasCalled,
                             &$queryPlan

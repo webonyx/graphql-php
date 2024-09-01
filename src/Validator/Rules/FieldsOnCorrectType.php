@@ -129,7 +129,7 @@ class FieldsOnCorrectType extends ValidationRule
         string $fieldName,
         string $type,
         array $suggestedTypeNames,
-        array $suggestedFieldNames
+        array $suggestedFieldNames,
     ): string {
         $message = "Cannot query field \"{$fieldName}\" on type \"{$type}\".";
 

@@ -247,7 +247,7 @@ class Helper
         PromiseAdapter $promiseAdapter,
         ServerConfig $config,
         OperationParams $op,
-        bool $isBatch = false
+        bool $isBatch = false,
     ): Promise {
         try {
             if ($config->getSchema() === null) {
@@ -357,7 +357,7 @@ class Helper
         ServerConfig $config,
         OperationParams $params,
         DocumentNode $doc,
-        string $operationType
+        string $operationType,
     ): ?array {
         $validationRules = $config->getValidationRules();
 
@@ -379,7 +379,7 @@ class Helper
         ServerConfig $config,
         OperationParams $params,
         DocumentNode $doc,
-        string $operationType
+        string $operationType,
     ) {
         $rootValue = $config->getRootValue();
 
@@ -395,7 +395,7 @@ class Helper
         ServerConfig $config,
         OperationParams $params,
         DocumentNode $doc,
-        string $operationType
+        string $operationType,
     ) {
         $context = $config->getContext();
 
