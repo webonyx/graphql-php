@@ -64,7 +64,7 @@ class ExecutionContext
         array $variableValues,
         array $errors,
         callable $fieldResolver,
-        PromiseAdapter $promiseAdapter,
+        PromiseAdapter $promiseAdapter
     ) {
         $this->schema = $schema;
         $this->fragments = $fragments;

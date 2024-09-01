@@ -139,7 +139,7 @@ class StandardServer
     public function processPsrRequest(
         RequestInterface $request,
         ResponseInterface $response,
-        StreamInterface $writableBodyStream,
+        StreamInterface $writableBodyStream
     ) {
         $result = $this->executePsrRequest($request);
 

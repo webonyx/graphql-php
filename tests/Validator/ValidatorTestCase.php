@@ -438,7 +438,7 @@ abstract class ValidatorTestCase extends TestCase
         ValidationRule $rule,
         string $queryString,
         array $errors,
-        array $options = [],
+        array $options = []
     ): array {
         return $this->expectInvalid(self::getTestSchema(), [$rule], $queryString, $errors, $options);
     }
@@ -487,7 +487,7 @@ abstract class ValidatorTestCase extends TestCase
         Schema $schema,
         ValidationRule $rule,
         string $queryString,
-        array $errors,
+        array $errors
     ): void {
         $this->expectInvalid($schema, [$rule], $queryString, $errors);
     }
@@ -527,7 +527,7 @@ abstract class ValidatorTestCase extends TestCase
         ValidationRule $rule,
         string $sdlString,
         ?Schema $schema = null,
-        array $errors = [],
+        array $errors = []
     ): void {
         $actualErrors = DocumentValidator::validateSDL(Parser::parse($sdlString), $schema, [$rule]);
         self::assertEquals(

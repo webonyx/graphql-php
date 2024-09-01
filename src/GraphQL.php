@@ -89,7 +89,7 @@ class GraphQL
         ?array $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null,
-        ?array $validationRules = null,
+        ?array $validationRules = null
     ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
@@ -131,7 +131,7 @@ class GraphQL
         ?array $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null,
-        ?array $validationRules = null,
+        ?array $validationRules = null
     ): Promise {
         try {
             $documentNode = $source instanceof DocumentNode
