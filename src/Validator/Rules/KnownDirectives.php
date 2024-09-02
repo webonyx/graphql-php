@@ -92,7 +92,7 @@ class KnownDirectives extends ValidationRule
                 $key,
                 $parent,
                 $path,
-                $ancestors,
+                $ancestors
             ) use (
                 $context,
                 $locationsMap

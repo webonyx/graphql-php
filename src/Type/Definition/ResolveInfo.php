@@ -145,7 +145,7 @@ class ResolveInfo
         $rootValue,
         OperationDefinitionNode $operation,
         array $variableValues,
-        array $unaliasedPath = [],
+        array $unaliasedPath = []
     ) {
         $this->fieldDefinition = $fieldDefinition;
         $this->fieldName = $fieldDefinition->name;

@@ -153,7 +153,7 @@ final class ResolveInfoTest extends TestCase
                         $value,
                         array $args,
                         $context,
-                        ResolveInfo $info,
+                        ResolveInfo $info
                     ) use (
                         &$actualDefaultSelection,
                         &$actualDeepSelection
@@ -349,7 +349,7 @@ final class ResolveInfoTest extends TestCase
                         $value,
                         array $args,
                         $context,
-                        ResolveInfo $info,
+                        ResolveInfo $info
                     ) use (
                         &$hasCalled,
                         &$actualDeepSelection
@@ -401,7 +401,7 @@ final class ResolveInfoTest extends TestCase
                         $value,
                         array $args,
                         $context,
-                        ResolveInfo $info,
+                        ResolveInfo $info
                     ) use (
                         &$hasCalled,
                         &$actualDeepSelection
