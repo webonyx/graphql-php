@@ -6,6 +6,9 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\Type\PhpEnumType\BackedPhpEnum;
+use GraphQL\Tests\Type\PhpEnumType\IntPhpEnum;
+use GraphQL\Tests\Type\PhpEnumType\PhpEnum;
 use GraphQL\Tests\Type\TestClasses\OtherEnumType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
@@ -660,5 +663,81 @@ final class EnumTypeTest extends TestCase
 
         // @phpstan-ignore-next-line $called is mutated
         self::assertSame(1, $called, 'Should call enum values callable exactly once');
+    }
+
+    public function testSerializesNativeBackedEnums(): void
+    {
+        $enumType = new EnumType([
+            'name' => 'PhpEnum',
+            'values' => [
+                BackedPhpEnum::A->value,
+                BackedPhpEnum::A->value,
+                BackedPhpEnum::A->value,
+            ],
+        ]);
+
+        $QueryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'phpEnum' => [
+                    'type' => $enumType,
+                    'args' => [
+                        'fromEnum' => ['type' => $enumType],
+                    ],
+                    'resolve' => static function ($rootValue, array $args) {
+                        return BackedPhpEnum::tryFrom($args['fromEnum']);
+                    },
+                ],
+            ],
+        ]);
+
+        $this->schema = new Schema([
+            'query' => $QueryType,
+        ]);
+
+        self::assertSame(
+            ['data' => ['phpEnum' => 'A']],
+            GraphQL::executeQuery($this->schema, '{ phpEnum(fromEnum: A) }')->toArray()
+        );
+    }
+
+    public function testSerializesNativeUnitEnums(): void
+    {
+        $enumType = new EnumType([
+            'name' => 'PhpEnum',
+            'values' => [
+                PhpEnum::A->name,
+                PhpEnum::B->name,
+                PhpEnum::C->name,
+            ],
+        ]);
+
+        $QueryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'phpEnum' => [
+                    'type' => $enumType,
+                    'args' => [
+                        'fromEnum' => ['type' => $enumType],
+                    ],
+                    'resolve' => static function ($rootValue, array $args) {
+                        return match($args['fromEnum']) {
+                            'A' => PhpEnum::A,
+                            'B' => PhpEnum::B,
+                            'C' => PhpEnum::C,
+                        };
+                    },
+                ],
+            ],
+        ]);
+
+        $this->schema = new Schema([
+            'query' => $QueryType,
+        ]);
+
+        self::assertSame(
+            ['data' => ['phpEnum' => 'B']],
+            GraphQL::executeQuery($this->schema, '{ phpEnum(fromEnum: B) }')->toArray()
+        );
     }
 }
