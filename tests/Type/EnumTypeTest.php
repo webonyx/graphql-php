@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Type;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
+use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\Type\PhpEnumType\BackedPhpEnum;
 use GraphQL\Tests\Type\PhpEnumType\IntPhpEnum;
@@ -16,6 +17,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\BuildSchema;
 use PHPUnit\Framework\TestCase;
 
 final class EnumTypeTest extends TestCase
@@ -667,77 +669,51 @@ final class EnumTypeTest extends TestCase
 
     public function testSerializesNativeBackedEnums(): void
     {
-        $enumType = new EnumType([
-            'name' => 'PhpEnum',
-            'values' => [
-                BackedPhpEnum::A->value,
-                BackedPhpEnum::A->value,
-                BackedPhpEnum::A->value,
-            ],
-        ]);
+        $documentNode = Parser::parse(<<<'SDL'
+            type Query {
+                phpEnum(fromEnum: PhpEnum!): PhpEnum! 
+            }
+         
+            enum PhpEnum {
+                A
+                B
+                C
+            }
+        SDL);
 
-        $QueryType = new ObjectType([
-            'name' => 'Query',
-            'fields' => [
-                'phpEnum' => [
-                    'type' => $enumType,
-                    'args' => [
-                        'fromEnum' => ['type' => $enumType],
-                    ],
-                    'resolve' => static function ($rootValue, array $args) {
-                        return BackedPhpEnum::tryFrom($args['fromEnum']);
-                    },
-                ],
-            ],
-        ]);
-
-        $this->schema = new Schema([
-            'query' => $QueryType,
-        ]);
+        $this->schema = BuildSchema::build($documentNode);
+        $resolvers = [
+              'phpEnum' => fn (): BackedPhpEnum => BackedPhpEnum::A,
+        ];
 
         self::assertSame(
             ['data' => ['phpEnum' => 'A']],
-            GraphQL::executeQuery($this->schema, '{ phpEnum(fromEnum: A) }')->toArray()
+            GraphQL::executeQuery($this->schema, '{ phpEnum(fromEnum: A) }', $resolvers)->toArray()
         );
     }
 
     public function testSerializesNativeUnitEnums(): void
     {
-        $enumType = new EnumType([
-            'name' => 'PhpEnum',
-            'values' => [
-                PhpEnum::A->name,
-                PhpEnum::B->name,
-                PhpEnum::C->name,
-            ],
-        ]);
+        $documentNode = Parser::parse(<<<'SDL'
+            type Query {
+                phpEnum(fromEnum: PhpEnum!): PhpEnum! 
+            }
+         
+            enum PhpEnum {
+                A
+                B
+                C
+            }
+        SDL);
 
-        $QueryType = new ObjectType([
-            'name' => 'Query',
-            'fields' => [
-                'phpEnum' => [
-                    'type' => $enumType,
-                    'args' => [
-                        'fromEnum' => ['type' => $enumType],
-                    ],
-                    'resolve' => static function ($rootValue, array $args) {
-                        return match($args['fromEnum']) {
-                            'A' => PhpEnum::A,
-                            'B' => PhpEnum::B,
-                            'C' => PhpEnum::C,
-                        };
-                    },
-                ],
-            ],
-        ]);
-
-        $this->schema = new Schema([
-            'query' => $QueryType,
-        ]);
+        $this->schema = BuildSchema::build($documentNode);
+        $resolvers = [
+            'phpEnum' => fn (): PhpEnum => PhpEnum::B,
+        ];
 
         self::assertSame(
             ['data' => ['phpEnum' => 'B']],
-            GraphQL::executeQuery($this->schema, '{ phpEnum(fromEnum: B) }')->toArray()
+            GraphQL::executeQuery($this->schema, '{ phpEnum(fromEnum: B) }', $resolvers)->toArray()
         );
     }
 }
