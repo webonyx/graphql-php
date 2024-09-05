@@ -8,7 +8,6 @@ use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\Type\PhpEnumType\BackedPhpEnum;
-use GraphQL\Tests\Type\PhpEnumType\IntPhpEnum;
 use GraphQL\Tests\Type\PhpEnumType\PhpEnum;
 use GraphQL\Tests\Type\TestClasses\OtherEnumType;
 use GraphQL\Type\Definition\EnumType;
