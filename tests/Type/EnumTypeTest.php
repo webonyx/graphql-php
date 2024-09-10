@@ -668,6 +668,10 @@ final class EnumTypeTest extends TestCase
 
     public function testSerializesNativeBackedEnums(): void
     {
+        if (version_compare(phpversion(), '8.1', '<')) {
+            self::markTestSkipped('Native PHP enums are only available with PHP 8.1');
+        }
+
         $documentNode = Parser::parse(<<<'SDL'
             type Query {
                 phpEnum(fromEnum: PhpEnum!): PhpEnum! 
@@ -693,6 +697,10 @@ final class EnumTypeTest extends TestCase
 
     public function testSerializesNativeUnitEnums(): void
     {
+        if (version_compare(phpversion(), '8.1', '<')) {
+            self::markTestSkipped('Native PHP enums are only available with PHP 8.1');
+        }
+
         $documentNode = Parser::parse(<<<'SDL'
             type Query {
                 phpEnum(fromEnum: PhpEnum!): PhpEnum! 
