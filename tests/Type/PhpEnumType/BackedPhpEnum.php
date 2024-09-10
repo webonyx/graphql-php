@@ -1,8 +1,7 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace GraphQL\Tests\Type\PhpEnumType;
+
 enum BackedPhpEnum: string
 {
     case A = 'A';
