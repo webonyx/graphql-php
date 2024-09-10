@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.14.0
+
+### Added
+
+- Allow native PHP enums as return values for SDL-based enums https://github.com/webonyx/graphql-php/pull/1608
+
 ## v15.13.0
 
 ### Added
