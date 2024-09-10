@@ -136,6 +136,14 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             return $lookup[$value]->name;
         }
 
+        if (is_a($value, \BackedEnum::class)) {
+            return $value->value;
+        }
+
+        if (is_a($value, \UnitEnum::class)) {
+            return $value->name;
+        }
+
         $safeValue = Utils::printSafe($value);
         throw new SerializationError("Cannot serialize value as enum: {$safeValue}");
     }
