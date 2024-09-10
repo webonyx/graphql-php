@@ -18,6 +18,9 @@ class PhpEnumType extends EnumType
     /**
      * @param class-string<\UnitEnum> $enum
      * @param string|null $name The name the enum will have in the schema, defaults to the basename of the given class
+     *
+     * @throws \Exception
+     * @throws \ReflectionException
      */
     public function __construct(string $enum, ?string $name = null)
     {
@@ -82,6 +85,11 @@ class PhpEnumType extends EnumType
         return end($parts);
     }
 
+    /**
+     * @param \ReflectionClassConstant|\ReflectionClass<\UnitEnum> $reflection
+     *
+     * @throws \Exception
+     */
     protected function extractDescription(\ReflectionClassConstant|\ReflectionClass $reflection): ?string
     {
         $attributes = $reflection->getAttributes(Description::class);
@@ -100,6 +108,7 @@ class PhpEnumType extends EnumType
         return PhpDoc::unwrap($unpadded);
     }
 
+    /** @throws \Exception */
     protected function deprecationReason(\ReflectionClassConstant $reflection): ?string
     {
         $attributes = $reflection->getAttributes(Deprecated::class);

@@ -1,0 +1,11 @@
+parameters:
+    excludePaths:
+        # PHP 8.1 enums
+        - src/Type/Definition/PhpEnumType.php
+        - tests/Type/EnumTypeTest.php
+        - tests/Type/PhpEnumTypeTest.php
+        - tests/Type/PhpEnumType
+    ignoreErrors:
+        # Native enums require PHP 8.1, but checking if a value is of an unknown class still works
+        - path: src/Type/Definition/EnumType.php
+          identifier: class.notFound

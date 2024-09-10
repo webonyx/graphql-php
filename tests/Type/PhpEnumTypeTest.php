@@ -178,6 +178,8 @@ GRAPHQL, SchemaPrinter::printType($enumType));
                             $bar = $args['bar'];
                             assert($bar === PhpEnum::A);
 
+                            assert($schema instanceof Schema);
+
                             if ($executeAgain) {
                                 $executionResult = GraphQL::executeQuery(
                                     $schema,

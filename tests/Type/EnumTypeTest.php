@@ -686,7 +686,7 @@ final class EnumTypeTest extends TestCase
 
         $this->schema = BuildSchema::build($documentNode);
         $resolvers = [
-              'phpEnum' => fn (): BackedPhpEnum => BackedPhpEnum::A,
+            'phpEnum' => fn (): BackedPhpEnum => BackedPhpEnum::A,
         ];
 
         self::assertSame(

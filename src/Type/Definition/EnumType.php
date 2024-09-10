@@ -136,9 +136,11 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             return $lookup[$value]->name;
         }
 
-        if (is_a($value, \BackedEnum::class, true)) {
+        if (is_a($value, \BackedEnum::class)) {
             return $value->value;
-        } elseif (is_a($value, \UnitEnum::class, true)) {
+        }
+
+        if (is_a($value, \UnitEnum::class)) {
             return $value->name;
         }
 

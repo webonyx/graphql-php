@@ -1,0 +1,5 @@
+parameters:
+    excludePaths:
+        # PHP 8 attributes
+        - src/Type/Definition/Deprecated.php
+        - src/Type/Definition/Description.php
