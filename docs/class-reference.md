@@ -2225,7 +2225,7 @@ function parseRequestParams(string $method, array $bodyParams, array $queryParam
  * Checks validity of OperationParams extracted from HTTP request and returns an array of errors
  * if params are invalid (or empty array when params are valid).
  *
- * @return array<int, RequestError>
+ * @return list<RequestError>
  *
  * @api
  */
