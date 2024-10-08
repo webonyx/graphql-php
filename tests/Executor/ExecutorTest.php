@@ -330,6 +330,79 @@ final class ExecutorTest extends TestCase
         self::assertSame($gotHere, true);
     }
 
+    public function testArgsMapper(): void
+    {
+        $doc = '
+      {
+        b {
+            testMapper(numArg: 123, stringArg: "foo")
+        }
+      }
+        ';
+
+        $mapperCalledCount = 0;
+        $resolverCalledCount = 0;
+        $lastArgs = null;
+
+        $docAst = Parser::parse($doc);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'b' => [
+                        'type' => Type::listOf(
+                            new ObjectType([
+                                'name' => 'ArgsMapperObject',
+                                'fields' => [
+                                    'testMapper' => [
+                                        'type' => Type::string(),
+                                        'args' => [
+                                            'numArg' => ['type' => Type::int()],
+                                            'stringArg' => ['type' => Type::string()],
+                                        ],
+                                        'argsMapper' => static function (array $args) use (
+                                            &$mapperCalledCount
+                                        ): object {
+                                            ++$mapperCalledCount;
+
+                                            $stdClass = new \stdClass();
+                                            foreach ($args as $name => $value) {
+                                                $stdClass->$name = $value;
+                                            }
+
+                                            return $stdClass;
+                                        },
+                                        'resolve' => static function ($_, \stdClass $args) use (
+                                            &$lastArgs,
+                                            &$resolverCalledCount
+                                        ): string {
+                                            ++$resolverCalledCount;
+
+                                            if ($lastArgs !== null && $lastArgs !== $args) {
+                                                throw new \LogicException('Should receive same args');
+                                            }
+
+                                            $lastArgs = $args;
+                                            self::assertSame(123, $args->numArg);
+                                            self::assertSame('foo', $args->stringArg);
+
+                                            return 'OK';
+                                        },
+                                    ],
+                                ],
+                            ])
+                        ),
+                        'resolve' => static fn (): array => [new \stdClass(), new \stdClass(), new \stdClass()],
+                    ],
+                ],
+            ]),
+        ]);
+        $result = Executor::execute($schema, $docAst);
+        self::assertEquals(1, $mapperCalledCount);
+        self::assertEquals(3, $resolverCalledCount);
+        self::assertCount(0, $result->errors);
+    }
+
     /** @see it('nulls out error subtrees') */
     public function testNullsOutErrorSubtrees(): void
     {
