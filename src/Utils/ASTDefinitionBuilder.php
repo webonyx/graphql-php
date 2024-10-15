@@ -528,8 +528,8 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @throws InvariantViolation
      * @throws \Exception
+     * @throws InvariantViolation
      */
     private function makeScalarDef(ScalarTypeDefinitionNode $def): CustomScalarType
     {

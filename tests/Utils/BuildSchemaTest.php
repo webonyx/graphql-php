@@ -108,7 +108,7 @@ final class BuildSchemaTest extends TestCaseBase
         ');
 
         $root = [
-            'add' => static fn($rootValue, array $args): int => $args['x'] + $args['y'],
+            'add' => static fn ($rootValue, array $args): int => $args['x'] + $args['y'],
         ];
 
         $result = GraphQL::executeQuery(

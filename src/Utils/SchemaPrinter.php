@@ -456,8 +456,6 @@ class SchemaPrinter
     }
 
     /**
-     * @param ScalarType $type
-     *
      * @throws \JsonException
      * @throws InvariantViolation
      * @throws SerializationError

@@ -38,6 +38,7 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
     use NamedTypeImplementation;
 
     public ?ScalarTypeDefinitionNode $astNode;
+
     public ?string $specifiedByURL;
 
     /** @var array<ScalarTypeExtensionNode> */

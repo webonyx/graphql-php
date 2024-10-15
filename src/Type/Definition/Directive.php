@@ -86,9 +86,9 @@ class Directive
     }
 
     /**
-     * @return array<string, Directive>
      * @throws InvariantViolation
      *
+     * @return array<string, Directive>
      */
     public static function getInternalDirectives(): array
     {
