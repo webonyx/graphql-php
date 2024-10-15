@@ -228,6 +228,7 @@ class SchemaExtender
             'serialize' => [$type, 'serialize'],
             'parseValue' => [$type, 'parseValue'],
             'parseLiteral' => [$type, 'parseLiteral'],
+            'specifiedByURL' => $type->specifiedByURL,
             'astNode' => $type->astNode,
             'extensionASTNodes' => $extensionASTNodes,
         ]);

@@ -318,7 +318,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
 
         extend type MyObj @onObject
 
-        scalar MyScalar @onScalar
+        scalar MyScalar @onScalar 
         
         extend scalar MyScalar @onScalar
 

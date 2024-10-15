@@ -367,10 +367,7 @@ abstract class ValidatorTestCase extends TestCase
         return new Schema([
             'query' => $queryRoot,
             'subscription' => $subscriptionRoot,
-            'directives' => [
-                Directive::includeDirective(),
-                Directive::skipDirective(),
-                Directive::deprecatedDirective(),
+            'directives' => array_merge(Directive::getInternalDirectives(), [
                 new Directive([
                     'name' => 'directive',
                     'locations' => [DirectiveLocation::FIELD, DirectiveLocation::FRAGMENT_DEFINITION],
@@ -420,7 +417,7 @@ abstract class ValidatorTestCase extends TestCase
                     'name' => 'onVariableDefinition',
                     'locations' => [DirectiveLocation::VARIABLE_DEFINITION],
                 ]),
-            ],
+            ]),
         ]);
     }
 

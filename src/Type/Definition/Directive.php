@@ -26,7 +26,9 @@ class Directive
     public const IF_ARGUMENT_NAME = 'if';
     public const SKIP_NAME = 'skip';
     public const DEPRECATED_NAME = 'deprecated';
+    public const SPECIFIED_BY_NAME = 'specifiedBy';
     public const REASON_ARGUMENT_NAME = 'reason';
+    public const URL_ARGUMENT_NAME = 'url';
 
     /**
      * Lazily initialized.
@@ -84,9 +86,9 @@ class Directive
     }
 
     /**
+     * @return array<string, Directive>
      * @throws InvariantViolation
      *
-     * @return array<string, Directive>
      */
     public static function getInternalDirectives(): array
     {
@@ -138,6 +140,19 @@ class Directive
                     ],
                 ],
             ]),
+            'specifiedBy' => new self([
+                'name' => self::SPECIFIED_BY_NAME,
+                'description' => 'Exposes a URL that specifies the behaviour of this scalar.',
+                'locations' => [
+                    DirectiveLocation::SCALAR,
+                ],
+                'args' => [
+                    self::URL_ARGUMENT_NAME => [
+                        'type' => Type::nonNull(Type::string()),
+                        'description' => 'The URL that specifies the behaviour of this scalar and points to a human-readable specification of the data format, serialization, and coercion rules. It must not appear on built-in scalar types.',
+                    ],
+                ],
+            ]),
         ];
     }
 
@@ -155,6 +170,14 @@ class Directive
         $internal = self::getInternalDirectives();
 
         return $internal['deprecated'];
+    }
+
+    /** @throws InvariantViolation */
+    public static function specifiedByDirective(): Directive
+    {
+        $internal = self::getInternalDirectives();
+
+        return $internal['specifiedBy'];
     }
 
     /** @throws InvariantViolation */
