@@ -4,7 +4,7 @@ namespace GraphQL\Tests\Type\PhpEnumType;
 
 enum BackedPhpEnum: string
 {
-    case A = 'A';
+    case A = 'a';
     case B = 'B';
-    case C = 'C';
+    case C = 'the value does not really matter';
 }
