@@ -13,7 +13,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ### Fixed
 
-- Serialize `BackedEnum` instances by name, not value
+- Serialize `BackedEnum` instances by name, not value https://github.com/webonyx/graphql-php/pull/1618
 
 ## v15.14.2
 
