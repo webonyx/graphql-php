@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.14.3
+
+### Fixed
+
+- Serialize `BackedEnum` instances by name, not value
+
 ## v15.14.2
 
 ### Changed
