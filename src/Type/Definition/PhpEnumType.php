@@ -4,13 +4,12 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\SerializationError;
 use GraphQL\Utils\PhpDoc;
-use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Utils\Utils;
 
 /**
- * @phpstan-import-type PartialEnumValueConfig from EnumTypev
+ * @phpstan-import-type PartialEnumValueConfig from EnumType
  *
  * @phpstan-type PhpEnumTypeConfig array{
  *    name?: string|null,
@@ -18,12 +17,18 @@ use GraphQL\Utils\Utils;
  *    enumClass: class-string<\UnitEnum>,
  *    astNode?: EnumTypeDefinitionNode|null,
  *    extensionASTNodes?: array<int, EnumTypeExtensionNode>|null
+ * }
  */
 class PhpEnumType extends EnumType
 {
     public const MULTIPLE_DESCRIPTIONS_DISALLOWED = 'Using more than 1 Description attribute is not supported.';
     public const MULTIPLE_DEPRECATIONS_DISALLOWED = 'Using more than 1 Deprecated attribute is not supported.';
 
+
+    /**
+     * @var class-string<\UnitEnum>
+     */
+    protected string $enumClass;
 
     /**
      * @phpstan-param PhpEnumTypeConfig $config
@@ -33,8 +38,8 @@ class PhpEnumType extends EnumType
      */
     public function __construct(array $config)
     {
-        $enumClass = $config['enumClass'];
-        $reflection = new \ReflectionEnum($enumClass);
+        $this->enumClass = $config['enumClass'];
+        $reflection = new \ReflectionEnum($this->enumClass);
 
         /**
          * @var array<string, PartialEnumValueConfig> $enumDefinitions
@@ -49,16 +54,16 @@ class PhpEnumType extends EnumType
         }
 
         parent::__construct([
-            'name' => $config['name'] ?? $this->baseName($enumClass),
+            'name' => $config['name'] ?? $this->baseName($this->enumClass),
             'values' => $enumDefinitions,
             'description' => $config['description'] ?? $this->extractDescription($reflection),
-            'enumClass' => $enumClass
+            'enumClass' => $this->enumClass
         ]);
     }
 
     public function serialize($value): string
     {
-        $enumClass = $this->config['enumClass'];
+        $enumClass = $this->enumClass;
         if ($value instanceof $enumClass) {
             return $value->name;
         }
@@ -81,7 +86,7 @@ class PhpEnumType extends EnumType
     public function parseValue($value)
     {
         // Can happen when variable values undergo a serialization cycle before execution
-        if ($value instanceof $this->config['enumClass']) {
+        if ($value instanceof $this->enumClass) {
             return $value;
         }
 
