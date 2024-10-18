@@ -63,7 +63,7 @@ class PhpEnumType extends EnumType
             return $value->name;
         }
 
-        if (! is_a($value, $enumClass)) {
+        if (is_a($enumClass, \BackedEnum::class, true)) {
             try {
                 $instance = $enumClass::from($value);
             } catch (\ValueError|\TypeError $_) {

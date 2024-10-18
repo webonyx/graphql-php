@@ -176,7 +176,7 @@ GRAPHQL, SchemaPrinter::printType($enumType));
 
     public function testAcceptsEnumFromVariableValues(): void
     {
-        $enumType = new PhpEnumType(MyCustomPhpEnum::class);
+        $enumType = new PhpEnumType(['enumClass' => MyCustomPhpEnum::class]);
 
         $schema = null;
         $schema = new Schema([
@@ -199,7 +199,7 @@ GRAPHQL, SchemaPrinter::printType($enumType));
                             if ($executeAgain) {
                                 $executionResult = GraphQL::executeQuery(
                                     $schema,
-                                    'query ($bar: PhpEnum!) { foo(bar: $bar) }',
+                                    'query ($bar: MyCustomPhpEnum!) { foo(bar: $bar) }',
                                     false,
                                     null,
                                     $resolveInfo->variableValues
@@ -220,7 +220,7 @@ GRAPHQL, SchemaPrinter::printType($enumType));
 
         $executionResult = GraphQL::executeQuery(
             $schema,
-            'query ($bar: PhpEnum!) { foo(bar: $bar) }',
+            'query ($bar: MyCustomPhpEnum!) { foo(bar: $bar) }',
             true,
             null,
             ['bar' => 'A']
@@ -249,7 +249,7 @@ GRAPHQL, SchemaPrinter::printType($enumType));
 
         $result = GraphQL::executeQuery($schema, '{ foo }');
 
-        self::expectExceptionObject(new SerializationError('Cannot serialize value as enum: "A", expected instance of GraphQL\\Tests\\Type\\PhpEnumType\\PhpEnum.'));
+        self::expectExceptionObject(new SerializationError('Cannot serialize value as enum: "A", expected instance of GraphQL\\Tests\\Type\\PhpEnumType\\MyCustomPhpEnum.'));
         $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS);
     }
 
