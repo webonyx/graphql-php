@@ -3,9 +3,9 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\SerializationError;
-use GraphQL\Utils\PhpDoc;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
+use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\Utils;
 
 /**
@@ -24,10 +24,7 @@ class PhpEnumType extends EnumType
     public const MULTIPLE_DESCRIPTIONS_DISALLOWED = 'Using more than 1 Description attribute is not supported.';
     public const MULTIPLE_DEPRECATIONS_DISALLOWED = 'Using more than 1 Deprecated attribute is not supported.';
 
-
-    /**
-     * @var class-string<\UnitEnum>
-     */
+    /** @var class-string<\UnitEnum> */
     protected string $enumClass;
 
     /**
@@ -57,7 +54,7 @@ class PhpEnumType extends EnumType
             'name' => $config['name'] ?? $this->baseName($this->enumClass),
             'values' => $enumDefinitions,
             'description' => $config['description'] ?? $this->extractDescription($reflection),
-            'enumClass' => $this->enumClass
+            'enumClass' => $this->enumClass,
         ]);
     }
 
