@@ -8,7 +8,7 @@ use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\Type\PhpEnumType\BackedPhpEnum;
-use GraphQL\Tests\Type\PhpEnumType\PhpEnum;
+use GraphQL\Tests\Type\PhpEnumType\MyCustomPhpEnum;
 use GraphQL\Tests\Type\TestClasses\OtherEnumType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
@@ -715,7 +715,7 @@ final class EnumTypeTest extends TestCase
 
         $this->schema = BuildSchema::build($documentNode);
         $resolvers = [
-            'phpEnum' => fn (): PhpEnum => PhpEnum::B,
+            'phpEnum' => fn (): MyCustomPhpEnum => MyCustomPhpEnum::B,
         ];
 
         self::assertSame(
