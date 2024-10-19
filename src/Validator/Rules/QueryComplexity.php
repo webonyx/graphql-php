@@ -173,6 +173,10 @@ class QueryComplexity extends QuerySecurityRule
                 return false;
             }
 
+            if ($directiveNode->name->value === Directive::SPECIFIED_BY_NAME) {
+                return false;
+            }
+
             [$errors, $variableValues] = Values::getVariableValues(
                 $this->context->getSchema(),
                 $this->variableDefs,

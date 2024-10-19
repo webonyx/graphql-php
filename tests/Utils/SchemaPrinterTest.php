@@ -1010,6 +1010,12 @@ final class SchemaPrinterTest extends TestCase
         "Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https:\/\/commonmark.org\/)."
         reason: String = "No longer supported"
       ) on FIELD_DEFINITION | ENUM_VALUE | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+      
+      "Exposes a URL that specifies the behaviour of this scalar."
+      directive @specifiedBy(
+        "The URL that specifies the behaviour of this scalar and points to a human-readable specification of the data format, serialization, and coercion rules. It must not appear on built-in scalar types."
+        url: String!
+      ) on SCALAR
 
       "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations."
       type __Schema {
