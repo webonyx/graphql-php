@@ -2409,6 +2409,7 @@ Build instance of @see \GraphQL\Type\Schema out of schema language definition (s
 See [schema definition language docs](schema-definition-language.md) for details.
 
 @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
+@phpstan-import-type FieldConfigDecorator from ASTDefinitionBuilder
 
 @phpstan-type BuildSchemaOptions array{
 assumeValid?: bool,
@@ -2439,6 +2440,7 @@ assumeValidSDL?: bool
  * @param DocumentNode|Source|string $source
  *
  * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+ * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
  *
  * @param array<string, bool> $options
  *
@@ -2452,7 +2454,12 @@ assumeValidSDL?: bool
  * @throws InvariantViolation
  * @throws SyntaxError
  */
-static function build($source, ?callable $typeConfigDecorator = null, array $options = []): GraphQL\Type\Schema
+static function build(
+    $source,
+    ?callable $typeConfigDecorator = null,
+    array $options = [],
+    ?callable $fieldConfigDecorator = null
+): GraphQL\Type\Schema
 ```
 
 ```php
@@ -2465,6 +2472,7 @@ static function build($source, ?callable $typeConfigDecorator = null, array $opt
  * has no resolve methods, so execution will use default resolvers.
  *
  * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+ * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
  *
  * @param array<string, bool> $options
  *
@@ -2480,7 +2488,8 @@ static function build($source, ?callable $typeConfigDecorator = null, array $opt
 static function buildAST(
     GraphQL\Language\AST\DocumentNode $ast,
     ?callable $typeConfigDecorator = null,
-    array $options = []
+    array $options = [],
+    ?callable $fieldConfigDecorator = null
 ): GraphQL\Type\Schema
 ```
 
