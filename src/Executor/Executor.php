@@ -7,6 +7,7 @@ use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\FieldNode;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Schema;
@@ -15,8 +16,7 @@ use GraphQL\Utils\Utils;
 /**
  * Implements the "Evaluating requests" section of the GraphQL specification.
  *
- * @phpstan-import-type ArgsMapper from FieldDefinition
- *
+ * @phpstan-type ArgsMapper callable(array<string, mixed>, FieldDefinition, FieldNode): mixed
  * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
  * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable, callable): ExecutorImplementation
  *

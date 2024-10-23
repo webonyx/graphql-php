@@ -50,7 +50,7 @@ use GraphQL\Utils\Utils;
  *     ]);
  *
  * @phpstan-import-type FieldResolver from Executor
- * @phpstan-import-type ArgsMapper from FieldDefinition
+ * @phpstan-import-type ArgsMapper from Executor
  *
  * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
  * @phpstan-type ObjectConfig array{

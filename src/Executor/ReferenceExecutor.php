@@ -37,7 +37,7 @@ use GraphQL\Utils\Utils;
 /**
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-import-type Path from ResolveInfo
- * @phpstan-import-type ArgsMapper from FieldDefinition
+ * @phpstan-import-type ArgsMapper from Executor
  *
  * @phpstan-type Fields \ArrayObject<string, \ArrayObject<int, FieldNode>>
  */

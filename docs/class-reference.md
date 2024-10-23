@@ -1341,7 +1341,7 @@ const CLASS_MAP = [
 
 Implements the "Evaluating requests" section of the GraphQL specification.
 
-@phpstan-import-type ArgsMapper from FieldDefinition
+@phpstan-import-type ArgsMapper from Executor
 
 @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
 @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable, callable): ExecutorImplementation
