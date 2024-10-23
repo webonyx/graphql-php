@@ -136,6 +136,28 @@ GRAPHQL, SchemaPrinter::printType($enumType));
         ], GraphQL::executeQuery($schema, '{ foo(bar: A) }')->toArray());
     }
 
+    public function testSerializesBackedEnumsByValue(): void
+    {
+        $enumType = new PhpEnumType(IntPhpEnum::class);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'foo' => [
+                        'type' => Type::nonNull($enumType),
+                        'resolve' => static fn (): int => 1,
+                    ],
+                ],
+            ]),
+        ]);
+
+        self::assertSame([
+            'data' => [
+                'foo' => 'A',
+            ],
+        ], GraphQL::executeQuery($schema, '{ foo }')->toArray());
+    }
+
     public function testAcceptsEnumFromVariableValues(): void
     {
         $enumType = new PhpEnumType(PhpEnum::class);
@@ -155,6 +177,8 @@ GRAPHQL, SchemaPrinter::printType($enumType));
                         'resolve' => static function (bool $executeAgain, array $args, $context, ResolveInfo $resolveInfo) use (&$schema): PhpEnum {
                             $bar = $args['bar'];
                             assert($bar === PhpEnum::A);
+
+                            assert($schema instanceof Schema);
 
                             if ($executeAgain) {
                                 $executionResult = GraphQL::executeQuery(
@@ -210,6 +234,27 @@ GRAPHQL, SchemaPrinter::printType($enumType));
         $result = GraphQL::executeQuery($schema, '{ foo }');
 
         self::expectExceptionObject(new SerializationError('Cannot serialize value as enum: "A", expected instance of GraphQL\\Tests\\Type\\PhpEnumType\\PhpEnum.'));
+        $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS);
+    }
+
+    public function testFailsToSerializeNonEnumValue(): void
+    {
+        $enumType = new PhpEnumType(IntPhpEnum::class);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'foo' => [
+                        'type' => Type::nonNull($enumType),
+                        'resolve' => static fn (): string => 'A',
+                    ],
+                ],
+            ]),
+        ]);
+
+        $result = GraphQL::executeQuery($schema, '{ foo }');
+
+        self::expectExceptionObject(new SerializationError('Cannot serialize value as enum: "A", expected instance or valid value of GraphQL\\Tests\\Type\\PhpEnumType\\IntPhpEnum.'));
         $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS);
     }
 }

@@ -427,7 +427,6 @@ class SchemaExtender
             }
         }
 
-        // @phpstan-ignore-next-line will be caught in schema validation
         return $interfaces;
     }
 
