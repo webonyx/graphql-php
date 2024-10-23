@@ -61,7 +61,7 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected \SplObjectStorage $subFieldCache;
 
-    /** @var \SplObjectStorage<FieldNode, mixed> */
+    /** @var \SplObjectStorage<FieldNode, \SplObjectStorage<FieldNode, mixed>> */
     protected \SplObjectStorage $fieldArgsCache;
 
     protected function __construct(ExecutionContext $context)
@@ -741,7 +741,9 @@ class ReferenceExecutor implements ExecutorImplementation
         try {
             // Build a map of arguments from the field.arguments AST, using the
             // variables scope to fulfill any variable references.
-            $args = $this->fieldArgsCache[$fieldNode] ??= $argsMapper(Values::getArgumentValues(
+            $this->fieldArgsCache[$fieldDef] ??= new \SplObjectStorage();
+
+            $args = $this->fieldArgsCache[$fieldDef][$fieldNode] ??= $argsMapper(Values::getArgumentValues(
                 $fieldDef,
                 $fieldNode,
                 $this->exeContext->variableValues
