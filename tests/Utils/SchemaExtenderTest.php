@@ -40,9 +40,7 @@ use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Validator\Rules\KnownDirectives;
 
-/**
- * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
- */
+/** @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition */
 final class SchemaExtenderTest extends TestCaseBase
 {
     /** @param NamedType|Schema $obj */

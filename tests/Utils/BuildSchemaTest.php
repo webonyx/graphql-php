@@ -42,9 +42,7 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Validator\Rules\KnownDirectives;
 
-/**
- * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
- */
+/** @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition */
 final class BuildSchemaTest extends TestCaseBase
 {
     use ArraySubsetAsserts;

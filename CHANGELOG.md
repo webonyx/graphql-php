@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.15.0
+
+### Added
+
+- Add field config decorator when building schema from SDL https://github.com/webonyx/graphql-php/pull/1590
+
 ## v15.14.3
 
 ### Fixed
