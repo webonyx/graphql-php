@@ -11,6 +11,7 @@ use GraphQL\GraphQL;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\Node;
@@ -26,6 +27,7 @@ use GraphQL\Tests\TestCaseBase;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NamedType;
@@ -40,6 +42,9 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Validator\Rules\KnownDirectives;
 
+/**
+ * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ */
 final class BuildSchemaTest extends TestCaseBase
 {
     use ArraySubsetAsserts;
@@ -1340,7 +1345,15 @@ final class BuildSchemaTest extends TestCaseBase
             return ['description' => 'My description of ' . $node->getName()->value] + $defaultConfig;
         };
 
-        $schema = BuildSchema::buildAST($doc, $typeConfigDecorator);
+        $fieldResolver = static fn (): string => 'OK';
+        $fieldConfigDecorator = static function (array $defaultConfig, FieldDefinitionNode $node) use (&$fieldResolver): array {
+            $defaultConfig['resolve'] = $fieldResolver;
+
+            /** @var UnnamedFieldDefinitionConfig $defaultConfig */
+            return $defaultConfig;
+        };
+
+        $schema = BuildSchema::buildAST($doc, $typeConfigDecorator, [], $fieldConfigDecorator);
         $schema->getTypeMap();
         self::assertSame(['Query', 'Color', 'Hello'], $decorated);
 
@@ -1357,6 +1370,10 @@ final class BuildSchemaTest extends TestCaseBase
         $query = $schema->getType('Query');
         self::assertInstanceOf(ObjectType::class, $query);
         self::assertSame('My description of Query', $query->description);
+
+        self::assertSame($fieldResolver, $query->getFields()['str']->resolveFn);
+        self::assertSame($fieldResolver, $query->getFields()['color']->resolveFn);
+        self::assertSame($fieldResolver, $query->getFields()['hello']->resolveFn);
 
         self::assertArrayHasKey(1, $calls);
         [$defaultConfig, $node, $allNodesMap] = $calls[1]; // enum Color
