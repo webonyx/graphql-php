@@ -741,6 +741,7 @@ class ReferenceExecutor implements ExecutorImplementation
         try {
             // Build a map of arguments from the field.arguments AST, using the
             // variables scope to fulfill any variable references.
+            /** @phpstan-ignore-next-line */
             $this->fieldArgsCache[$fieldDef] ??= new \SplObjectStorage();
 
             $args = $this->fieldArgsCache[$fieldDef][$fieldNode] ??= $argsMapper(Values::getArgumentValues(
