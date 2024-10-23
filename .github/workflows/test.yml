@@ -16,11 +16,11 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - 7.4
-          - 8.0
-          - 8.1
-          - 8.2
-          - 8.3
+          - "7.4"
+          - "8.0"
+          - "8.1"
+          - "8.2"
+          - "8.3"
         dependencies:
           - highest
         include:
@@ -36,7 +36,7 @@ jobs:
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-version }}
+          php-version: "${{ matrix.php-version }}"
           coverage: pcov
 
       - name: Install dependencies with Composer

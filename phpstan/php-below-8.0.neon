@@ -1,0 +1,9 @@
+parameters:
+    excludePaths:
+        # PHP 8 attributes
+        - ../src/Type/Definition/Deprecated.php
+        - ../src/Type/Definition/Description.php
+    ignoreErrors:
+        # Native enums require PHP 8.1, but checking if a value is of an unknown class still works
+        - path: ../src/Type/Definition/EnumType.php
+          identifier: class.notFound
