@@ -5,7 +5,6 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\FieldDefinitionNode;
-use GraphQL\Language\AST\FieldNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 

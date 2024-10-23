@@ -6,7 +6,6 @@ use GraphQL\Error\Error;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
-use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Schema;
 
 /**
