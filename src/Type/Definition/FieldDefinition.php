@@ -16,7 +16,6 @@ use GraphQL\Utils\Utils;
  * @phpstan-import-type ArgsMapper from Executor
  * @phpstan-import-type ArgumentListConfig from Argument
  *
- *
  * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
  * @phpstan-type ComplexityFn callable(int, array<string, mixed>): int
  * @phpstan-type VisibilityFn callable(): bool
