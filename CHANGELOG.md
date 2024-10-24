@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.16.0
+
+### Added
+
+- Create field args mapper and cache args resolution https://github.com/webonyx/graphql-php/pull/1587
+
 ## v15.15.0
 
 ### Added
