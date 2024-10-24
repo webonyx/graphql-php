@@ -12,6 +12,7 @@ use GraphQL\Utils\Utils;
  * @see Executor
  *
  * @phpstan-import-type FieldResolver from Executor
+ * @phpstan-import-type ArgsMapper from Executor
  * @phpstan-import-type ArgumentListConfig from Argument
  *
  * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
@@ -22,6 +23,7 @@ use GraphQL\Utils\Utils;
  *     type: FieldType,
  *     resolve?: FieldResolver|null,
  *     args?: ArgumentListConfig|null,
+ *     argsMapper?: ArgsMapper|null,
  *     description?: string|null,
  *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
@@ -32,6 +34,7 @@ use GraphQL\Utils\Utils;
  *     type: FieldType,
  *     resolve?: FieldResolver|null,
  *     args?: ArgumentListConfig|null,
+ *     argsMapper?: ArgsMapper|null,
  *     description?: string|null,
  *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
@@ -55,6 +58,15 @@ class FieldDefinition
 
     /** @var array<int, Argument> */
     public array $args;
+
+    /**
+     * Callback to transform args to value object.
+     *
+     * @var callable|null
+     *
+     * @phpstan-var ArgsMapper|null
+     */
+    public $argsMapper;
 
     /**
      * Callback for resolving field value given parent value.
@@ -103,6 +115,7 @@ class FieldDefinition
         $this->args = isset($config['args'])
             ? Argument::listFromConfig($config['args'])
             : [];
+        $this->argsMapper = $config['argsMapper'] ?? null;
         $this->description = $config['description'] ?? null;
         $this->visible = $config['visible'] ?? true;
         $this->deprecationReason = $config['deprecationReason'] ?? null;

@@ -37,6 +37,7 @@ use GraphQL\Utils\Utils;
 /**
  * @phpstan-import-type FieldResolver from Executor
  * @phpstan-import-type Path from ResolveInfo
+ * @phpstan-import-type ArgsMapper from Executor
  *
  * @phpstan-type Fields \ArrayObject<string, \ArrayObject<int, FieldNode>>
  */
@@ -60,6 +61,9 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected \SplObjectStorage $subFieldCache;
 
+    /** @var \SplObjectStorage<FieldDefinition, \SplObjectStorage<FieldNode, mixed>> */
+    protected \SplObjectStorage $fieldArgsCache;
+
     protected function __construct(ExecutionContext $context)
     {
         if (! isset(static::$UNDEFINED)) {
@@ -68,6 +72,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
         $this->exeContext = $context;
         $this->subFieldCache = new \SplObjectStorage();
+        $this->fieldArgsCache = new \SplObjectStorage();
     }
 
     /**
@@ -76,6 +81,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param array<string, mixed> $variableValues
      *
      * @phpstan-param FieldResolver $fieldResolver
+     * @phpstan-param ArgsMapper $argsMapper
      *
      * @throws \Exception
      */
@@ -87,7 +93,8 @@ class ReferenceExecutor implements ExecutorImplementation
         $contextValue,
         array $variableValues,
         ?string $operationName,
-        callable $fieldResolver
+        callable $fieldResolver,
+        callable $argsMapper
     ): ExecutorImplementation {
         $exeContext = static::buildExecutionContext(
             $schema,
@@ -97,7 +104,8 @@ class ReferenceExecutor implements ExecutorImplementation
             $variableValues,
             $operationName,
             $fieldResolver,
-            $promiseAdapter
+            $argsMapper,
+            $promiseAdapter,
         );
 
         if (\is_array($exeContext)) {
@@ -141,6 +149,7 @@ class ReferenceExecutor implements ExecutorImplementation
         array $rawVariableValues,
         ?string $operationName,
         callable $fieldResolver,
+        callable $argsMapper,
         PromiseAdapter $promiseAdapter
     ) {
         /** @var array<int, Error> $errors */
@@ -217,6 +226,7 @@ class ReferenceExecutor implements ExecutorImplementation
             $variableValues,
             $errors,
             $fieldResolver,
+            $argsMapper,
             $promiseAdapter
         );
     }
@@ -640,13 +650,14 @@ class ReferenceExecutor implements ExecutorImplementation
             $exeContext->variableValues,
             $unaliasedPath
         );
-        if ($fieldDef->resolveFn !== null) {
-            $resolveFn = $fieldDef->resolveFn;
-        } elseif ($parentType->resolveFieldFn !== null) {
-            $resolveFn = $parentType->resolveFieldFn;
-        } else {
-            $resolveFn = $this->exeContext->fieldResolver;
-        }
+
+        $resolveFn = $fieldDef->resolveFn
+            ?? $parentType->resolveFieldFn
+            ?? $this->exeContext->fieldResolver;
+
+        $argsMapper = $fieldDef->argsMapper
+            ?? $parentType->argsMapper
+            ?? $this->exeContext->argsMapper;
 
         // Get the resolve function, regardless of if its result is normal
         // or abrupt (error).
@@ -654,6 +665,7 @@ class ReferenceExecutor implements ExecutorImplementation
             $fieldDef,
             $fieldNode,
             $resolveFn,
+            $argsMapper,
             $rootValue,
             $info,
             $contextValue
@@ -721,6 +733,7 @@ class ReferenceExecutor implements ExecutorImplementation
         FieldDefinition $fieldDef,
         FieldNode $fieldNode,
         callable $resolveFn,
+        callable $argsMapper,
         $rootValue,
         ResolveInfo $info,
         $contextValue
@@ -728,11 +741,14 @@ class ReferenceExecutor implements ExecutorImplementation
         try {
             // Build a map of arguments from the field.arguments AST, using the
             // variables scope to fulfill any variable references.
-            $args = Values::getArgumentValues(
+            /** @phpstan-ignore-next-line ignored because no way to tell phpstan what are generics of SplObjectStorage without assign it to var first */
+            $this->fieldArgsCache[$fieldDef] ??= new \SplObjectStorage();
+
+            $args = $this->fieldArgsCache[$fieldDef][$fieldNode] ??= $argsMapper(Values::getArgumentValues(
                 $fieldDef,
                 $fieldNode,
                 $this->exeContext->variableValues
-            );
+            ), $fieldDef, $fieldNode, $contextValue);
 
             return $resolveFn($rootValue, $args, $contextValue, $info);
         } catch (\Throwable $error) {
