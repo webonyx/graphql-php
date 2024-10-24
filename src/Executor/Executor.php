@@ -16,7 +16,7 @@ use GraphQL\Utils\Utils;
 /**
  * Implements the "Evaluating requests" section of the GraphQL specification.
  *
- * @phpstan-type ArgsMapper callable(array<string, mixed>, FieldDefinition, FieldNode): mixed
+ * @phpstan-type ArgsMapper callable(array<string, mixed>, FieldDefinition, FieldNode, mixed): mixed
  * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
  * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable, callable): ExecutorImplementation
  *
