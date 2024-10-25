@@ -63,19 +63,25 @@ class Executor
         self::$defaultFieldResolver = $fieldResolver;
     }
 
+    /** @phpstan-return ArgsMapper */
+    public static function getDefaultArgsMapper(): callable
+    {
+        return self::$defaultArgsMapper;
+    }
+
     /** @phpstan-param ArgsMapper $argsMapper */
     public static function setDefaultArgsMapper(callable $argsMapper): void
     {
         self::$defaultArgsMapper = $argsMapper;
     }
 
-    public static function getPromiseAdapter(): PromiseAdapter
+    public static function getDefaultPromiseAdapter(): PromiseAdapter
     {
         return self::$defaultPromiseAdapter ??= new SyncPromiseAdapter();
     }
 
     /** Set a custom default promise adapter. */
-    public static function setPromiseAdapter(?PromiseAdapter $defaultPromiseAdapter = null): void
+    public static function setDefaultPromiseAdapter(?PromiseAdapter $defaultPromiseAdapter = null): void
     {
         self::$defaultPromiseAdapter = $defaultPromiseAdapter;
     }

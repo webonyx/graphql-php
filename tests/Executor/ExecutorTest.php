@@ -29,7 +29,7 @@ final class ExecutorTest extends TestCase
 
     public function tearDown(): void
     {
-        Executor::setPromiseAdapter(null);
+        Executor::setDefaultPromiseAdapter(null);
     }
 
     // Execute: Handles basic execution tasks
@@ -398,8 +398,8 @@ final class ExecutorTest extends TestCase
             ]),
         ]);
         $result = Executor::execute($schema, $docAst);
-        self::assertEquals(1, $mapperCalledCount);
-        self::assertEquals(3, $resolverCalledCount);
+        self::assertSame(1, $mapperCalledCount);
+        self::assertSame(3, $resolverCalledCount);
         self::assertCount(0, $result->errors);
     }
 
