@@ -3,6 +3,7 @@
 This is the primary facade for fulfilling GraphQL operations.
 See [related documentation](executing-queries.md).
 
+@phpstan-import-type ArgsMapper from Executor
 @phpstan-import-type FieldResolver from Executor
 
 @see \GraphQL\Tests\GraphQLTest
@@ -162,6 +163,17 @@ static function getStandardValidationRules(): array
  * @api
  */
 static function setDefaultFieldResolver(callable $fn): void
+```
+
+```php
+/**
+ * Set default args mapper implementation.
+ *
+ * @phpstan-param ArgsMapper $fn
+ *
+ * @api
+ */
+static function setDefaultArgsMapper(callable $fn): void
 ```
 
 ## GraphQL\Type\Definition\Type

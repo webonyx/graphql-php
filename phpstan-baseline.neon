@@ -1,11 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^SplObjectStorage\\<GraphQL\\\\Type\\\\Definition\\\\ObjectType, SplObjectStorage\\<ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>, ArrayObject\\<string, ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>\\>\\>\\> does not accept SplObjectStorage\\<ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>, ArrayObject\\<string, ArrayObject\\<int, GraphQL\\\\Language\\\\AST\\\\FieldNode\\>\\>\\>\\|SplObjectStorage\\<object, mixed\\>\\.$#"
-			count: 1
-			path: src/Executor/ReferenceExecutor.php
-
-		-
 			message: "#^Unable to resolve the template type TCloneable in call to method static method GraphQL\\\\Language\\\\AST\\\\Node\\:\\:cloneValue\\(\\)$#"
 			count: 1
 			path: src/Language/AST/Node.php

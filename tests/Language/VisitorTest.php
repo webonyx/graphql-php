@@ -66,7 +66,7 @@ final class VisitorTest extends ValidatorTestCase
         if ($parent instanceof NodeList) {
             self::assertEquals($node, $parent[$key]);
         } else {
-            /** @phpstan-ignore-next-line */
+            // @phpstan-ignore-next-line dynamic property access
             self::assertEquals($node, $parent->{$key});
         }
 

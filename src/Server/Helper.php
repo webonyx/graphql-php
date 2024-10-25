@@ -197,7 +197,7 @@ class Helper
      */
     public function executeOperation(ServerConfig $config, OperationParams $op)
     {
-        $promiseAdapter = $config->getPromiseAdapter() ?? Executor::getPromiseAdapter();
+        $promiseAdapter = $config->getPromiseAdapter() ?? Executor::getDefaultPromiseAdapter();
         $result = $this->promiseToExecuteOperation($promiseAdapter, $config, $op);
 
         if ($promiseAdapter instanceof SyncPromiseAdapter) {
@@ -222,7 +222,7 @@ class Helper
      */
     public function executeBatch(ServerConfig $config, array $operations)
     {
-        $promiseAdapter = $config->getPromiseAdapter() ?? Executor::getPromiseAdapter();
+        $promiseAdapter = $config->getPromiseAdapter() ?? Executor::getDefaultPromiseAdapter();
 
         $result = [];
         foreach ($operations as $operation) {

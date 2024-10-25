@@ -24,6 +24,7 @@ use GraphQL\Validator\Rules\ValidationRule;
  * This is the primary facade for fulfilling GraphQL operations.
  * See [related documentation](executing-queries.md).
  *
+ * @phpstan-import-type ArgsMapper from Executor
  * @phpstan-import-type FieldResolver from Executor
  *
  * @see \GraphQL\Tests\GraphQLTest
@@ -242,5 +243,17 @@ class GraphQL
     public static function setDefaultFieldResolver(callable $fn): void
     {
         Executor::setDefaultFieldResolver($fn);
+    }
+
+    /**
+     * Set default args mapper implementation.
+     *
+     * @phpstan-param ArgsMapper $fn
+     *
+     * @api
+     */
+    public static function setDefaultArgsMapper(callable $fn): void
+    {
+        Executor::setDefaultArgsMapper($fn);
     }
 }
