@@ -99,7 +99,7 @@ class ReferenceExecutor implements ExecutorImplementation
         array $variableValues,
         ?string $operationName,
         callable $fieldResolver,
-        ?callable $argsMapper = null /* TODO make non-optional in next major release */
+        ?callable $argsMapper = null // TODO make non-optional in next major release
     ): ExecutorImplementation {
         $exeContext = static::buildExecutionContext(
             $schema,
