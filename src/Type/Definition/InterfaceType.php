@@ -20,7 +20,7 @@ use GraphQL\Utils\Utils;
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
  *   resolveType?: ResolveType|null,
  *   astNode?: InterfaceTypeDefinitionNode|null,
- *   extensionASTNodes?: array<int, InterfaceTypeExtensionNode>|null
+ *   extensionASTNodes?: array<InterfaceTypeExtensionNode>|null
  * }
  */
 class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType
@@ -31,7 +31,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
 
     public ?InterfaceTypeDefinitionNode $astNode;
 
-    /** @var array<int, InterfaceTypeExtensionNode> */
+    /** @var array<InterfaceTypeExtensionNode> */
     public array $extensionASTNodes;
 
     /** @phpstan-var InterfaceConfig */
@@ -99,7 +99,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         return $this->astNode;
     }
 
-    /** @return array<int, InterfaceTypeExtensionNode> */
+    /** @return array<InterfaceTypeExtensionNode> */
     public function extensionASTNodes(): array
     {
         return $this->extensionASTNodes;

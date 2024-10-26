@@ -69,7 +69,7 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
         return $this->astNode;
     }
 
-    /** @return array<int, ScalarTypeExtensionNode> */
+    /** @return array<ScalarTypeExtensionNode> */
     public function extensionASTNodes(): array
     {
         return $this->extensionASTNodes;

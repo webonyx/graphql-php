@@ -386,36 +386,38 @@ class SchemaValidationContext
     /**
      * @param Schema|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType|Directive $obj
      *
-     * @return array<int, SchemaDefinitionNode|SchemaExtensionNode>|array<int, ObjectTypeDefinitionNode|ObjectTypeExtensionNode>|array<int, InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode>|array<int, UnionTypeDefinitionNode|UnionTypeExtensionNode>|array<int, EnumTypeDefinitionNode|EnumTypeExtensionNode>|array<int, InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode>|array<int, DirectiveDefinitionNode>
+     * @return list<SchemaDefinitionNode|SchemaExtensionNode>|list<ObjectTypeDefinitionNode|ObjectTypeExtensionNode>|list<InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode>|list<UnionTypeDefinitionNode|UnionTypeExtensionNode>|list< EnumTypeDefinitionNode|EnumTypeExtensionNode>|list<InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode>|list<DirectiveDefinitionNode>
      */
     private function getAllNodes(object $obj): array
     {
+        $astNode = $obj->astNode;
+
         if ($obj instanceof Schema) {
-            $astNode = $obj->astNode;
             $extensionNodes = $obj->extensionASTNodes;
         } elseif ($obj instanceof Directive) {
-            $astNode = $obj->astNode;
             $extensionNodes = [];
         } else {
-            $astNode = $obj->astNode;
             $extensionNodes = $obj->extensionASTNodes;
         }
 
-        return $astNode !== null
-            ? \array_merge([$astNode], $extensionNodes)
-            : $extensionNodes;
+        $allNodes = $astNode === null
+            ? []
+            : [$astNode];
+        foreach ($extensionNodes as $extensionNode) {
+            $allNodes[] = $extensionNode;
+        }
+
+        return $allNodes;
     }
 
     /**
      * @param ObjectType|InterfaceType $type
      *
-     * @return array<int, FieldDefinitionNode>
+     * @return list<FieldDefinitionNode>
      */
     private function getAllFieldNodes(Type $type, string $fieldName): array
     {
-        $allNodes = $type->astNode !== null
-            ? \array_merge([$type->astNode], $type->extensionASTNodes)
-            : $type->extensionASTNodes;
+        $allNodes = array_filter([$type->astNode, ...$type->extensionASTNodes]);
 
         $matchingFieldNodes = [];
 
@@ -574,13 +576,11 @@ class SchemaValidationContext
      * @param ObjectType|InterfaceType $type
      * @param Type&NamedType $shouldBeInterface
      *
-     * @return array<int, NamedTypeNode>
+     * @return list<NamedTypeNode>
      */
     private function getAllImplementsInterfaceNodes(ImplementingType $type, NamedType $shouldBeInterface): array
     {
-        $allNodes = $type->astNode !== null
-            ? \array_merge([$type->astNode], $type->extensionASTNodes)
-            : $type->extensionASTNodes;
+        $allNodes = array_filter([$type->astNode, ...$type->extensionASTNodes]);
 
         $shouldBeInterfaceName = $shouldBeInterface->name;
         $matchingInterfaceNodes = [];
@@ -735,12 +735,10 @@ class SchemaValidationContext
         }
     }
 
-    /** @return array<int, NamedTypeNode> */
+    /** @return list<NamedTypeNode> */
     private function getUnionMemberTypeNodes(UnionType $union, string $typeName): array
     {
-        $allNodes = $union->astNode !== null
-            ? \array_merge([$union->astNode], $union->extensionASTNodes)
-            : $union->extensionASTNodes;
+        $allNodes = array_filter([$union->astNode, ...$union->extensionASTNodes]);
 
         $types = [];
         foreach ($allNodes as $node) {

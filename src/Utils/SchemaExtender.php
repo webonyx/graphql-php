@@ -188,10 +188,7 @@ class SchemaExtender
             }
         }
 
-        $schemaExtensionASTNodes = \array_merge($schema->extensionASTNodes, $schemaExtensions);
-
-        return new Schema(
-            (new SchemaConfig())
+        $schemaConfig = (new SchemaConfig())
             // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors
             ->setQuery($operationTypes['query'])
             // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors
@@ -201,8 +198,9 @@ class SchemaExtender
             ->setTypes($types)
             ->setDirectives($this->getMergedDirectives($schema, $directiveDefinitions))
             ->setAstNode($schema->astNode ?? $schemaDef)
-            ->setExtensionASTNodes($schemaExtensionASTNodes)
-        );
+            ->setExtensionASTNodes([...$schema->extensionASTNodes, ...$schemaExtensions]);
+
+        return new Schema($schemaConfig);
     }
 
     /**
@@ -212,10 +210,10 @@ class SchemaExtender
      */
     protected function extensionASTNodes(NamedType $type): ?array
     {
-        return \array_merge(
-            $type->extensionASTNodes ?? [],
-            $this->typeExtensionsMap[$type->name] ?? []
-        );
+        return [
+            ...$type->extensionASTNodes ?? [],
+            ...$this->typeExtensionsMap[$type->name] ?? [],
+        ];
     }
 
     /**
@@ -225,7 +223,7 @@ class SchemaExtender
      */
     protected function extendScalarType(ScalarType $type): CustomScalarType
     {
-        /** @var array<int, ScalarTypeExtensionNode> $extensionASTNodes */
+        /** @var array<ScalarTypeExtensionNode> $extensionASTNodes */
         $extensionASTNodes = $this->extensionASTNodes($type);
 
         return new CustomScalarType([
@@ -242,7 +240,7 @@ class SchemaExtender
     /** @throws InvariantViolation */
     protected function extendUnionType(UnionType $type): UnionType
     {
-        /** @var array<int, UnionTypeExtensionNode> $extensionASTNodes */
+        /** @var array<UnionTypeExtensionNode> $extensionASTNodes */
         $extensionASTNodes = $this->extensionASTNodes($type);
 
         return new UnionType([
@@ -262,7 +260,7 @@ class SchemaExtender
      */
     protected function extendEnumType(EnumType $type): EnumType
     {
-        /** @var array<int, EnumTypeExtensionNode> $extensionASTNodes */
+        /** @var array<EnumTypeExtensionNode> $extensionASTNodes */
         $extensionASTNodes = $this->extensionASTNodes($type);
 
         return new EnumType([
@@ -277,16 +275,16 @@ class SchemaExtender
     /** @throws InvariantViolation */
     protected function extendInputObjectType(InputObjectType $type): InputObjectType
     {
-        /** @var array<int, InputObjectTypeExtensionNode> $extensionASTNodes */
+        /** @var array<InputObjectTypeExtensionNode> $extensionASTNodes */
         $extensionASTNodes = $this->extensionASTNodes($type);
 
         return new InputObjectType([
             'name' => $type->name,
             'description' => $type->description,
             'fields' => fn (): array => $this->extendInputFieldMap($type),
+            'parseValue' => [$type, 'parseValue'],
             'astNode' => $type->astNode,
             'extensionASTNodes' => $extensionASTNodes,
-            'parseValue' => [$type, 'parseValue'],
         ]);
     }
 
@@ -529,7 +527,7 @@ class SchemaExtender
     /** @throws InvariantViolation */
     protected function extendObjectType(ObjectType $type): ObjectType
     {
-        /** @var array<int, ObjectTypeExtensionNode> $extensionASTNodes */
+        /** @var array<ObjectTypeExtensionNode> $extensionASTNodes */
         $extensionASTNodes = $this->extensionASTNodes($type);
 
         return new ObjectType([
@@ -548,7 +546,7 @@ class SchemaExtender
     /** @throws InvariantViolation */
     protected function extendInterfaceType(InterfaceType $type): InterfaceType
     {
-        /** @var array<int, InterfaceTypeExtensionNode> $extensionASTNodes */
+        /** @var array<InterfaceTypeExtensionNode> $extensionASTNodes */
         $extensionASTNodes = $this->extensionASTNodes($type);
 
         return new InterfaceType([

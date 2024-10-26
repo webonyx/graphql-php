@@ -132,7 +132,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         return $this->astNode;
     }
 
-    /** @return array<int, UnionTypeExtensionNode> */
+    /** @return array<UnionTypeExtensionNode> */
     public function extensionASTNodes(): array
     {
         return $this->extensionASTNodes;

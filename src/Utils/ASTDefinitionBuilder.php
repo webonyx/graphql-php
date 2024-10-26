@@ -339,7 +339,7 @@ class ASTDefinitionBuilder
     private function makeTypeDef(ObjectTypeDefinitionNode $def): ObjectType
     {
         $name = $def->name->value;
-        /** @var array<int, ObjectTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
+        /** @var array<ObjectTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
         $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
         $allNodes = [$def, ...$extensionASTNodes];
 
@@ -453,7 +453,7 @@ class ASTDefinitionBuilder
     private function makeInterfaceDef(InterfaceTypeDefinitionNode $def): InterfaceType
     {
         $name = $def->name->value;
-        /** @var array<int, InterfaceTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
+        /** @var array<InterfaceTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
         $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
         $allNodes = [$def, ...$extensionASTNodes];
 
@@ -475,7 +475,7 @@ class ASTDefinitionBuilder
     private function makeEnumDef(EnumTypeDefinitionNode $def): EnumType
     {
         $name = $def->name->value;
-        /** @var array<int, EnumTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
+        /** @var array<EnumTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
         $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
 
         $values = [];
@@ -502,7 +502,7 @@ class ASTDefinitionBuilder
     private function makeUnionDef(UnionTypeDefinitionNode $def): UnionType
     {
         $name = $def->name->value;
-        /** @var array<int, UnionTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
+        /** @var array<UnionTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
         $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
 
         return new UnionType([
@@ -531,15 +531,15 @@ class ASTDefinitionBuilder
     private function makeScalarDef(ScalarTypeDefinitionNode $def): CustomScalarType
     {
         $name = $def->name->value;
-        /** @var array<int, ScalarTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
+        /** @var array<ScalarTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
         $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
 
         return new CustomScalarType([
             'name' => $name,
             'description' => $def->description->value ?? null,
+            'serialize' => static fn ($value) => $value,
             'astNode' => $def,
             'extensionASTNodes' => $extensionASTNodes,
-            'serialize' => static fn ($value) => $value,
         ]);
     }
 
@@ -547,7 +547,7 @@ class ASTDefinitionBuilder
     private function makeInputObjectDef(InputObjectTypeDefinitionNode $def): InputObjectType
     {
         $name = $def->name->value;
-        /** @var array<int, InputObjectTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
+        /** @var array<InputObjectTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
         $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
 
         return new InputObjectType([

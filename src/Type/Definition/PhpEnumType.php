@@ -3,6 +3,8 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\SerializationError;
+use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\Utils;
 
@@ -16,16 +18,23 @@ class PhpEnumType extends EnumType
     protected string $enumClass;
 
     /**
-     * @param class-string<\UnitEnum> $enum
+     * @param class-string<\UnitEnum> $enumClass The fully qualified class name of a native PHP enum
      * @param string|null $name The name the enum will have in the schema, defaults to the basename of the given class
+     * @param string|null $description The description the enum will have in the schema, defaults to PHPDoc of the given class
+     * @param array<EnumTypeExtensionNode>|null $extensionASTNodes
      *
      * @throws \Exception
      * @throws \ReflectionException
      */
-    public function __construct(string $enum, ?string $name = null)
-    {
-        $this->enumClass = $enum;
-        $reflection = new \ReflectionEnum($enum);
+    public function __construct(
+        string $enumClass,
+        ?string $name = null,
+        ?string $description = null,
+        ?EnumTypeDefinitionNode $astNode = null,
+        ?array $extensionASTNodes = null
+    ) {
+        $this->enumClass = $enumClass;
+        $reflection = new \ReflectionEnum($enumClass);
 
         /**
          * @var array<string, PartialEnumValueConfig> $enumDefinitions
@@ -40,9 +49,11 @@ class PhpEnumType extends EnumType
         }
 
         parent::__construct([
-            'name' => $name ?? $this->baseName($enum),
+            'name' => $name ?? $this->baseName($enumClass),
             'values' => $enumDefinitions,
-            'description' => $this->extractDescription($reflection),
+            'description' => $description ?? $this->extractDescription($reflection),
+            'astNode' => $astNode,
+            'extensionASTNodes' => $extensionASTNodes,
         ]);
     }
 

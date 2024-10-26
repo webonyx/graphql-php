@@ -44,6 +44,20 @@ enum PhpEnum {
 GRAPHQL, SchemaPrinter::printType($enumType));
     }
 
+    public function testConstructEnumTypeFromPhpEnumWithOverwrittenDefaults(): void
+    {
+        $enumType = new PhpEnumType(PhpEnum::class, 'MyEnum', 'My description.');
+        self::assertSame(<<<'GRAPHQL'
+"My description."
+enum MyEnum {
+  "bar"
+  A
+  B @deprecated
+  C @deprecated(reason: "baz")
+}
+GRAPHQL, SchemaPrinter::printType($enumType));
+    }
+
     public function testConstructEnumTypeFromIntPhpEnum(): void
     {
         $enumType = new PhpEnumType(IntPhpEnum::class);
