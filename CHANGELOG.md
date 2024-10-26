@@ -13,7 +13,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ### Added
 
-- Allow customizing PhpEnumType
+- Allow customizing PhpEnumType https://github.com/webonyx/graphql-php/pull/1623
 
 ## v15.16.1
 
