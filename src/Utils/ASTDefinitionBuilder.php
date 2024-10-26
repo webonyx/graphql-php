@@ -410,7 +410,6 @@ class ASTDefinitionBuilder
      * @param EnumValueDefinitionNode|FieldDefinitionNode|InputValueDefinitionNode $node
      *
      * @throws \Exception
-     * @throws \ReflectionException
      * @throws InvariantViolation
      */
     private function getDeprecationReason(Node $node): ?string
@@ -421,6 +420,25 @@ class ASTDefinitionBuilder
         );
 
         return $deprecated['reason'] ?? null;
+    }
+
+    /**
+     * Given a collection of directives, returns the string value for the
+     * specifiedBy url.
+     *
+     * @param ScalarTypeDefinitionNode $node
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
+     */
+    private function getSpecifiedByURL(Node $node): ?string
+    {
+        $specifiedBy = Values::getDirectiveValues(
+            Directive::specifiedByDirective(),
+            $node
+        );
+
+        return $specifiedBy['url'] ?? null;
     }
 
     /**
@@ -527,7 +545,10 @@ class ASTDefinitionBuilder
         ]);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws \Exception
+     * @throws InvariantViolation
+     */
     private function makeScalarDef(ScalarTypeDefinitionNode $def): CustomScalarType
     {
         $name = $def->name->value;
@@ -540,6 +561,7 @@ class ASTDefinitionBuilder
             'astNode' => $def,
             'extensionASTNodes' => $extensionASTNodes,
             'serialize' => static fn ($value) => $value,
+            'specifiedByURL' => $this->getSpecifiedByURL($def),
         ]);
     }
 

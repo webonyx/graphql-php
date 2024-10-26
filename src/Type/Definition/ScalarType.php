@@ -28,6 +28,7 @@ use GraphQL\Utils\Utils;
  * @phpstan-type ScalarConfig array{
  *   name?: string|null,
  *   description?: string|null,
+ *   specifiedByURL?: string|null,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }
@@ -37,6 +38,8 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
     use NamedTypeImplementation;
 
     public ?ScalarTypeDefinitionNode $astNode;
+
+    public ?string $specifiedByURL;
 
     /** @var array<ScalarTypeExtensionNode> */
     public array $extensionASTNodes;
@@ -55,6 +58,7 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
         $this->description = $config['description'] ?? $this->description ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
+        $this->specifiedByURL = $config['specifiedByURL'] ?? null;
 
         $this->config = $config;
     }

@@ -18,6 +18,7 @@ use GraphQL\Utils\Utils;
  *   serialize?: callable(mixed): mixed,
  *   parseValue: callable(mixed): mixed,
  *   parseLiteral: callable(ValueNode&Node, array<string, mixed>|null): mixed,
+ *   specifiedByURL?: string|null,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }
@@ -27,6 +28,7 @@ use GraphQL\Utils\Utils;
  *   serialize: callable(mixed): mixed,
  *   parseValue?: callable(mixed): mixed,
  *   parseLiteral?: callable(ValueNode&Node, array<string, mixed>|null): mixed,
+ *   specifiedByURL?: string|null,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }

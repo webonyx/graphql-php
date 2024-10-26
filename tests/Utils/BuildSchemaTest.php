@@ -272,13 +272,10 @@ final class BuildSchemaTest extends TestCaseBase
     {
         $schema = BuildSchema::buildAST(Parser::parse('type Query'));
 
-        // TODO switch to 4 when adding @specifiedBy - see https://github.com/webonyx/graphql-php/issues/1140
-        self::assertCount(3, $schema->getDirectives());
+        self::assertCount(4, $schema->getDirectives());
         self::assertSame(Directive::skipDirective(), $schema->getDirective('skip'));
         self::assertSame(Directive::includeDirective(), $schema->getDirective('include'));
         self::assertSame(Directive::deprecatedDirective(), $schema->getDirective('deprecated'));
-
-        self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/1140');
         self::assertSame(Directive::specifiedByDirective(), $schema->getDirective('specifiedBy'));
     }
 
@@ -289,15 +286,13 @@ final class BuildSchemaTest extends TestCaseBase
             directive @skip on FIELD
             directive @include on FIELD
             directive @deprecated on FIELD_DEFINITION
-            directive @specifiedBy on FIELD_DEFINITION
+            directive @specifiedBy on SCALAR
         '));
 
         self::assertCount(4, $schema->getDirectives());
         self::assertNotEquals(Directive::skipDirective(), $schema->getDirective('skip'));
         self::assertNotEquals(Directive::includeDirective(), $schema->getDirective('include'));
         self::assertNotEquals(Directive::deprecatedDirective(), $schema->getDirective('deprecated'));
-
-        self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/1140');
         self::assertNotEquals(Directive::specifiedByDirective(), $schema->getDirective('specifiedBy'));
     }
 
@@ -310,14 +305,11 @@ final class BuildSchemaTest extends TestCaseBase
             GRAPHQL;
         $schema = BuildSchema::buildAST(Parser::parse($sdl));
 
-        // TODO switch to 5 when adding @specifiedBy - see https://github.com/webonyx/graphql-php/issues/1140
-        self::assertCount(4, $schema->getDirectives());
+        self::assertCount(5, $schema->getDirectives());
         self::assertNotNull($schema->getDirective('foo'));
         self::assertNotNull($schema->getDirective('skip'));
         self::assertNotNull($schema->getDirective('include'));
         self::assertNotNull($schema->getDirective('deprecated'));
-
-        self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/1140');
         self::assertNotNull($schema->getDirective('specifiedBy'));
     }
 
@@ -818,7 +810,6 @@ final class BuildSchemaTest extends TestCaseBase
     /** @see it('Supports @specifiedBy') */
     public function testSupportsSpecifiedBy(): void
     {
-        self::markTestSkipped('See https://github.com/webonyx/graphql-php/issues/1140');
         $sdl = <<<GRAPHQL
             scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
             
@@ -831,8 +822,10 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertCycle($sdl);
 
         $schema = BuildSchema::build($sdl);
+        $type = $schema->getType('Foo');
 
-        self::assertSame('https://example.com/foo_spec', $schema->getType('Foo')->specifiedByURL);
+        self::assertInstanceOf(ScalarType::class, $type);
+        self::assertSame('https://example.com/foo_spec', $type->specifiedByURL);
     }
 
     /** @see it('Correctly extend scalar type') */

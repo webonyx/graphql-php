@@ -361,11 +361,14 @@ class SchemaPrinter
      * @phpstan-param Options $options
      *
      * @throws \JsonException
+     * @throws InvariantViolation
+     * @throws SerializationError
      */
     protected static function printScalar(ScalarType $type, array $options): string
     {
         return static::printDescription($options, $type)
-            . "scalar {$type->name}";
+            . "scalar {$type->name}"
+            . static::printSpecifiedBy($type);
     }
 
     /**
@@ -450,6 +453,26 @@ class SchemaPrinter
         $reasonASTString = Printer::doPrint($reasonAST);
 
         return " @deprecated(reason: {$reasonASTString})";
+    }
+
+    /**
+     * @throws \JsonException
+     * @throws InvariantViolation
+     * @throws SerializationError
+     */
+    protected static function printSpecifiedBy(ScalarType $type): string
+    {
+        $url = $type->specifiedByURL;
+        if ($url === null) {
+            return '';
+        }
+
+        $urlAST = AST::astFromValue($url, Type::string());
+        assert($urlAST instanceof StringValueNode);
+
+        $urlASTString = Printer::doPrint($urlAST);
+
+        return " @specifiedBy(url: {$urlASTString})";
     }
 
     protected static function printImplementedInterfaces(ImplementingType $type): string

@@ -464,8 +464,10 @@ GRAPHQL,
 
           extend scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
           GRAPHQL;
+
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
         $foo = $extendedSchema->getType('Foo');
+        assert($foo instanceof ScalarType);
 
         self::assertSame('https://example.com/foo_spec', $foo->specifiedByURL);
         self::assertEmpty($extendedSchema->validate());
