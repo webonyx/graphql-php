@@ -20,7 +20,7 @@ use GraphQL\Utils\Utils;
  *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
  *   parseValue?: callable(array<string, mixed>): mixed,
  *   astNode?: InputObjectTypeDefinitionNode|null,
- *   extensionASTNodes?: array<int, InputObjectTypeExtensionNode>|null
+ *   extensionASTNodes?: array<InputObjectTypeExtensionNode>|null
  * }
  */
 class InputObjectType extends Type implements InputType, NullableType, NamedType
@@ -29,7 +29,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
     public ?InputObjectTypeDefinitionNode $astNode;
 
-    /** @var array<int, InputObjectTypeExtensionNode> */
+    /** @var array<InputObjectTypeExtensionNode> */
     public array $extensionASTNodes;
 
     /** @phpstan-var InputObjectConfig */
@@ -203,7 +203,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         return $this->astNode;
     }
 
-    /** @return array<int, InputObjectTypeExtensionNode> */
+    /** @return array<InputObjectTypeExtensionNode> */
     public function extensionASTNodes(): array
     {
         return $this->extensionASTNodes;

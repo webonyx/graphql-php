@@ -62,7 +62,7 @@ use GraphQL\Utils\Utils;
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
  *   isTypeOf?: (callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): (bool|Deferred|null))|null,
  *   astNode?: ObjectTypeDefinitionNode|null,
- *   extensionASTNodes?: array<int, ObjectTypeExtensionNode>|null
+ *   extensionASTNodes?: array<ObjectTypeExtensionNode>|null
  * }
  */
 class ObjectType extends Type implements OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType
@@ -73,7 +73,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
 
     public ?ObjectTypeDefinitionNode $astNode;
 
-    /** @var array<int, ObjectTypeExtensionNode> */
+    /** @var array<ObjectTypeExtensionNode> */
     public array $extensionASTNodes;
 
     /**
@@ -172,7 +172,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         return $this->astNode;
     }
 
-    /** @return array<int, ObjectTypeExtensionNode> */
+    /** @return array<ObjectTypeExtensionNode> */
     public function extensionASTNodes(): array
     {
         return $this->extensionASTNodes;

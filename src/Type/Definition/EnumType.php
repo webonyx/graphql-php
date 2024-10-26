@@ -30,7 +30,7 @@ use GraphQL\Utils\Utils;
  *   description?: string|null,
  *   values: EnumValues|callable(): EnumValues,
  *   astNode?: EnumTypeDefinitionNode|null,
- *   extensionASTNodes?: array<int, EnumTypeExtensionNode>|null
+ *   extensionASTNodes?: array<EnumTypeExtensionNode>|null
  * }
  */
 class EnumType extends Type implements InputType, OutputType, LeafType, NullableType, NamedType
@@ -39,7 +39,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
 
     public ?EnumTypeDefinitionNode $astNode;
 
-    /** @var array<int, EnumTypeExtensionNode> */
+    /** @var array<EnumTypeExtensionNode> */
     public array $extensionASTNodes;
 
     /** @phpstan-var EnumTypeConfig */
@@ -264,7 +264,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         return $this->astNode;
     }
 
-    /** @return array<int, EnumTypeExtensionNode> */
+    /** @return array<EnumTypeExtensionNode> */
     public function extensionASTNodes(): array
     {
         return $this->extensionASTNodes;

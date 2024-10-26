@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Type;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\SerializationError;
 use GraphQL\GraphQL;
+use GraphQL\Language\Parser;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Tests\Type\PhpEnumType\DocBlockPhpEnum;
 use GraphQL\Tests\Type\PhpEnumType\IntPhpEnum;
@@ -42,6 +43,37 @@ enum PhpEnum {
   C @deprecated(reason: "baz")
 }
 GRAPHQL, SchemaPrinter::printType($enumType));
+    }
+
+    public function testConstructEnumTypeFromPhpEnumWithOverwrittenDefaults(): void
+    {
+        $astNode = Parser::enumTypeDefinition(<<<'GRAPHQL'
+enum MyEnum @directiveA
+GRAPHQL);
+        $extensionASTNode1 = Parser::enumTypeExtension(<<<'GRAPHQL'
+extend enum MyEnum @directiveB
+GRAPHQL);
+        $extensionASTNode2 = Parser::enumTypeExtension(<<<'GRAPHQL'
+extend enum MyEnum @directiveC
+GRAPHQL);
+        $enumType = new PhpEnumType(
+            PhpEnum::class,
+            'MyEnum',
+            'My description.',
+            $astNode,
+            [$extensionASTNode1, $extensionASTNode2]
+        );
+        self::assertSame(<<<'GRAPHQL'
+"My description."
+enum MyEnum {
+  "bar"
+  A
+  B @deprecated
+  C @deprecated(reason: "baz")
+}
+GRAPHQL, SchemaPrinter::printType($enumType));
+        self::assertSame($astNode, $enumType->astNode);
+        self::assertSame([$extensionASTNode1, $extensionASTNode2], $enumType->extensionASTNodes);
     }
 
     public function testConstructEnumTypeFromIntPhpEnum(): void
