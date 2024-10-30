@@ -2,6 +2,7 @@
 
 namespace GraphQL\Utils;
 
+use GraphQL\Error\ClientAware;
 use GraphQL\Error\CoercionError;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
@@ -61,7 +62,10 @@ class Value
             try {
                 return self::ofValue($type->parseValue($value));
             } catch (\Throwable $error) {
-                if ($error instanceof Error) {
+                if (
+                    $error instanceof Error
+                    || ($error instanceof ClientAware && $error->isClientSafe())
+                ) {
                     return self::ofErrors([
                         CoercionError::make($error->getMessage(), $path, $value, $error),
                     ]);

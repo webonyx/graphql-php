@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Error\ClientAware;
 use GraphQL\Error\CoercionError;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\CustomScalarType;
@@ -174,6 +175,34 @@ final class CoerceInputValueTest extends TestCase
             'Enum "TestEnum" cannot represent non-string value: {"field":"value"}.',
             null,
             ['field' => 'value'],
+        )]);
+    }
+
+    public function testPropagatesClientSafeError(): void
+    {
+        $message = 'message';
+        $value = ['value' => 1];
+
+        $clientSafeException = new class($message) extends \Exception implements ClientAware {
+            public function isClientSafe(): bool
+            {
+                return true;
+            }
+        };
+
+        $scalar = new CustomScalarType([
+            'name' => 'TestScalar',
+            'parseValue' => function () use ($clientSafeException) {
+                throw $clientSafeException;
+            },
+            'parseLiteral' => fn () => null,
+        ]);
+
+        $result = Value::coerceInputValue($value, $scalar);
+        $this->expectGraphQLError($result, [CoercionError::make(
+            $message,
+            null,
+            $value,
         )]);
     }
 
