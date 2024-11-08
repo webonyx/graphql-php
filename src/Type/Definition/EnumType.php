@@ -137,11 +137,11 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         }
 
         if (is_a($value, \BackedEnum::class)) {
-            return $value->name;
+            return mb_strtoupper($value->name);
         }
 
         if (is_a($value, \UnitEnum::class)) {
-            return $value->name;
+            return mb_strtoupper($value->name);
         }
 
         $safeValue = Utils::printSafe($value);

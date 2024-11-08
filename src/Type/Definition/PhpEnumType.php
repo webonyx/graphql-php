@@ -60,7 +60,7 @@ class PhpEnumType extends EnumType
     public function serialize($value): string
     {
         if ($value instanceof $this->enumClass) {
-            return $value->name;
+            return mb_strtoupper($value->name);
         }
 
         if (is_a($this->enumClass, \BackedEnum::class, true)) {
@@ -71,7 +71,7 @@ class PhpEnumType extends EnumType
                 throw new SerializationError("Cannot serialize value as enum: {$notEnumInstanceOrValue}, expected instance or valid value of {$this->enumClass}.");
             }
 
-            return $instance->name;
+            return mb_strtoupper($instance->name);
         }
 
         $notEnum = Utils::printSafe($value);
