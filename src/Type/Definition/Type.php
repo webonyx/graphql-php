@@ -33,6 +33,9 @@ abstract class Type implements \JsonSerializable
     /** @var array<string, ScalarType> */
     protected static array $standardTypes = [];
 
+    /** @var array<string, Type&NamedType> */
+    protected static array $builtInTypes = [];
+
     /**
      * @api
      *
@@ -116,9 +119,11 @@ abstract class Type implements \JsonSerializable
      */
     public static function builtInTypes(): array
     {
-        static $builtInTypes;
+        if (self::$builtInTypes !== []) {
+            return self::$builtInTypes;
+        }
 
-        return $builtInTypes ??= \array_merge(
+        return self::$builtInTypes = \array_merge(
             Introspection::getTypes(),
             self::getStandardTypes()
         );
@@ -265,5 +270,6 @@ abstract class Type implements \JsonSerializable
     public static function reset(): void
     {
         static::$standardTypes = [];
+        static::$builtInTypes = [];
     }
 }
