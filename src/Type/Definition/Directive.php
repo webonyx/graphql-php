@@ -33,7 +33,7 @@ class Directive
      *
      * @var array<string, Directive>
      */
-    protected static array $internalDirectives;
+    protected static array $internalDirectives = [];
 
     public string $name;
 
@@ -90,7 +90,11 @@ class Directive
      */
     public static function getInternalDirectives(): array
     {
-        return self::$internalDirectives ??= [
+        if (self::$internalDirectives !== []) {
+            return self::$internalDirectives;
+        }
+
+        return self::$internalDirectives = [
             'include' => new self([
                 'name' => self::INCLUDE_NAME,
                 'description' => 'Directs the executor to include this field or fragment only when the `if` argument is true.',
@@ -161,5 +165,10 @@ class Directive
     public static function isSpecifiedDirective(Directive $directive): bool
     {
         return \array_key_exists($directive->name, self::getInternalDirectives());
+    }
+
+    public static function reset(): void
+    {
+        self::$internalDirectives = [];
     }
 }

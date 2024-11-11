@@ -795,4 +795,9 @@ GRAPHQL;
             'resolve' => static fn ($source, array $args, $context, ResolveInfo $info): string => $info->parentType->name,
         ]);
     }
+
+    public static function reset(): void
+    {
+        self::$map = [];
+    }
 }

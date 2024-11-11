@@ -31,7 +31,7 @@ abstract class Type implements \JsonSerializable
     ];
 
     /** @var array<string, ScalarType> */
-    protected static array $standardTypes;
+    protected static array $standardTypes = [];
 
     /**
      * @api
@@ -260,5 +260,10 @@ abstract class Type implements \JsonSerializable
     public function jsonSerialize(): string
     {
         return $this->toString();
+    }
+
+    public static function reset(): void
+    {
+        static::$standardTypes = [];
     }
 }
