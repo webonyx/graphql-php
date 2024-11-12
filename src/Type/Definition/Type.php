@@ -150,7 +150,7 @@ abstract class Type implements \JsonSerializable
      */
     public static function overrideStandardTypes(array $types): void
     {
-        $standardTypes = static::$standardTypes;
+        $standardTypes = static::$standardTypes ?? [];
         self::reset();
         static::$standardTypes = $standardTypes;
 
