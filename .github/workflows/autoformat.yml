@@ -1,6 +1,7 @@
 name: Autoformat
 
 on:
+  pull_request:
   push:
 
 jobs:
