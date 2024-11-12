@@ -216,8 +216,11 @@ final class CoerceInputValueTest extends TestCase
      */
     public function testReturnsNoErrorForAValidInput($input): void
     {
-        $result = Value::coerceInputValue($input, $this->testInputObject);
-        $this->expectGraphQLValue($result, ['foo' => 123]);
+
+        $result =       Value::coerceInputValue(
+            $input, $this->testInputObject,
+        );
+        $this->expectGraphQLValue($result, [  'foo' => 123]);
     }
 
     /** @return iterable<array{mixed}> */
