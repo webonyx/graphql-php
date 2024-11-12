@@ -265,7 +265,7 @@ abstract class Type implements \JsonSerializable
 
     public static function reset(): void
     {
-        static::$standardTypes = [];
+        static::$standardTypes = null;
         static::$builtInTypes = null;
     }
 }
