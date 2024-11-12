@@ -34,7 +34,7 @@ abstract class Type implements \JsonSerializable
     protected static ?array $standardTypes = [];
 
     /** @var array<string, Type&NamedType>|null */
-    protected static ?array $builtInTypes = null;
+    protected static ?array $builtInTypes;
 
     /**
      * @api
