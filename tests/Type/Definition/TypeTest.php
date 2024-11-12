@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace GraphQL\Tests;
+namespace GraphQL\Tests\Type\Definition;
 
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use PHPUnit\Framework\TestCase;
 
-final class ResetTest extends TestCase
+final class TypeTest extends TestCase
 {
     public function testReset(): void
     {
@@ -16,8 +16,6 @@ final class ResetTest extends TestCase
         $directives = Directive::getInternalDirectives();
 
         Type::reset();
-        Introspection::reset();
-        Directive::reset();
 
         self::assertNotSame($string, Type::string());
         self::assertNotSame($schema, Introspection::_schema());

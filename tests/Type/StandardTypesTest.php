@@ -4,32 +4,25 @@ namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Introspection;
 use PHPUnit\Framework\TestCase;
 
 final class StandardTypesTest extends TestCase
 {
-    /** @var array<string, ScalarType> */
-    private static array $originalStandardTypes;
-
-    public static function setUpBeforeClass(): void
-    {
-        self::$originalStandardTypes = Type::getStandardTypes();
-    }
-
     public function tearDown(): void
     {
         parent::tearDown();
-        Type::overrideStandardTypes(self::$originalStandardTypes);
+        Type::reset();
     }
 
     public function testAllowsOverridingStandardTypes(): void
     {
         $originalTypes = Type::getStandardTypes();
         self::assertCount(5, $originalTypes);
-        self::assertSame(self::$originalStandardTypes, $originalTypes);
 
         $newBooleanType = self::createCustomScalarType(Type::BOOLEAN);
         $newFloatType = self::createCustomScalarType(Type::FLOAT);
@@ -65,7 +58,6 @@ final class StandardTypesTest extends TestCase
     {
         $originalTypes = Type::getStandardTypes();
         self::assertCount(5, $originalTypes);
-        self::assertSame(self::$originalStandardTypes, $originalTypes);
 
         $newIDType = self::createCustomScalarType(Type::ID);
         $newStringType = self::createCustomScalarType(Type::STRING);
@@ -120,6 +112,22 @@ final class StandardTypesTest extends TestCase
         $this->expectExceptionMessage($expectedMessage);
 
         Type::overrideStandardTypes([$notType]);
+    }
+
+    public function testCachesShouldResetWhenOverridingStandardTypes(): void
+    {
+        $string = Type::string();
+        $schema = Introspection::_schema();
+        $directives = Directive::getInternalDirectives();
+
+        Type::overrideStandardTypes([
+            $newString = self::createCustomScalarType(Type::STRING),
+        ]);
+
+        self::assertNotSame($string, Type::string());
+        self::assertSame($newString, Type::string());
+        self::assertNotSame($schema, Introspection::_schema());
+        self::assertNotSame($directives, Directive::getInternalDirectives());
     }
 
     /** @throws InvariantViolation */
