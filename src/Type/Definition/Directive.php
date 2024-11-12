@@ -31,9 +31,9 @@ class Directive
     /**
      * Lazily initialized.
      *
-     * @var array<string, Directive>
+     * @var array<string, Directive>|null
      */
-    protected static array $internalDirectives = [];
+    protected static ?array $internalDirectives = null;
 
     public string $name;
 
@@ -90,11 +90,7 @@ class Directive
      */
     public static function getInternalDirectives(): array
     {
-        if (self::$internalDirectives !== []) {
-            return self::$internalDirectives;
-        }
-
-        return self::$internalDirectives = [
+        return self::$internalDirectives ??= [
             'include' => new self([
                 'name' => self::INCLUDE_NAME,
                 'description' => 'Directs the executor to include this field or fragment only when the `if` argument is true.',
@@ -169,6 +165,6 @@ class Directive
 
     public static function reset(): void
     {
-        self::$internalDirectives = [];
+        self::$internalDirectives = null;
     }
 }
