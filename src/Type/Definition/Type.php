@@ -30,7 +30,7 @@ abstract class Type implements \JsonSerializable
         ...Introspection::TYPE_NAMES,
     ];
 
-    /** @var array<string, ScalarType> */
+    /** @var array<string, ScalarType>|null */
     protected static ?array $standardTypes = [];
 
     /** @var array<string, Type&NamedType>|null */
