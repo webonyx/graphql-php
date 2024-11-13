@@ -150,7 +150,10 @@ abstract class Type implements \JsonSerializable
      */
     public static function overrideStandardTypes(array $types): void
     {
-        self::reset();
+        static::$builtInTypes = null;
+
+        Introspection::reset();
+        Directive::reset();
 
         foreach ($types as $type) {
             // @phpstan-ignore-next-line generic type is not enforced by PHP
@@ -263,13 +266,5 @@ abstract class Type implements \JsonSerializable
     public function jsonSerialize(): string
     {
         return $this->toString();
-    }
-
-    public static function reset(): void
-    {
-        static::$builtInTypes = null;
-
-        Introspection::reset();
-        Directive::reset();
     }
 }
