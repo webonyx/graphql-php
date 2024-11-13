@@ -713,11 +713,15 @@ class ReferenceExecutor implements ExecutorImplementation
 
         $queryType = $schema->getQueryType();
 
-        if ($fieldName === $this->schemaMetaFieldDef->name && $queryType === $parentType) {
+        if ($fieldName === $this->schemaMetaFieldDef->name
+            && $queryType === $parentType
+        ) {
             return $this->schemaMetaFieldDef;
         }
 
-        if ($fieldName === $this->typeMetaFieldDef->name && $queryType === $parentType) {
+        if ($fieldName === $this->typeMetaFieldDef->name
+            && $queryType === $parentType
+        ) {
             return $this->typeMetaFieldDef;
         }
 
