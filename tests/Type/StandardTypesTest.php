@@ -31,6 +31,7 @@ final class StandardTypesTest extends TestCase
     {
         $originalTypes = Type::getStandardTypes();
         self::assertCount(5, $originalTypes);
+        self::assertSame(self::$originalStandardTypes, $originalTypes);
 
         $newBooleanType = self::createCustomScalarType(Type::BOOLEAN);
         $newFloatType = self::createCustomScalarType(Type::FLOAT);
@@ -66,6 +67,7 @@ final class StandardTypesTest extends TestCase
     {
         $originalTypes = Type::getStandardTypes();
         self::assertCount(5, $originalTypes);
+        self::assertSame(self::$originalStandardTypes, $originalTypes);
 
         $newIDType = self::createCustomScalarType(Type::ID);
         $newStringType = self::createCustomScalarType(Type::STRING);
