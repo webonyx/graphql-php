@@ -135,12 +135,13 @@ static function getStandardTypes(): array
  * Standard types not listed here remain untouched.
  *
  * @param array<string, ScalarType> $types
+ * @param bool $partial Whether to replace only types listed in $types or all standard types
  *
  * @api
  *
  * @throws InvariantViolation
  */
-static function overrideStandardTypes(array $types): void
+static function overrideStandardTypes(array $types, bool $partial = true): void
 ```
 
 ```php
