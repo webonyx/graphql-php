@@ -127,17 +127,24 @@ final class StandardTypesTest extends TestCase
     public function testCachesShouldResetWhenOverridingStandardTypes(): void
     {
         $string = Type::string();
-        $schema = Introspection::_schema();
-        $directives = Directive::getInternalDirectives();
 
-        Type::overrideStandardTypes([
-            $newString = self::createCustomScalarType(Type::STRING),
-        ]);
+        $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
+        self::assertSame($string, Type::getNullableType($typeNameMetaFieldDef->getType()));
 
-        self::assertNotSame($string, Type::string());
-        self::assertSame($newString, Type::string());
-        self::assertNotSame($schema, Introspection::_schema());
-        self::assertNotSame($directives, Directive::getInternalDirectives());
+        $deprecatedDirective = Directive::deprecatedDirective();
+        self::assertSame($string, $deprecatedDirective->args[0]->getType());
+
+        $newString = self::createCustomScalarType(Type::STRING);
+        self::assertNotSame($string, $newString);
+        Type::overrideStandardTypes([$newString]);
+
+        $newTypeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
+        self::assertNotSame($typeNameMetaFieldDef, $newTypeNameMetaFieldDef);
+        self::assertSame($newString, Type::getNullableType($newTypeNameMetaFieldDef->getType()));
+
+        $newDeprecatedDirective = Directive::deprecatedDirective();
+        self::assertNotSame($deprecatedDirective, $newDeprecatedDirective);
+        self::assertSame($newString, $newDeprecatedDirective->args[0]->getType());
     }
 
     /** @throws InvariantViolation */

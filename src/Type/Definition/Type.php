@@ -150,10 +150,10 @@ abstract class Type implements \JsonSerializable
      */
     public static function overrideStandardTypes(array $types): void
     {
+        // Reset caches that might contain instances of standard types
         static::$builtInTypes = null;
-
-        Introspection::reset();
-        Directive::reset();
+        Introspection::resetCachedInstances();
+        Directive::resetCachedInstances();
 
         foreach ($types as $type) {
             // @phpstan-ignore-next-line generic type is not enforced by PHP
