@@ -145,15 +145,20 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @param array<ScalarType> $types
+     * @param bool $partial Whether to replace only types listed in $types or all standard types
      *
      * @throws InvariantViolation
      */
-    public static function overrideStandardTypes(array $types): void
+    public static function overrideStandardTypes(array $types, bool $partial = true): void
     {
         static::$builtInTypes = null;
 
         Introspection::reset();
         Directive::reset();
+
+        if (! $partial) {
+            static::$standardTypes = null;
+        }
 
         foreach ($types as $type) {
             // @phpstan-ignore-next-line generic type is not enforced by PHP
