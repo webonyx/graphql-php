@@ -30,8 +30,11 @@ abstract class Type implements \JsonSerializable
         ...Introspection::TYPE_NAMES,
     ];
 
-    /** @var array<string, ScalarType> */
-    protected static array $standardTypes;
+    /** @var array<string, ScalarType>|null */
+    protected static ?array $standardTypes;
+
+    /** @var array<string, Type&NamedType>|null */
+    protected static ?array $builtInTypes;
 
     /**
      * @api
@@ -116,9 +119,7 @@ abstract class Type implements \JsonSerializable
      */
     public static function builtInTypes(): array
     {
-        static $builtInTypes;
-
-        return $builtInTypes ??= \array_merge(
+        return self::$builtInTypes ??= \array_merge(
             Introspection::getTypes(),
             self::getStandardTypes()
         );
@@ -149,6 +150,11 @@ abstract class Type implements \JsonSerializable
      */
     public static function overrideStandardTypes(array $types): void
     {
+        // Reset caches that might contain instances of standard types
+        static::$builtInTypes = null;
+        Introspection::resetCachedInstances();
+        Directive::resetCachedInstances();
+
         foreach ($types as $type) {
             // @phpstan-ignore-next-line generic type is not enforced by PHP
             if (! $type instanceof ScalarType) {

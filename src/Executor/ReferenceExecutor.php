@@ -69,6 +69,12 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected \SplObjectStorage $fieldArgsCache;
 
+    protected FieldDefinition $schemaMetaFieldDef;
+
+    protected FieldDefinition $typeMetaFieldDef;
+
+    protected FieldDefinition $typeNameMetaFieldDef;
+
     protected function __construct(ExecutionContext $context)
     {
         if (! isset(static::$UNDEFINED)) {
@@ -701,23 +707,26 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected function getFieldDef(Schema $schema, ObjectType $parentType, string $fieldName): ?FieldDefinition
     {
-        static $schemaMetaFieldDef, $typeMetaFieldDef, $typeNameMetaFieldDef;
-        $schemaMetaFieldDef ??= Introspection::schemaMetaFieldDef();
-        $typeMetaFieldDef ??= Introspection::typeMetaFieldDef();
-        $typeNameMetaFieldDef ??= Introspection::typeNameMetaFieldDef();
+        $this->schemaMetaFieldDef ??= Introspection::schemaMetaFieldDef();
+        $this->typeMetaFieldDef ??= Introspection::typeMetaFieldDef();
+        $this->typeNameMetaFieldDef ??= Introspection::typeNameMetaFieldDef();
 
         $queryType = $schema->getQueryType();
 
-        if ($fieldName === $schemaMetaFieldDef->name && $queryType === $parentType) {
-            return $schemaMetaFieldDef;
+        if ($fieldName === $this->schemaMetaFieldDef->name
+            && $queryType === $parentType
+        ) {
+            return $this->schemaMetaFieldDef;
         }
 
-        if ($fieldName === $typeMetaFieldDef->name && $queryType === $parentType) {
-            return $typeMetaFieldDef;
+        if ($fieldName === $this->typeMetaFieldDef->name
+            && $queryType === $parentType
+        ) {
+            return $this->typeMetaFieldDef;
         }
 
-        if ($fieldName === $typeNameMetaFieldDef->name) {
-            return $typeNameMetaFieldDef;
+        if ($fieldName === $this->typeNameMetaFieldDef->name) {
+            return $this->typeNameMetaFieldDef;
         }
 
         return $parentType->findField($fieldName);

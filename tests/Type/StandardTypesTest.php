@@ -4,9 +4,11 @@ namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Introspection;
 use PHPUnit\Framework\TestCase;
 
 final class StandardTypesTest extends TestCase
@@ -120,6 +122,29 @@ final class StandardTypesTest extends TestCase
         $this->expectExceptionMessage($expectedMessage);
 
         Type::overrideStandardTypes([$notType]);
+    }
+
+    public function testCachesShouldResetWhenOverridingStandardTypes(): void
+    {
+        $string = Type::string();
+
+        $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
+        self::assertSame($string, Type::getNullableType($typeNameMetaFieldDef->getType()));
+
+        $deprecatedDirective = Directive::deprecatedDirective();
+        self::assertSame($string, $deprecatedDirective->args[0]->getType());
+
+        $newString = self::createCustomScalarType(Type::STRING);
+        self::assertNotSame($string, $newString);
+        Type::overrideStandardTypes([$newString]);
+
+        $newTypeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
+        self::assertNotSame($typeNameMetaFieldDef, $newTypeNameMetaFieldDef);
+        self::assertSame($newString, Type::getNullableType($newTypeNameMetaFieldDef->getType()));
+
+        $newDeprecatedDirective = Directive::deprecatedDirective();
+        self::assertNotSame($deprecatedDirective, $newDeprecatedDirective);
+        self::assertSame($newString, $newDeprecatedDirective->args[0]->getType());
     }
 
     /** @throws InvariantViolation */

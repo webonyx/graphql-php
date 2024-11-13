@@ -68,8 +68,8 @@ class Introspection
         self::DIRECTIVE_LOCATION_ENUM_NAME,
     ];
 
-    /** @var array<string, mixed> */
-    private static $map = [];
+    /** @var array<string, mixed>|null */
+    protected static ?array $cachedInstances;
 
     /**
      * @param IntrospectionOptions $options
@@ -253,7 +253,7 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _schema(): ObjectType
     {
-        return self::$map[self::SCHEMA_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::SCHEMA_OBJECT_NAME] ??= new ObjectType([
             'name' => self::SCHEMA_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'A GraphQL Schema defines the capabilities of a GraphQL '
@@ -293,7 +293,7 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _type(): ObjectType
     {
-        return self::$map[self::TYPE_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::TYPE_OBJECT_NAME] ??= new ObjectType([
             'name' => self::TYPE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'The fundamental unit of any GraphQL Schema is the type. There are '
@@ -444,7 +444,7 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _typeKind(): EnumType
     {
-        return self::$map[self::TYPE_KIND_ENUM_NAME] ??= new EnumType([
+        return self::$cachedInstances[self::TYPE_KIND_ENUM_NAME] ??= new EnumType([
             'name' => self::TYPE_KIND_ENUM_NAME,
             'isIntrospection' => true,
             'description' => 'An enum describing what kind of type a given `__Type` is.',
@@ -488,7 +488,7 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _field(): ObjectType
     {
-        return self::$map[self::FIELD_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::FIELD_OBJECT_NAME] ??= new ObjectType([
             'name' => self::FIELD_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'Object and Interface types are described by a list of Fields, each of '
@@ -542,7 +542,7 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _inputValue(): ObjectType
     {
-        return self::$map[self::INPUT_VALUE_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::INPUT_VALUE_OBJECT_NAME] ??= new ObjectType([
             'name' => self::INPUT_VALUE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'Arguments provided to Fields or Directives and the input fields of an '
@@ -600,7 +600,7 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _enumValue(): ObjectType
     {
-        return self::$map[self::ENUM_VALUE_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::ENUM_VALUE_OBJECT_NAME] ??= new ObjectType([
             'name' => self::ENUM_VALUE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'One possible value for a given Enum. Enum values are unique values, not '
@@ -630,7 +630,7 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _directive(): ObjectType
     {
-        return self::$map[self::DIRECTIVE_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::DIRECTIVE_OBJECT_NAME] ??= new ObjectType([
             'name' => self::DIRECTIVE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'A Directive provides a way to describe alternate runtime execution and '
@@ -669,7 +669,7 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function _directiveLocation(): EnumType
     {
-        return self::$map[self::DIRECTIVE_LOCATION_ENUM_NAME] ??= new EnumType([
+        return self::$cachedInstances[self::DIRECTIVE_LOCATION_ENUM_NAME] ??= new EnumType([
             'name' => self::DIRECTIVE_LOCATION_ENUM_NAME,
             'isIntrospection' => true,
             'description' => 'A Directive can be adjacent to many parts of the GraphQL language, a '
@@ -758,7 +758,7 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function schemaMetaFieldDef(): FieldDefinition
     {
-        return self::$map[self::SCHEMA_FIELD_NAME] ??= new FieldDefinition([
+        return self::$cachedInstances[self::SCHEMA_FIELD_NAME] ??= new FieldDefinition([
             'name' => self::SCHEMA_FIELD_NAME,
             'type' => Type::nonNull(self::_schema()),
             'description' => 'Access the current type schema of this server.',
@@ -770,7 +770,7 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function typeMetaFieldDef(): FieldDefinition
     {
-        return self::$map[self::TYPE_FIELD_NAME] ??= new FieldDefinition([
+        return self::$cachedInstances[self::TYPE_FIELD_NAME] ??= new FieldDefinition([
             'name' => self::TYPE_FIELD_NAME,
             'type' => self::_type(),
             'description' => 'Request the type information of a single type.',
@@ -787,12 +787,17 @@ GRAPHQL;
     /** @throws InvariantViolation */
     public static function typeNameMetaFieldDef(): FieldDefinition
     {
-        return self::$map[self::TYPE_NAME_FIELD_NAME] ??= new FieldDefinition([
+        return self::$cachedInstances[self::TYPE_NAME_FIELD_NAME] ??= new FieldDefinition([
             'name' => self::TYPE_NAME_FIELD_NAME,
             'type' => Type::nonNull(Type::string()),
             'description' => 'The name of the current Object type at runtime.',
             'args' => [],
             'resolve' => static fn ($source, array $args, $context, ResolveInfo $info): string => $info->parentType->name,
         ]);
+    }
+
+    public static function resetCachedInstances(): void
+    {
+        self::$cachedInstances = null;
     }
 }
