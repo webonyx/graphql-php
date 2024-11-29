@@ -38,6 +38,8 @@ class QueryPlan
     /** @var array<string, FragmentDefinitionNode> */
     private array $fragments;
 
+    private array $aliasArgs = [];
+
     private bool $groupImplementorFields;
 
     /**
@@ -115,6 +117,17 @@ class QueryPlan
     }
 
     /**
+     * Return an array with keys representing the fields which have been aliased.
+     * The value for each of those aliased fields is an associative array with $aliasName => related arguments for this aliased field.
+     *
+     * @return array
+     */
+    public function aliasArgs()
+    {
+        return $this->aliasArgs;
+    }
+
+    /**
      * @param iterable<FieldNode> $fieldNodes
      *
      * @throws \Exception
@@ -188,6 +201,11 @@ class QueryPlan
                     'fields' => $subfields,
                     'args' => Values::getArgumentValues($type, $selectionNode, $this->variableValues),
                 ];
+
+                if (isset($selectionNode->alias)) {
+                    $this->aliasArgs[$fieldName][$selectionNode->alias->value] = $fields[$fieldName]['args'];
+                }
+
                 if ($this->groupImplementorFields && $subImplementors) {
                     $fields[$fieldName]['implementors'] = $subImplementors;
                 }
