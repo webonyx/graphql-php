@@ -168,7 +168,6 @@ class ResolveInfo
      * $this->fieldName up to $depth levels.
      *
      * Example:
-     * query MyQuery{
      * {
      *   root {
      *     id,
@@ -186,8 +185,8 @@ class ResolveInfo
      * [
      *     'id' => true,
      *     'nested' => [
-     *         nested1 => true,
-     *         nested2 => true
+     *         'nested1' => true,
+     *         'nested2' => true
      *     ]
      * ]
      *
@@ -225,16 +224,15 @@ class ResolveInfo
      * containing the subfield of this field/alias. Each of those field have the same structure as described above.
      *
      * Example:
-     * query MyQuery{
      * {
      *   root {
-     *     id,
+     *     id
      *     nested {
-     *      nested1(myArg:1)
-     *      nested1Bis:nested1
+     *      nested1(myArg: 1)
+     *      nested1Bis: nested1
      *     }
      *     alias1:nested {
-     *       nested1(myArg:2, mySecondAg:"test")
+     *       nested1(myArg: 2, mySecondAg: "test")
      *     }
      *   }
      * }
@@ -245,36 +243,36 @@ class ResolveInfo
      *     'id' => [
      *          'aliases' => [
      *              'id' => [
-     *                  [args] => []
+     *                  'args' => []
      *              ]
      *          ]
      *      ],
      *      'nested' => [
      *           'aliases' => [
      *               'nested' => [
-     *                  ['args'] => [],
-     *                  ['fields'] => [
+     *                  'args' => [],
+     *                  'fields' => [
      *                      'nested1' => [
      *                          'aliases' => [
      *                              'nested1' => [
-     *                                  ['args'] => [
+     *                                  'args' => [
      *                                      'myArg' => 1
      *                                  ]
      *                              ],
      *                              'nested1Bis' => [
-     *                                  ['args'] => []
+     *                                  'args' => []
      *                              ]
      *                          ]
      *                      ]
      *                  ]
      *               ],
      *               'alias1' => [
-     *                  ['args'] => [],
-     *                  ['fields'] => [
+     *                  'args' => [],
+     *                  'fields' => [
      *                       'nested1' => [
      *                           'aliases' => [
      *                               'nested1' => [
-     *                                   ['args'] => [
+     *                                   'args' => [
      *                                       'myArg' => 2,
      *                                       'mySecondAg' => "test"
      *                                   ]
@@ -292,18 +290,17 @@ class ResolveInfo
      * You still can alias the union type fields with the same name in order to extract their corresponding args.
      *
      * Example:
-     *  query MyQuery{
      *  {
      *    root {
-     *      id,
+     *      id
      *      unionPerson {
      *        ...on Child {
      *          name
-     *          birthdate(format:"d/m/Y")
+     *          birthdate(format: "d/m/Y")
      *        }
      *        ...on Adult {
-     *          adultName:name
-     *          adultBirthDate:birthdate(format:"Y-m-d")
+     *          adultName: name
+     *          adultBirthDate:birthdate(format: "Y-m-d")
      *          job
      *        }
      *      }
@@ -411,7 +408,10 @@ class ResolveInfo
                 assert($parentType instanceof HasFieldsType, 'ensured by query validation and the check above which excludes union types');
 
                 $fieldDef = $parentType->getField($fieldName);
-                $fieldType = Type::getNamedType($fieldDef->getType());
+                $fieldType = $fieldDef->getType();
+                if ($fieldType instanceof WrappingType) {
+                    $fieldType = $fieldType->getInnermostType();
+                }
                 $fields[$fieldName]['aliases'][$aliasName]['args'] = Values::getArgumentValues($fieldDef, $selectionNode, $this->variableValues);
 
                 if ($descend > 0 && $selectionNode->selectionSet !== null) {
