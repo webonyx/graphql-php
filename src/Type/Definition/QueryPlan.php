@@ -38,10 +38,6 @@ class QueryPlan
     /** @var array<string, FragmentDefinitionNode> */
     private array $fragments;
 
-    private array $fieldArgs = [];
-
-    private array $aliasArgs = [];
-
     private bool $groupImplementorFields;
 
     /**
@@ -119,17 +115,6 @@ class QueryPlan
     }
 
     /**
-     * Return an array with keys representing the fields which have been aliased.
-     * The value for each of those aliased fields is an associative array with $aliasName => related arguments for this aliased field.
-     *
-     * @return array
-     */
-    public function aliasArgs()
-    {
-        return $this->aliasArgs;
-    }
-
-    /**
      * @param iterable<FieldNode> $fieldNodes
      *
      * @throws \Exception
@@ -203,23 +188,6 @@ class QueryPlan
                     'fields' => $subfields,
                     'args' => Values::getArgumentValues($type, $selectionNode, $this->variableValues),
                 ];
-
-                if (isset($selectionNode->alias)) {
-                    // If a previous field of the same name has not been aliased, we will lose its args,
-                    // so insert it inside the alias list with its own name.
-                    if (isset($this->fieldArgs[$fieldName])) {
-                        $this->aliasArgs[$fieldName][$fieldName] = $this->fieldArgs[$fieldName];
-                    }
-                    $this->aliasArgs[$fieldName][$selectionNode->alias->value] = $fields[$fieldName]['args'];
-                } else {
-                    // If a previous field of the same name has been aliased and not this one,
-                    // Add it to the alias list in order to regroup all variety of the same field.
-                    if (isset($this->aliasArgs[$fieldName])) {
-                        $this->aliasArgs[$fieldName][$fieldName] = $fields[$fieldName]['args'];
-                    }
-                    $this->fieldArgs[$fieldName] = $fields[$fieldName]['args'];
-                }
-
                 if ($this->groupImplementorFields && $subImplementors) {
                     $fields[$fieldName]['implementors'] = $subImplementors;
                 }

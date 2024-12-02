@@ -648,4 +648,263 @@ final class ResolveInfoTest extends TestCase
             ],
         ], $result);
     }
+
+    private int $aliasArgsNbTests = 0;
+
+    public function testFieldSelectionWithAlias(): void
+    {
+        $returnResolveInfo = function ($value, array $args, $context, ResolveInfo $info) {
+            $aliasArgs = $info->getFieldSelectionWithAlias(1);
+            ++$this->aliasArgsNbTests;
+            switch ($args['testName']) {
+                case 'NoAlias':
+                    self::assertSame([
+                        'level2 ' => [
+                            'aliases' => [
+                                'level2' => [
+                                    'args' => [
+                                        'width' => 1,
+                                        'height' => 1,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ], $aliasArgs);
+                    break;
+                case 'NoAliasFirst':
+                    self::assertSame([
+                        'level2 ' => [
+                            'aliases' => [
+                                'level2' => [
+                                    'args' => [
+                                        'width' => 1,
+                                        'height' => 1,
+                                    ],
+                                ],
+                                'level1000' => [
+                                    'args' => [
+                                        'width' => 2,
+                                        'height' => 20,
+                                    ],
+                                ],
+                            ],
+                        ]], $aliasArgs);
+                    break;
+                case 'NoAliasLast':
+                    self::assertSame([
+                        'level2 ' => [
+                            'aliases' => [
+                                'level2000' => [
+                                    'args' => [
+                                        'width' => 1,
+                                        'height' => 1,
+                                    ],
+                                ],
+                                'level2' => [
+                                    'args' => [
+                                        'width' => 2,
+                                        'height' => 20,
+                                    ],
+                                ],
+                            ],
+                        ]], $aliasArgs);
+                    break;
+                case 'AllAliases':
+                    self::assertSame([
+                        'level2 ' => [
+                            'aliases' => [
+                                'level1000' => [
+                                    'args' => [
+                                        'width' => 1,
+                                        'height' => 1,
+                                    ],
+                                ],
+                                'level2000' => [
+                                    'args' => [
+                                        'width' => 2,
+                                        'height' => 20,
+                                    ],
+                                ],
+                            ],
+                        ]], $aliasArgs);
+                    break;
+
+                case 'MultiLvlSameAliasName':
+                case 'WithFragments':
+                    self::assertSame([
+                        'level2 ' => [
+                            'aliases' => [
+                                'level3000' => [
+                                    'args' => [
+                                        'width' => 1,
+                                        'height' => 1,
+                                    ],
+                                ],
+                                'level2' => [
+                                    'args' => [
+                                        'width' => 3,
+                                        'height' => 30,
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'level2bis' => [
+                            'aliases' => [
+                                'level2bis' => [
+                                    'args' => [],
+                                    'fields' => [
+                                        'level3' => [
+                                            'aliases' => [
+                                                'level3000' => [
+                                                    'args' => [
+                                                        'length' => 2,
+                                                    ],
+                                                ],
+                                                'level3' => [
+                                                    'args' => [
+                                                        'length' => 10,
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ]], $aliasArgs);
+                    break;
+
+                default:
+                    $this->aliasArgsNbTests--;
+            }
+        };
+
+        $level2Bis = new ObjectType([
+            'name' => 'level2bis',
+            'fields' => [
+                'level3' => [
+                    'type' => Type::int(),
+                    'resolve' => fn (): bool => true,
+                    'args' => [
+                        'length' => ['type' => Type::int()],
+                    ],
+                ],
+            ],
+        ]);
+
+        $level1 = new ObjectType([
+            'name' => 'level1',
+            'fields' => [
+                'level2' => [
+                    'type' => Type::int(),
+                    'resolve' => fn (): bool => true,
+                    'args' => [
+                        'width' => ['type' => Type::int()],
+                        'height' => ['type' => Type::int()],
+                    ],
+                ],
+                'level2bis' => [
+                    'type' => $level2Bis,
+                    'resolve' => fn (): bool => true,
+                ],
+            ],
+        ]);
+
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'level1' => [
+                    'type' => $level1,
+                    'resolve' => $returnResolveInfo,
+                    'args' => [
+                        'testName' => ['type' => Type::string()],
+                    ],
+                ],
+            ],
+        ]);
+
+        GraphQL::executeQuery(
+            new Schema(['query' => $query]),
+            <<<GRAPHQL
+            query {
+              level1(testName:"NoAlias") {
+                level2(width:1,height:1)
+              }
+            }
+            GRAPHQL
+        )->toArray();
+
+        GraphQL::executeQuery(
+            new Schema(['query' => $query]),
+            <<<GRAPHQL
+            query {
+              level1(testName:"NoAliasFirst") {
+                level2(width:1,height:1)
+                level1000: level2(width:2,height:20)
+              }
+            }
+            GRAPHQL
+        );
+
+        GraphQL::executeQuery(
+            new Schema(['query' => $query]),
+            <<<GRAPHQL
+            query {
+              level1(testName:"NoAliasLast") {
+                level2000: level2(width:1,height:1)
+                level2(width:2,height:20)
+              }
+            }
+            GRAPHQL
+        );
+
+        GraphQL::executeQuery(
+            new Schema(['query' => $query]),
+            <<<GRAPHQL
+            query {
+              level1(testName:"AllAliases") {
+                level1000: level2(width:1,height:1)
+                level2000: level2(width:2,height:20)
+              }
+            }
+            GRAPHQL
+        );
+
+        GraphQL::executeQuery(
+            new Schema(['query' => $query]),
+            <<<GRAPHQL
+            query {
+              level1(testName:"MultiLvlSameAliasName") {
+                level3000: level2(width:1,height:1)
+                level2(width:3,height:30)
+                level2bis {
+                    level3000:level3(length:2)
+                    level3(length:10)
+                }
+              }
+            }
+            GRAPHQL
+        );
+
+        GraphQL::executeQuery(
+            new Schema(['query' => $query]),
+            <<<GRAPHQL
+            query {
+              level1(testName:"WithFragments") {
+                level3000: level2(width:1,height:1)
+                level2(width:3,height:30)
+                level2bis {
+                    ...level3Frag
+                }
+              }
+            }
+            fragment level3Frag on level2bis {
+                level3000:level3(length:2)
+                level3(length:10)
+            }
+            GRAPHQL
+        );
+
+        // Assert all resolve tests have been processed and no error prevent to reach those tests.
+        self::assertSame(6, $this->aliasArgsNbTests);
+    }
 }
