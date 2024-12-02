@@ -299,7 +299,6 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed $rootValue
      *
      * @throws \Exception
-     * @throws Error
      *
      * @return array<mixed>|Promise|\stdClass|null
      */
