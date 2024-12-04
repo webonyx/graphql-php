@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.19.0
+
+### Added
+
+- Add method `getFieldSelectionWithAliases` to class `ResolveInfo` https://github.com/webonyx/graphql-php/pull/1648
+
 ## v15.18.1
 
 ### Fixed
