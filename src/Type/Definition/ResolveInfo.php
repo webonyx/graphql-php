@@ -217,14 +217,12 @@ class ResolveInfo
     }
 
     /**
-     * Returns field or alias names and args of all fields selected in query for `$this->fieldName` up to `$depth` levels.
+     * Returns names and args of all fields selected in query for `$this->fieldName` up to `$depth` levels, including aliases.
      *
-     * For each field we create an array containing all aliases of this field,
-     * or the original field name if a field is not aliased.
-     *
-     * For each of those aliases, you can find the following keys:
-     * - "args" containing the arguments of the alias
-     * - "fields" containing the nested fields of this field/alias. The structure is recursive from here.
+     * The result maps original field names to a map of selections for that field, including aliases.
+     * For each of those selections, you can find the following keys:
+     * - "args" contains the passed arguments for this field/alias
+     * - "selectionSet" contains potential nested fields of this field/alias. The structure is recursive from here.
      *
      * Example:
      * {
@@ -312,7 +310,7 @@ class ResolveInfo
      *
      * @api
      */
-    public function getFieldSelectionWithAlias(int $depth = 0): array
+    public function getFieldSelectionWithAliases(int $depth = 0): array
     {
         $fields = [];
 
