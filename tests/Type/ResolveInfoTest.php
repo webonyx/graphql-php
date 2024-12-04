@@ -374,14 +374,14 @@ final class ResolveInfoTest extends TestCase
     public function testDeepFieldSelectionOnDuplicatedFields(): void
     {
         $level2 = new ObjectType([
-            'name' => 'level2',
+            'name' => 'Level2',
             'fields' => [
                 'scalar1' => ['type' => Type::int()],
                 'scalar2' => ['type' => Type::int()],
             ],
         ]);
         $level1 = new ObjectType([
-            'name' => 'level1',
+            'name' => 'Level1',
             'fields' => [
                 'scalar1' => ['type' => Type::int()],
                 'scalar2' => ['type' => Type::int()],
@@ -459,7 +459,7 @@ final class ResolveInfoTest extends TestCase
 
         $returnResolveInfo = static fn ($value, array $args, $context, ResolveInfo $info): ResolveInfo => $info;
         $level2 = new ObjectType([
-            'name' => 'level2',
+            'name' => 'Öevel2',
             'fields' => [
                 'info1' => [
                     'type' => $resolveInfo,
@@ -473,7 +473,7 @@ final class ResolveInfoTest extends TestCase
         ]);
 
         $level1 = new ObjectType([
-            'name' => 'level1',
+            'name' => 'Level1',
             'fields' => [
                 'level2' => [
                     'type' => $level2,
@@ -560,7 +560,7 @@ final class ResolveInfoTest extends TestCase
         ]);
 
         $level1 = new ObjectType([
-            'name' => 'level1',
+            'name' => 'Level1',
             'fields' => [
                 'level2' => [
                     'type' => ListOfType::listOf($level2),
@@ -840,26 +840,30 @@ final class ResolveInfoTest extends TestCase
         };
 
         $level4EvenMore = new ObjectType([
-            'name' => 'level4EvenMore',
+            'name' => 'Level4EvenMore',
             'fields' => [
                 'level5' => [
                     'type' => Type::string(),
                     'resolve' => fn (): bool => true,
                     'args' => [
-                        'crazyness' => ['type' => Type::float()],
+                        'crazyness' => [
+                            'type' => Type::float()
+                        ],
                     ],
                 ],
             ],
         ]);
 
         $level3Deeper = new ObjectType([
-            'name' => 'level3Deeper',
+            'name' => 'Level3Deeper',
             'fields' => [
                 'level4' => [
                     'type' => Type::int(),
                     'resolve' => fn (): bool => true,
                     'args' => [
-                        'temperature' => ['type' => Type::int()],
+                        'temperature' => [
+                            'type' => Type::int()
+                        ],
                     ],
                 ],
                 'level4evenmore' => [
@@ -870,13 +874,15 @@ final class ResolveInfoTest extends TestCase
         ]);
 
         $level2Bis = new ObjectType([
-            'name' => 'level2bis',
+            'name' => 'Level2bis',
             'fields' => [
                 'level3' => [
                     'type' => Type::int(),
                     'resolve' => fn (): bool => true,
                     'args' => [
-                        'length' => ['type' => Type::int()],
+                        'length' => [
+                            'type' => Type::int()
+                        ],
                     ],
                 ],
                 'level3deeper' => [
@@ -887,14 +893,18 @@ final class ResolveInfoTest extends TestCase
         ]);
 
         $level1 = new ObjectType([
-            'name' => 'level1',
+            'name' => 'Level1',
             'fields' => [
                 'level2' => [
-                    'type' => Type::int(),
+                    'type' => Type::nonNull(Type::int()),
                     'resolve' => fn (): bool => true,
                     'args' => [
-                        'width' => ['type' => Type::int()],
-                        'height' => ['type' => Type::int()],
+                        'width' => [
+                            'type' => Type::nonNull(Type::int()),
+                        ],
+                        'height' => [
+                            'type' => Type::int()
+                        ],
                     ],
                 ],
                 'level2bis' => [
@@ -911,7 +921,9 @@ final class ResolveInfoTest extends TestCase
                     'type' => $level1,
                     'resolve' => $returnResolveInfo,
                     'args' => [
-                        'testName' => ['type' => Type::string()],
+                        'testName' => [
+                            'type' => Type::string()
+                        ],
                     ],
                 ],
             ],
@@ -921,7 +933,9 @@ final class ResolveInfoTest extends TestCase
             new Schema(['query' => $query]),
             <<<GRAPHQL
             query {
+              __typename
               level1(testName: "NoAlias") {
+                __typename
                 level2(width: 1, height: 1)
               }
             }
@@ -985,16 +999,19 @@ final class ResolveInfoTest extends TestCase
             <<<GRAPHQL
             query {
               level1(testName: "WithFragments") {
-                level3000: level2(width: 1, height: 1)
-                level2(width: 3, height: 30)
+                ... on Level1 {
+                  level3000: level2(width: 1, height: 1)
+                  level2(width: 3, height: 30)
+                }
                 level2bis {
-                    ...level3Frag
+                  ...level3Frag
                 }
               }
             }
-            fragment level3Frag on level2bis {
-                level3000: level3(length: 2)
-                level3(length: 10)
+            
+            fragment level3Frag on Level2bis {
+              level3000: level3(length: 2)
+              level3(length: 10)
             }
             GRAPHQL
         );
