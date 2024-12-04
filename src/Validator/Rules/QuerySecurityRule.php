@@ -110,66 +110,63 @@ abstract class QuerySecurityRule extends ValidationRule
         $astAndDefs ??= new \ArrayObject();
 
         foreach ($selectionSet->selections as $selection) {
-            switch (true) {
-                case $selection instanceof FieldNode:
-                    $fieldName = $selection->name->value;
+            if ($selection instanceof FieldNode) {
+                $fieldName = $selection->name->value;
 
-                    $fieldDef = null;
-                    if ($parentType instanceof HasFieldsType) {
-                        $schemaMetaFieldDef = Introspection::schemaMetaFieldDef();
-                        $typeMetaFieldDef = Introspection::typeMetaFieldDef();
-                        $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
+                $fieldDef = null;
+                if ($parentType instanceof HasFieldsType) {
+                    $schemaMetaFieldDef = Introspection::schemaMetaFieldDef();
+                    $typeMetaFieldDef = Introspection::typeMetaFieldDef();
+                    $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
 
-                        $queryType = $context->getSchema()->getQueryType();
+                    $queryType = $context->getSchema()->getQueryType();
 
-                        if ($fieldName === $schemaMetaFieldDef->name && $queryType === $parentType) {
-                            $fieldDef = $schemaMetaFieldDef;
-                        } elseif ($fieldName === $typeMetaFieldDef->name && $queryType === $parentType) {
-                            $fieldDef = $typeMetaFieldDef;
-                        } elseif ($fieldName === $typeNameMetaFieldDef->name) {
-                            $fieldDef = $typeNameMetaFieldDef;
-                        } elseif ($parentType->hasField($fieldName)) {
-                            $fieldDef = $parentType->getField($fieldName);
-                        }
+                    if ($fieldName === $schemaMetaFieldDef->name && $queryType === $parentType) {
+                        $fieldDef = $schemaMetaFieldDef;
+                    } elseif ($fieldName === $typeMetaFieldDef->name && $queryType === $parentType) {
+                        $fieldDef = $typeMetaFieldDef;
+                    } elseif ($fieldName === $typeNameMetaFieldDef->name) {
+                        $fieldDef = $typeNameMetaFieldDef;
+                    } elseif ($parentType->hasField($fieldName)) {
+                        $fieldDef = $parentType->getField($fieldName);
                     }
+                }
 
-                    $responseName = $this->getFieldName($selection);
-                    $responseContext = $astAndDefs[$responseName] ??= new \ArrayObject();
-                    $responseContext[] = [$selection, $fieldDef];
-                    break;
-                case $selection instanceof InlineFragmentNode:
-                    $typeCondition = $selection->typeCondition;
-                    $fragmentParentType = $typeCondition === null
-                        ? $parentType
-                        : AST::typeFromAST([$context->getSchema(), 'getType'], $typeCondition);
-                    $astAndDefs = $this->collectFieldASTsAndDefs(
-                        $context,
-                        $fragmentParentType,
-                        $selection->selectionSet,
-                        $visitedFragmentNames,
-                        $astAndDefs
-                    );
-                    break;
-                case $selection instanceof FragmentSpreadNode:
-                    $fragName = $selection->name->value;
+                $responseName = $this->getFieldName($selection);
+                $responseContext = $astAndDefs[$responseName] ??= new \ArrayObject();
+                $responseContext[] = [$selection, $fieldDef];
+            } elseif ($selection instanceof InlineFragmentNode) {
+                $typeCondition = $selection->typeCondition;
+                $fragmentParentType = $typeCondition === null
+                    ? $parentType
+                    : AST::typeFromAST([$context->getSchema(), 'getType'], $typeCondition);
+                $astAndDefs = $this->collectFieldASTsAndDefs(
+                    $context,
+                    $fragmentParentType,
+                    $selection->selectionSet,
+                    $visitedFragmentNames,
+                    $astAndDefs
+                );
+            } elseif ($selection instanceof FragmentSpreadNode) {
+                $fragName = $selection->name->value;
 
-                    if (! isset($visitedFragmentNames[$fragName])) {
-                        $visitedFragmentNames[$fragName] = true;
+                if (isset($visitedFragmentNames[$fragName])) {
+                    continue;
+                }
+                $visitedFragmentNames[$fragName] = true;
 
-                        $fragment = $context->getFragment($fragName);
+                $fragment = $context->getFragment($fragName);
+                if ($fragment === null) {
+                    continue;
+                }
 
-                        if ($fragment !== null) {
-                            $astAndDefs = $this->collectFieldASTsAndDefs(
-                                $context,
-                                AST::typeFromAST([$context->getSchema(), 'getType'], $fragment->typeCondition),
-                                $fragment->selectionSet,
-                                $visitedFragmentNames,
-                                $astAndDefs
-                            );
-                        }
-                    }
-
-                    break;
+                $astAndDefs = $this->collectFieldASTsAndDefs(
+                    $context,
+                    AST::typeFromAST([$context->getSchema(), 'getType'], $fragment->typeCondition),
+                    $fragment->selectionSet,
+                    $visitedFragmentNames,
+                    $astAndDefs
+                );
             }
         }
 
