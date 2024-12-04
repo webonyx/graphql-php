@@ -128,11 +128,14 @@ class ResolveInfo
     /**
      * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param list<string|int> $path
+     *
      * @phpstan-param Path $path
+     *
      * @param array<string, FragmentDefinitionNode> $fragments
      * @param mixed|null $rootValue
      * @param array<string, mixed> $variableValues
      * @param list<string|int> $unaliasedPath
+     *
      * @phpstan-param Path $unaliasedPath
      */
     public function __construct(

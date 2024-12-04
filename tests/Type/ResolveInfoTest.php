@@ -688,7 +688,7 @@ final class ResolveInfoTest extends TestCase
                                     ],
                                 ],
                             ],
-                        ]
+                        ],
                     ], $aliasArgs);
                     break;
                 case 'NoAliasLast':
@@ -708,7 +708,7 @@ final class ResolveInfoTest extends TestCase
                                     ],
                                 ],
                             ],
-                        ]
+                        ],
                     ], $aliasArgs);
                     break;
                 case 'AllAliases':
@@ -728,7 +728,7 @@ final class ResolveInfoTest extends TestCase
                                     ],
                                 ],
                             ],
-                        ]
+                        ],
                     ], $aliasArgs);
                     break;
                 case 'MultiLvlSameAliasName':
@@ -772,7 +772,7 @@ final class ResolveInfoTest extends TestCase
                                     ],
                                 ],
                             ],
-                        ]
+                        ],
                     ], $aliasArgs);
                     break;
                 case 'DeepestTooLowDepth':
@@ -831,7 +831,7 @@ final class ResolveInfoTest extends TestCase
                                     ],
                                 ],
                             ],
-                        ]
+                        ],
                     ], $aliasArgs);
                     break;
                 default:
@@ -847,7 +847,7 @@ final class ResolveInfoTest extends TestCase
                     'resolve' => fn (): bool => true,
                     'args' => [
                         'crazyness' => [
-                            'type' => Type::float()
+                            'type' => Type::float(),
                         ],
                     ],
                 ],
@@ -862,7 +862,7 @@ final class ResolveInfoTest extends TestCase
                     'resolve' => fn (): bool => true,
                     'args' => [
                         'temperature' => [
-                            'type' => Type::int()
+                            'type' => Type::int(),
                         ],
                     ],
                 ],
@@ -881,7 +881,7 @@ final class ResolveInfoTest extends TestCase
                     'resolve' => fn (): bool => true,
                     'args' => [
                         'length' => [
-                            'type' => Type::int()
+                            'type' => Type::int(),
                         ],
                     ],
                 ],
@@ -903,7 +903,7 @@ final class ResolveInfoTest extends TestCase
                             'type' => Type::nonNull(Type::int()),
                         ],
                         'height' => [
-                            'type' => Type::int()
+                            'type' => Type::int(),
                         ],
                     ],
                 ],
@@ -922,7 +922,7 @@ final class ResolveInfoTest extends TestCase
                     'resolve' => $returnResolveInfo,
                     'args' => [
                         'testName' => [
-                            'type' => Type::string()
+                            'type' => Type::string(),
                         ],
                     ],
                 ],
