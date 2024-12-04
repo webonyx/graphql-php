@@ -688,7 +688,8 @@ final class ResolveInfoTest extends TestCase
                                     ],
                                 ],
                             ],
-                        ]], $aliasArgs);
+                        ]
+                    ], $aliasArgs);
                     break;
                 case 'NoAliasLast':
                     self::assertSame([
@@ -707,7 +708,8 @@ final class ResolveInfoTest extends TestCase
                                     ],
                                 ],
                             ],
-                        ]], $aliasArgs);
+                        ]
+                    ], $aliasArgs);
                     break;
                 case 'AllAliases':
                     self::assertSame([
@@ -726,9 +728,9 @@ final class ResolveInfoTest extends TestCase
                                     ],
                                 ],
                             ],
-                        ]], $aliasArgs);
+                        ]
+                    ], $aliasArgs);
                     break;
-
                 case 'MultiLvlSameAliasName':
                 case 'WithFragments':
                     self::assertSame([
@@ -770,9 +772,9 @@ final class ResolveInfoTest extends TestCase
                                     ],
                                 ],
                             ],
-                        ]], $aliasArgs);
+                        ]
+                    ], $aliasArgs);
                     break;
-
                 case 'DeepestTooLowDepth':
                     $depth = 1;
                     // no break
@@ -829,9 +831,9 @@ final class ResolveInfoTest extends TestCase
                                     ],
                                 ],
                             ],
-                        ]], $aliasArgs);
+                        ]
+                    ], $aliasArgs);
                     break;
-
                 default:
                     $aliasArgsNbTests--;
             }
@@ -920,7 +922,7 @@ final class ResolveInfoTest extends TestCase
             <<<GRAPHQL
             query {
               level1(testName: "NoAlias") {
-                level2(width: 1,height: 1)
+                level2(width: 1, height: 1)
               }
             }
             GRAPHQL
@@ -931,8 +933,8 @@ final class ResolveInfoTest extends TestCase
             <<<GRAPHQL
             query {
               level1(testName: "NoAliasFirst") {
-                level2(width: 1,height: 1)
-                level1000: level2(width: 2,height: 20)
+                level2(width: 1, height: 1)
+                level1000: level2(width: 2, height: 20)
               }
             }
             GRAPHQL
@@ -943,8 +945,8 @@ final class ResolveInfoTest extends TestCase
             <<<GRAPHQL
             query {
               level1(testName: "NoAliasLast") {
-                level2000: level2(width: 1,height: 1)
-                level2(width: 2,height: 20)
+                level2000: level2(width: 1, height: 1)
+                level2(width: 2, height: 20)
               }
             }
             GRAPHQL
@@ -955,8 +957,8 @@ final class ResolveInfoTest extends TestCase
             <<<GRAPHQL
             query {
               level1(testName: "AllAliases") {
-                level1000: level2(width: 1,height: 1)
-                level2000: level2(width: 2,height: 20)
+                level1000: level2(width: 1, height: 1)
+                level2000: level2(width: 2, height: 20)
               }
             }
             GRAPHQL
@@ -967,8 +969,8 @@ final class ResolveInfoTest extends TestCase
             <<<GRAPHQL
             query {
               level1(testName: "MultiLvlSameAliasName") {
-                level3000: level2(width: 1,height: 1)
-                level2(width: 3,height: 30)
+                level3000: level2(width: 1, height: 1)
+                level2(width: 3, height: 30)
                 level2bis {
                     level3000: level3(length: 2)
                     level3(length: 10)
@@ -983,8 +985,8 @@ final class ResolveInfoTest extends TestCase
             <<<GRAPHQL
             query {
               level1(testName: "WithFragments") {
-                level3000: level2(width: 1,height: 1)
-                level2(width: 3,height: 30)
+                level3000: level2(width: 1, height: 1)
+                level2(width: 3, height: 30)
                 level2bis {
                     ...level3Frag
                 }
@@ -1035,13 +1037,13 @@ final class ResolveInfoTest extends TestCase
             GRAPHQL
         );
 
-        self::assertEmpty($result1->errors, 'Query NoAlias Fail');
-        self::assertEmpty($result2->errors, 'Query NoAliasFirst Fail');
-        self::assertEmpty($result3->errors, 'Query NoAliasLast Fail');
-        self::assertEmpty($result4->errors, 'Query AllAliases Fail');
-        self::assertEmpty($result5->errors, 'Query MultiLvlSameAliasName Fail');
-        self::assertEmpty($result6->errors, 'Query WithFragments Fail');
-        self::assertSame('Failed asserting that two arrays are identical.', $result7->errors[0]->getMessage(), 'Query DeepestTooLowDepth Should have Failed');
-        self::assertEmpty($result8->errors, 'Query Deepest Fail');
+        self::assertEmpty($result1->errors, 'Query NoAlias should have no errors');
+        self::assertEmpty($result2->errors, 'Query NoAliasFirst should have no errors');
+        self::assertEmpty($result3->errors, 'Query NoAliasLast should have no errors');
+        self::assertEmpty($result4->errors, 'Query AllAliases should have no errors');
+        self::assertEmpty($result5->errors, 'Query MultiLvlSameAliasName should have no errors');
+        self::assertEmpty($result6->errors, 'Query WithFragments should have no errors');
+        self::assertSame('Failed asserting that two arrays are identical.', $result7->errors[0]->getMessage(), 'Query DeepestTooLowDepth should have failed');
+        self::assertEmpty($result8->errors, 'Query Deepest should have no errors');
     }
 }

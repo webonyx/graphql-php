@@ -128,14 +128,12 @@ class ResolveInfo
     /**
      * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param list<string|int> $path
-     * @param list<string|int> $unaliasedPath
-     *
      * @phpstan-param Path $path
-     * @phpstan-param Path $unaliasedPath
-     *
      * @param array<string, FragmentDefinitionNode> $fragments
      * @param mixed|null $rootValue
      * @param array<string, mixed> $variableValues
+     * @param list<string|int> $unaliasedPath
+     * @phpstan-param Path $unaliasedPath
      */
     public function __construct(
         FieldDefinition $fieldDefinition,
@@ -164,24 +162,23 @@ class ResolveInfo
     }
 
     /**
-     * Helper method that returns names of all fields selected in query for
-     * $this->fieldName up to $depth levels.
+     * Returns names of all fields selected in query for `$this->fieldName` up to `$depth` levels.
      *
      * Example:
      * {
      *   root {
-     *     id,
+     *     id
      *     nested {
-     *      nested1
-     *      nested2 {
-     *        nested3
-     *      }
+     *       nested1
+     *       nested2 {
+     *         nested3
+     *       }
      *     }
      *   }
      * }
      *
-     * Given this ResolveInfo instance is a part of "root" field resolution, and $depth === 1,
-     * method will return:
+     * Given this ResolveInfo instance is a part of root field resolution, and $depth === 1,
+     * this method will return:
      * [
      *     'id' => true,
      *     'nested' => [
@@ -193,7 +190,7 @@ class ResolveInfo
      * Warning: this method it is a naive implementation which does not take into account
      * conditional typed fragments. So use it with care for fields of interface and union types.
      *
-     * @param int $depth How many levels to include in output
+     * @param int $depth How many levels to include in the output beyond the first
      *
      * @return array<string, mixed>
      *
@@ -204,10 +201,11 @@ class ResolveInfo
         $fields = [];
 
         foreach ($this->fieldNodes as $fieldNode) {
-            if (isset($fieldNode->selectionSet)) {
+            $selectionSet = $fieldNode->selectionSet;
+            if ($selectionSet !== null) {
                 $fields = \array_merge_recursive(
                     $fields,
-                    $this->foldSelectionSet($fieldNode->selectionSet, $depth)
+                    $this->foldSelectionSet($selectionSet, $depth)
                 );
             }
         }
@@ -216,12 +214,14 @@ class ResolveInfo
     }
 
     /**
-     * Helper method that returns names of all fields selected in query for
-     * $this->fieldName up to $depth levels.
-     * For each field there is an "aliases" key regrouping all aliases of this field
-     * (if a field is not aliased, its name is present here as a key)
-     * For each of those "alias" you can find "args" key containing the arguments of the alias and the "fields" key
-     * containing the subfield of this field/alias. Each of those field have the same structure as described above.
+     * Returns names of all fields selected in query for `$this->fieldName` up to `$depth` levels.
+     *
+     * For each field there is a key "aliases" that lists all aliases of this field,
+     * or the original field name if a field is not aliased.
+     *
+     * For each of those aliases, you can find the following keys:
+     * - "args" containing the arguments of the alias
+     * - "fields" containing the subfield of this field/alias. The structure is recursive from here.
      *
      * Example:
      * {
@@ -231,14 +231,14 @@ class ResolveInfo
      *      nested1(myArg: 1)
      *      nested1Bis: nested1
      *     }
-     *     alias1:nested {
+     *     alias1: nested {
      *       nested1(myArg: 2, mySecondAg: "test")
      *     }
      *   }
      * }
      *
      * Given this ResolveInfo instance is a part of "root" field resolution, and $depth === 1,
-     * method will return:
+     * this method will return:
      * [
      *     'id' => [
      *          'aliases' => [
@@ -300,14 +300,14 @@ class ResolveInfo
      *        }
      *        ...on Adult {
      *          adultName: name
-     *          adultBirthDate:birthdate(format: "Y-m-d")
+     *          adultBirthDate: birthdate(format: "Y-m-d")
      *          job
      *        }
      *      }
      *    }
      *  }
      *
-     * @param int $depth How many levels to include in output
+     * @param int $depth How many levels to include in the output beyond the first
      *
      * @throws \Exception
      * @throws Error
@@ -322,10 +322,14 @@ class ResolveInfo
         $fields = [];
 
         foreach ($this->fieldNodes as $fieldNode) {
-            if (isset($fieldNode->selectionSet)) {
+            $selectionSet = $fieldNode->selectionSet;
+            if ($selectionSet !== null) {
+                $fieldType = $this->parentType->getField($fieldNode->name->value)
+                    ->getType();
+
                 $fields = \array_merge_recursive(
                     $fields,
-                    $this->foldSelectionWithAlias($fieldNode->selectionSet, $depth, $this->parentType->getField($fieldNode->name->value)->getType())
+                    $this->foldSelectionWithAlias($selectionSet, $depth, $fieldType)
                 );
             }
         }
@@ -405,7 +409,7 @@ class ResolveInfo
                     continue;
                 }
 
-                assert($parentType instanceof HasFieldsType, 'ensured by query validation and the check above which excludes union types');
+                assert($parentType instanceof HasFieldsType, 'ensured by query validation');
 
                 $fieldDef = $parentType->getField($fieldName);
                 $fieldType = $fieldDef->getType();

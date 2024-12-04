@@ -172,7 +172,7 @@ class QueryPlan
                     continue;
                 }
 
-                assert($parentType instanceof HasFieldsType, 'ensured by query validation and the check above which excludes union types');
+                assert($parentType instanceof HasFieldsType, 'ensured by query validation');
 
                 $type = $parentType->getField($fieldName);
                 $selectionType = $type->getType();
