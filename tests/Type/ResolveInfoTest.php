@@ -459,7 +459,7 @@ final class ResolveInfoTest extends TestCase
 
         $returnResolveInfo = static fn ($value, array $args, $context, ResolveInfo $info): ResolveInfo => $info;
         $level2 = new ObjectType([
-            'name' => 'Öevel2',
+            'name' => 'Level2',
             'fields' => [
                 'info1' => [
                     'type' => $resolveInfo,
@@ -743,7 +743,7 @@ final class ResolveInfoTest extends TestCase
                         'level2bis' => [
                             'level2bis' => [
                                 'args' => [],
-                                'fields' => [
+                                'selectionSet' => [
                                     'level3' => [
                                         'level3000' => [
                                             'args' => [
@@ -771,15 +771,15 @@ final class ResolveInfoTest extends TestCase
                         'level2bis' => [
                             'level2Alias' => [
                                 'args' => [],
-                                'fields' => [
+                                'selectionSet' => [
                                     'level3deeper' => [
                                         'level3deeper' => [
                                             'args' => [],
-                                            'fields' => [
+                                            'selectionSet' => [
                                                 'level4evenmore' => [
                                                     'level4evenmore' => [
                                                         'args' => [],
-                                                        'fields' => [
+                                                        'selectionSet' => [
                                                             'level5' => [
                                                                 'level5' => [
                                                                     'args' => [
