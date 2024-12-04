@@ -219,7 +219,7 @@ class ResolveInfo
     /**
      * Returns names of all fields selected in query for `$this->fieldName` up to `$depth` levels.
      *
-     * For each field there is a key "aliases" that lists all aliases of this field,
+     * For each field we create an array containing all aliases of this field,
      * or the original field name if a field is not aliased.
      *
      * For each of those aliases, you can find the following keys:
@@ -244,48 +244,40 @@ class ResolveInfo
      * this method will return:
      * [
      *     'id' => [
-     *          'aliases' => [
-     *              'id' => [
-     *                  'args' => []
-     *              ]
+     *          'id' => [
+     *               'args' => []
      *          ]
      *      ],
      *      'nested' => [
-     *           'aliases' => [
-     *               'nested' => [
-     *                  'args' => [],
-     *                  'fields' => [
+     *          'nested' => [
+     *              'args' => [],
+     *              'fields' => [
+     *                  'nested1' => [
      *                      'nested1' => [
-     *                          'aliases' => [
-     *                              'nested1' => [
-     *                                  'args' => [
-     *                                      'myArg' => 1
-     *                                  ]
-     *                              ],
-     *                              'nested1Bis' => [
-     *                                  'args' => []
-     *                              ]
-     *                          ]
-     *                      ]
-     *                  ]
-     *               ],
-     *               'alias1' => [
-     *                  'args' => [],
-     *                  'fields' => [
-     *                       'nested1' => [
-     *                           'aliases' => [
-     *                               'nested1' => [
-     *                                   'args' => [
-     *                                       'myArg' => 2,
-     *                                       'mySecondAg' => "test"
-     *                                   ]
-     *                               ]
+     *                           'args' => [
+     *                               'myArg' => 1
      *                           ]
+     *                       ],
+     *                       'nested1Bis' => [
+     *                           'args' => []
+     *                       ]
+     *                  ]
+     *              ]
+     *           ],
+     *           'alias1' => [
+     *              'args' => [],
+     *              'fields' => [
+     *                   'nested1' => [
+     *                       'nested1' => [
+     *                            'args' => [
+     *                                'myArg' => 2,
+     *                                'mySecondAg' => "test"
+     *                            ]
      *                       ]
      *                   ]
      *               ]
-     *           ]
-     *       ]
+     *          ]
+     *      ]
      * ]
      *
      * Warning: this method it is a naive implementation which does not take into account
@@ -419,10 +411,10 @@ class ResolveInfo
                 if ($fieldType instanceof WrappingType) {
                     $fieldType = $fieldType->getInnermostType();
                 }
-                $fields[$fieldName]['aliases'][$aliasName]['args'] = Values::getArgumentValues($fieldDef, $selectionNode, $this->variableValues);
+                $fields[$fieldName][$aliasName]['args'] = Values::getArgumentValues($fieldDef, $selectionNode, $this->variableValues);
 
                 if ($descend > 0 && $selectionNode->selectionSet !== null) {
-                    $fields[$fieldName]['aliases'][$aliasName]['fields'] = $this->foldSelectionWithAlias($selectionNode->selectionSet, $descend - 1, $fieldType);
+                    $fields[$fieldName][$aliasName]['fields'] = $this->foldSelectionWithAlias($selectionNode->selectionSet, $descend - 1, $fieldType);
                 }
             } elseif ($selectionNode instanceof FragmentSpreadNode) {
                 $spreadName = $selectionNode->name->value;

@@ -660,12 +660,10 @@ final class ResolveInfoTest extends TestCase
                 case 'NoAlias':
                     self::assertSame([
                         'level2' => [
-                            'aliases' => [
-                                'level2' => [
-                                    'args' => [
-                                        'width' => 1,
-                                        'height' => 1,
-                                    ],
+                            'level2' => [
+                                'args' => [
+                                    'width' => 1,
+                                    'height' => 1,
                                 ],
                             ],
                         ],
@@ -674,18 +672,16 @@ final class ResolveInfoTest extends TestCase
                 case 'NoAliasFirst':
                     self::assertSame([
                         'level2' => [
-                            'aliases' => [
-                                'level2' => [
-                                    'args' => [
-                                        'width' => 1,
-                                        'height' => 1,
-                                    ],
+                            'level2' => [
+                                'args' => [
+                                    'width' => 1,
+                                    'height' => 1,
                                 ],
-                                'level1000' => [
-                                    'args' => [
-                                        'width' => 2,
-                                        'height' => 20,
-                                    ],
+                            ],
+                            'level1000' => [
+                                'args' => [
+                                    'width' => 2,
+                                    'height' => 20,
                                 ],
                             ],
                         ],
@@ -694,18 +690,16 @@ final class ResolveInfoTest extends TestCase
                 case 'NoAliasLast':
                     self::assertSame([
                         'level2' => [
-                            'aliases' => [
-                                'level2000' => [
-                                    'args' => [
-                                        'width' => 1,
-                                        'height' => 1,
-                                    ],
+                            'level2000' => [
+                                'args' => [
+                                    'width' => 1,
+                                    'height' => 1,
                                 ],
-                                'level2' => [
-                                    'args' => [
-                                        'width' => 2,
-                                        'height' => 20,
-                                    ],
+                            ],
+                            'level2' => [
+                                'args' => [
+                                    'width' => 2,
+                                    'height' => 20,
                                 ],
                             ],
                         ],
@@ -714,18 +708,16 @@ final class ResolveInfoTest extends TestCase
                 case 'AllAliases':
                     self::assertSame([
                         'level2' => [
-                            'aliases' => [
-                                'level1000' => [
-                                    'args' => [
-                                        'width' => 1,
-                                        'height' => 1,
-                                    ],
+                            'level1000' => [
+                                'args' => [
+                                    'width' => 1,
+                                    'height' => 1,
                                 ],
-                                'level2000' => [
-                                    'args' => [
-                                        'width' => 2,
-                                        'height' => 20,
-                                    ],
+                            ],
+                            'level2000' => [
+                                'args' => [
+                                    'width' => 2,
+                                    'height' => 20,
                                 ],
                             ],
                         ],
@@ -735,38 +727,32 @@ final class ResolveInfoTest extends TestCase
                 case 'WithFragments':
                     self::assertSame([
                         'level2' => [
-                            'aliases' => [
-                                'level3000' => [
-                                    'args' => [
-                                        'width' => 1,
-                                        'height' => 1,
-                                    ],
+                            'level3000' => [
+                                'args' => [
+                                    'width' => 1,
+                                    'height' => 1,
                                 ],
-                                'level2' => [
-                                    'args' => [
-                                        'width' => 3,
-                                        'height' => 30,
-                                    ],
+                            ],
+                            'level2' => [
+                                'args' => [
+                                    'width' => 3,
+                                    'height' => 30,
                                 ],
                             ],
                         ],
                         'level2bis' => [
-                            'aliases' => [
-                                'level2bis' => [
-                                    'args' => [],
-                                    'fields' => [
+                            'level2bis' => [
+                                'args' => [],
+                                'fields' => [
+                                    'level3' => [
+                                        'level3000' => [
+                                            'args' => [
+                                                'length' => 2,
+                                            ],
+                                        ],
                                         'level3' => [
-                                            'aliases' => [
-                                                'level3000' => [
-                                                    'args' => [
-                                                        'length' => 2,
-                                                    ],
-                                                ],
-                                                'level3' => [
-                                                    'args' => [
-                                                        'length' => 10,
-                                                    ],
-                                                ],
+                                            'args' => [
+                                                'length' => 10,
                                             ],
                                         ],
                                     ],
@@ -783,46 +769,36 @@ final class ResolveInfoTest extends TestCase
                     $aliasArgs = $info->getFieldSelectionWithAlias($depth);
                     self::assertSame([
                         'level2bis' => [
-                            'aliases' => [
-                                'level2Alias' => [
-                                    'args' => [],
-                                    'fields' => [
+                            'level2Alias' => [
+                                'args' => [],
+                                'fields' => [
+                                    'level3deeper' => [
                                         'level3deeper' => [
-                                            'aliases' => [
-                                                'level3deeper' => [
-                                                    'args' => [],
-                                                    'fields' => [
-                                                        'level4evenmore' => [
-                                                            'aliases' => [
-                                                                'level4evenmore' => [
-                                                                    'args' => [],
-                                                                    'fields' => [
-                                                                        'level5' => [
-                                                                            'aliases' => [
-                                                                                'level5' => [
-                                                                                    'args' => [
-                                                                                        'crazyness' => 0.124,
-                                                                                    ],
-                                                                                ],
-                                                                                'lastAlias' => [
-                                                                                    'args' => [
-                                                                                        'crazyness' => 0.758,
-                                                                                    ],
-                                                                                ],
-                                                                            ],
-                                                                        ],
+                                            'args' => [],
+                                            'fields' => [
+                                                'level4evenmore' => [
+                                                    'level4evenmore' => [
+                                                        'args' => [],
+                                                        'fields' => [
+                                                            'level5' => [
+                                                                'level5' => [
+                                                                    'args' => [
+                                                                        'crazyness' => 0.124,
+                                                                    ],
+                                                                ],
+                                                                'lastAlias' => [
+                                                                    'args' => [
+                                                                        'crazyness' => 0.758,
                                                                     ],
                                                                 ],
                                                             ],
                                                         ],
-                                                        'level4' => [
-                                                            'aliases' => [
-                                                                'level4' => [
-                                                                    'args' => [
-                                                                        'temperature' => -20,
-                                                                    ],
-                                                                ],
-                                                            ],
+                                                    ],
+                                                ],
+                                                'level4' => [
+                                                    'level4' => [
+                                                        'args' => [
+                                                            'temperature' => -20,
                                                         ],
                                                     ],
                                                 ],
