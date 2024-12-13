@@ -703,6 +703,21 @@ final class ResolveInfoTest extends TestCase
             ],
         ]);
 
+        $queryList = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'level1' => [
+                    'type' => Type::listOf($level1),
+                    'resolve' => $returnResolveInfo,
+                    'args' => [
+                        'testName' => [
+                            'type' => Type::string(),
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
         $result1 = GraphQL::executeQuery(
             new Schema(['query' => $query]),
             <<<GRAPHQL
@@ -828,6 +843,18 @@ final class ResolveInfoTest extends TestCase
             GRAPHQL
         );
 
+        $result9 = GraphQL::executeQuery(
+            new Schema(['query' => $queryList]),
+            <<<GRAPHQL
+            query {
+              level1(testName: "NoAliasFirst") {
+                level2(width: 1, height: 1)
+                level1000: level2(width: 2, height: 20)
+              }
+            }
+            GRAPHQL
+        );
+
         self::assertEmpty($result1->errors, 'Query NoAlias should have no errors');
         self::assertEmpty($result2->errors, 'Query NoAliasFirst should have no errors');
         self::assertEmpty($result3->errors, 'Query NoAliasLast should have no errors');
@@ -836,6 +863,7 @@ final class ResolveInfoTest extends TestCase
         self::assertEmpty($result6->errors, 'Query WithFragments should have no errors');
         self::assertSame('Failed asserting that two arrays are identical.', $result7->errors[0]->getMessage(), 'Query DeepestTooLowDepth should have failed');
         self::assertEmpty($result8->errors, 'Query Deepest should have no errors');
+        self::assertEmpty($result9->errors, 'Query With ListOf type should have no errors');
     }
 
     public function testPathAndUnaliasedPath(): void

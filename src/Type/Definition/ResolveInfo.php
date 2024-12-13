@@ -397,6 +397,10 @@ class ResolveInfo
         /** @var array<string, bool> $fields */
         $fields = [];
 
+        if ($parentType instanceof WrappingType) {
+            $parentType = $parentType->getInnermostType();
+        }
+
         foreach ($selectionSet->selections as $selection) {
             if ($selection instanceof FieldNode) {
                 $fieldName = $selection->name->value;
@@ -410,9 +414,6 @@ class ResolveInfo
 
                 $fieldDef = $parentType->getField($fieldName);
                 $fieldType = $fieldDef->getType();
-                if ($fieldType instanceof WrappingType) {
-                    $fieldType = $fieldType->getInnermostType();
-                }
                 $fields[$fieldName][$aliasName]['args'] = Values::getArgumentValues($fieldDef, $selection, $this->variableValues);
 
                 if ($descend <= 0) {
