@@ -175,11 +175,11 @@ final class LazyDefinitionTest extends TestCaseBase
         self::assertSame($blogSchema->getQueryType(), $type);
 
         $field = $type->getField('url');
-        self::assertSame($field->name, 'url');
+        self::assertSame('url', $field->name);
         self::assertInstanceOf(StringType::class, $field->getType());
 
         $field = $type->getField('width');
-        self::assertSame($field->name, 'width');
+        self::assertSame('width', $field->name);
         self::assertInstanceOf(IntType::class, $field->getType());
     }
 

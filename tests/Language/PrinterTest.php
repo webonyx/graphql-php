@@ -209,13 +209,13 @@ GRAPHQL;
         );
 
         self::assertSame(
-            Printer::doPrint($fragmentWithVariable),
             <<<'GRAPHQL'
 fragment Foo($a: ComplexType, $b: Boolean = false) on TestType {
   id
 }
 
-GRAPHQL
+GRAPHQL,
+            Printer::doPrint($fragmentWithVariable)
         );
     }
 

@@ -154,12 +154,12 @@ final class DefinitionTest extends TestCaseBase
         self::assertSame($blogSchema->getQueryType(), $this->blogQuery);
 
         $articleField = $this->blogQuery->getField('article');
-        self::assertSame($articleField->name, 'article');
+        self::assertSame('article', $articleField->name);
 
         $articleFieldType = $articleField->getType();
         self::assertInstanceOf(ObjectType::class, $articleFieldType);
         self::assertSame($articleFieldType, $this->blogArticle);
-        self::assertSame($articleFieldType->name, 'Article');
+        self::assertSame('Article', $articleFieldType->name);
 
         $titleField = $articleFieldType->getField('title');
         self::assertSame('title', $titleField->name);
@@ -213,8 +213,8 @@ final class DefinitionTest extends TestCaseBase
         $subType = $sub->getType();
         self::assertInstanceOf(ObjectType::class, $subType);
         self::assertEquals($subType, $this->blogArticle);
-        self::assertSame($subType->name, 'Article');
-        self::assertSame($sub->name, 'articleSubscribe');
+        self::assertSame('Article', $subType->name);
+        self::assertSame('articleSubscribe', $sub->name);
     }
 
     /**
