@@ -3,13 +3,13 @@ it: fix stan test docs ## Run the commonly used targets
 
 .PHONY: help
 help: ## Displays this list of targets with descriptions
-	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}'
+	@grep --extended-regexp '^[a-zA-Z0-9_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: setup
 setup: vendor phpstan.neon ## Set up the project
 
 .PHONY: fix
-fix: rector php-cs-fixer ## Automatic code fixes
+fix: rector php-cs-fixer prettier ## Automatic code fixes
 
 .PHONY: rector
 rector: vendor ## Automatic code fixes with Rector
@@ -18,6 +18,10 @@ rector: vendor ## Automatic code fixes with Rector
 .PHONY: php-cs-fixer
 php-cs-fixer: vendor ## Fix code style
 	composer php-cs-fixer
+
+.PHONY: prettier
+prettier: ## Format code with prettier
+	prettier --write --tab-width=2 *.md **/*.md
 
 phpstan.neon:
 	printf "includes:\n  - phpstan.neon.dist" > phpstan.neon
