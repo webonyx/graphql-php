@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.19.1
+
+### Fixed
+
+- Handle fields that return lists in `ResolveInfo::getFieldSelectionWithAliases` https://github.com/webonyx/graphql-php/pull/1664
+
 ## v15.19.0
 
 ### Added
