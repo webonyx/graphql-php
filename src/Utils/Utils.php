@@ -217,12 +217,10 @@ class Utils
 
         return \array_reduce(
             \range(1, $selectedLength - 1),
-            static function ($list, $index) use ($selected, $selectedLength): string {
-                return $list
+            static fn ($list, $index): string => $list
                     . ($selectedLength > 2 ? ', ' : ' ')
                     . ($index === $selectedLength - 1 ? 'or ' : '')
-                    . $selected[$index];
-            },
+                    . $selected[$index],
             $firstSelected
         );
     }
