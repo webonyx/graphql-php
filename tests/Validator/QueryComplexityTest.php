@@ -59,6 +59,19 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 2, 3);
     }
 
+    /** @dataProvider fragmentQueriesOnRootProvider */
+    public function testFragmentQueriesOnRoot(string $query): void
+    {
+        $this->assertDocumentValidators($query, 12, 13);
+    }
+
+    /** @return iterable<array<string>> */
+    public function fragmentQueriesOnRootProvider(): iterable
+    {
+        yield ['fragment humanFragment on QueryRoot { human { dogs { name } } } query { ...humanFragment }']; // success example
+        yield ['query { ...humanFragment } fragment humanFragment on QueryRoot { human { dogs { name } } }']; // failing example, changed order see https://github.com/webonyx/graphql-php/issues/785
+    }
+
     public function testAliasesQueries(): void
     {
         $query = 'query MyQuery { thomas: human(name: "Thomas") { firstName } jeremy: human(name: "Jeremy") { firstName } }';
