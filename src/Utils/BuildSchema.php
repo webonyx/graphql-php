@@ -245,24 +245,24 @@ class BuildSchema
         return new Schema(
             (new SchemaConfig())
             // @phpstan-ignore-next-line
-            ->setQuery(isset($operationTypes['query'])
-                ? $definitionBuilder->maybeBuildType($operationTypes['query'])
-                : null)
+                ->setQuery(isset($operationTypes['query'])
+                    ? $definitionBuilder->maybeBuildType($operationTypes['query'])
+                    : null)
             // @phpstan-ignore-next-line
-            ->setMutation(isset($operationTypes['mutation'])
-                ? $definitionBuilder->maybeBuildType($operationTypes['mutation'])
-                : null)
+                ->setMutation(isset($operationTypes['mutation'])
+                    ? $definitionBuilder->maybeBuildType($operationTypes['mutation'])
+                    : null)
             // @phpstan-ignore-next-line
-            ->setSubscription(isset($operationTypes['subscription'])
-                ? $definitionBuilder->maybeBuildType($operationTypes['subscription'])
-                : null)
-            ->setTypeLoader(static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name))
-            ->setDirectives($directives)
-            ->setAstNode($schemaDef)
-            ->setTypes(fn (): array => \array_map(
-                static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->getName()->value),
-                $typeDefinitionsMap,
-            ))
+                ->setSubscription(isset($operationTypes['subscription'])
+                    ? $definitionBuilder->maybeBuildType($operationTypes['subscription'])
+                    : null)
+                ->setTypeLoader(static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name))
+                ->setDirectives($directives)
+                ->setAstNode($schemaDef)
+                ->setTypes(fn (): array => \array_map(
+                    static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->getName()->value),
+                    $typeDefinitionsMap,
+                ))
         );
     }
 

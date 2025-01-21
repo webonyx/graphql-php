@@ -48,8 +48,8 @@ $mutationType = new ObjectType([
 // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
 $schema = new Schema(
     (new SchemaConfig())
-    ->setQuery($queryType)
-    ->setMutation($mutationType)
+        ->setQuery($queryType)
+        ->setMutation($mutationType)
 );
 
 $rootValue = ['prefix' => 'You said: '];
