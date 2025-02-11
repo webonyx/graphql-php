@@ -379,11 +379,7 @@ class Parser
             return $token;
         }
 
-        throw new SyntaxError(
-            $this->lexer->source,
-            $token->start,
-            "Expected {$kind}, found {$token->getDescription()}"
-        );
+        throw new SyntaxError($this->lexer->source, $token->start, "Expected {$kind}, found {$token->getDescription()}");
     }
 
     /**
@@ -397,11 +393,7 @@ class Parser
     {
         $token = $this->lexer->token;
         if ($token->kind !== Token::NAME || $token->value !== $value) {
-            throw new SyntaxError(
-                $this->lexer->source,
-                $token->start,
-                "Expected \"{$value}\", found {$token->getDescription()}"
-            );
+            throw new SyntaxError($this->lexer->source, $token->start, "Expected \"{$value}\", found {$token->getDescription()}");
         }
 
         $this->lexer->advance();

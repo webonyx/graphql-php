@@ -70,8 +70,8 @@ class HugeSchemaBench
     {
         return new Schema(
             (new SchemaConfig())
-            ->setQuery($this->schemaGenerator->buildQueryType())
-            ->setTypeLoader(fn (string $name): Type => $this->schemaGenerator->loadType($name))
+                ->setQuery($this->schemaGenerator->buildQueryType())
+                ->setTypeLoader(fn (string $name): Type => $this->schemaGenerator->loadType($name))
         );
     }
 }

@@ -238,23 +238,14 @@ class Values
                 $safeArgType = Utils::printSafe($argType);
 
                 if ($isNull) {
-                    throw new Error(
-                        "Argument \"{$name}\" of non-null type \"{$safeArgType}\" must not be null.",
-                        $referenceNode
-                    );
+                    throw new Error("Argument \"{$name}\" of non-null type \"{$safeArgType}\" must not be null.", $referenceNode);
                 }
 
                 if ($argumentValueNode instanceof VariableNode) {
-                    throw new Error(
-                        "Argument \"{$name}\" of required type \"{$safeArgType}\" was provided the variable \"\${$argumentValueNode->name->value}\" which was not provided a runtime value.",
-                        [$argumentValueNode]
-                    );
+                    throw new Error("Argument \"{$name}\" of required type \"{$safeArgType}\" was provided the variable \"\${$argumentValueNode->name->value}\" which was not provided a runtime value.", [$argumentValueNode]);
                 }
 
-                throw new Error(
-                    "Argument \"{$name}\" of required type \"{$safeArgType}\" was not provided.",
-                    $referenceNode
-                );
+                throw new Error("Argument \"{$name}\" of required type \"{$safeArgType}\" was not provided.", $referenceNode);
             } elseif ($hasValue) {
                 assert($argumentValueNode instanceof Node);
 
@@ -275,10 +266,7 @@ class Values
                         // execution. This is a runtime check to ensure execution does not
                         // continue with an invalid argument value.
                         $invalidValue = Printer::doPrint($argumentValueNode);
-                        throw new Error(
-                            "Argument \"{$name}\" has invalid value {$invalidValue}.",
-                            [$argumentValueNode]
-                        );
+                        throw new Error("Argument \"{$name}\" has invalid value {$invalidValue}.", [$argumentValueNode]);
                     }
 
                     $coercedValues[$name] = $coercedValue;

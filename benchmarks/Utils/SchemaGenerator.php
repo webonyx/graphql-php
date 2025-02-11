@@ -35,7 +35,7 @@ class SchemaGenerator
     {
         return new Schema(
             (new SchemaConfig())
-            ->setQuery($this->buildQueryType())
+                ->setQuery($this->buildQueryType())
         );
     }
 

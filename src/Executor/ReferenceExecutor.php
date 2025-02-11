@@ -355,10 +355,7 @@ class ReferenceExecutor implements ExecutorImplementation
             case 'query':
                 $queryType = $schema->getQueryType();
                 if ($queryType === null) {
-                    throw new Error(
-                        'Schema does not define the required query root type.',
-                        [$operation]
-                    );
+                    throw new Error('Schema does not define the required query root type.', [$operation]);
                 }
 
                 return $queryType;
@@ -366,10 +363,7 @@ class ReferenceExecutor implements ExecutorImplementation
             case 'mutation':
                 $mutationType = $schema->getMutationType();
                 if ($mutationType === null) {
-                    throw new Error(
-                        'Schema is not configured for mutations.',
-                        [$operation]
-                    );
+                    throw new Error('Schema is not configured for mutations.', [$operation]);
                 }
 
                 return $mutationType;
@@ -377,19 +371,13 @@ class ReferenceExecutor implements ExecutorImplementation
             case 'subscription':
                 $subscriptionType = $schema->getSubscriptionType();
                 if ($subscriptionType === null) {
-                    throw new Error(
-                        'Schema is not configured for subscriptions.',
-                        [$operation]
-                    );
+                    throw new Error('Schema is not configured for subscriptions.', [$operation]);
                 }
 
                 return $subscriptionType;
 
             default:
-                throw new Error(
-                    'Can only execute queries, mutations and subscriptions.',
-                    [$operation]
-                );
+                throw new Error('Can only execute queries, mutations and subscriptions.', [$operation]);
         }
     }
 
@@ -1075,11 +1063,7 @@ class ReferenceExecutor implements ExecutorImplementation
         } catch (\Throwable $error) {
             $safeReturnType = Utils::printSafe($returnType);
             $safeResult = Utils::printSafe($result);
-            throw new InvariantViolation(
-                "Expected a value of type {$safeReturnType} but received: {$safeResult}. {$error->getMessage()}",
-                0,
-                $error
-            );
+            throw new InvariantViolation("Expected a value of type {$safeReturnType} but received: {$safeResult}. {$error->getMessage()}", 0, $error);
         }
     }
 

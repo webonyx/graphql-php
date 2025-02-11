@@ -197,10 +197,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     {
         if (! $valueNode instanceof EnumValueNode) {
             $valueStr = Printer::doPrint($valueNode);
-            throw new Error(
-                "Enum \"{$this->name}\" cannot represent non-enum value: {$valueStr}.{$this->didYouMean($valueStr)}",
-                $valueNode
-            );
+            throw new Error("Enum \"{$this->name}\" cannot represent non-enum value: {$valueStr}.{$this->didYouMean($valueStr)}", $valueNode);
         }
 
         $name = $valueNode->value;

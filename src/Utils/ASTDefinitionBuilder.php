@@ -275,14 +275,7 @@ class ASTDefinitionBuilder
                     );
                 } catch (\Throwable $e) {
                     $class = static::class;
-                    throw new Error(
-                        "Type config decorator passed to {$class} threw an error when building {$typeName} type: {$e->getMessage()}",
-                        null,
-                        null,
-                        [],
-                        null,
-                        $e
-                    );
+                    throw new Error("Type config decorator passed to {$class} threw an error when building {$typeName} type: {$e->getMessage()}", null, null, [], null, $e);
                 }
 
                 // @phpstan-ignore-next-line should not happen, but function types are not enforced by PHP
