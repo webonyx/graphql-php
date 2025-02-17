@@ -57,13 +57,13 @@ final class SchemaExtenderTest extends TestCaseBase
     }
 
     /**
-     * @throws \JsonException
+     * @return array<string>
      * @throws Error
      * @throws InvariantViolation
      * @throws SerializationError
      * @throws SyntaxError
      *
-     * @return array<string>
+     * @throws \JsonException
      */
     private static function schemaDefinitions(Schema $schema): array
     {
@@ -1095,8 +1095,8 @@ GRAPHQL,
 
         self::assertEmpty($extendedSchema->validate());
         self::assertSame(
-            // TODO see https://github.com/webonyx/graphql-php/issues/1140
-            // scalar SomeScalar @specifiedBy(url: \"http://example.com/foo_spec\")
+        // TODO see https://github.com/webonyx/graphql-php/issues/1140
+        // scalar SomeScalar @specifiedBy(url: \"http://example.com/foo_spec\")
             <<<GRAPHQL
                 type SomeObject implements SomeInterface & NewInterface & AnotherNewInterface {
                   oldField: String
@@ -1646,7 +1646,7 @@ GRAPHQL,
             'fields' => [
                 'hello' => [
                     'type' => Type::string(),
-                    'resolve' => static fn (): string => $value,
+                    'resolve' => static fn(): string => $value,
                 ],
             ],
         ]);
@@ -1683,7 +1683,7 @@ GRAPHQL,
                     'type' => Type::string(),
                 ],
             ],
-            'resolveField' => static fn (): string => $value,
+            'resolveField' => static fn(): string => $value,
         ]);
 
         $schema = new Schema(['query' => $queryType]);
@@ -1776,11 +1776,11 @@ GRAPHQL,
     public function testCustomConfigIsTransferred(): void
     {
         $fieldConfigDecorator = function (
-            array $typeConfig,
+            array               $typeConfig,
             FieldDefinitionNode $fieldDefinitionNode,
-            Node $node
+            Node                $node
         ) {
-            if (($node instanceof ObjectTypeDefinitionNode || $node instanceof ObjectTypeExtensionNode) && $node->name->value === 'Test' && $fieldDefinitionNode->name->value === 'field1') {
+            if (($node instanceof ObjectTypeDefinitionNode || $node instanceof ObjectTypeExtensionNode) && $node->name->value === 'Test' && ($fieldDefinitionNode->name->value === 'field1' || $fieldDefinitionNode->name->value === 'field2')) {
                 $typeConfig['customAttr'] = true;
             }
 
@@ -1797,11 +1797,13 @@ GRAPHQL,
         $field1 = $type->getField('field1');
         self::assertArrayHasKey('customAttr', $field1->config);
 
-        $extendedSchema = SchemaExtender::extend($schema, Parser::parse('scalar Foo'), [], null, $fieldConfigDecorator);
+        $extendedSchema = SchemaExtender::extend($schema, Parser::parse(/** @lang GraphQL */ 'extend type Test { field2: String! }'), [], null, $fieldConfigDecorator);
         $type = $extendedSchema->getType('Test');
         assert($type instanceof ObjectType);
         $field1 = $type->getField('field1');
         self::assertArrayHasKey('customAttr', $field1->config);
+        $field2 = $type->getField('field2');
+        self::assertArrayHasKey('customAttr', $field2->config);
     }
 
     public function testSupportsTypeConfigDecorator(): void
@@ -1815,7 +1817,7 @@ GRAPHQL,
                     'type' => Type::string(),
                 ],
             ],
-            'resolveField' => static fn (): string => $helloValue,
+            'resolveField' => static fn(): string => $helloValue,
         ]);
 
         $schema = new Schema(['query' => $queryType]);
@@ -1834,13 +1836,13 @@ GRAPHQL,
         $fooValue = 'bar';
         $typeConfigDecorator = static function ($typeConfig) use ($fooValue) {
             if ($typeConfig['name'] === 'Foo') {
-                $typeConfig['resolveField'] = static fn (): string => $fooValue;
+                $typeConfig['resolveField'] = static fn(): string => $fooValue;
             }
 
             return $typeConfig;
         };
 
-        $resolveFn = static fn (): string => 'coming from field decorated resolver';
+        $resolveFn = static fn(): string => 'coming from field decorated resolver';
         $fieldConfigDecorator = static function (array $typeConfig, FieldDefinitionNode $fieldDefinitionNode) use ($resolveFn) {
             /** @var UnnamedFieldDefinitionConfig $typeConfig */
             if ($fieldDefinitionNode->name->value === 'fieldDecorated') {
@@ -1938,7 +1940,7 @@ GRAPHQL,
                 'someUnion' => ['type' => $SomeUnionClassType],
                 'someInterface' => ['type' => $SomeInterfaceClassType],
             ],
-            'resolveField' => static fn (): \stdClass => new \stdClass(),
+            'resolveField' => static fn(): \stdClass => new \stdClass(),
         ]);
 
         $schema = new Schema(['query' => $QueryType]);
@@ -2000,7 +2002,7 @@ GRAPHQL,
             'fields' => [
                 'someInterface' => ['type' => $SomeInterfaceType],
             ],
-            'resolveField' => static fn (): \stdClass => new \stdClass(),
+            'resolveField' => static fn(): \stdClass => new \stdClass(),
         ]);
 
         $schema = new Schema([
