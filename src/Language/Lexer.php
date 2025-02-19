@@ -244,11 +244,7 @@ class Lexer
                     ->readString($line, $col, $prev);
         }
 
-        throw new SyntaxError(
-            $this->source,
-            $position,
-            $this->unexpectedCharacterMessage($code)
-        );
+        throw new SyntaxError($this->source, $position, $this->unexpectedCharacterMessage($code));
     }
 
     /** @throws \JsonException */
@@ -329,11 +325,7 @@ class Lexer
             [$char, $code] = $this->moveStringCursor(1, 1)->readChar();
 
             if ($code >= 48 && $code <= 57) {
-                throw new SyntaxError(
-                    $this->source,
-                    $this->position,
-                    'Invalid number, unexpected digit after 0: ' . Utils::printCharCode($code)
-                );
+                throw new SyntaxError($this->source, $this->position, 'Invalid number, unexpected digit after 0: ' . Utils::printCharCode($code));
             }
         } else {
             $value .= $this->readDigits();
@@ -398,11 +390,7 @@ class Lexer
             $code = null;
         }
 
-        throw new SyntaxError(
-            $this->source,
-            $this->position,
-            'Invalid number, expected digit but got: ' . Utils::printCharCode($code)
-        );
+        throw new SyntaxError($this->source, $this->position, 'Invalid number, expected digit but got: ' . Utils::printCharCode($code));
     }
 
     /**
@@ -477,11 +465,7 @@ class Lexer
                         $position = $this->position;
                         [$hex] = $this->readChars(4);
                         if (\preg_match('/[0-9a-fA-F]{4}/', $hex) !== 1) {
-                            throw new SyntaxError(
-                                $this->source,
-                                $position - 1,
-                                "Invalid character escape sequence: \\u{$hex}"
-                            );
+                            throw new SyntaxError($this->source, $position - 1, "Invalid character escape sequence: \\u{$hex}");
                         }
 
                         $code = \hexdec($hex);
@@ -492,11 +476,7 @@ class Lexer
                         if ($highOrderByte >= 0xD8 && $highOrderByte <= 0xDF) {
                             [$utf16Continuation] = $this->readChars(6);
                             if (\preg_match('/^\\\u[0-9a-fA-F]{4}$/', $utf16Continuation) !== 1) {
-                                throw new SyntaxError(
-                                    $this->source,
-                                    $this->position - 5,
-                                    'Invalid UTF-16 trailing surrogate: ' . $utf16Continuation
-                                );
+                                throw new SyntaxError($this->source, $this->position - 5, 'Invalid UTF-16 trailing surrogate: ' . $utf16Continuation);
                             }
 
                             $surrogatePairHex = $hex . \substr($utf16Continuation, 2, 4);
@@ -513,11 +493,7 @@ class Lexer
                         continue 2;
                     default:
                         $chr = Utils::chr($code);
-                        throw new SyntaxError(
-                            $this->source,
-                            $this->position - 1,
-                            "Invalid character escape sequence: \\{$chr}"
-                        );
+                        throw new SyntaxError($this->source, $this->position - 1, "Invalid character escape sequence: \\{$chr}");
                 }
 
                 $chunk = '';
@@ -528,11 +504,7 @@ class Lexer
             [$char, $code, $bytes] = $this->readChar();
         }
 
-        throw new SyntaxError(
-            $this->source,
-            $this->position,
-            'Unterminated string.'
-        );
+        throw new SyntaxError($this->source, $this->position, 'Unterminated string.');
     }
 
     /**
@@ -612,11 +584,7 @@ class Lexer
             [$char, $code, $bytes] = $this->readChar();
         }
 
-        throw new SyntaxError(
-            $this->source,
-            $this->position,
-            'Unterminated string.'
-        );
+        throw new SyntaxError($this->source, $this->position, 'Unterminated string.');
     }
 
     /**

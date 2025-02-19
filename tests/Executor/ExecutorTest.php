@@ -463,15 +463,7 @@ final class ExecutorTest extends TestCase
                 throw new UserError('Error getting asyncReturnError');
             }),
             'asyncReturnErrorWithExtensions' => static fn (): Deferred => new Deferred(static function (): void {
-                throw new Error(
-                    'Error getting asyncReturnErrorWithExtensions',
-                    null,
-                    null,
-                    [],
-                    null,
-                    null,
-                    ['foo' => 'bar']
-                );
+                throw new Error('Error getting asyncReturnErrorWithExtensions', null, null, [], null, null, ['foo' => 'bar']);
             }),
         ];
 
