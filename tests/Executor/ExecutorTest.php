@@ -1182,6 +1182,7 @@ final class ExecutorTest extends TestCase
             'name' => 'ArrayAccess',
             'fields' => [
                 'set' => Type::int(),
+                'setProperty' => Type::int(),
                 'unsetNull' => Type::int(),
                 'unsetThrow' => Type::int(),
             ],
@@ -1216,6 +1217,8 @@ final class ExecutorTest extends TestCase
                     'arrayAccess' => [
                         'type' => $ArrayAccess,
                         'resolve' => static fn (): \ArrayAccess => new class() implements \ArrayAccess {
+                            public ?int $setProperty = 1;
+
                             /** @param mixed $offset */
                             #[\ReturnTypeWillChange]
                             public function offsetExists($offset): bool
@@ -1309,6 +1312,7 @@ final class ExecutorTest extends TestCase
                 }
                 arrayAccess {
                     set
+                    setProperty
                     unsetNull
                     unsetThrow
                 }
@@ -1336,6 +1340,7 @@ final class ExecutorTest extends TestCase
                     ],
                     'arrayAccess' => [
                         'set' => 1,
+                        'setProperty' => 1,
                         'unsetNull' => null,
                         'unsetThrow' => null,
                     ],
