@@ -1298,7 +1298,7 @@ visitor API:
    ]
    ]);
 
-@phpstan-type NodeVisitor callable(Node): (VisitorOperation|null|false|void)
+@phpstan-type NodeVisitor callable(covariant Node): (VisitorOperation|null|false|void)
 @phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
 
 @see \GraphQL\Tests\Language\VisitorTest
