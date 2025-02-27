@@ -1299,6 +1299,8 @@ visitor API:
    ]);
 
 @phpstan-type VisitorArray array{
+enter?: callable(Node): (VisitorOperation|null|false|void),
+leave?: callable(Node): (VisitorOperation|null|false|void),
 Name?: array{
 enter?: callable(NameNode): (VisitorOperation|null|false|void),
 leave?: callable(NameNode): (VisitorOperation|null|false|void),
