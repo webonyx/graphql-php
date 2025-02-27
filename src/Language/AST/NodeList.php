@@ -6,7 +6,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\AST;
 
 /**
- * @template T of Node
+ * @template T of Node = Node
  *
  * @phpstan-implements \ArrayAccess<array-key, T>
  * @phpstan-implements \IteratorAggregate<array-key, T>

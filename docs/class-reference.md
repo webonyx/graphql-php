@@ -1298,8 +1298,103 @@ visitor API:
    ]
    ]);
 
-@phpstan-type NodeVisitor callable(Node): (VisitorOperation|null|false|void)
-@phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
+@phpstan-type VisitorReturnType Node|VisitorOperation|null|false|void
+@phpstan-type VisitorArray array{
+enter?: callable(Node, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(Node, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+Name?: array{
+enter?: callable(NameNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(NameNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(NameNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+Document?: array{
+enter?: callable(DocumentNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(DocumentNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(DocumentNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+OperationDefinition?: array{
+enter?: callable(OperationDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(OperationDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(OperationDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+VariableDefinition?: array{
+enter?: callable(VariableDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(VariableDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(VariableDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+SchemaDefinition?: array{
+enter?: callable(SchemaDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(SchemaDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(SchemaDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+OperationTypeDefinition?: array{
+enter?: callable(OperationTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(OperationTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(OperationTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+ScalarTypeDefinition?: array{
+enter?: callable(ScalarTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(ScalarTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(ScalarTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+ObjectTypeDefinition?: array{
+enter?: callable(ObjectTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(ObjectTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(ObjectTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+FieldDefinition?: array{
+enter?: callable(FieldDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(FieldDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(FieldDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+InputValueDefinition?: array{
+enter?: callable(InputValueDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(InputValueDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(InputValueDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+InterfaceTypeDefinition?: array{
+enter?: callable(InterfaceTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(InterfaceTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(InterfaceTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+UnionTypeDefinition?: array{
+enter?: callable(UnionTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(UnionTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(UnionTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+EnumTypeDefinition?: array{
+enter?: callable(EnumTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(EnumTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(EnumTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+EnumValueDefinition?: array{
+enter?: callable(EnumValueDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(EnumValueDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(EnumValueDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+InputObjectTypeDefinition?: array{
+enter?: callable(InputObjectTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(InputObjectTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(InputObjectTypeDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+SchemaExtension?: array{
+enter?: callable(SchemaExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(SchemaExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(SchemaExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+DirectiveDefinition?: array{
+enter?: callable(DirectiveDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(DirectiveDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(DirectiveDefinitionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+ScalarTypeExtension?: array{
+enter?: callable(ScalarTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(ScalarTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(ScalarTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+ObjectTypeExtension?: array{
+enter?: callable(ObjectTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(ObjectTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(ObjectTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+InterfaceTypeExtension?: array{
+enter?: callable(InterfaceTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(InterfaceTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(InterfaceTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+UnionTypeExtension?: array{
+enter?: callable(UnionTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(UnionTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(UnionTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+EnumTypeExtension?: array{
+enter?: callable(EnumTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(EnumTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(EnumTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+InputObjectTypeExtension?: array{
+enter?: callable(InputObjectTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+leave?: callable(InputObjectTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}|callable(InputObjectTypeExtensionNode, string, null|Node|NodeList, array<int, int|string>, array<int, Node|NodeList>): VisitorReturnType,
+}
 
 @see \GraphQL\Tests\Language\VisitorTest
 

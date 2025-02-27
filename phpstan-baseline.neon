@@ -76,11 +76,6 @@ parameters:
 			path: src/Utils/AST.php
 
 		-
-			message: "#^Method GraphQL\\\\Validator\\\\Rules\\\\KnownDirectives\\:\\:getDirectiveLocationForASTPath\\(\\) has parameter \\$ancestors with generic class GraphQL\\\\Language\\\\AST\\\\NodeList but does not specify its types\\: T$#"
-			count: 1
-			path: src/Validator/Rules/KnownDirectives.php
-
-		-
 			message: "#^Method GraphQL\\\\Validator\\\\Rules\\\\OverlappingFieldsCanBeMerged\\:\\:getFieldsAndFragmentNames\\(\\) should return array\\{array\\<string, array\\<int, array\\{GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Language\\\\AST\\\\FieldNode, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null\\}\\>\\>, array\\<int, string\\>\\} but returns array\\{mixed, array\\<int, int\\|string\\>\\}\\.$#"
 			count: 1
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php

@@ -3,15 +3,15 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
 
 /**
  * @see Node, VisitorOperation
  *
- * @phpstan-type NodeVisitorFnResult VisitorOperation|mixed|null
- * @phpstan-type VisitorFnResult array<string, callable(Node): NodeVisitorFnResult>|array<string, array<string, callable(Node): NodeVisitorFnResult>>
- * @phpstan-type VisitorFn callable(ValidationContext): VisitorFnResult
+ * @phpstan-import-type VisitorArray from Visitor
+ * @phpstan-type VisitorFn callable(ValidationContext): VisitorArray
  */
 class CustomValidationRule extends ValidationRule
 {
