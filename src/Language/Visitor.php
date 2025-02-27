@@ -2,9 +2,32 @@
 
 namespace GraphQL\Language;
 
+use GraphQL\Language\AST\DirectiveDefinitionNode;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumTypeExtensionNode;
+use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeExtensionNode;
+use GraphQL\Language\AST\InputValueDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeExtensionNode;
+use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\ObjectTypeDefinitionNode;
+use GraphQL\Language\AST\ObjectTypeExtensionNode;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\OperationTypeDefinitionNode;
+use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Language\AST\ScalarTypeExtensionNode;
+use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\SchemaExtensionNode;
+use GraphQL\Language\AST\UnionTypeDefinitionNode;
+use GraphQL\Language\AST\UnionTypeExtensionNode;
+use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 
@@ -89,8 +112,102 @@ use GraphQL\Utils\Utils;
  *       ]
  *     ]);
  *
- * @phpstan-type NodeVisitor callable(covariant Node): (VisitorOperation|null|false|void)
- * @phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
+ * @phpstan-type VisitorArray array{
+ *      enter?: callable(Node): (VisitorOperation|null|false|void),
+ *      leave?: callable(Node): (VisitorOperation|null|false|void),
+ *      Name?: array{
+ *          enter?: callable(NameNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(NameNode): (VisitorOperation|null|false|void),
+ *      }|callable(NameNode): (VisitorOperation|null|false|void),
+ *      Document?: array{
+ *          enter?: callable(DocumentNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(DocumentNode): (VisitorOperation|null|false|void),
+ *      }|callable(DocumentNode): (VisitorOperation|null|false|void),
+ *      OperationDefinition?: array{
+ *          enter?: callable(OperationDefinitionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(OperationDefinitionNode): (VisitorOperation|null|false|void),
+ *      }|callable(OperationDefinitionNode): (VisitorOperation|null|false|void),
+ *      VariableDefinition?: array{
+ *          enter?: callable(VariableDefinitionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(VariableDefinitionNode): (VisitorOperation|null|false|void),
+ *      }|callable(VariableDefinitionNode): (VisitorOperation|null|false|void),
+ *      SchemaDefinition?: array{
+ *          enter?: callable(SchemaDefinitionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(SchemaDefinitionNode): (VisitorOperation|null|false|void),
+ *      }|callable(SchemaDefinitionNode): (VisitorOperation|null|false|void),
+ *      OperationTypeDefinition?: array{
+ *          enter?: callable(OperationTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(OperationTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *      }|callable(OperationTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *      ScalarTypeDefinition?: array{
+ *          enter?: callable(ScalarTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(ScalarTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *      }|callable(ScalarTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *      ObjectTypeDefinition?: array{
+ *          enter?: callable(ObjectTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(ObjectTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *      }|callable(ObjectTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *      FieldDefinition?: array{
+ *          enter?: callable(FieldDefinitionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(FieldDefinitionNode): (VisitorOperation|null|false|void),
+ *      }|callable(FieldDefinitionNode): (VisitorOperation|null|false|void),
+ *      InputValueDefinition?: array{
+ *          enter?: callable(InputValueDefinitionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(InputValueDefinitionNode): (VisitorOperation|null|false|void),
+ *      }|callable(InputValueDefinitionNode): (VisitorOperation|null|false|void),
+ *      InterfaceTypeDefinition?: array{
+ *          enter?: callable(InterfaceTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(InterfaceTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *      }|callable(InterfaceTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *      UnionTypeDefinition?: array{
+ *          enter?: callable(UnionTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(UnionTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *      }|callable(UnionTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *      EnumTypeDefinition?: array{
+ *          enter?: callable(EnumTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(EnumTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *      }|callable(EnumTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *      EnumValueDefinition?: array{
+ *          enter?: callable(EnumValueDefinitionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(EnumValueDefinitionNode): (VisitorOperation|null|false|void),
+ *      }|callable(EnumValueDefinitionNode): (VisitorOperation|null|false|void),
+ *      InputObjectTypeDefinition?: array{
+ *          enter?: callable(InputObjectTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(InputObjectTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *      }|callable(InputObjectTypeDefinitionNode): (VisitorOperation|null|false|void),
+ *      SchemaExtension?: array{
+ *          enter?: callable(SchemaExtensionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(SchemaExtensionNode): (VisitorOperation|null|false|void),
+ *      }|callable(SchemaExtensionNode): (VisitorOperation|null|false|void),
+ *      DirectiveDefinition?: array{
+ *          enter?: callable(DirectiveDefinitionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(DirectiveDefinitionNode): (VisitorOperation|null|false|void),
+ *      }|callable(DirectiveDefinitionNode): (VisitorOperation|null|false|void),
+ *      ScalarTypeExtension?: array{
+ *          enter?: callable(ScalarTypeExtensionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(ScalarTypeExtensionNode): (VisitorOperation|null|false|void),
+ *      }|callable(ScalarTypeExtensionNode): (VisitorOperation|null|false|void),
+ *      ObjectTypeExtension?: array{
+ *          enter?: callable(ObjectTypeExtensionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(ObjectTypeExtensionNode): (VisitorOperation|null|false|void),
+ *      }|callable(ObjectTypeExtensionNode): (VisitorOperation|null|false|void),
+ *      InterfaceTypeExtension?: array{
+ *          enter?: callable(InterfaceTypeExtensionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(InterfaceTypeExtensionNode): (VisitorOperation|null|false|void),
+ *      }|callable(InterfaceTypeExtensionNode): (VisitorOperation|null|false|void),
+ *      UnionTypeExtension?: array{
+ *          enter?: callable(UnionTypeExtensionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(UnionTypeExtensionNode): (VisitorOperation|null|false|void),
+ *      }|callable(UnionTypeExtensionNode): (VisitorOperation|null|false|void),
+ *      EnumTypeExtension?: array{
+ *          enter?: callable(EnumTypeExtensionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(EnumTypeExtensionNode): (VisitorOperation|null|false|void),
+ *      }|callable(EnumTypeExtensionNode): (VisitorOperation|null|false|void),
+ *      InputObjectTypeExtension?: array{
+ *          enter?: callable(InputObjectTypeExtensionNode): (VisitorOperation|null|false|void),
+ *          leave?: callable(InputObjectTypeExtensionNode): (VisitorOperation|null|false|void),
+ *      }|callable(InputObjectTypeExtensionNode): (VisitorOperation|null|false|void),
+ * }
  *
  * @see \GraphQL\Tests\Language\VisitorTest
  */
