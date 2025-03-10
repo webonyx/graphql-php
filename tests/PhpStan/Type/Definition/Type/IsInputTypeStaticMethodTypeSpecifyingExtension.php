@@ -37,6 +37,6 @@ final class IsInputTypeStaticMethodTypeSpecifyingExtension implements StaticMeth
 
     public function specifyTypes(MethodReflection $staticMethodReflection, StaticCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
     {
-        return $this->typeSpecifier->create($node->getArgs()[0]->value, new ObjectType(InputType::class), $context);
+        return $this->typeSpecifier->create($node->getArgs()[0]->value, new ObjectType(InputType::class), $context, $scope);
     }
 }

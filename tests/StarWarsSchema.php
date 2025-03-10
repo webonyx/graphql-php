@@ -85,10 +85,10 @@ final class StarWarsSchema
             ],
         ]);
 
-        /** @var ObjectType $humanType */
+        /** @var ObjectType|null $humanType */
         $humanType = null;
 
-        /** @var ObjectType $droidType */
+        /** @var ObjectType|null $droidType */
         $droidType = null;
 
         /**
@@ -136,10 +136,14 @@ final class StarWarsSchema
                     ],
                 ];
             },
-            'resolveType' => static function (array $obj) use (&$humanType, &$droidType): ObjectType {
-                return StarWarsData::human($obj['id']) === null
+            'resolveType' => function (array $obj) use (&$humanType, &$droidType): ObjectType {
+                $objectType = StarWarsData::human($obj['id']) === null
                     ? $droidType
                     : $humanType;
+
+                assert($objectType !== null);
+
+                return $objectType;
             },
         ]);
 

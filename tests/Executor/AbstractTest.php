@@ -718,16 +718,20 @@ final class AbstractTest extends TestCase
 
     public function testHintsOnConflictingTypeInstancesInResolveType(): void
     {
-        /** @var InterfaceType $iface */
+        /** @var InterfaceType|null $iface */
         $iface = null;
 
-        $createTest = static function () use (&$iface): ObjectType {
+        $createTest = function () use (&$iface): ObjectType {
             return new ObjectType([
                 'name' => 'Test',
                 'fields' => [
                     'a' => Type::string(),
                 ],
-                'interfaces' => static fn (): array => [$iface],
+                'interfaces' => function () use ($iface): array {
+                    self::assertNotNull($iface);
+
+                    return [$iface];
+                },
             ]);
         };
 

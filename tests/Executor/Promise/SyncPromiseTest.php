@@ -110,6 +110,7 @@ final class SyncPromiseTest extends TestCaseBase
             self::assertNotSame($promise, $nextPromise);
             self::assertSame(SyncPromise::PENDING, $nextPromise->state);
         } else {
+            /** @phpstan-ignore argument.unresolvableType (false positive?)  */
             self::assertSame(SyncPromise::FULFILLED, $nextPromise->state);
         }
 
@@ -282,6 +283,7 @@ final class SyncPromiseTest extends TestCaseBase
             self::assertNotSame($promise, $nextPromise);
             self::assertSame(SyncPromise::PENDING, $nextPromise->state);
         } else {
+            /** @phpstan-ignore argument.unresolvableType (false positive?)  */
             self::assertSame(SyncPromise::REJECTED, $nextPromise->state);
         }
 
@@ -389,7 +391,7 @@ final class SyncPromiseTest extends TestCaseBase
         $nextPromise3 = $promise->then($onFulfilled, $onRejected);
         $nextPromise4 = $promise->then($onFulfilled, $onRejected);
 
-        self::assertCount(0, SyncPromise::getQueue());
+        self::assertEmpty(SyncPromise::getQueue());
         self::assertSame(0, $onFulfilledCount);
         self::assertSame(0, $onRejectedCount);
         $promise->resolve(1);
@@ -403,7 +405,7 @@ final class SyncPromiseTest extends TestCaseBase
         self::assertSame(SyncPromise::PENDING, $nextPromise4->state);
 
         SyncPromise::runQueue();
-        self::assertCount(0, SyncPromise::getQueue());
+        self::assertEmpty(SyncPromise::getQueue());
         self::assertSame(3, $onFulfilledCount); // @phpstan-ignore-line side-effects
         self::assertSame(0, $onRejectedCount); // @phpstan-ignore-line side-effects
         self::assertValidPromise($nextPromise, 1, null, SyncPromise::FULFILLED);

@@ -406,7 +406,7 @@ final class BuildSchemaTest extends TestCaseBase
 
         $definition = Parser::parse($sdl)->definitions[0];
         self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $definition);
-        self::assertCount(0, $definition->interfaces, 'The interfaces property must be an empty list.');
+        self::assertEmpty($definition->interfaces, 'The interfaces property must be an empty list.');
 
         self::assertCycle($sdl);
     }
@@ -1451,15 +1451,15 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame(['Query'], $created);
 
         $schema->getType('Color');
-        /** @var array<string> $created reset the type for PHPStan */
+        /** @var mixed $created reset the type for PHPStan */
         self::assertSame(['Query', 'Color'], $created);
 
         $schema->getType('Hello');
-        /** @var array<string> $created reset the type for PHPStan */
+        /** @var mixed $created reset the type for PHPStan */
         self::assertSame(['Query', 'Color', 'Hello'], $created);
 
         $types = $schema->getTypeMap();
-        /** @var array<string> $created reset the type for PHPStan */
+        /** @var mixed $created reset the type for PHPStan */
         self::assertSame(['Query', 'Color', 'Hello', 'World'], $created);
 
         self::assertArrayHasKey('Query', $types);
