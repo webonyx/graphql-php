@@ -402,7 +402,7 @@ final class ExecutorTest extends TestCase
         $result = Executor::execute($schema, $docAst);
         self::assertSame(1, $mapperCalledCount);
         self::assertSame(3, $resolverCalledCount);
-        self::assertEmpty($result->errors);
+        self::assertCount(0, $result->errors);
     }
 
     /** @see it('nulls out error subtrees') */

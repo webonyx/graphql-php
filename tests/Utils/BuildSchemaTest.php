@@ -406,7 +406,7 @@ final class BuildSchemaTest extends TestCaseBase
 
         $definition = Parser::parse($sdl)->definitions[0];
         self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $definition);
-        self::assertEmpty($definition->interfaces, 'The interfaces property must be an empty list.');
+        self::assertCount(0, $definition->interfaces, 'The interfaces property must be an empty list.');
 
         self::assertCycle($sdl);
     }
