@@ -28,7 +28,7 @@ use GraphQL\Validator\QueryValidationContext;
  *
  * @phpstan-type ReasonOrReasons string|array<array{string, string|array<mixed>}>
  * @phpstan-type Conflict array{array{string, ReasonOrReasons}, array<int, FieldNode>, array<int, FieldNode>}
- * @phpstan-type FieldInfo array{Type, FieldNode, FieldDefinition|null}
+ * @phpstan-type FieldInfo array{Type|null, FieldNode, FieldDefinition|null}
  * @phpstan-type FieldMap array<string, array<int, FieldInfo>>
  */
 class OverlappingFieldsCanBeMerged extends ValidationRule
@@ -249,8 +249,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                     $fieldName = $selection->name->value;
                     $fieldDef = null;
                     if (
-                        ($parentType instanceof ObjectType
-                        || $parentType instanceof InterfaceType) && $parentType->hasField($fieldName)
+                        ($parentType instanceof ObjectType || $parentType instanceof InterfaceType)
+                        && $parentType->hasField($fieldName)
                     ) {
                         $fieldDef = $parentType->getField($fieldName);
                     }
@@ -329,8 +329,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * Determines if there is a conflict between two particular fields, including
      * comparing their sub-fields.
      *
-     * @param array{Type, FieldNode, FieldDefinition|null} $field1
-     * @param array{Type, FieldNode, FieldDefinition|null} $field2
+     * @param array{Type|null, FieldNode, FieldDefinition|null} $field1
+     * @param array{Type|null, FieldNode, FieldDefinition|null} $field2
      *
      * @phpstan-return Conflict|null
      *

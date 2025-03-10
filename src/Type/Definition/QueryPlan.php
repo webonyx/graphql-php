@@ -142,7 +142,7 @@ class QueryPlan
         if ($this->groupImplementorFields) {
             $this->queryPlan = ['fields' => $queryPlan];
 
-            if ($implementors) {
+            if ($implementors !== []) {
                 $this->queryPlan['implementors'] = $implementors;
             }
         } else {
@@ -188,7 +188,7 @@ class QueryPlan
                     'fields' => $subfields,
                     'args' => Values::getArgumentValues($type, $selection, $this->variableValues),
                 ];
-                if ($this->groupImplementorFields && $subImplementors) {
+                if ($this->groupImplementorFields && $subImplementors !== []) {
                     $fields[$fieldName]['implementors'] = $subImplementors;
                 }
             } elseif ($selection instanceof FragmentSpreadNode) {
@@ -256,10 +256,12 @@ class QueryPlan
     private function mergeFields(Type $parentType, Type $type, array $fields, array $subfields, array &$implementors): array
     {
         if ($this->groupImplementorFields && $parentType instanceof AbstractType && ! $type instanceof AbstractType) {
-            $implementors[$type->name] = [
+            $name = $type->name;
+            assert(\is_string($name));
+            $implementors[$name] = [
                 'type' => $type,
                 'fields' => $this->arrayMergeDeep(
-                    $implementors[$type->name]['fields'] ?? [],
+                    $implementors[$name]['fields'] ?? [],
                     \array_diff_key($subfields, $fields)
                 ),
             ];

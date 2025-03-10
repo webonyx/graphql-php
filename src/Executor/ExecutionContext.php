@@ -49,7 +49,7 @@ class ExecutionContext
      */
     public $argsMapper;
 
-    /** @var array<int, Error> */
+    /** @var list<Error> */
     public array $errors;
 
     public PromiseAdapter $promiseAdapter;
@@ -59,7 +59,7 @@ class ExecutionContext
      * @param mixed $rootValue
      * @param mixed $contextValue
      * @param array<string, mixed> $variableValues
-     * @param array<int, Error> $errors
+     * @param list<Error> $errors
      *
      * @phpstan-param FieldResolver $fieldResolver
      */

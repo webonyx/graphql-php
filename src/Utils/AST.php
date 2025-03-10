@@ -250,7 +250,7 @@ class AST
         }
 
         if (\is_float($serialized)) {
-            // int cast with == used for performance reasons
+            /** @phpstan-ignore equal.notAllowed (int cast with == used for performance reasons) */
             if ((int) $serialized == $serialized) {
                 return new IntValueNode(['value' => (string) $serialized]);
             }

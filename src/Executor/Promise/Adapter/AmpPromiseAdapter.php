@@ -126,7 +126,7 @@ class AmpPromiseAdapter implements PromiseAdapter
 
     /**
      * @template TArgument
-     * @template TResult
+     * @template TResult of \Amp\Promise<mixed>
      *
      * @param Deferred<TResult> $deferred
      * @param callable(TArgument): TResult $callback

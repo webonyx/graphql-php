@@ -478,7 +478,7 @@ class Visitor
     /**
      * @phpstan-param VisitorArray $visitor
      *
-     * @return callable(Node $node, string $key, Node|NodeList $parent, array<int, int|string $path, array<int, Node|NodeList> $ancestors): VisitorOperation|Node|null
+     * @return (callable(Node $node, string $key, Node|NodeList<Node>|null $parent, array<int, int|string> $path, array<int, Node|NodeList<Node>> $ancestors): (VisitorOperation|Node|null))|(callable(Node): (VisitorOperation|void|false|null))|null
      */
     protected static function extractVisitFn(array $visitor, string $kind, bool $isLeaving): ?callable
     {

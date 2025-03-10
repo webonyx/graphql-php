@@ -79,6 +79,11 @@ abstract class Node implements \JsonSerializable
         }
 
         if ($value instanceof NodeList) {
+            /**
+             * @phpstan-var TCloneable
+             *
+             * @phpstan-ignore varTag.nativeType (PHPStan is strict about template types and sees NodeList<TNode> as potentially different from TCloneable)
+             */
             return $value->cloneDeep();
         }
 

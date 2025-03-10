@@ -157,7 +157,7 @@ class SchemaPrinter
             $elements[] = static::printType($type, $options);
         }
 
-        return \implode("\n\n", \array_filter($elements)) . "\n";
+        return \implode("\n\n", \array_filter($elements, fn (?string $element) => $element !== null && $element !== '')) . "\n";
     }
 
     /** @throws InvariantViolation */
