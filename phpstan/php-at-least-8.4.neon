@@ -1,7 +1,0 @@
-parameters:
-    ignoreErrors:
-        -
-            message: '#^Parameter \#1 \$class of function renderClass expects ReflectionClass\<object\>, ReflectionClass\<GraphQL\\Error\\ClientAware\|GraphQL\\Error\\DebugFlag\|GraphQL\\Error\\FormattedError\|GraphQL\\Error\\Warning\|GraphQL\\Executor\\ExecutionResult\|GraphQL\\Executor\\Executor\|GraphQL\\Executor\\Promise\\PromiseAdapter\|GraphQL\\Executor\\ScopedContext\|GraphQL\\GraphQL\|GraphQL\\Language\\AST\\NodeKind\|GraphQL\\Language\\DirectiveLocation\|GraphQL\\Language\\Parser\|GraphQL\\Language\\Printer\|GraphQL\\Language\\Visitor\|GraphQL\\Server\\Helper\|GraphQL\\Server\\OperationParams\|GraphQL\\Server\\ServerConfig\|GraphQL\\Server\\StandardServer\|GraphQL\\Type\\Definition\\ResolveInfo\|GraphQL\\Type\\Definition\\Type\|GraphQL\\Type\\Schema\|GraphQL\\Type\\SchemaConfig\|GraphQL\\Utils\\AST\|GraphQL\\Utils\\BuildSchema\|GraphQL\\Utils\\SchemaPrinter\|GraphQL\\Validator\\DocumentValidator\> given\.$#'
-            identifier: argument.type
-            count: 1
-            path: ../generate-class-reference.php
