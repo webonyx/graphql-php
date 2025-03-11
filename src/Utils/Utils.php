@@ -218,9 +218,9 @@ class Utils
         return \array_reduce(
             \range(1, $selectedLength - 1),
             static fn ($list, $index): string => $list
-                    . ($selectedLength > 2 ? ', ' : ' ')
-                    . ($index === $selectedLength - 1 ? 'or ' : '')
-                    . $selected[$index],
+                . ($selectedLength > 2 ? ', ' : ' ')
+                . ($index === $selectedLength - 1 ? 'or ' : '')
+                . $selected[$index],
             $firstSelected
         );
     }
