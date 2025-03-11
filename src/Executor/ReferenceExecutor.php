@@ -150,7 +150,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @throws \Exception
      *
-     * @return ExecutionContext|array<int, Error>
+     * @return ExecutionContext|list<Error>
      */
     protected static function buildExecutionContext(
         Schema $schema,
@@ -163,7 +163,7 @@ class ReferenceExecutor implements ExecutorImplementation
         callable $argsMapper,
         PromiseAdapter $promiseAdapter
     ) {
-        /** @var array<int, Error> $errors */
+        /** @var list<Error> $errors */
         $errors = [];
 
         /** @var array<string, FragmentDefinitionNode> $fragments */

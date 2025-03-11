@@ -91,6 +91,7 @@ class TypeInfo
      *     ...
      * ]
      *
+     * @param (Type&NamedType)|(Type&WrappingType) $type
      * @param array<string, Type&NamedType> $typeMap
      *
      * @throws InvariantViolation
@@ -103,9 +104,8 @@ class TypeInfo
             return;
         }
 
-        assert($type instanceof NamedType, 'only other option');
-
         $name = $type->name;
+        \assert(\is_string($name));
 
         if (isset($typeMap[$name])) {
             if ($typeMap[$name] !== $type) {
@@ -127,7 +127,9 @@ class TypeInfo
 
         if ($type instanceof InputObjectType) {
             foreach ($type->getFields() as $field) {
-                self::extractTypes($field->getType(), $typeMap);
+                $fieldType = $field->getType();
+                \assert($fieldType instanceof NamedType || $fieldType instanceof WrappingType);
+                self::extractTypes($fieldType, $typeMap);
             }
 
             return;
@@ -142,10 +144,14 @@ class TypeInfo
         if ($type instanceof HasFieldsType) {
             foreach ($type->getFields() as $field) {
                 foreach ($field->args as $arg) {
-                    self::extractTypes($arg->getType(), $typeMap);
+                    $argType = $arg->getType();
+                    \assert($argType instanceof NamedType || $argType instanceof WrappingType);
+                    self::extractTypes($argType, $typeMap);
                 }
 
-                self::extractTypes($field->getType(), $typeMap);
+                $fieldType = $field->getType();
+                \assert($fieldType instanceof NamedType || $fieldType instanceof WrappingType);
+                self::extractTypes($fieldType, $typeMap);
             }
         }
     }
@@ -158,7 +164,9 @@ class TypeInfo
     public static function extractTypesFromDirectives(Directive $directive, array &$typeMap): void
     {
         foreach ($directive->args as $arg) {
-            self::extractTypes($arg->getType(), $typeMap);
+            $argType = $arg->getType();
+            \assert($argType instanceof NamedType || $argType instanceof WrappingType);
+            self::extractTypes($argType, $typeMap);
         }
     }
 

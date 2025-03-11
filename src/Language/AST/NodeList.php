@@ -145,8 +145,9 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function cloneDeep(): self
     {
-        /** @var static<T> $cloned */
-        $cloned = new static([]);
+        /** @var array<T> $empty */
+        $empty = [];
+        $cloned = new static($empty);
         foreach ($this->getIterator() as $key => $node) {
             $cloned[$key] = $node->cloneDeep();
         }

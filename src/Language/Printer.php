@@ -531,6 +531,6 @@ class Printer
     /** @param array<string|null> $parts */
     protected function join(array $parts, string $separator = ''): string
     {
-        return \implode($separator, \array_filter($parts));
+        return \implode($separator, \array_filter($parts, static fn (?string $part) => $part !== '' && $part !== null));
     }
 }

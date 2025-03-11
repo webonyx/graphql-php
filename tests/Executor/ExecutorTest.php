@@ -230,7 +230,7 @@ final class ExecutorTest extends TestCase
     {
         $ast = Parser::parse('query ($var: String) { result: test }');
 
-        /** @var ResolveInfo $info */
+        /** @var ResolveInfo|null $info */
         $info = null;
         $schema = new Schema([
             'query' => new ObjectType([
@@ -249,6 +249,8 @@ final class ExecutorTest extends TestCase
         $rootValue = ['root' => 'val'];
 
         Executor::execute($schema, $ast, $rootValue, null, ['var' => '123']);
+
+        self::assertNotNull($info);
 
         /** @var OperationDefinitionNode $operationDefinition */
         $operationDefinition = $ast->definitions[0];
@@ -327,7 +329,7 @@ final class ExecutorTest extends TestCase
             ]),
         ]);
         Executor::execute($schema, $docAst, null, null, [], 'Example');
-        self::assertSame($gotHere, true);
+        self::assertTrue($gotHere);
     }
 
     public function testArgsMapper(): void

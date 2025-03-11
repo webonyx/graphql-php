@@ -1,0 +1,11 @@
+parameters:
+    ignoreErrors:
+        -
+            identifier: function.alreadyNarrowedType
+            count: 2
+            path: ../src/Type/Definition/QueryPlan.php
+
+        -
+            identifier: function.alreadyNarrowedType
+            count: 2
+            path: ../src/Utils/TypeInfo.php

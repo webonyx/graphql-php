@@ -13,7 +13,7 @@ final class SomeInterfaceClassType extends InterfaceType
 {
     public ObjectType $concrete;
 
-    public function resolveType($objectValue, $context, ResolveInfo $info)
+    public function resolveType($objectValue, $context, ResolveInfo $info): ObjectType
     {
         return $this->concrete;
     }

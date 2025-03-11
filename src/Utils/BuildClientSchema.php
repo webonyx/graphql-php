@@ -499,7 +499,6 @@ class BuildClientSchema
             $map[$value['name']] = $this->buildInputValue($value);
         }
 
-        // @phpstan-ignore-next-line unless the returned name was numeric, this works
         return $map;
     }
 
