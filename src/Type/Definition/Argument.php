@@ -76,7 +76,7 @@ class Argument
             /** @phpstan-var ArgumentConfig $argConfigWithName */
             $argConfigWithName = $argConfig + ['name' => $name];
 
-            $list[] = new self($argConfigWithName );
+            $list[] = new self($argConfigWithName);
         }
 
         return $list;
