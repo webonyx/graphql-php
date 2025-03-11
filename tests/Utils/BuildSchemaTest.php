@@ -1451,15 +1451,15 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame(['Query'], $created);
 
         $schema->getType('Color');
-        /** @var mixed $created reset the type for PHPStan */
+        /** @phpstan-ignore staticMethod.impossibleType */
         self::assertSame(['Query', 'Color'], $created);
 
         $schema->getType('Hello');
-        /** @var mixed $created reset the type for PHPStan */
+        /** @phpstan-ignore staticMethod.impossibleType */
         self::assertSame(['Query', 'Color', 'Hello'], $created);
 
         $types = $schema->getTypeMap();
-        /** @var mixed $created reset the type for PHPStan */
+        /** @phpstan-ignore staticMethod.impossibleType */
         self::assertSame(['Query', 'Color', 'Hello', 'World'], $created);
 
         self::assertArrayHasKey('Query', $types);
