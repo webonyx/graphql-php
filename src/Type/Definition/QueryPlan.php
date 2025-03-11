@@ -258,6 +258,7 @@ class QueryPlan
         if ($this->groupImplementorFields && $parentType instanceof AbstractType && ! $type instanceof AbstractType) {
             $name = $type->name;
             assert(\is_string($name));
+
             $implementors[$name] = [
                 'type' => $type,
                 'fields' => $this->arrayMergeDeep(
