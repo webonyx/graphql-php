@@ -83,7 +83,7 @@ final class MixedStoreTest extends TestCase
         self::assertFalse(isset($this->mixedStore[$key]), $err);
         $this->mixedStore[$key] = $value;
         self::assertTrue(isset($this->mixedStore[$key]), $err);
-        self::assertEquals((bool) $value, (bool) $this->mixedStore[$key], $err);
+        self::assertSame((bool) $value, (bool) $this->mixedStore[$key], $err);
         self::assertSame($value, $this->mixedStore[$key], $err);
         unset($this->mixedStore[$key]);
         self::assertFalse(isset($this->mixedStore[$key]), $err);

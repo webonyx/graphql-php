@@ -38,7 +38,7 @@ final class AstGetOperationAstTest extends TestCase
     public function testDoesNotGetMissingOperation(): void
     {
         $doc = Parser::parse('type Foo { field: String }');
-        self::assertEquals(AST::getOperationAST($doc), null);
+        self::assertNull(AST::getOperationAST($doc));
     }
 
     /** @see it('Does not get ambiguous unnamed operation') */
@@ -49,7 +49,7 @@ final class AstGetOperationAstTest extends TestCase
           mutation Test { field }
           subscription TestSub { field }
         ');
-        self::assertEquals(AST::getOperationAST($doc), null);
+        self::assertNull(AST::getOperationAST($doc));
     }
 
     /** @see it('Does not get ambiguous named operation') */
@@ -60,7 +60,7 @@ final class AstGetOperationAstTest extends TestCase
           mutation TestM { field }
           subscription TestS { field }
         ');
-        self::assertEquals(AST::getOperationAST($doc), null);
+        self::assertNull(AST::getOperationAST($doc));
     }
 
     /** @see it('Does not get misnamed operation') */
@@ -72,7 +72,7 @@ final class AstGetOperationAstTest extends TestCase
           mutation TestM { field }
           subscription TestS { field }
         ');
-        self::assertEquals(AST::getOperationAST($doc, 'Unknown'), null);
+        self::assertNull(AST::getOperationAST($doc, 'Unknown'));
     }
 
     /** @see it('Gets named operation') */
