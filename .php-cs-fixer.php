@@ -7,7 +7,7 @@ $finder = PhpCsFixer\Finder::create()
     ->ignoreDotFiles(true)
     ->ignoreVCS(true);
 
-return \MLL\PhpCsFixerConfig\risky($finder, [
+return MLL\PhpCsFixerConfig\risky($finder, [
     'no_superfluous_phpdoc_tags' => [
         'allow_mixed' => true,
     ],
@@ -24,4 +24,4 @@ return \MLL\PhpCsFixerConfig\risky($finder, [
         'identical' => false,
         'less_and_greater' => false,
     ],
-]);
+])->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect());
