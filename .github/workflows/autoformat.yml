@@ -1,4 +1,4 @@
-name: Autoformat
+name: autofix.ci # needed to securely identify the workflow by the action
 
 on:
   push:
@@ -52,14 +52,10 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      # Give the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
-      contents: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          token: ${{ secrets.GA_PAT == '' && secrets.GA_PAT || secrets.GITHUB_TOKEN }}
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -71,6 +67,4 @@ jobs:
 
       - run: vendor/bin/php-cs-fixer fix
 
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: Apply php-cs-fixer changes
+      - uses: autofix-ci/action@v1
