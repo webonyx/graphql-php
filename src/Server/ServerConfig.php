@@ -47,12 +47,15 @@ class ServerConfig
      *
      * @throws InvariantViolation
      */
-    public static function create(array $config = []): self
+    public static function create(
+        array $config = []): self
     {
         $instance = new static();
         foreach ($config as $key => $value) {
-            switch ($key) {
+            switch ($key      ) {
                 case 'schema':
+
+
                     $instance->setSchema($value);
                     break;
                 case 'rootValue':
@@ -62,13 +65,16 @@ class ServerConfig
                     $instance->setContext($value);
                     break;
                 case 'fieldResolver':
-                    $instance->setFieldResolver($value);
+                    $instance->setFieldResolver($value
+                    );
                     break;
                 case 'validationRules':
                     $instance->setValidationRules($value);
                     break;
                 case 'queryBatching':
-                    $instance->setQueryBatching($value);
+
+                    $instance->setQueryBatching(
+                        $value);
                     break;
                 case 'debugFlag':
                     $instance->setDebugFlag($value);
