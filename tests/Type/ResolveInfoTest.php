@@ -2,11 +2,18 @@
 
 namespace GraphQL\Tests\Type;
 
+use GraphQL\Error\Error;
 use GraphQL\GraphQL;
+use GraphQL\Tests\Type\TestClasses\CustomWithObject;
+use GraphQL\Tests\Type\TestClasses\MyCustomType;
+use GraphQL\Tests\Type\TestClasses\OtherCustom;
+use GraphQL\Type\Definition\IntType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
+use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
@@ -456,6 +463,8 @@ final class ResolveInfoTest extends TestCase
             ++$aliasArgsNbTests;
             switch ($args['testName']) {
                 case 'NoAlias':
+                    $level2Type = $aliasArgs['level2']['level2']['type'] ?? null;
+                    self::assertInstanceOf(IntType::class, $level2Type);
                     self::assertSame([
                         'level2' => [
                             'level2' => [
@@ -463,11 +472,14 @@ final class ResolveInfoTest extends TestCase
                                     'width' => 1,
                                     'height' => 1,
                                 ],
+                                'type' => $level2Type,
                             ],
                         ],
                     ], $aliasArgs);
                     break;
                 case 'NoAliasFirst':
+                    $level2Type = $aliasArgs['level2']['level2']['type'] ?? null;
+                    self::assertInstanceOf(IntType::class, $level2Type);
                     self::assertSame([
                         'level2' => [
                             'level2' => [
@@ -475,17 +487,21 @@ final class ResolveInfoTest extends TestCase
                                     'width' => 1,
                                     'height' => 1,
                                 ],
+                                'type' => $level2Type,
                             ],
                             'level1000' => [
                                 'args' => [
                                     'width' => 2,
                                     'height' => 20,
                                 ],
+                                'type' => $level2Type,
                             ],
                         ],
                     ], $aliasArgs);
                     break;
                 case 'NoAliasLast':
+                    $level2Type = $aliasArgs['level2']['level2000']['type'] ?? null;
+                    self::assertInstanceOf(IntType::class, $level2Type);
                     self::assertSame([
                         'level2' => [
                             'level2000' => [
@@ -493,17 +509,21 @@ final class ResolveInfoTest extends TestCase
                                     'width' => 1,
                                     'height' => 1,
                                 ],
+                                'type' => $level2Type,
                             ],
                             'level2' => [
                                 'args' => [
                                     'width' => 2,
                                     'height' => 20,
                                 ],
+                                'type' => $level2Type,
                             ],
                         ],
                     ], $aliasArgs);
                     break;
                 case 'AllAliases':
+                    $level2Type = $aliasArgs['level2']['level1000']['type'] ?? null;
+                    self::assertInstanceOf(IntType::class, $level2Type);
                     self::assertSame([
                         'level2' => [
                             'level1000' => [
@@ -511,18 +531,26 @@ final class ResolveInfoTest extends TestCase
                                     'width' => 1,
                                     'height' => 1,
                                 ],
+                                'type' => $level2Type,
                             ],
                             'level2000' => [
                                 'args' => [
                                     'width' => 2,
                                     'height' => 20,
                                 ],
+                                'type' => $level2Type,
                             ],
                         ],
                     ], $aliasArgs);
                     break;
                 case 'MultiLvlSameAliasName':
                 case 'WithFragments':
+                    $level2Type = $aliasArgs['level2']['level3000']['type'] ?? null;
+                    $level2BisType = $aliasArgs['level2bis']['level2bis']['type'] ?? null;
+                    $level3Type = $aliasArgs['level2bis']['level2bis']['selectionSet']['level3']['level3000']['type'] ?? null;
+                    self::assertInstanceOf(IntType::class, $level2Type);
+                    self::assertInstanceOf(ObjectType::class, $level2BisType);
+                    self::assertInstanceOf(IntType::class, $level3Type);
                     self::assertSame([
                         'level2' => [
                             'level3000' => [
@@ -530,28 +558,33 @@ final class ResolveInfoTest extends TestCase
                                     'width' => 1,
                                     'height' => 1,
                                 ],
+                                'type' => $level2Type,
                             ],
                             'level2' => [
                                 'args' => [
                                     'width' => 3,
                                     'height' => 30,
                                 ],
+                                'type' => $level2Type,
                             ],
                         ],
                         'level2bis' => [
                             'level2bis' => [
                                 'args' => [],
+                                'type' => $level2BisType,
                                 'selectionSet' => [
                                     'level3' => [
                                         'level3000' => [
                                             'args' => [
                                                 'length' => 2,
                                             ],
+                                            'type' => $level3Type,
                                         ],
                                         'level3' => [
                                             'args' => [
                                                 'length' => 10,
                                             ],
+                                            'type' => $level3Type,
                                         ],
                                     ],
                                 ],
@@ -565,29 +598,50 @@ final class ResolveInfoTest extends TestCase
                 case 'Deepest':
                     $depth ??= 5;
                     $aliasArgs = $info->getFieldSelectionWithAliases($depth);
+
+                    $level2BisType = $aliasArgs['level2bis']['level2Alias']['type'] ?? null;
+                    $level3DeeperType = $aliasArgs['level2bis']['level2Alias']['selectionSet']['level3deeper']['level3deeper']['type'] ?? null;
+                    $level4evenmoreType = $aliasArgs['level2bis']['level2Alias']['selectionSet']['level3deeper']['level3deeper']['selectionSet']['level4evenmore']['level4evenmore']['type'] ?? null;
+                    $level5Type = $aliasArgs['level2bis']['level2Alias']['selectionSet']['level3deeper']['level3deeper']['selectionSet']['level4evenmore']['level4evenmore']['selectionSet']['level5']['level5']['type'] ?? null;
+                    $level4Type = $aliasArgs['level2bis']['level2Alias']['selectionSet']['level3deeper']['level3deeper']['selectionSet']['level4']['level4']['type'] ?? null;
+
+                    self::assertInstanceOf(ObjectType::class, $level2BisType);
+                    // Don't test the deepest types because we don't retrieve them with a low $depth
+                    if ($depth > 1) {
+                        self::assertInstanceOf(ObjectType::class, $level3DeeperType);
+                        self::assertInstanceOf(ObjectType::class, $level4evenmoreType);
+                        self::assertInstanceOf(StringType::class, $level5Type);
+                        self::assertInstanceOf(IntType::class, $level4Type);
+                    }
+
                     self::assertSame([
                         'level2bis' => [
                             'level2Alias' => [
                                 'args' => [],
+                                'type' => $level2BisType,
                                 'selectionSet' => [
                                     'level3deeper' => [
                                         'level3deeper' => [
                                             'args' => [],
+                                            'type' => $level3DeeperType,
                                             'selectionSet' => [
                                                 'level4evenmore' => [
                                                     'level4evenmore' => [
                                                         'args' => [],
+                                                        'type' => $level4evenmoreType,
                                                         'selectionSet' => [
                                                             'level5' => [
                                                                 'level5' => [
                                                                     'args' => [
                                                                         'crazyness' => 0.124,
                                                                     ],
+                                                                    'type' => $level5Type,
                                                                 ],
                                                                 'lastAlias' => [
                                                                     'args' => [
                                                                         'crazyness' => 0.758,
                                                                     ],
+                                                                    'type' => $level5Type,
                                                                 ],
                                                             ],
                                                         ],
@@ -597,6 +651,75 @@ final class ResolveInfoTest extends TestCase
                                                     'level4' => [
                                                         'args' => [
                                                             'temperature' => -20,
+                                                        ],
+                                                        'type' => $level4Type,
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ], $aliasArgs);
+                    break;
+                case 'WithUnion':
+                    $levelUnionType = $aliasArgs['levelUnion']['levelUnion']['type'] ?? null;
+                    $levelMyCustomType = $aliasArgs['levelUnion']['levelUnion']['unions']['MyCustom']['type'] ?? null;
+                    $levelAType = $aliasArgs['levelUnion']['levelUnion']['unions']['MyCustom']['selectionSet']['a']['a']['type'] ?? null;
+                    $levelCustomWithObjectType = $aliasArgs['levelUnion']['levelUnion']['unions']['CustomWithObject']['type'] ?? null;
+                    $levelOtherCustomType = $aliasArgs['levelUnion']['levelUnion']['unions']['CustomWithObject']['selectionSet']['customB']['customB']['type'] ?? null;
+                    $levelBType = $aliasArgs['levelUnion']['levelUnion']['unions']['CustomWithObject']['selectionSet']['customB']['customB']['selectionSet']['b']['b']['type'] ?? null;
+                    self::assertInstanceOf(UnionType::class, $levelUnionType);
+                    self::assertInstanceOf(MyCustomType::class, $levelMyCustomType);
+                    self::assertInstanceOf(StringType::class, $levelAType);
+                    self::assertInstanceOf(CustomWithObject::class, $levelCustomWithObjectType);
+                    self::assertInstanceOf(OtherCustom::class, $levelOtherCustomType);
+                    self::assertInstanceOf(StringType::class, $levelBType);
+                    self::assertSame([
+                        'levelUnion' => [
+                            'levelUnion' => [
+                                'args' => [],
+                                'type' => $levelUnionType,
+                                'unions' => [
+                                    'MyCustom' => [
+                                        'type' => $levelMyCustomType,
+                                        'selectionSet' => [
+                                            'a' => [
+                                                'a' => [
+                                                    'args' => [],
+                                                    'type' => $levelAType,
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    'CustomWithObject' => [
+                                        'type' => $levelCustomWithObjectType,
+                                        'selectionSet' => [
+                                            'customA' => [
+                                                'customA' => [
+                                                    'args' => [],
+                                                    'type' => $levelMyCustomType,
+                                                    'selectionSet' => [
+                                                        'a' => [
+                                                            'a' => [
+                                                                'args' => [],
+                                                                'type' => $levelAType,
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                            'customB' => [
+                                                'customB' => [
+                                                    'args' => [],
+                                                    'type' => $levelOtherCustomType,
+                                                    'selectionSet' => [
+                                                        'b' => [
+                                                            'b' => [
+                                                                'args' => [],
+                                                                'type' => $levelBType,
+                                                            ],
                                                         ],
                                                     ],
                                                 ],
@@ -612,6 +735,24 @@ final class ResolveInfoTest extends TestCase
                     $aliasArgsNbTests--;
             }
         };
+
+        $myCustomWithObjectType = new CustomWithObject();
+        // retrieve the instance from the parent type in order to don't instantiate twice the same type in the same schema
+        $myCustomType = $myCustomWithObjectType->config['fields']['customA'];
+        $levelUnion = new UnionType([
+            'name' => 'CustomOrOther',
+            'types' => [
+                $myCustomType,
+                $myCustomWithObjectType,
+            ],
+            'resolveType' => function ($value) use ($myCustomType, $myCustomWithObjectType): ObjectType {
+                switch (get_class($value)) {
+                    case MyCustomType::class: return $myCustomType;
+                    case CustomWithObject::class: return $myCustomWithObjectType;
+                    default: throw new Error('Unexpected union type');
+                }
+            },
+        ]);
 
         $level4EvenMore = new ObjectType([
             'name' => 'Level4EvenMore',
@@ -683,6 +824,10 @@ final class ResolveInfoTest extends TestCase
                 ],
                 'level2bis' => [
                     'type' => $level2Bis,
+                    'resolve' => fn (): bool => true,
+                ],
+                'levelUnion' => [
+                    'type' => $levelUnion,
                     'resolve' => fn (): bool => true,
                 ],
             ],
@@ -797,7 +942,7 @@ final class ResolveInfoTest extends TestCase
                 }
               }
             }
-            
+
             fragment level3Frag on Level2bis {
               level3000: level3(length: 2)
               level3(length: 10)
@@ -855,6 +1000,29 @@ final class ResolveInfoTest extends TestCase
             GRAPHQL
         );
 
+        $result10 = GraphQL::executeQuery(
+            new Schema(['query' => $query]),
+            <<<GRAPHQL
+            query {
+              level1(testName: "WithUnion") {
+                levelUnion {
+                  ...on MyCustom {
+                    a
+                  }
+                  ...on CustomWithObject {
+                    customA {
+                      a
+                    }
+                    customB {
+                      b
+                    }
+                  }
+                }
+              }
+            }
+            GRAPHQL
+        );
+
         self::assertEmpty($result1->errors, 'Query NoAlias should have no errors');
         self::assertEmpty($result2->errors, 'Query NoAliasFirst should have no errors');
         self::assertEmpty($result3->errors, 'Query NoAliasLast should have no errors');
@@ -864,6 +1032,7 @@ final class ResolveInfoTest extends TestCase
         self::assertSame('Failed asserting that two arrays are identical.', $result7->errors[0]->getMessage(), 'Query DeepestTooLowDepth should have failed');
         self::assertEmpty($result8->errors, 'Query Deepest should have no errors');
         self::assertEmpty($result9->errors, 'Query With ListOf type should have no errors');
+        self::assertEmpty($result10->errors, 'Query With Union type should have no errors');
     }
 
     public function testPathAndUnaliasedPath(): void
