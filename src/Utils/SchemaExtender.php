@@ -497,6 +497,7 @@ class SchemaExtender
             $field = $oldFieldMap[$fieldName];
 
             $newFieldMap[$fieldName] = [
+                ...$field->config,
                 'name' => $fieldName,
                 'description' => $field->description,
                 'deprecationReason' => $field->deprecationReason,
