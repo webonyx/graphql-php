@@ -69,7 +69,7 @@ class Argument
         $list = [];
 
         foreach ($config as $name => $argConfig) {
-            if (! \is_array($argConfig)) {
+            if (! is_array($argConfig)) {
                 $argConfig = ['type' => $argConfig];
             }
 
@@ -94,7 +94,7 @@ class Argument
 
     public function defaultValueExists(): bool
     {
-        return \array_key_exists('defaultValue', $this->config);
+        return array_key_exists('defaultValue', $this->config);
     }
 
     public function isRequired(): bool

@@ -86,7 +86,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
 
         $resolveType = $this->config['resolveType'] ?? null;
         // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
-        if ($resolveType !== null && ! \is_callable($resolveType)) {
+        if ($resolveType !== null && ! is_callable($resolveType)) {
             $notCallable = Utils::printSafe($resolveType);
             throw new InvariantViolation("{$this->name} must provide \"resolveType\" as null or a callable, but got: {$notCallable}.");
         }

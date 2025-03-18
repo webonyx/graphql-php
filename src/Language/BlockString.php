@@ -21,11 +21,11 @@ class BlockString
 
         // Remove common indentation from all lines but first.
         $commonIndent = self::getIndentation($rawString);
-        $linesLength = \count($lines);
+        $linesLength = count($lines);
 
         if ($commonIndent > 0) {
             for ($i = 1; $i < $linesLength; ++$i) {
-                $lines[$i] = \mb_substr($lines[$i], $commonIndent);
+                $lines[$i] = mb_substr($lines[$i], $commonIndent);
             }
         }
 
@@ -41,12 +41,12 @@ class BlockString
         }
 
         // Return a string of the lines joined with U+000A.
-        return \implode("\n", \array_slice($lines, $startLine, $endLine - $startLine));
+        return implode("\n", array_slice($lines, $startLine, $endLine - $startLine));
     }
 
     private static function isBlank(string $str): bool
     {
-        $strLength = \mb_strlen($str);
+        $strLength = mb_strlen($str);
         for ($i = 0; $i < $strLength; ++$i) {
             if ($str[$i] !== ' ' && $str[$i] !== '\t') {
                 return false;
@@ -62,7 +62,7 @@ class BlockString
         $isEmptyLine = true;
         $indent = 0;
         $commonIndent = null;
-        $valueLength = \mb_strlen($value);
+        $valueLength = mb_strlen($value);
 
         for ($i = 0; $i < $valueLength; ++$i) {
             switch (Utils::charCodeAt($value, $i)) {
@@ -117,17 +117,17 @@ class BlockString
                 continue;
             }
 
-            if ($line !== '' && \preg_match('/^\s/', $line) !== 1) {
+            if ($line !== '' && preg_match('/^\s/', $line) !== 1) {
                 $forceLeadingNewLine = false;
             }
         }
 
         // Trailing triple quotes just looks confusing but doesn't force trailing new line
-        $hasTrailingTripleQuotes = \preg_match('/\\\\"""$/', $escapedValue) === 1;
+        $hasTrailingTripleQuotes = preg_match('/\\\\"""$/', $escapedValue) === 1;
 
         // Trailing quote (single or double) or slash forces trailing new line
-        $hasTrailingQuote = \preg_match('/"$/', $value) === 1 && ! $hasTrailingTripleQuotes;
-        $hasTrailingSlash = \preg_match('/\\\\$/', $value) === 1;
+        $hasTrailingQuote = preg_match('/"$/', $value) === 1 && ! $hasTrailingTripleQuotes;
+        $hasTrailingSlash = preg_match('/\\\\$/', $value) === 1;
         $forceTrailingNewline = $hasTrailingQuote || $hasTrailingSlash;
 
         // add leading and trailing new lines only if it improves readability
@@ -140,7 +140,7 @@ class BlockString
         $result = '';
 
         // Format a multi-line block quote to account for leading space.
-        $skipLeadingNewLine = $isSingleLine && \preg_match('/^\s/', $value) === 1;
+        $skipLeadingNewLine = $isSingleLine && preg_match('/^\s/', $value) === 1;
         if (($printAsMultipleLines && ! $skipLeadingNewLine) || $forceLeadingNewLine) {
             $result .= "\n";
         }

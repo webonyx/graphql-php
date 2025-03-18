@@ -190,7 +190,7 @@ class Visitor
 
         do {
             ++$index;
-            $isLeaving = $index === \count($keys);
+            $isLeaving = $index === count($keys);
             $key = null;
             $node = null;
             $isEdited = $isLeaving && $edits !== [];
@@ -198,9 +198,9 @@ class Visitor
             if ($isLeaving) {
                 $key = $ancestors === []
                     ? null
-                    : $path[\count($path) - 1];
+                    : $path[count($path) - 1];
                 $node = $parent;
-                $parent = \array_pop($ancestors);
+                $parent = array_pop($ancestors);
                 if ($isEdited) {
                     if ($node instanceof Node || $node instanceof NodeList) {
                         $node = $node->cloneDeep();
@@ -234,7 +234,7 @@ class Visitor
                     'keys' => $keys,
                     'edits' => $edits,
                     'inList' => $inList,
-                ] = \array_pop($stack);
+                ] = array_pop($stack);
             } elseif ($parent === null) {
                 $node = $root;
             } else {
@@ -269,7 +269,7 @@ class Visitor
 
                         if ($result instanceof VisitorSkipNode) {
                             if (! $isLeaving) {
-                                \array_pop($path);
+                                array_pop($path);
                             }
                             continue;
                         }
@@ -281,7 +281,7 @@ class Visitor
                         $edits[] = [$key, $editValue];
                         if (! $isLeaving) {
                             if (! ($editValue instanceof Node)) {
-                                \array_pop($path);
+                                array_pop($path);
                                 continue;
                             }
 
@@ -296,7 +296,7 @@ class Visitor
             }
 
             if ($isLeaving) {
-                \array_pop($path);
+                array_pop($path);
             } else {
                 $stack[] = [
                     'inList' => $inList,
@@ -367,7 +367,7 @@ class Visitor
      */
     public static function visitInParallel(array $visitors): array
     {
-        $visitorsCount = \count($visitors);
+        $visitorsCount = count($visitors);
         $skipping = new \SplFixedArray($visitorsCount);
 
         return [
@@ -387,7 +387,7 @@ class Visitor
                         continue;
                     }
 
-                    $result = $fn(...\func_get_args());
+                    $result = $fn(...func_get_args());
 
                     if ($result instanceof VisitorSkipNode) {
                         $skipping[$i] = $node;
@@ -412,7 +412,7 @@ class Visitor
                         );
 
                         if ($fn !== null) {
-                            $result = $fn(...\func_get_args());
+                            $result = $fn(...func_get_args());
 
                             if ($result instanceof VisitorStop) {
                                 $skipping[$i] = $result;
@@ -450,7 +450,7 @@ class Visitor
                     return null;
                 }
 
-                $result = $fn(...\func_get_args());
+                $result = $fn(...func_get_args());
                 if ($result === null) {
                     return null;
                 }
@@ -465,7 +465,7 @@ class Visitor
             'leave' => static function (Node $node) use ($typeInfo, $visitor) {
                 $fn = self::extractVisitFn($visitor, $node->kind, true);
                 $result = $fn !== null
-                    ? $fn(...\func_get_args())
+                    ? $fn(...func_get_args())
                     : null;
 
                 $typeInfo->leave($node);
@@ -484,7 +484,7 @@ class Visitor
     {
         $kindVisitor = $visitor[$kind] ?? null;
 
-        if (\is_array($kindVisitor)) {
+        if (is_array($kindVisitor)) {
             return $isLeaving
                 ? $kindVisitor['leave'] ?? null
                 : $kindVisitor['enter'] ?? null;
@@ -498,7 +498,7 @@ class Visitor
             ? $visitor['leave'] ?? null
             : $visitor['enter'] ?? null;
 
-        if (\is_array($specificVisitor)) {
+        if (is_array($specificVisitor)) {
             return $specificVisitor[$kind] ?? null;
         }
 

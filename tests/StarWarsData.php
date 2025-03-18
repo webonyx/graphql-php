@@ -124,7 +124,7 @@ final class StarWarsData
      */
     public static function friends(array $character): array
     {
-        return \array_map([self::class, 'character'], $character['friends']);
+        return array_map([self::class, 'character'], $character['friends']);
     }
 
     /** @return array<string, mixed> */

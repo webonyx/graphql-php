@@ -119,7 +119,7 @@ abstract class Type implements \JsonSerializable
      */
     public static function builtInTypes(): array
     {
-        return self::$builtInTypes ??= \array_merge(
+        return self::$builtInTypes ??= array_merge(
             Introspection::getTypes(),
             self::getStandardTypes()
         );
@@ -164,7 +164,7 @@ abstract class Type implements \JsonSerializable
             }
 
             if (! in_array($type->name, self::STANDARD_TYPE_NAMES, true)) {
-                $standardTypeNames = \implode(', ', self::STANDARD_TYPE_NAMES);
+                $standardTypeNames = implode(', ', self::STANDARD_TYPE_NAMES);
                 $notStandardTypeName = Utils::printSafe($type->name);
                 throw new InvariantViolation("Expecting one of the following names for a standard type: {$standardTypeNames}; got {$notStandardTypeName}");
             }

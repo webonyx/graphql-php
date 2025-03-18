@@ -154,7 +154,7 @@ class Directive
     /** @throws InvariantViolation */
     public static function isSpecifiedDirective(Directive $directive): bool
     {
-        return \array_key_exists($directive->name, self::getInternalDirectives());
+        return array_key_exists($directive->name, self::getInternalDirectives());
     }
 
     public static function resetCachedInstances(): void

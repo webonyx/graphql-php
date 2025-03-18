@@ -612,7 +612,7 @@ SDL;
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
 
-        $introspection['__schema']['types'] = \array_filter(
+        $introspection['__schema']['types'] = array_filter(
             $introspection['__schema']['types'],
             static fn (array $type): bool => $type['name'] !== 'Query'
         );
@@ -633,7 +633,7 @@ SDL;
         ');
         $introspection = Introspection::fromSchema($schema);
 
-        $introspection['__schema']['types'] = \array_filter(
+        $introspection['__schema']['types'] = array_filter(
             $introspection['__schema']['types'],
             static fn (array $type): bool => $type['name'] !== 'Float'
         );

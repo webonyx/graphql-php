@@ -138,7 +138,7 @@ class DocumentValidator
     public static function allRules(): array
     {
         if (! self::$initRules) {
-            self::$rules = \array_merge(
+            self::$rules = array_merge(
                 static::defaultRules(),
                 self::securityRules(),
                 self::$rules
@@ -323,6 +323,6 @@ class DocumentValidator
             $messages[] = $error->getMessage();
         }
 
-        return \implode("\n\n", $messages);
+        return implode("\n\n", $messages);
     }
 }

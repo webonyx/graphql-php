@@ -37,7 +37,7 @@ GRAPHQL;
 
     public function makeSchemaString(): void
     {
-        foreach (\range(1, 100) as $i) {
+        foreach (range(1, 100) as $i) {
             $this->schema .= /** @lang GraphQL */ <<<GRAPHQL
 union U{$i} = Foo | Bar
 
