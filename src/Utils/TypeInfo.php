@@ -105,7 +105,7 @@ class TypeInfo
         }
 
         $name = $type->name;
-        \assert(\is_string($name));
+        assert(is_string($name));
 
         if (isset($typeMap[$name])) {
             if ($typeMap[$name] !== $type) {
@@ -128,7 +128,7 @@ class TypeInfo
         if ($type instanceof InputObjectType) {
             foreach ($type->getFields() as $field) {
                 $fieldType = $field->getType();
-                \assert($fieldType instanceof NamedType || $fieldType instanceof WrappingType);
+                assert($fieldType instanceof NamedType || $fieldType instanceof WrappingType);
                 self::extractTypes($fieldType, $typeMap);
             }
 
@@ -145,12 +145,12 @@ class TypeInfo
             foreach ($type->getFields() as $field) {
                 foreach ($field->args as $arg) {
                     $argType = $arg->getType();
-                    \assert($argType instanceof NamedType || $argType instanceof WrappingType);
+                    assert($argType instanceof NamedType || $argType instanceof WrappingType);
                     self::extractTypes($argType, $typeMap);
                 }
 
                 $fieldType = $field->getType();
-                \assert($fieldType instanceof NamedType || $fieldType instanceof WrappingType);
+                assert($fieldType instanceof NamedType || $fieldType instanceof WrappingType);
                 self::extractTypes($fieldType, $typeMap);
             }
         }
@@ -165,7 +165,7 @@ class TypeInfo
     {
         foreach ($directive->args as $arg) {
             $argType = $arg->getType();
-            \assert($argType instanceof NamedType || $argType instanceof WrappingType);
+            assert($argType instanceof NamedType || $argType instanceof WrappingType);
             self::extractTypes($argType, $typeMap);
         }
     }
@@ -173,7 +173,7 @@ class TypeInfo
     /** @return (Type&InputType)|null */
     public function getParentInputType(): ?InputType
     {
-        return $this->inputTypeStack[\count($this->inputTypeStack) - 2] ?? null;
+        return $this->inputTypeStack[count($this->inputTypeStack) - 2] ?? null;
     }
 
     public function getArgument(): ?Argument
@@ -318,13 +318,13 @@ class TypeInfo
 
     public function getType(): ?Type
     {
-        return $this->typeStack[\count($this->typeStack) - 1] ?? null;
+        return $this->typeStack[count($this->typeStack) - 1] ?? null;
     }
 
     /** @return (CompositeType&Type)|null */
     public function getParentType(): ?CompositeType
     {
-        return $this->parentTypeStack[\count($this->parentTypeStack) - 1] ?? null;
+        return $this->parentTypeStack[count($this->parentTypeStack) - 1] ?? null;
     }
 
     /**
@@ -369,31 +369,31 @@ class TypeInfo
 
     public function getFieldDef(): ?FieldDefinition
     {
-        return $this->fieldDefStack[\count($this->fieldDefStack) - 1] ?? null;
+        return $this->fieldDefStack[count($this->fieldDefStack) - 1] ?? null;
     }
 
     /** @return mixed any value is possible */
     public function getDefaultValue()
     {
-        return $this->defaultValueStack[\count($this->defaultValueStack) - 1] ?? null;
+        return $this->defaultValueStack[count($this->defaultValueStack) - 1] ?? null;
     }
 
     /** @return (InputType&Type)|null */
     public function getInputType(): ?InputType
     {
-        return $this->inputTypeStack[\count($this->inputTypeStack) - 1] ?? null;
+        return $this->inputTypeStack[count($this->inputTypeStack) - 1] ?? null;
     }
 
     public function leave(Node $node): void
     {
         switch (true) {
             case $node instanceof SelectionSetNode:
-                \array_pop($this->parentTypeStack);
+                array_pop($this->parentTypeStack);
                 break;
 
             case $node instanceof FieldNode:
-                \array_pop($this->fieldDefStack);
-                \array_pop($this->typeStack);
+                array_pop($this->fieldDefStack);
+                array_pop($this->typeStack);
                 break;
 
             case $node instanceof DirectiveNode:
@@ -403,20 +403,20 @@ class TypeInfo
             case $node instanceof OperationDefinitionNode:
             case $node instanceof InlineFragmentNode:
             case $node instanceof FragmentDefinitionNode:
-                \array_pop($this->typeStack);
+                array_pop($this->typeStack);
                 break;
             case $node instanceof VariableDefinitionNode:
-                \array_pop($this->inputTypeStack);
+                array_pop($this->inputTypeStack);
                 break;
             case $node instanceof ArgumentNode:
                 $this->argument = null;
-                \array_pop($this->defaultValueStack);
-                \array_pop($this->inputTypeStack);
+                array_pop($this->defaultValueStack);
+                array_pop($this->inputTypeStack);
                 break;
             case $node instanceof ListValueNode:
             case $node instanceof ObjectFieldNode:
-                \array_pop($this->defaultValueStack);
-                \array_pop($this->inputTypeStack);
+                array_pop($this->defaultValueStack);
+                array_pop($this->inputTypeStack);
                 break;
             case $node instanceof EnumValueNode:
                 $this->enumValue = null;

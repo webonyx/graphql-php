@@ -196,7 +196,7 @@ final class SyncTest extends TestCase
             $doc
         );
         $expected = [
-            'errors' => \array_map(
+            'errors' => array_map(
                 [FormattedError::class, 'createFromException'],
                 $validationErrors
             ),

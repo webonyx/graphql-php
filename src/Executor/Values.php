@@ -79,7 +79,7 @@ class Values
                     [$varDefNode->type]
                 );
             } else {
-                $hasValue = \array_key_exists($varName, $rawVariableValues);
+                $hasValue = array_key_exists($varName, $rawVariableValues);
                 $value = $hasValue
                     ? $rawVariableValues[$varName]
                     : Utils::undefined();
@@ -221,7 +221,7 @@ class Values
 
             if ($argumentValueNode instanceof VariableNode) {
                 $variableName = $argumentValueNode->name->value;
-                $hasValue = $variableValues !== null && \array_key_exists($variableName, $variableValues);
+                $hasValue = $variableValues !== null && array_key_exists($variableName, $variableValues);
                 $isNull = $hasValue && $variableValues[$variableName] === null;
             } else {
                 $hasValue = $argumentValueNode !== null;

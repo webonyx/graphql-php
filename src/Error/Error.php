@@ -94,8 +94,8 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         // Compute list of blame nodes.
         if ($nodes instanceof \Traversable) {
             /** @phpstan-ignore arrayFilter.strict */
-            $this->nodes = array_filter(\iterator_to_array($nodes));
-        } elseif (\is_array($nodes)) {
+            $this->nodes = array_filter(iterator_to_array($nodes));
+        } elseif (is_array($nodes)) {
             $this->nodes = array_filter($nodes);
         } elseif ($nodes !== null) {
             $this->nodes = [$nodes];
@@ -108,7 +108,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware, Provid
         $this->path = $path;
         $this->unaliasedPath = $unaliasedPath;
 
-        if (\is_array($extensions) && $extensions !== []) {
+        if (is_array($extensions) && $extensions !== []) {
             $this->extensions = $extensions;
         } elseif ($previous instanceof ProvidesExtensions) {
             $this->extensions = $previous->getExtensions();

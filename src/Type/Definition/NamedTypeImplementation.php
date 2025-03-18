@@ -32,7 +32,7 @@ trait NamedTypeImplementation
         $name = $reflection->getShortName();
 
         if ($reflection->getNamespaceName() !== __NAMESPACE__) {
-            $withoutPrefixType = \preg_replace('~Type$~', '', $name);
+            $withoutPrefixType = preg_replace('~Type$~', '', $name);
             assert(is_string($withoutPrefixType), 'regex is statically known to be correct');
 
             return $withoutPrefixType;
@@ -43,7 +43,7 @@ trait NamedTypeImplementation
 
     public function isBuiltInType(): bool
     {
-        return \in_array($this->name, Type::BUILT_IN_TYPE_NAMES, true);
+        return in_array($this->name, Type::BUILT_IN_TYPE_NAMES, true);
     }
 
     public function name(): string

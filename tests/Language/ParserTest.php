@@ -85,11 +85,11 @@ fragment MissingOn Type
             self::assertSame($expectedMessage, $e->getMessage());
             self::assertSame($stringRepresentation, (string) $e);
 
-            if (\is_array($expectedPositions)) {
+            if (is_array($expectedPositions)) {
                 self::assertEquals($expectedPositions, $e->getPositions());
             }
 
-            if (\is_array($expectedLocations)) {
+            if (is_array($expectedLocations)) {
                 self::assertEquals($expectedLocations, $e->getLocations());
             }
         }

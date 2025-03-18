@@ -70,7 +70,7 @@ class InputObjectField
 
     public function defaultValueExists(): bool
     {
-        return \array_key_exists('defaultValue', $this->config);
+        return array_key_exists('defaultValue', $this->config);
     }
 
     public function isRequired(): bool
@@ -104,7 +104,7 @@ class InputObjectField
         }
 
         // @phpstan-ignore-next-line should not happen if used properly
-        if (\array_key_exists('resolve', $this->config)) {
+        if (array_key_exists('resolve', $this->config)) {
             throw new InvariantViolation("{$parentType->name}.{$this->name} field has a resolve property, but Input Types cannot define resolvers.");
         }
 

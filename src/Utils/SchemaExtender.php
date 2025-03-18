@@ -373,7 +373,7 @@ class SchemaExtender
      */
     protected function extendUnionPossibleTypes(UnionType $type): array
     {
-        $possibleTypes = \array_map(
+        $possibleTypes = array_map(
             [$this, 'extendNamedType'],
             $type->getTypes()
         );
@@ -404,7 +404,7 @@ class SchemaExtender
      */
     protected function extendImplementedInterfaces(ImplementingType $type): array
     {
-        $interfaces = \array_map(
+        $interfaces = array_map(
             [$this, 'extendNamedType'],
             $type->getInterfaces()
         );
@@ -493,7 +493,7 @@ class SchemaExtender
         $newFieldMap = [];
         $oldFieldMap = $type->getFields();
 
-        foreach (\array_keys($oldFieldMap) as $fieldName) {
+        foreach (array_keys($oldFieldMap) as $fieldName) {
             $field = $oldFieldMap[$fieldName];
 
             $newFieldMap[$fieldName] = [
@@ -638,7 +638,7 @@ class SchemaExtender
      */
     protected function getMergedDirectives(Schema $schema, array $directiveDefinitions): array
     {
-        $directives = \array_map(
+        $directives = array_map(
             [$this, 'extendDirective'],
             $schema->getDirectives()
         );

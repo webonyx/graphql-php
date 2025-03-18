@@ -90,11 +90,11 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
             $this->types = [];
 
             $types = $this->config['types'] ?? null;
-            if (\is_callable($types)) {
+            if (is_callable($types)) {
                 $types = $types();
             }
 
-            if (! \is_iterable($types)) {
+            if (! is_iterable($types)) {
                 throw new InvariantViolation("Must provide iterable of types or a callable which returns such an iterable for Union {$this->name}.");
             }
 
@@ -121,7 +121,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
 
         $resolveType = $this->config['resolveType'] ?? null;
         // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
-        if (isset($resolveType) && ! \is_callable($resolveType)) {
+        if (isset($resolveType) && ! is_callable($resolveType)) {
             $notCallable = Utils::printSafe($resolveType);
             throw new InvariantViolation("{$this->name} must provide \"resolveType\" as null or a callable, but got: {$notCallable}.");
         }

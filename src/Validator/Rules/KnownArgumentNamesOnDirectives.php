@@ -65,7 +65,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
             : Directive::getInternalDirectives();
 
         foreach ($definedDirectives as $directive) {
-            $directiveArgs[$directive->name] = \array_map(
+            $directiveArgs[$directive->name] = array_map(
                 static fn (Argument $arg): string => $arg->name,
                 $directive->args
             );
@@ -94,7 +94,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
                 foreach ($directiveNode->arguments as $argNode) {
                     $argName = $argNode->name->value;
-                    if (! \in_array($argName, $knownArgs, true)) {
+                    if (! in_array($argName, $knownArgs, true)) {
                         $suggestions = Utils::suggestionList($argName, $knownArgs);
                         $context->reportError(new Error(
                             static::unknownDirectiveArgMessage($argName, $directiveName, $suggestions),

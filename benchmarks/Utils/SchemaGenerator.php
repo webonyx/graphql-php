@@ -28,7 +28,7 @@ class SchemaGenerator
     /** @param array<string, int> $config */
     public function __construct(array $config)
     {
-        $this->config = \array_merge($this->config, $config);
+        $this->config = array_merge($this->config, $config);
     }
 
     public function buildSchema(): Schema
@@ -49,7 +49,7 @@ class SchemaGenerator
 
     public function loadType(string $name): ObjectType
     {
-        $tokens = \explode('_', $name);
+        $tokens = explode('_', $name);
         $nestingLevel = (int) $tokens[1];
 
         return $this->createType($nestingLevel, $name);
@@ -83,7 +83,7 @@ class SchemaGenerator
             $fieldType = Type::string();
             $fieldName = 'leafField' . $fieldIndex;
         } elseif ($this->typeIndex >= $this->config['totalTypes']) {
-            $fieldType = $this->objectTypes[\array_rand($this->objectTypes)];
+            $fieldType = $this->objectTypes[array_rand($this->objectTypes)];
             $fieldName = 'randomTypeField' . $fieldIndex;
         } else {
             $fieldType = $this->createType($nestingLevel);
@@ -108,7 +108,7 @@ class SchemaGenerator
 
         for ($index = 0; $index < $this->config['listFieldsPerType']; ++$index) {
             [$type, $name] = $this->getFieldTypeAndName($nestingLevel, $index);
-            $name = 'listOf' . \ucfirst($name);
+            $name = 'listOf' . ucfirst($name);
 
             $fields[] = [
                 'name' => $name,

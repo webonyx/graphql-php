@@ -55,7 +55,7 @@ class UrlType extends ScalarType
      */
     private function isUrl($value): bool
     {
-        return \is_string($value)
-            && \filter_var($value, \FILTER_VALIDATE_URL) !== false;
+        return is_string($value)
+            && filter_var($value, \FILTER_VALIDATE_URL) !== false;
     }
 }

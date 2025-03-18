@@ -206,7 +206,7 @@ class ResolveInfo
         foreach ($this->fieldNodes as $fieldNode) {
             $selectionSet = $fieldNode->selectionSet;
             if ($selectionSet !== null) {
-                $fields = \array_merge_recursive(
+                $fields = array_merge_recursive(
                     $fields,
                     $this->foldSelectionSet($selectionSet, $depth)
                 );
@@ -320,7 +320,7 @@ class ResolveInfo
                 $fieldType = $this->parentType->getField($fieldNode->name->value)
                     ->getType();
 
-                $fields = \array_merge_recursive(
+                $fields = array_merge_recursive(
                     $fields,
                     $this->foldSelectionWithAlias($selectionSet, $depth, $fieldType)
                 );
@@ -358,7 +358,7 @@ class ResolveInfo
         foreach ($selectionSet->selections as $selection) {
             if ($selection instanceof FieldNode) {
                 $fields[$selection->name->value] = $descend > 0 && $selection->selectionSet !== null
-                    ? \array_merge_recursive(
+                    ? array_merge_recursive(
                         $fields[$selection->name->value] ?? [],
                         $this->foldSelectionSet($selection->selectionSet, $descend - 1)
                     )
@@ -370,12 +370,12 @@ class ResolveInfo
                     continue;
                 }
 
-                $fields = \array_merge_recursive(
+                $fields = array_merge_recursive(
                     $this->foldSelectionSet($fragment->selectionSet, $descend),
                     $fields
                 );
             } elseif ($selection instanceof InlineFragmentNode) {
-                $fields = \array_merge_recursive(
+                $fields = array_merge_recursive(
                     $this->foldSelectionSet($selection->selectionSet, $descend),
                     $fields
                 );
@@ -436,7 +436,7 @@ class ResolveInfo
                 $fieldType = $this->schema->getType($fragment->typeCondition->name->value);
                 assert($fieldType instanceof Type, 'ensured by query validation');
 
-                $fields = \array_merge_recursive(
+                $fields = array_merge_recursive(
                     $this->foldSelectionWithAlias($fragment->selectionSet, $descend, $fieldType),
                     $fields
                 );
@@ -447,7 +447,7 @@ class ResolveInfo
                     : $this->schema->getType($typeCondition->name->value);
                 assert($fieldType instanceof Type, 'ensured by query validation');
 
-                $fields = \array_merge_recursive(
+                $fields = array_merge_recursive(
                     $this->foldSelectionWithAlias($selection->selectionSet, $descend, $fieldType),
                     $fields
                 );

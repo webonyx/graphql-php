@@ -116,7 +116,7 @@ class Printer
 
                 $noIndent = true;
                 foreach ($argStrings as $argString) {
-                    if (\strpos($argString, "\n") !== false) {
+                    if (strpos($argString, "\n") !== false) {
                         $noIndent = false;
                         break;
                     }
@@ -180,7 +180,7 @@ class Printer
 
                 $noIndent = true;
                 foreach ($argStrings as $argString) {
-                    if (\strpos($argString, "\n") !== false) {
+                    if (strpos($argString, "\n") !== false) {
                         $noIndent = false;
                         break;
                     }
@@ -414,7 +414,7 @@ class Printer
                     return BlockString::print($node->value);
                 }
 
-                return \json_encode($node->value, JSON_THROW_ON_ERROR);
+                return json_encode($node->value, JSON_THROW_ON_ERROR);
 
             case $node instanceof UnionTypeDefinitionNode:
                 $typesStr = $this->printList($node->types, ' | ');
@@ -488,7 +488,7 @@ class Printer
      */
     protected function printListBlock(NodeList $list): string
     {
-        if (\count($list) === 0) {
+        if (count($list) === 0) {
             return '';
         }
 
@@ -525,12 +525,12 @@ class Printer
             return '';
         }
 
-        return '  ' . \str_replace("\n", "\n  ", $string);
+        return '  ' . str_replace("\n", "\n  ", $string);
     }
 
     /** @param array<string|null> $parts */
     protected function join(array $parts, string $separator = ''): string
     {
-        return \implode($separator, \array_filter($parts, static fn (?string $part) => $part !== '' && $part !== null));
+        return implode($separator, array_filter($parts, static fn (?string $part) => $part !== '' && $part !== null));
     }
 }

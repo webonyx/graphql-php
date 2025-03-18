@@ -1363,7 +1363,7 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertInstanceOf(\Closure::class, $defaultConfig['interfaces']);
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertCount(6, $defaultConfig);
-        self::assertSame(['Query', 'Color', 'Hello'], \array_keys($allNodesMap));
+        self::assertSame(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
 
         $query = $schema->getType('Query');
         self::assertInstanceOf(ObjectType::class, $query);
@@ -1390,7 +1390,7 @@ final class BuildSchemaTest extends TestCaseBase
             $defaultConfig['values']
         );
         self::assertCount(5, $defaultConfig); // 3 + astNode + extensionASTNodes
-        self::assertSame(['Query', 'Color', 'Hello'], \array_keys($allNodesMap));
+        self::assertSame(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
 
         $color = $schema->getType('Color');
         self::assertInstanceOf(EnumType::class, $color);
@@ -1404,7 +1404,7 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertArrayHasKey('interfaces', $defaultConfig);
         self::assertCount(6, $defaultConfig);
-        self::assertSame(['Query', 'Color', 'Hello'], \array_keys($allNodesMap));
+        self::assertSame(['Query', 'Color', 'Hello'], array_keys($allNodesMap));
 
         $hello = $schema->getType('Hello');
         self::assertInstanceOf(InterfaceType::class, $hello);
@@ -1481,12 +1481,12 @@ final class BuildSchemaTest extends TestCaseBase
             interface Bar
             GRAPHQL;
 
-        $sdl = \implode("\n", [$defaultSdl, $baseSdl, ...$sdlExts]);
+        $sdl = implode("\n", [$defaultSdl, $baseSdl, ...$sdlExts]);
         $schema = BuildSchema::build($sdl);
         $myType = $schema->getType('MyType');
         self::assertNotNull($myType);
         self::assertSame($expectedSdl, SchemaPrinter::printType($myType));
-        self::assertCount(\count($sdlExts), $myType->extensionASTNodes);
+        self::assertCount(count($sdlExts), $myType->extensionASTNodes);
         $assert($myType);
     }
 

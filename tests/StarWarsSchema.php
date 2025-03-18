@@ -178,8 +178,8 @@ final class StarWarsSchema
                         $fieldSelection = $info->getFieldSelection();
                         $fieldSelection['id'] = true;
 
-                        return \array_map(
-                            static fn ($friend): array => \array_intersect_key($friend, $fieldSelection),
+                        return array_map(
+                            static fn ($friend): array => array_intersect_key($friend, $fieldSelection),
                             StarWarsData::friends($human)
                         );
                     },

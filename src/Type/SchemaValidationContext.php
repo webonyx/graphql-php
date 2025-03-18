@@ -80,7 +80,7 @@ class SchemaValidationContext
     /** @param array<Node|null>|Node|null $nodes */
     public function reportError(string $message, $nodes = null): void
     {
-        $nodes = \array_filter(\is_array($nodes) ? $nodes : [$nodes]);
+        $nodes = array_filter(is_array($nodes) ? $nodes : [$nodes]);
         $this->addError(new Error($message, $nodes));
     }
 
@@ -113,7 +113,7 @@ class SchemaValidationContext
             if (! $directive instanceof Directive) {
                 $notDirective = Utils::printSafe($directive);
                 // @phpstan-ignore-next-line The generic type says this should not happen, but a user may use it wrong nonetheless
-                $nodes = \is_object($directive) && \property_exists($directive, 'astNode')
+                $nodes = is_object($directive) && property_exists($directive, 'astNode')
                     ? $directive->astNode
                     : null;
 
@@ -163,7 +163,7 @@ class SchemaValidationContext
         }
 
         foreach ($directiveDefinitions as $directiveName => $directiveList) {
-            if (\count($directiveList) > 1) {
+            if (count($directiveList) > 1) {
                 $nodes = [];
                 foreach ($directiveList as $dir) {
                     if (isset($dir->astNode)) {
@@ -290,7 +290,7 @@ class SchemaValidationContext
             if (! in_array($location, $schemaDirective->locations, true)) {
                 $this->reportError(
                     "Directive @{$directiveName} not allowed at {$location} location.",
-                    \array_filter([$directiveNode, $schemaDirective->astNode])
+                    array_filter([$directiveNode, $schemaDirective->astNode])
                 );
             }
 
@@ -300,7 +300,7 @@ class SchemaValidationContext
         }
 
         foreach ($potentiallyDuplicateDirectives as $directiveName => $directiveList) {
-            if (\count($directiveList) > 1) {
+            if (count($directiveList) > 1) {
                 $this->reportError("Non-repeatable directive @{$directiveName} used more than once at the same location.", $directiveList);
             }
         }
@@ -326,7 +326,7 @@ class SchemaValidationContext
             $this->validateName($field);
 
             $fieldNodes = $this->getAllFieldNodes($type, $fieldName);
-            if (\count($fieldNodes) > 1) {
+            if (count($fieldNodes) > 1) {
                 $this->reportError("Field {$type->name}.{$fieldName} can only be defined once.", $fieldNodes);
                 continue;
             }
@@ -612,7 +612,7 @@ class SchemaValidationContext
             if ($typeField === null) {
                 $this->reportError(
                     "Interface field {$iface->name}.{$fieldName} expected but {$type->name} does not provide it.",
-                    \array_merge(
+                    array_merge(
                         [$this->getFieldNode($iface, $fieldName)],
                         $this->getAllNodes($type)
                     )
@@ -684,12 +684,12 @@ class SchemaValidationContext
     {
         $typeInterfaces = $type->getInterfaces();
         foreach ($iface->getInterfaces() as $transitive) {
-            if (! \in_array($transitive, $typeInterfaces, true)) {
+            if (! in_array($transitive, $typeInterfaces, true)) {
                 $this->reportError(
                     $transitive === $type
                         ? "Type {$type->name} cannot implement {$iface->name} because it would create a circular reference."
                         : "Type {$type->name} must implement {$transitive->name} because it is implemented by {$iface->name}.",
-                    \array_merge(
+                    array_merge(
                         $this->getAllImplementsInterfaceNodes($iface, $transitive),
                         $this->getAllImplementsInterfaceNodes($type, $iface)
                     )

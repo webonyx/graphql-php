@@ -140,8 +140,8 @@ class SchemaPrinter
      */
     protected static function printFilteredSchema(Schema $schema, callable $directiveFilter, callable $typeFilter, array $options): string
     {
-        $directives = \array_filter($schema->getDirectives(), $directiveFilter);
-        $types = \array_filter($schema->getTypeMap(), $typeFilter);
+        $directives = array_filter($schema->getDirectives(), $directiveFilter);
+        $types = array_filter($schema->getTypeMap(), $typeFilter);
 
         if (isset($options['sortTypes']) && $options['sortTypes']) {
             ksort($types);
@@ -158,7 +158,7 @@ class SchemaPrinter
         }
 
         /** @phpstan-ignore arrayFilter.strict */
-        return \implode("\n\n", \array_filter($elements)) . "\n";
+        return implode("\n\n", array_filter($elements)) . "\n";
     }
 
     /** @throws InvariantViolation */
@@ -233,7 +233,7 @@ class SchemaPrinter
             . 'directive @' . $directive->name
             . static::printArgs($options, $directive->args)
             . ($directive->isRepeatable ? ' repeatable' : '')
-            . ' on ' . \implode(' | ', $directive->locations);
+            . ' on ' . implode(' | ', $directive->locations);
     }
 
     /**
@@ -254,11 +254,11 @@ class SchemaPrinter
             : $indentation;
 
         if (count(Utils::splitLines($description)) === 1) {
-            $description = \json_encode($description, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+            $description = json_encode($description, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
         } else {
             $description = BlockString::print($description);
             $description = $indentation !== ''
-                ? \str_replace("\n", "\n{$indentation}", $description)
+                ? str_replace("\n", "\n{$indentation}", $description)
                 : $description;
         }
 
@@ -296,9 +296,9 @@ class SchemaPrinter
 
         if ($allArgsWithoutDescription) {
             return '('
-                . \implode(
+                . implode(
                     ', ',
-                    \array_map(
+                    array_map(
                         [static::class, 'printInputValue'],
                         $args
                     )
@@ -324,7 +324,7 @@ class SchemaPrinter
         }
 
         return "(\n"
-            . \implode("\n", $argsStrings)
+            . implode("\n", $argsStrings)
             . "\n"
             . $indentation
             . ')';
@@ -459,9 +459,9 @@ class SchemaPrinter
 
         return $interfaces === []
             ? ''
-            : ' implements ' . \implode(
+            : ' implements ' . implode(
                 ' & ',
-                \array_map(
+                array_map(
                     static fn (InterfaceType $interface): string => $interface->name,
                     $interfaces
                 )
@@ -498,7 +498,7 @@ class SchemaPrinter
         $types = $type->getTypes();
         $types = $types === []
             ? ''
-            : ' = ' . \implode(' | ', $types);
+            : ' = ' . implode(' | ', $types);
 
         return static::printDescription($options, $type) . 'union ' . $type->name . $types;
     }
@@ -571,6 +571,6 @@ class SchemaPrinter
     {
         return $items === []
             ? ''
-            : " {\n" . \implode("\n", $items) . "\n}";
+            : " {\n" . implode("\n", $items) . "\n}";
     }
 }

@@ -85,7 +85,7 @@ class Schema
      */
     public function __construct($config)
     {
-        if (\is_array($config)) {
+        if (is_array($config)) {
             $config = SchemaConfig::create($config);
         }
 
@@ -116,7 +116,7 @@ class Schema
     {
         if (! $this->fullyLoaded) {
             $types = $this->config->types;
-            if (\is_callable($types)) {
+            if (is_callable($types)) {
                 $types = $types();
             }
 
@@ -505,7 +505,7 @@ class Schema
         $errors = $this->validate();
 
         if ($errors !== []) {
-            throw new InvariantViolation(\implode("\n\n", $this->validationErrors));
+            throw new InvariantViolation(implode("\n\n", $this->validationErrors));
         }
 
         $internalTypes = Type::getStandardTypes() + Introspection::getTypes();

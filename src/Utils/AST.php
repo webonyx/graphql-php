@@ -96,7 +96,7 @@ class AST
                 continue;
             }
 
-            if (\is_array($value)) {
+            if (is_array($value)) {
                 $value = isset($value[0]) || $value === []
                     ? new NodeList($value)
                     : self::fromArray($value);
@@ -190,9 +190,9 @@ class AST
         // Populate the fields of the input object by creating ASTs from each value
         // in the PHP object according to the fields in the input type.
         if ($type instanceof InputObjectType) {
-            $isArray = \is_array($value);
+            $isArray = is_array($value);
             $isArrayLike = $isArray || $value instanceof \ArrayAccess;
-            if (! $isArrayLike && ! \is_object($value)) {
+            if (! $isArrayLike && ! is_object($value)) {
                 return null;
             }
 
@@ -208,11 +208,11 @@ class AST
                 if ($fieldValue !== null) {
                     $fieldExists = true;
                 } elseif ($isArray) {
-                    $fieldExists = \array_key_exists($fieldName, $value);
+                    $fieldExists = array_key_exists($fieldName, $value);
                 } elseif ($isArrayLike) {
                     $fieldExists = $value->offsetExists($fieldName);
                 } else {
-                    $fieldExists = \property_exists($value, $fieldName);
+                    $fieldExists = property_exists($value, $fieldName);
                 }
 
                 if (! $fieldExists) {
@@ -241,15 +241,15 @@ class AST
         $serialized = $type->serialize($value);
 
         // Others serialize based on their corresponding PHP scalar types.
-        if (\is_bool($serialized)) {
+        if (is_bool($serialized)) {
             return new BooleanValueNode(['value' => $serialized]);
         }
 
-        if (\is_int($serialized)) {
+        if (is_int($serialized)) {
             return new IntValueNode(['value' => (string) $serialized]);
         }
 
-        if (\is_float($serialized)) {
+        if (is_float($serialized)) {
             /** @phpstan-ignore equal.notAllowed (int cast with == used for performance reasons) */
             if ((int) $serialized == $serialized) {
                 return new IntValueNode(['value' => (string) $serialized]);
@@ -258,7 +258,7 @@ class AST
             return new FloatValueNode(['value' => (string) $serialized]);
         }
 
-        if (\is_string($serialized)) {
+        if (is_string($serialized)) {
             // Enum types use Enum literals.
             if ($type instanceof EnumType) {
                 return new EnumValueNode(['value' => $serialized]);
@@ -334,7 +334,7 @@ class AST
         if ($valueNode instanceof VariableNode) {
             $variableName = $valueNode->name->value;
 
-            if ($variables === null || ! \array_key_exists($variableName, $variables)) {
+            if ($variables === null || ! array_key_exists($variableName, $variables)) {
                 // No valid return value.
                 return $undefined;
             }
@@ -460,7 +460,7 @@ class AST
     private static function isMissingVariable(ValueNode $valueNode, ?array $variables): bool
     {
         return $valueNode instanceof VariableNode
-            && ($variables === null || ! \array_key_exists($valueNode->name->value, $variables));
+            && ($variables === null || ! array_key_exists($valueNode->name->value, $variables));
     }
 
     /**

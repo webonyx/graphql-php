@@ -58,7 +58,7 @@ class UniqueArgumentDefinitionNames extends ValidationRule
         }
 
         foreach ($seenArgs as $argName => $argNodes) {
-            if (\count($argNodes) > 1) {
+            if (count($argNodes) > 1) {
                 $context->reportError(
                     new Error(
                         "Argument \"{$parentName}({$argName}:)\" can only be defined once.",

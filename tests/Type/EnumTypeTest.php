@@ -304,7 +304,7 @@ final class EnumTypeTest extends TestCase
         $result = GraphQL::executeQuery($this->schema, $query, null, null, $vars);
         self::assertCount(1, $result->errors);
 
-        if (\is_array($err)) {
+        if (is_array($err)) {
             self::assertSame(
                 $err['message'],
                 $result->errors[0]->getMessage()

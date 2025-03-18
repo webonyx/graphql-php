@@ -98,19 +98,19 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             $this->values = [];
 
             $values = $this->config['values'];
-            if (\is_callable($values)) {
+            if (is_callable($values)) {
                 $values = $values();
             }
 
             // We are just assuming the config option is set correctly here, validation happens in assertValid()
             foreach ($values as $name => $value) {
-                if (\is_string($name)) {
-                    if (\is_array($value)) {
+                if (is_string($name)) {
+                    if (is_array($value)) {
                         $value += ['name' => $name, 'value' => $name];
                     } else {
                         $value = ['name' => $name, 'value' => $value];
                     }
-                } elseif (\is_string($value)) {
+                } elseif (is_string($value)) {
                     $value = ['name' => $value, 'value' => $value];
                 } else {
                     throw new InvariantViolation("{$this->name} values must be an array with value names as keys or values.");
@@ -173,7 +173,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
      */
     public function parseValue($value)
     {
-        if (! \is_string($value)) {
+        if (! is_string($value)) {
             $safeValue = Utils::printSafeJson($value);
             throw new Error("Enum \"{$this->name}\" cannot represent non-string value: {$safeValue}.{$this->didYouMean($safeValue)}");
         }
@@ -223,7 +223,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         Utils::assertValidName($this->name);
 
         $values = $this->config['values'] ?? null;
-        if (! \is_iterable($values) && ! \is_callable($values)) {
+        if (! is_iterable($values) && ! is_callable($values)) {
             $notIterable = Utils::printSafe($values);
             throw new InvariantViolation("{$this->name} values must be an iterable or callable, got: {$notIterable}");
         }

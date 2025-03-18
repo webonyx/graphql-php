@@ -169,7 +169,7 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
     {
         return ErrorHelper::create(
             SingleFieldSubscription::multipleFieldsInOperation($operationName),
-            \array_map(static function (array $location): SourceLocation {
+            array_map(static function (array $location): SourceLocation {
                 [$line, $column] = $location;
 
                 return new SourceLocation($line, $column);

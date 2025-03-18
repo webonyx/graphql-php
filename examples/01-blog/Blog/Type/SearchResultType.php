@@ -26,7 +26,7 @@ class SearchResultType extends UnionType
                     return TypeRegistry::type(UserType::class);
                 }
 
-                $unknownType = \get_class($value);
+                $unknownType = get_class($value);
                 throw new \Exception("Unknown type: {$unknownType}");
             },
         ]);

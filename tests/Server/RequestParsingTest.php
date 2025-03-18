@@ -143,7 +143,7 @@ final class RequestParsingTest extends TestCase
                 'POST',
                 '',
                 ['Content-Type' => 'application/x-www-form-urlencoded'],
-                \http_build_query($postValue)
+                http_build_query($postValue)
             )
         );
     }
@@ -162,7 +162,7 @@ final class RequestParsingTest extends TestCase
             'POST',
             '',
             ['Content-Type' => 'application/x-www-form-urlencoded'],
-            $parsed ? null : \http_build_query($postValue),
+            $parsed ? null : http_build_query($postValue),
         );
 
         if ($parsed) {
@@ -223,7 +223,7 @@ final class RequestParsingTest extends TestCase
     private function parsePsrGetRequest(array $getValue)
     {
         return (new Helper())->parsePsrRequest(
-            new Request('GET', (new Uri())->withQuery(\http_build_query($getValue)))
+            new Request('GET', (new Uri())->withQuery(http_build_query($getValue)))
         );
     }
 
@@ -282,7 +282,7 @@ final class RequestParsingTest extends TestCase
                 'POST',
                 '',
                 ['Content-Type' => 'multipart/form-data; boundary=----FormBoundary'],
-                \http_build_query($postValue)
+                http_build_query($postValue)
             )
         );
     }

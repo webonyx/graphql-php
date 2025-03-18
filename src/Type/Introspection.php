@@ -78,7 +78,7 @@ class Introspection
      */
     public static function getIntrospectionQuery(array $options = []): string
     {
-        $optionsWithDefaults = \array_merge([
+        $optionsWithDefaults = array_merge([
             'descriptions' => true,
             'directiveIsRepeatable' => false,
         ], $options);
@@ -209,7 +209,7 @@ GRAPHQL;
      */
     public static function fromSchema(Schema $schema, array $options = []): array
     {
-        $optionsWithDefaults = \array_merge(['directiveIsRepeatable' => true], $options);
+        $optionsWithDefaults = array_merge(['directiveIsRepeatable' => true], $options);
 
         $result = GraphQL::executeQuery(
             $schema,
@@ -228,7 +228,7 @@ GRAPHQL;
     /** @param Type&NamedType $type */
     public static function isIntrospectionType(NamedType $type): bool
     {
-        return \in_array($type->name, self::TYPE_NAMES, true);
+        return in_array($type->name, self::TYPE_NAMES, true);
     }
 
     /**
@@ -357,7 +357,7 @@ GRAPHQL;
                             $fields = $type->getVisibleFields();
 
                             if (! ($args['includeDeprecated'] ?? false)) {
-                                return \array_filter(
+                                return array_filter(
                                     $fields,
                                     static fn (FieldDefinition $field): bool => ! $field->isDeprecated()
                                 );
@@ -394,7 +394,7 @@ GRAPHQL;
                             $values = $type->getValues();
 
                             if (! ($args['includeDeprecated'] ?? false)) {
-                                return \array_filter(
+                                return array_filter(
                                     $values,
                                     static fn (EnumValueDefinition $value): bool => ! $value->isDeprecated()
                                 );
@@ -419,7 +419,7 @@ GRAPHQL;
                             $fields = $type->getFields();
 
                             if (! ($args['includeDeprecated'] ?? false)) {
-                                return \array_filter(
+                                return array_filter(
                                     $fields,
                                     static fn (InputObjectField $field): bool => ! $field->isDeprecated(),
                                 );
@@ -514,7 +514,7 @@ GRAPHQL;
                         $values = $field->args;
 
                         if (! ($args['includeDeprecated'] ?? false)) {
-                            return \array_filter(
+                            return array_filter(
                                 $values,
                                 static fn (Argument $value): bool => ! $value->isDeprecated(),
                             );

@@ -68,7 +68,7 @@ class QueryPlan
     /** @return array<int, string> */
     public function getReferencedTypes(): array
     {
-        return \array_keys($this->typeToFields);
+        return array_keys($this->typeToFields);
     }
 
     public function hasType(string $type): bool
@@ -257,19 +257,19 @@ class QueryPlan
     {
         if ($this->groupImplementorFields && $parentType instanceof AbstractType && ! $type instanceof AbstractType) {
             $name = $type->name;
-            assert(\is_string($name));
+            assert(is_string($name));
 
             $implementors[$name] = [
                 'type' => $type,
                 'fields' => $this->arrayMergeDeep(
                     $implementors[$name]['fields'] ?? [],
-                    \array_diff_key($subfields, $fields)
+                    array_diff_key($subfields, $fields)
                 ),
             ];
 
             $fields = $this->arrayMergeDeep(
                 $fields,
-                \array_intersect_key($subfields, $fields)
+                array_intersect_key($subfields, $fields)
             );
         } else {
             $fields = $this->arrayMergeDeep($subfields, $fields);
@@ -292,11 +292,11 @@ class QueryPlan
     private function arrayMergeDeep(array $array1, array $array2): array
     {
         foreach ($array2 as $key => &$value) {
-            if (\is_numeric($key)) {
-                if (! \in_array($value, $array1, true)) {
+            if (is_numeric($key)) {
+                if (! in_array($value, $array1, true)) {
                     $array1[] = $value;
                 }
-            } elseif (\is_array($value) && isset($array1[$key]) && \is_array($array1[$key])) {
+            } elseif (is_array($value) && isset($array1[$key]) && is_array($array1[$key])) {
                 $array1[$key] = $this->arrayMergeDeep($array1[$key], $value);
             } else {
                 $array1[$key] = $value;
