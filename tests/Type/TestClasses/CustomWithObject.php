@@ -8,12 +8,11 @@ final class CustomWithObject extends ObjectType
 {
     public function __construct()
     {
-        $config = [
+        parent::__construct([
             'fields' => [
                 'customA' => new MyCustomType(),
                 'customB' => new OtherCustom(),
             ],
-        ];
-        parent::__construct($config);
+        ]);
     }
 }

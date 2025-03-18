@@ -972,7 +972,7 @@ final class ResolveInfoTest extends TestCase
         $result8 = GraphQL::executeQuery(
             new Schema(['query' => $query]),
             <<<GRAPHQL
-            query {
+            {
               level1(testName: "Deepest") {
                 level2Alias: level2bis {
                   level3deeper {
@@ -991,7 +991,7 @@ final class ResolveInfoTest extends TestCase
         $result9 = GraphQL::executeQuery(
             new Schema(['query' => $queryList]),
             <<<GRAPHQL
-            query {
+            {
               level1(testName: "NoAliasFirst") {
                 level2(width: 1, height: 1)
                 level1000: level2(width: 2, height: 20)
@@ -1003,7 +1003,7 @@ final class ResolveInfoTest extends TestCase
         $result10 = GraphQL::executeQuery(
             new Schema(['query' => $query]),
             <<<GRAPHQL
-            query {
+            {
               level1(testName: "WithUnion") {
                 levelUnion {
                   ...on MyCustom {

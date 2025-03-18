@@ -260,7 +260,7 @@ class ResolveInfo
      *     'nested' => [
      *         'nested' => [
      *             'args' => [],
- *                 'type' => GraphQL\Type\Definition\ObjectType Object ( ... )),
+     *                 'type' => GraphQL\Type\Definition\ObjectType Object ( ... )),
      *             'selectionSet' => [
      *                 'nested1' => [
      *                     'nested1' => [
@@ -286,7 +286,7 @@ class ResolveInfo
      *                     'nested1' => [
      *                          'args' => [
      *                              'myArg' => 2,
-     *                              'mySecondAg' => "test,
+     *                              'mySecondAg' => "test",
      *                          ],
      *                          'type' => GraphQL\Type\Definition\StringType Object ( ... )),
      *                      ],
@@ -297,7 +297,7 @@ class ResolveInfo
      *     'myUnion' => [
      *         'myUnion' => [
      *              'args' => [
-     *                  'myArg' => 3
+     *                  'myArg' => 3,
      *              ],
      *              'type' => GraphQL\Type\Definition\UnionType Object ( ... )),
      *              'unions' => [
@@ -307,7 +307,7 @@ class ResolveInfo
      *                          'nested1' => [
      *                              'nested1' => [
      *                                  'args' => [
-     *                                      'myArg' => 4
+     *                                      'myArg' => 4,
      *                                  ],
      *                                  'type' => GraphQL\Type\Definition\StringType Object ( ... )),
      *                              ],
@@ -332,12 +332,12 @@ class ResolveInfo
      *
      * @param int $depth How many levels to include in the output beyond the first
      *
-     * @return array<string, mixed>
-     *
+     * @throws \Exception
      * @throws Error
      * @throws InvariantViolation
      *
-     * @throws \Exception
+     * @return array<string, mixed>
+     *
      * @api
      */
     public function getFieldSelectionWithAliases(int $depth = 0): array
@@ -440,6 +440,8 @@ class ResolveInfo
                     continue;
                 }
 
+                assert($parentType instanceof HasFieldsType, 'ensured by query validation');
+
                 $fieldDef = $parentType->getField($fieldName);
                 $fieldType = $fieldDef->getType();
                 $fields[$fieldName][$aliasName]['args'] = Values::getArgumentValues($fieldDef, $selection, $this->variableValues);
@@ -474,6 +476,7 @@ class ResolveInfo
                 }
 
                 $fieldType = $this->schema->getType($fragment->typeCondition->name->value);
+                assert($fieldType instanceof Type, 'ensured by query validation');
 
                 $fields = array_merge_recursive(
                     $this->foldSelectionWithAlias($fragment->selectionSet, $descend, $fieldType),
@@ -484,8 +487,10 @@ class ResolveInfo
                 $fieldType = $typeCondition === null
                     ? $parentType
                     : $this->schema->getType($typeCondition->name->value);
+                assert($fieldType instanceof Type, 'ensured by query validation');
 
                 if (is_a($parentType, UnionType::class)) {
+                    assert($fieldType instanceof NamedType, 'ensured by query validation');
                     $fields[$fieldType->name()]['type'] = $fieldType;
                     $fields[$fieldType->name()]['selectionSet'] = $this->foldSelectionWithAlias($selection->selectionSet, $descend, $fieldType);
                 } else {
