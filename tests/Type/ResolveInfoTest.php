@@ -738,7 +738,9 @@ final class ResolveInfoTest extends TestCase
 
         $myCustomWithObjectType = new CustomWithObject();
         // retrieve the instance from the parent type in order to don't instantiate twice the same type in the same schema
-        $myCustomType = $myCustomWithObjectType->config['fields']['customA'];
+        $fields = $myCustomWithObjectType->config['fields'];
+        assert(is_array($fields), 'ensured by type config');
+        $myCustomType = $fields['customA'];
         $levelUnion = new UnionType([
             'name' => 'CustomOrOther',
             'types' => [

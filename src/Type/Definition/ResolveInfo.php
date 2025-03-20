@@ -248,7 +248,9 @@ class ResolveInfo
      *   }
      * }
      *
-     * Given this ResolveInfo instance is a part of "root" field resolution, $depth === 1, and nested represent an ObjectType with a configured name "Nested",
+     * Given this ResolveInfo instance is a part of root field resolution,
+     * $depth === 1,
+     * and fields "nested" represents an ObjectType named "Nested",
      * this method will return:
      * [
      *     'id' => [
@@ -260,7 +262,7 @@ class ResolveInfo
      *     'nested' => [
      *         'nested' => [
      *             'args' => [],
-     *                 'type' => GraphQL\Type\Definition\ObjectType Object ( ... )),
+     *             'type' => GraphQL\Type\Definition\ObjectType Object ( ... )),
      *             'selectionSet' => [
      *                 'nested1' => [
      *                     'nested1' => [
