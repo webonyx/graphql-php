@@ -221,8 +221,10 @@ class ResolveInfo
      *
      * The result maps original field names to a map of selections for that field, including aliases.
      * For each of those selections, you can find the following keys:
-     * - "args" contains the passed arguments for this field/alias
-     * - "selectionSet" contains potential nested fields of this field/alias. The structure is recursive from here.
+     * - "args" contains the passed arguments for this field/alias (not on an union inline fragment)
+     * - "type" contains the related Type instance found (will be the same for all aliases of a field)
+     * - "selectionSet" contains potential nested fields of this field/alias (only on ObjectType). The structure is recursive from here.
+     * - "unions" contains potential object types contained in an UnionType (only on UnionType). The structure is recursive from here and will go through the selectionSet of the object types.
      *
      * Example:
      * {
@@ -235,70 +237,100 @@ class ResolveInfo
      *     alias1: nested {
      *       nested1(myArg: 2, mySecondAg: "test")
      *     }
+     *     myUnion(myArg: 3) {
+     *       ...on Nested {
+     *         nested1(myArg: 4)
+     *       }
+     *       ...on MyCustomObject {
+     *         nested3
+     *       }
+     *     }
      *   }
      * }
      *
-     * Given this ResolveInfo instance is a part of "root" field resolution, and $depth === 1,
+     * Given this ResolveInfo instance is a part of root field resolution,
+     * $depth === 1,
+     * and fields "nested" represents an ObjectType named "Nested",
      * this method will return:
      * [
      *     'id' => [
      *         'id' => [
      *              'args' => [],
+     *              'type' => GraphQL\Type\Definition\IntType Object ( ... )),
      *         ],
      *     ],
      *     'nested' => [
      *         'nested' => [
      *             'args' => [],
+     *             'type' => GraphQL\Type\Definition\ObjectType Object ( ... )),
      *             'selectionSet' => [
      *                 'nested1' => [
      *                     'nested1' => [
      *                          'args' => [
      *                              'myArg' => 1,
      *                          ],
+     *                          'type' => GraphQL\Type\Definition\StringType Object ( ... )),
      *                      ],
      *                      'nested1Bis' => [
      *                          'args' => [],
+     *                          'type' => GraphQL\Type\Definition\StringType Object ( ... )),
      *                      ],
      *                 ],
      *             ],
-     *          ],
-     *          'alias1' => [
-     *             'args' => [],
-     *             'selectionSet' => [
-     *                  'nested1' => [
-     *                      'nested1' => [
-     *                           'args' => [
-     *                               'myArg' => 2,
-     *                               'mySecondAg' => "test,
-     *                           ],
-     *                      ],
-     *                  ],
-     *              ],
      *         ],
      *     ],
+     *     'alias1' => [
+     *         'alias1' => [
+     *             'args' => [],
+     *             'type' => GraphQL\Type\Definition\ObjectType Object ( ... )),
+     *             'selectionSet' => [
+     *                 'nested1' => [
+     *                     'nested1' => [
+     *                          'args' => [
+     *                              'myArg' => 2,
+     *                              'mySecondAg' => "test",
+     *                          ],
+     *                          'type' => GraphQL\Type\Definition\StringType Object ( ... )),
+     *                      ],
+     *                 ],
+     *             ],
+     *         ],
+     *     ],
+     *     'myUnion' => [
+     *         'myUnion' => [
+     *              'args' => [
+     *                  'myArg' => 3,
+     *              ],
+     *              'type' => GraphQL\Type\Definition\UnionType Object ( ... )),
+     *              'unions' => [
+     *                  'Nested' => [
+     *                      'type' => GraphQL\Type\Definition\ObjectType Object ( ... )),
+     *                      'selectionSet' => [
+     *                          'nested1' => [
+     *                              'nested1' => [
+     *                                  'args' => [
+     *                                      'myArg' => 4,
+     *                                  ],
+     *                                  'type' => GraphQL\Type\Definition\StringType Object ( ... )),
+     *                              ],
+     *                          ],
+     *                      ],
+     *                  ],
+     *                  'MyCustomObject' => [
+     *                       'type' => GraphQL\Tests\Type\TestClasses\MyCustomType Object ( ... )),
+     *                       'selectionSet' => [
+     *                           'nested3' => [
+     *                               'nested3' => [
+     *                                   'args' => [],
+     *                                   'type' => GraphQL\Type\Definition\StringType Object ( ... )),
+     *                               ],
+     *                           ],
+     *                       ],
+     *                   ],
+     *              ],
+     *          ],
+     *      ],
      * ]
-     *
-     * This method does not consider conditional typed fragments.
-     * Use it with care for fields of interface and union types.
-     * You can still alias the union type fields with the same name in order to extract their corresponding args.
-     *
-     * Example:
-     * {
-     *   root {
-     *     id
-     *     unionPerson {
-     *       ...on Child {
-     *         name
-     *         birthdate(format: "d/m/Y")
-     *       }
-     *       ...on Adult {
-     *         adultName: name
-     *         adultBirthDate: birthdate(format: "Y-m-d")
-     *         job
-     *       }
-     *     }
-     *   }
-     * }
      *
      * @param int $depth How many levels to include in the output beyond the first
      *
@@ -416,12 +448,24 @@ class ResolveInfo
                 $fieldType = $fieldDef->getType();
                 $fields[$fieldName][$aliasName]['args'] = Values::getArgumentValues($fieldDef, $selection, $this->variableValues);
 
+                $innerType = $fieldType;
+                if ($innerType instanceof WrappingType) {
+                    $innerType = $innerType->getInnermostType();
+                }
+
+                $fields[$fieldName][$aliasName]['type'] = $innerType;
+
                 if ($descend <= 0) {
                     continue;
                 }
 
                 $nestedSelectionSet = $selection->selectionSet;
                 if ($nestedSelectionSet === null) {
+                    continue;
+                }
+
+                if (is_a($innerType, UnionType::class)) {
+                    $fields[$fieldName][$aliasName]['unions'] = $this->foldSelectionWithAlias($nestedSelectionSet, $descend, $fieldType);
                     continue;
                 }
 
@@ -447,10 +491,16 @@ class ResolveInfo
                     : $this->schema->getType($typeCondition->name->value);
                 assert($fieldType instanceof Type, 'ensured by query validation');
 
-                $fields = array_merge_recursive(
-                    $this->foldSelectionWithAlias($selection->selectionSet, $descend, $fieldType),
-                    $fields
-                );
+                if (is_a($parentType, UnionType::class)) {
+                    assert($fieldType instanceof NamedType, 'ensured by query validation');
+                    $fields[$fieldType->name()]['type'] = $fieldType;
+                    $fields[$fieldType->name()]['selectionSet'] = $this->foldSelectionWithAlias($selection->selectionSet, $descend, $fieldType);
+                } else {
+                    $fields = array_merge_recursive(
+                        $this->foldSelectionWithAlias($selection->selectionSet, $descend, $fieldType),
+                        $fields
+                    );
+                }
             }
         }
 
