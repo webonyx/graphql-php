@@ -50,7 +50,7 @@ class KnownTypeNames extends ValidationRule
                 $typeName = $node->name->value;
                 $schema = $context->getSchema();
 
-                if (\in_array($typeName, $definedTypes, true)) {
+                if (in_array($typeName, $definedTypes, true)) {
                     return;
                 }
 
@@ -60,7 +60,7 @@ class KnownTypeNames extends ValidationRule
 
                 $definitionNode = $ancestors[2] ?? $parent;
                 $isSDL = $definitionNode instanceof TypeSystemDefinitionNode || $definitionNode instanceof TypeSystemExtensionNode;
-                if ($isSDL && \in_array($typeName, Type::BUILT_IN_TYPE_NAMES, true)) {
+                if ($isSDL && in_array($typeName, Type::BUILT_IN_TYPE_NAMES, true)) {
                     return;
                 }
 
@@ -68,7 +68,7 @@ class KnownTypeNames extends ValidationRule
                     ? $schema->getTypeMap()
                     : [];
                 $typeNames = [
-                    ...\array_keys($existingTypesMap),
+                    ...array_keys($existingTypesMap),
                     ...$definedTypes,
                 ];
                 $context->reportError(new Error(

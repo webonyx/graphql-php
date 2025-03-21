@@ -347,7 +347,7 @@ final class QueryExecutionTest extends ServerTestCase
         $result = (new Helper())->executeBatch($this->config, $batch);
 
         self::assertIsArray($result);
-        self::assertCount(\count($qs), $result);
+        self::assertCount(count($qs), $result);
 
         return $result;
     }

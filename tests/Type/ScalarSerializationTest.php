@@ -37,8 +37,8 @@ final class ScalarSerializationTest extends TestCase
         yield [-9876504321, 'Int cannot represent non 32-bit signed integer value: -9876504321'];
         yield [1e100, 'Int cannot represent non 32-bit signed integer value: 1.0E+100'];
         yield [-1e100, 'Int cannot represent non 32-bit signed integer value: -1.0E+100'];
-        yield [\log(0), 'Int cannot represent non 32-bit signed integer value: -INF'];
-        yield [\acos(8), 'Int cannot represent non-integer value: NAN'];
+        yield [log(0), 'Int cannot represent non 32-bit signed integer value: -INF'];
+        yield [acos(8), 'Int cannot represent non-integer value: NAN'];
         yield ['one', 'Int cannot represent non-integer value: "one"'];
         yield ['', 'Int cannot represent non-integer value: (empty string)'];
         yield [[5], 'Int cannot represent non-integer value: [5]'];
@@ -82,8 +82,8 @@ final class ScalarSerializationTest extends TestCase
     {
         yield ['one', 'Float cannot represent non numeric value: "one"'];
         yield ['', 'Float cannot represent non numeric value: (empty string)'];
-        yield [\log(0), 'Float cannot represent non numeric value: -INF'];
-        yield [\acos(8), 'Float cannot represent non numeric value: NAN'];
+        yield [log(0), 'Float cannot represent non numeric value: -INF'];
+        yield [acos(8), 'Float cannot represent non numeric value: NAN'];
         yield [[5], 'Float cannot represent non numeric value: [5]'];
     }
 

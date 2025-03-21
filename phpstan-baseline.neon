@@ -1,91 +1,91 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Unable to resolve the template type TCloneable in call to method static method GraphQL\\\\Language\\\\AST\\\\Node\\:\\:cloneValue\\(\\)$#"
+			message: '#^Unable to resolve the template type TCloneable in call to method static method GraphQL\\Language\\AST\\Node\:\:cloneValue\(\)$#'
+			identifier: argument.templateType
 			count: 1
 			path: src/Language/AST/Node.php
 
 		-
-			message: "#^Variable property access on TCloneable of TNode of GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
+			message: '#^Variable property access on TCloneable of TNode of GraphQL\\Language\\AST\\Node\.$#'
+			identifier: property.dynamicName
 			count: 1
 			path: src/Language/AST/Node.php
 
 		-
-			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
+			message: '#^Variable property access on GraphQL\\Language\\AST\\Node\.$#'
+			identifier: property.dynamicName
 			count: 1
 			path: src/Language/Visitor.php
 
 		-
-			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\|null\\.$#"
+			message: '#^Variable property access on GraphQL\\Language\\AST\\Node\|null\.$#'
+			identifier: property.dynamicName
 			count: 1
 			path: src/Language/Visitor.php
 
 		-
-			message: "#^Parameter \\#1 \\$config of class GraphQL\\\\Type\\\\Definition\\\\Argument constructor expects array\\{name\\: string, type\\: \\(callable\\(\\)\\: \\(GraphQL\\\\Type\\\\Definition\\\\InputType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\)\\|\\(GraphQL\\\\Type\\\\Definition\\\\InputType&GraphQL\\\\Type\\\\Definition\\\\Type\\), defaultValue\\?\\: mixed, description\\?\\: string\\|null, deprecationReason\\?\\: string\\|null, astNode\\?\\: GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\|null\\}, non\\-empty\\-array given\\.$#"
-			count: 1
-			path: src/Type/Definition/Argument.php
-
-		-
-			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\InterfaceType\\:\\:\\$interfaces \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\InterfaceType\\>\\) does not accept array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
+			message: '#^Property GraphQL\\Type\\Definition\\InterfaceType\:\:\$interfaces \(array\<int, GraphQL\\Type\\Definition\\InterfaceType\>\) does not accept array\<int, GraphQL\\Type\\Definition\\Type\>\.$#'
+			identifier: assign.propertyType
 			count: 1
 			path: src/Type/Definition/InterfaceType.php
 
 		-
-			message: "#^Unable to resolve the template type T in call to method static method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\)$#"
+			message: '#^Unable to resolve the template type T in call to method static method GraphQL\\Type\\Schema\:\:resolveType\(\)$#'
+			identifier: argument.templateType
 			count: 1
 			path: src/Type/Definition/InterfaceType.php
 
 		-
-			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\ObjectType\\:\\:\\$interfaces \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\InterfaceType\\>\\) does not accept array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
+			message: '#^Property GraphQL\\Type\\Definition\\ObjectType\:\:\$interfaces \(array\<int, GraphQL\\Type\\Definition\\InterfaceType\>\) does not accept array\<int, GraphQL\\Type\\Definition\\Type\>\.$#'
+			identifier: assign.propertyType
 			count: 1
 			path: src/Type/Definition/ObjectType.php
 
 		-
-			message: "#^Unable to resolve the template type T in call to method static method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\)$#"
+			message: '#^Unable to resolve the template type T in call to method static method GraphQL\\Type\\Schema\:\:resolveType\(\)$#'
+			identifier: argument.templateType
 			count: 1
 			path: src/Type/Definition/ObjectType.php
 
 		-
-			message: "#^Method GraphQL\\\\Type\\\\Definition\\\\UnionType\\:\\:getTypes\\(\\) should return array\\<int, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\> but returns array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
+			message: '#^Method GraphQL\\Type\\Definition\\UnionType\:\:getTypes\(\) should return array\<int, GraphQL\\Type\\Definition\\ObjectType\> but returns array\<int, GraphQL\\Type\\Definition\\Type\>\.$#'
+			identifier: return.type
 			count: 1
 			path: src/Type/Definition/UnionType.php
 
 		-
-			message: "#^Property GraphQL\\\\Type\\\\Definition\\\\UnionType\\:\\:\\$types \\(array\\<int, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\>\\) does not accept array\\<int, GraphQL\\\\Type\\\\Definition\\\\Type\\>\\.$#"
+			message: '#^Property GraphQL\\Type\\Definition\\UnionType\:\:\$types \(array\<int, GraphQL\\Type\\Definition\\ObjectType\>\) does not accept array\<int, GraphQL\\Type\\Definition\\Type\>\.$#'
+			identifier: assign.propertyType
 			count: 1
 			path: src/Type/Definition/UnionType.php
 
 		-
-			message: "#^Unable to resolve the template type T in call to method static method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\)$#"
+			message: '#^Unable to resolve the template type T in call to method static method GraphQL\\Type\\Schema\:\:resolveType\(\)$#'
+			identifier: argument.templateType
 			count: 1
 			path: src/Type/Definition/UnionType.php
 
 		-
-			message: "#^Method GraphQL\\\\Type\\\\Schema\\:\\:resolveType\\(\\) should return T of GraphQL\\\\Type\\\\Definition\\\\Type but returns \\(callable&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|T of GraphQL\\\\Type\\\\Definition\\\\Type\\.$#"
+			message: '#^Method GraphQL\\Type\\Schema\:\:resolveType\(\) should return T of GraphQL\\Type\\Definition\\Type but returns \(callable&GraphQL\\Type\\Definition\\Type\)\|T of GraphQL\\Type\\Definition\\Type\.$#'
+			identifier: return.type
 			count: 1
 			path: src/Type/Schema.php
 
 		-
-			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\|GraphQL\\\\Language\\\\AST\\\\BooleanValueNode\\|GraphQL\\\\Language\\\\AST\\\\DirectiveDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\DirectiveNode\\|GraphQL\\\\Language\\\\AST\\\\DocumentNode\\|GraphQL\\\\Language\\\\AST\\\\EnumTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\EnumTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\EnumValueNode\\|GraphQL\\\\Language\\\\AST\\\\FieldDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\FieldNode\\|GraphQL\\\\Language\\\\AST\\\\FloatValueNode\\|GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\FragmentSpreadNode\\|GraphQL\\\\Language\\\\AST\\\\InlineFragmentNode\\|GraphQL\\\\Language\\\\AST\\\\InputObjectTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\InputObjectTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\InterfaceTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\InterfaceTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\IntValueNode\\|GraphQL\\\\Language\\\\AST\\\\ListTypeNode\\|GraphQL\\\\Language\\\\AST\\\\ListValueNode\\|GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\|GraphQL\\\\Language\\\\AST\\\\NameNode\\|GraphQL\\\\Language\\\\AST\\\\NonNullTypeNode\\|GraphQL\\\\Language\\\\AST\\\\NullValueNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectFieldNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectValueNode\\|GraphQL\\\\Language\\\\AST\\\\OperationDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\OperationTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\ScalarTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\ScalarTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\SchemaDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|GraphQL\\\\Language\\\\AST\\\\StringValueNode\\|GraphQL\\\\Language\\\\AST\\\\UnionTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\UnionTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\VariableDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\VariableNode\\.$#"
+			message: '#^Variable property access on GraphQL\\Language\\AST\\ArgumentNode\|GraphQL\\Language\\AST\\BooleanValueNode\|GraphQL\\Language\\AST\\DirectiveDefinitionNode\|GraphQL\\Language\\AST\\DirectiveNode\|GraphQL\\Language\\AST\\DocumentNode\|GraphQL\\Language\\AST\\EnumTypeDefinitionNode\|GraphQL\\Language\\AST\\EnumTypeExtensionNode\|GraphQL\\Language\\AST\\EnumValueDefinitionNode\|GraphQL\\Language\\AST\\EnumValueNode\|GraphQL\\Language\\AST\\FieldDefinitionNode\|GraphQL\\Language\\AST\\FieldNode\|GraphQL\\Language\\AST\\FloatValueNode\|GraphQL\\Language\\AST\\FragmentDefinitionNode\|GraphQL\\Language\\AST\\FragmentSpreadNode\|GraphQL\\Language\\AST\\InlineFragmentNode\|GraphQL\\Language\\AST\\InputObjectTypeDefinitionNode\|GraphQL\\Language\\AST\\InputObjectTypeExtensionNode\|GraphQL\\Language\\AST\\InputValueDefinitionNode\|GraphQL\\Language\\AST\\InterfaceTypeDefinitionNode\|GraphQL\\Language\\AST\\InterfaceTypeExtensionNode\|GraphQL\\Language\\AST\\IntValueNode\|GraphQL\\Language\\AST\\ListTypeNode\|GraphQL\\Language\\AST\\ListValueNode\|GraphQL\\Language\\AST\\NamedTypeNode\|GraphQL\\Language\\AST\\NameNode\|GraphQL\\Language\\AST\\NonNullTypeNode\|GraphQL\\Language\\AST\\NullValueNode\|GraphQL\\Language\\AST\\ObjectFieldNode\|GraphQL\\Language\\AST\\ObjectTypeDefinitionNode\|GraphQL\\Language\\AST\\ObjectTypeExtensionNode\|GraphQL\\Language\\AST\\ObjectValueNode\|GraphQL\\Language\\AST\\OperationDefinitionNode\|GraphQL\\Language\\AST\\OperationTypeDefinitionNode\|GraphQL\\Language\\AST\\ScalarTypeDefinitionNode\|GraphQL\\Language\\AST\\ScalarTypeExtensionNode\|GraphQL\\Language\\AST\\SchemaDefinitionNode\|GraphQL\\Language\\AST\\SelectionSetNode\|GraphQL\\Language\\AST\\StringValueNode\|GraphQL\\Language\\AST\\UnionTypeDefinitionNode\|GraphQL\\Language\\AST\\UnionTypeExtensionNode\|GraphQL\\Language\\AST\\VariableDefinitionNode\|GraphQL\\Language\\AST\\VariableNode\.$#'
+			identifier: property.dynamicName
 			count: 1
 			path: src/Utils/AST.php
 
 		-
-			message: "#^Variable property access on mixed\\.$#"
+			message: '#^Variable property access on mixed\.$#'
+			identifier: property.dynamicName
 			count: 1
 			path: src/Utils/AST.php
 
 		-
-			message: "#^Method GraphQL\\\\Validator\\\\Rules\\\\KnownDirectives\\:\\:getDirectiveLocationForASTPath\\(\\) has parameter \\$ancestors with generic class GraphQL\\\\Language\\\\AST\\\\NodeList but does not specify its types\\: T$#"
+			message: '#^Method GraphQL\\Validator\\Rules\\KnownDirectives\:\:getDirectiveLocationForASTPath\(\) has parameter \$ancestors with generic class GraphQL\\Language\\AST\\NodeList but does not specify its types\: T$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/Validator/Rules/KnownDirectives.php
-
-		-
-			message: "#^Method GraphQL\\\\Validator\\\\Rules\\\\OverlappingFieldsCanBeMerged\\:\\:getFieldsAndFragmentNames\\(\\) should return array\\{array\\<string, array\\<int, array\\{GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Language\\\\AST\\\\FieldNode, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null\\}\\>\\>, array\\<int, string\\>\\} but returns array\\{mixed, array\\<int, int\\|string\\>\\}\\.$#"
-			count: 1
-			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
-
-		-
-			message: "#^SplObjectStorage\\<GraphQL\\\\Language\\\\AST\\\\SelectionSetNode, array\\{array\\<string, array\\<int, array\\{GraphQL\\\\Type\\\\Definition\\\\Type, GraphQL\\\\Language\\\\AST\\\\FieldNode, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null\\}\\>\\>, array\\<int, string\\>\\}\\> does not accept array\\<int, mixed\\>\\.$#"
-			count: 1
-			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php

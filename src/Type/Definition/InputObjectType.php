@@ -109,7 +109,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     protected function initializeFields(): void
     {
         $fields = $this->config['fields'];
-        if (\is_callable($fields)) {
+        if (is_callable($fields)) {
             $fields = $fields();
         }
 
@@ -128,7 +128,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      */
     protected function initializeField($nameOrIndex, $field): void
     {
-        if (\is_callable($field)) {
+        if (is_callable($field)) {
             $field = $field();
         }
         assert($field instanceof Type || is_array($field) || $field instanceof InputObjectField);
@@ -138,10 +138,10 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         }
         assert(is_array($field) || $field instanceof InputObjectField); // @phpstan-ignore-line TODO remove when using actual union types
 
-        if (\is_array($field)) {
+        if (is_array($field)) {
             $field['name'] ??= $nameOrIndex;
 
-            if (! \is_string($field['name'])) {
+            if (! is_string($field['name'])) {
                 throw new InvariantViolation("{$this->name} fields must be an associative array with field names as keys, an array of arrays with a name attribute, or a callable which returns one of those.");
             }
 
@@ -182,11 +182,11 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         Utils::assertValidName($this->name);
 
         $fields = $this->config['fields'] ?? null;
-        if (\is_callable($fields)) {
+        if (is_callable($fields)) {
             $fields = $fields();
         }
 
-        if (! \is_iterable($fields)) {
+        if (! is_iterable($fields)) {
             $invalidFields = Utils::printSafe($fields);
             throw new InvariantViolation("{$this->name} fields must be an iterable or a callable which returns an iterable, got: {$invalidFields}.");
         }

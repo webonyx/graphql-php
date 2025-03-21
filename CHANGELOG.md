@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.20.0
+
+### Added
+
+- Add keys `type` and `unions` to `ResolveInfo::getFieldSelectionWithAliases` result https://github.com/webonyx/graphql-php/pull/1681
+
 ## v15.19.1
 
 ### Fixed

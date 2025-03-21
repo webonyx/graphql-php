@@ -447,7 +447,7 @@ class Lexer
                         $value .= '\\';
                         break;
                     case 98:
-                        $value .= \chr(8); // \b (backspace)
+                        $value .= chr(8); // \b (backspace)
                         break;
                     case 102:
                         $value .= "\f";
@@ -464,23 +464,23 @@ class Lexer
                     case 117:
                         $position = $this->position;
                         [$hex] = $this->readChars(4);
-                        if (\preg_match('/[0-9a-fA-F]{4}/', $hex) !== 1) {
+                        if (preg_match('/[0-9a-fA-F]{4}/', $hex) !== 1) {
                             throw new SyntaxError($this->source, $position - 1, "Invalid character escape sequence: \\u{$hex}");
                         }
 
-                        $code = \hexdec($hex);
+                        $code = hexdec($hex);
                         assert(is_int($code), 'Since only a single char is read');
 
                         // UTF-16 surrogate pair detection and handling.
                         $highOrderByte = $code >> 8;
                         if ($highOrderByte >= 0xD8 && $highOrderByte <= 0xDF) {
                             [$utf16Continuation] = $this->readChars(6);
-                            if (\preg_match('/^\\\u[0-9a-fA-F]{4}$/', $utf16Continuation) !== 1) {
+                            if (preg_match('/^\\\u[0-9a-fA-F]{4}$/', $utf16Continuation) !== 1) {
                                 throw new SyntaxError($this->source, $this->position - 5, 'Invalid UTF-16 trailing surrogate: ' . $utf16Continuation);
                             }
 
-                            $surrogatePairHex = $hex . \substr($utf16Continuation, 2, 4);
-                            $value .= \mb_convert_encoding(\pack('H*', $surrogatePairHex), 'UTF-8', 'UTF-16');
+                            $surrogatePairHex = $hex . substr($utf16Continuation, 2, 4);
+                            $value .= mb_convert_encoding(pack('H*', $surrogatePairHex), 'UTF-8', 'UTF-16');
                             break;
                         }
 
@@ -693,7 +693,7 @@ class Lexer
         $positionOffset = 0;
 
         if (isset($this->source->body[$byteStreamPosition])) {
-            $ord = \ord($this->source->body[$byteStreamPosition]);
+            $ord = ord($this->source->body[$byteStreamPosition]);
 
             if ($ord < 128) {
                 $bytes = 1;

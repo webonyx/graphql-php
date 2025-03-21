@@ -18,8 +18,8 @@ class SingleFieldSubscription extends ValidationRule
                 if ($node->operation === 'subscription') {
                     $selections = $node->selectionSet->selections;
 
-                    if (\count($selections) > 1) {
-                        $offendingSelections = $selections->splice(1, \count($selections));
+                    if (count($selections) > 1) {
+                        $offendingSelections = $selections->splice(1, count($selections));
 
                         $context->reportError(new Error(
                             static::multipleFieldsInOperation($node->name->value ?? null),

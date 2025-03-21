@@ -71,7 +71,7 @@ abstract class Node implements \JsonSerializable
     {
         if ($value instanceof self) {
             $cloned = clone $value;
-            foreach (\get_object_vars($cloned) as $prop => $propValue) {
+            foreach (get_object_vars($cloned) as $prop => $propValue) {
                 $cloned->{$prop} = static::cloneValue($propValue);
             }
 
@@ -79,6 +79,11 @@ abstract class Node implements \JsonSerializable
         }
 
         if ($value instanceof NodeList) {
+            /**
+             * @phpstan-var TCloneable
+             *
+             * @phpstan-ignore varTag.nativeType (PHPStan is strict about template types and sees NodeList<TNode> as potentially different from TCloneable)
+             */
             return $value->cloneDeep();
         }
 
@@ -88,7 +93,7 @@ abstract class Node implements \JsonSerializable
     /** @throws \JsonException */
     public function __toString(): string
     {
-        return \json_encode($this, JSON_THROW_ON_ERROR);
+        return json_encode($this, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -114,7 +119,7 @@ abstract class Node implements \JsonSerializable
     {
         $result = [];
 
-        foreach (\get_object_vars($node) as $prop => $propValue) {
+        foreach (get_object_vars($node) as $prop => $propValue) {
             if ($propValue === null) {
                 continue;
             }

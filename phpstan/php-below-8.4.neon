@@ -1,0 +1,7 @@
+parameters:
+    ignoreErrors:
+        -
+            message: '#^Call\-site variance of covariant object in generic type ReflectionClass\<covariant object\> in PHPDoc tag @param for parameter \$class is redundant, template type T of object of class ReflectionClass has the same variance\.$#'
+            identifier: generics.callSiteVarianceRedundant
+            count: 1
+            path: ../generate-class-reference.php

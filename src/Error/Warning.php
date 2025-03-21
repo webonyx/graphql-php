@@ -63,10 +63,10 @@ final class Warning
         } elseif ($suppress === false) {
             self::$enableWarnings = self::ALL;
         // @phpstan-ignore-next-line necessary until we can use proper unions
-        } elseif (\is_int($suppress)) {
+        } elseif (is_int($suppress)) {
             self::$enableWarnings &= ~$suppress;
         } else {
-            $type = \gettype($suppress);
+            $type = gettype($suppress);
             throw new \InvalidArgumentException("Expected type bool|int, got {$type}.");
         }
     }
@@ -89,10 +89,10 @@ final class Warning
         } elseif ($enable === false) {
             self::$enableWarnings = 0;
         // @phpstan-ignore-next-line necessary until we can use proper unions
-        } elseif (\is_int($enable)) {
+        } elseif (is_int($enable)) {
             self::$enableWarnings |= $enable;
         } else {
-            $type = \gettype($enable);
+            $type = gettype($enable);
             throw new \InvalidArgumentException("Expected type bool|int, got {$type}.");
         }
     }
@@ -105,7 +105,7 @@ final class Warning
             (self::$warningHandler)($errorMessage, $warningId, $messageLevel);
         } elseif ((self::$enableWarnings & $warningId) > 0 && ! isset(self::$warned[$warningId])) {
             self::$warned[$warningId] = true;
-            \trigger_error($errorMessage, $messageLevel);
+            trigger_error($errorMessage, $messageLevel);
         }
     }
 
@@ -116,7 +116,7 @@ final class Warning
         if (self::$warningHandler !== null) {
             (self::$warningHandler)($errorMessage, $warningId, $messageLevel);
         } elseif ((self::$enableWarnings & $warningId) > 0) {
-            \trigger_error($errorMessage, $messageLevel);
+            trigger_error($errorMessage, $messageLevel);
         }
     }
 }

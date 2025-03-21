@@ -107,7 +107,7 @@ class ValuesOfCorrectType extends ValidationRule
 
                 $suggestions = Utils::suggestionList(
                     $node->name->value,
-                    \array_keys($parentType->getFields())
+                    array_keys($parentType->getFields())
                 );
                 $didYouMean = $suggestions === []
                     ? null

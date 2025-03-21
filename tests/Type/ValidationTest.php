@@ -140,20 +140,20 @@ final class ValidationTest extends TestCaseBase
      */
     private function withModifiers(array $types): array
     {
-        return \array_merge(
+        return array_merge(
             $types,
-            \array_map(
+            array_map(
                 static fn (Type $type): ListOfType => Type::listOf($type),
                 $types
             ),
-            \array_map(
+            array_map(
                 static function (Type $type): NonNull {
                     /** @var Type&NullableType $type */
                     return Type::nonNull($type);
                 },
                 $types
             ),
-            \array_map(
+            array_map(
                 static fn (Type $type): NonNull => Type::nonNull(Type::listOf($type)),
                 $types
             )
@@ -324,7 +324,7 @@ final class ValidationTest extends TestCaseBase
     /** @return array<int, array{line: int, column: int}> */
     private function formatLocations(Error $error): array
     {
-        return \array_map(
+        return array_map(
             static fn (SourceLocation $loc): array => [
                 'line' => $loc->line,
                 'column' => $loc->column,
@@ -340,7 +340,7 @@ final class ValidationTest extends TestCaseBase
      */
     private function formatErrors(array $errors, bool $withLocation = true): array
     {
-        return \array_map(
+        return array_map(
             fn (Error $error): array => $withLocation
                 ? [
                     'message' => $error->getMessage(),
@@ -375,7 +375,7 @@ final class ValidationTest extends TestCaseBase
     /** @dataProvider rootTypes */
     public function testRejectsASchemaWhoseRootTypeIsAnInputType(string $rootType): void
     {
-        $ucfirstRootType = \ucfirst($rootType);
+        $ucfirstRootType = ucfirst($rootType);
 
         $this->expectRootTypeMustBeObjectTypeNotInputType();
         BuildSchema::build("

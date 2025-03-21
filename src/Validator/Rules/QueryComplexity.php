@@ -179,7 +179,7 @@ class QueryComplexity extends QuerySecurityRule
                 $this->getRawVariableValues()
             );
             if ($errors !== null && $errors !== []) {
-                throw new Error(\implode("\n\n", \array_map(static fn (Error $error): string => $error->getMessage(), $errors)));
+                throw new Error(implode("\n\n", array_map(static fn (Error $error): string => $error->getMessage(), $errors)));
             }
 
             if ($directiveNode->name->value === Directive::INCLUDE_NAME) {
@@ -242,7 +242,7 @@ class QueryComplexity extends QuerySecurityRule
             );
 
             if (is_array($errors) && $errors !== []) {
-                throw new Error(\implode("\n\n", \array_map(static fn ($error) => $error->getMessage(), $errors)));
+                throw new Error(implode("\n\n", array_map(static fn ($error) => $error->getMessage(), $errors)));
             }
 
             $args = Values::getArgumentValues($fieldDef, $node, $variableValues);

@@ -159,8 +159,9 @@ class ExecutionResult implements \JsonSerializable
 
         if ($this->errors !== []) {
             $errorsHandler = $this->errorsHandler
-                ?? static fn (array $errors, callable $formatter): array => \array_map($formatter, $errors);
+                ?? static fn (array $errors, callable $formatter): array => array_map($formatter, $errors);
 
+            /** @phpstan-var SerializableErrors */
             $handledErrors = $errorsHandler(
                 $this->errors,
                 FormattedError::prepareFormatter($this->errorFormatter, $debug)

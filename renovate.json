@@ -19,7 +19,7 @@
       "rangeStrategy": "replace"
     },
     {
-      "matchPackageNames": ["friendsofphp/php-cs-fixer"],
+      "matchPackageNames": ["friendsofphp/php-cs-fixer", "mll-lab/php-cs-fixer-config"],
       "automerge": true,
       "automergeStrategy": "squash"
     }

@@ -36,7 +36,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         $adoptedPromise = $promise->adoptedPromise;
-        \assert($adoptedPromise instanceof SyncPromise);
+        assert($adoptedPromise instanceof SyncPromise);
 
         return new Promise($adoptedPromise->then($onFulfilled, $onRejected), $this);
     }
@@ -91,9 +91,9 @@ class SyncPromiseAdapter implements PromiseAdapter
     {
         $all = new SyncPromise();
 
-        $total = \is_array($promisesOrValues)
-            ? \count($promisesOrValues)
-            : \iterator_count($promisesOrValues);
+        $total = is_array($promisesOrValues)
+            ? count($promisesOrValues)
+            : iterator_count($promisesOrValues);
         $count = 0;
         $result = [];
 
@@ -138,7 +138,7 @@ class SyncPromiseAdapter implements PromiseAdapter
         $taskQueue = SyncPromise::getQueue();
 
         $syncPromise = $promise->adoptedPromise;
-        \assert($syncPromise instanceof SyncPromise);
+        assert($syncPromise instanceof SyncPromise);
 
         while (
             $syncPromise->state === SyncPromise::PENDING

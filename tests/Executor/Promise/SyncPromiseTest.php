@@ -30,7 +30,7 @@ final class SyncPromiseTest extends TestCaseBase
         };
 
         yield ['test-value', null, 'test-value', null, SyncPromise::FULFILLED];
-        yield [\uniqid(), $onFulfilledReturnsNull, null, null, SyncPromise::FULFILLED];
+        yield [uniqid(), $onFulfilledReturnsNull, null, null, SyncPromise::FULFILLED];
         yield ['test-value', $onFulfilledReturnsSameValue, 'test-value', null, SyncPromise::FULFILLED];
         yield ['test-value-2', $onFulfilledReturnsOtherValue, 'other-test-value-2', null, SyncPromise::FULFILLED];
         yield ['test-value-3', $onFulfilledThrows, null, 'onFulfilled throws this!', SyncPromise::REJECTED];
@@ -110,6 +110,7 @@ final class SyncPromiseTest extends TestCaseBase
             self::assertNotSame($promise, $nextPromise);
             self::assertSame(SyncPromise::PENDING, $nextPromise->state);
         } else {
+            /** @phpstan-ignore argument.unresolvableType (false positive?)  */
             self::assertSame(SyncPromise::FULFILLED, $nextPromise->state);
         }
 
@@ -282,6 +283,7 @@ final class SyncPromiseTest extends TestCaseBase
             self::assertNotSame($promise, $nextPromise);
             self::assertSame(SyncPromise::PENDING, $nextPromise->state);
         } else {
+            /** @phpstan-ignore argument.unresolvableType (false positive?)  */
             self::assertSame(SyncPromise::REJECTED, $nextPromise->state);
         }
 

@@ -368,7 +368,7 @@ GRAPHQL,
         ');
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
-        self::assertGreaterThan(0, \count($extendedSchema->validate()));
+        self::assertGreaterThan(0, count($extendedSchema->validate()));
         self::assertSame(
             <<<GRAPHQL
                 union SomeUnion = SomeUnion

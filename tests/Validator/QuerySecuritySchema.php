@@ -27,7 +27,7 @@ final class QuerySecuritySchema
     {
         return self::$schema ??= new Schema([
             'query' => self::buildQueryRootType(),
-            'directives' => \array_merge(GraphQL::getStandardDirectives(), [self::buildFooDirective()]),
+            'directives' => array_merge(GraphQL::getStandardDirectives(), [self::buildFooDirective()]),
         ]);
     }
 

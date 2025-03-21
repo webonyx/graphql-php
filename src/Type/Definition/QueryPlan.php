@@ -68,7 +68,7 @@ class QueryPlan
     /** @return array<int, string> */
     public function getReferencedTypes(): array
     {
-        return \array_keys($this->typeToFields);
+        return array_keys($this->typeToFields);
     }
 
     public function hasType(string $type): bool
@@ -142,7 +142,7 @@ class QueryPlan
         if ($this->groupImplementorFields) {
             $this->queryPlan = ['fields' => $queryPlan];
 
-            if ($implementors) {
+            if ($implementors !== []) {
                 $this->queryPlan['implementors'] = $implementors;
             }
         } else {
@@ -188,7 +188,7 @@ class QueryPlan
                     'fields' => $subfields,
                     'args' => Values::getArgumentValues($type, $selection, $this->variableValues),
                 ];
-                if ($this->groupImplementorFields && $subImplementors) {
+                if ($this->groupImplementorFields && $subImplementors !== []) {
                     $fields[$fieldName]['implementors'] = $subImplementors;
                 }
             } elseif ($selection instanceof FragmentSpreadNode) {
@@ -256,17 +256,20 @@ class QueryPlan
     private function mergeFields(Type $parentType, Type $type, array $fields, array $subfields, array &$implementors): array
     {
         if ($this->groupImplementorFields && $parentType instanceof AbstractType && ! $type instanceof AbstractType) {
-            $implementors[$type->name] = [
+            $name = $type->name;
+            assert(is_string($name));
+
+            $implementors[$name] = [
                 'type' => $type,
                 'fields' => $this->arrayMergeDeep(
-                    $implementors[$type->name]['fields'] ?? [],
-                    \array_diff_key($subfields, $fields)
+                    $implementors[$name]['fields'] ?? [],
+                    array_diff_key($subfields, $fields)
                 ),
             ];
 
             $fields = $this->arrayMergeDeep(
                 $fields,
-                \array_intersect_key($subfields, $fields)
+                array_intersect_key($subfields, $fields)
             );
         } else {
             $fields = $this->arrayMergeDeep($subfields, $fields);
@@ -289,11 +292,11 @@ class QueryPlan
     private function arrayMergeDeep(array $array1, array $array2): array
     {
         foreach ($array2 as $key => &$value) {
-            if (\is_numeric($key)) {
-                if (! \in_array($value, $array1, true)) {
+            if (is_numeric($key)) {
+                if (! in_array($value, $array1, true)) {
                     $array1[] = $value;
                 }
-            } elseif (\is_array($value) && isset($array1[$key]) && \is_array($array1[$key])) {
+            } elseif (is_array($value) && isset($array1[$key]) && is_array($array1[$key])) {
                 $array1[$key] = $this->arrayMergeDeep($array1[$key], $value);
             } else {
                 $array1[$key] = $value;
