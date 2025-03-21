@@ -737,21 +737,24 @@ final class ResolveInfoTest extends TestCase
         };
 
         $myCustomWithObjectType = new CustomWithObject();
-        // retrieve the instance from the parent type in order to don't instantiate twice the same type in the same schema
+
+        // retrieve the instance from the parent type in order to not instantiate the same type twice in the same schema
         $fields = $myCustomWithObjectType->config['fields'];
-        assert(is_array($fields), 'ensured by type config');
+        assert(is_array($fields), 'see CustomWithObject::__construct');
         $myCustomType = $fields['customA'];
+
         $levelUnion = new UnionType([
             'name' => 'CustomOrOther',
             'types' => [
                 $myCustomType,
                 $myCustomWithObjectType,
             ],
-            'resolveType' => function ($value) use ($myCustomType, $myCustomWithObjectType): ObjectType {
-                switch (get_class($value)) {
+            'resolveType' => function (object $value) use ($myCustomType, $myCustomWithObjectType): ObjectType {
+                $valueClass = get_class($value);
+                switch ($valueClass) {
                     case MyCustomType::class: return $myCustomType;
                     case CustomWithObject::class: return $myCustomWithObjectType;
-                    default: throw new Error('Unexpected union type');
+                    default: throw new Error("Can not determine type for value of class {$valueClass}.");
                 }
             },
         ]);

@@ -349,8 +349,8 @@ class ResolveInfo
         foreach ($this->fieldNodes as $fieldNode) {
             $selectionSet = $fieldNode->selectionSet;
             if ($selectionSet !== null) {
-                $fieldType = $this->parentType->getField($fieldNode->name->value)
-                    ->getType();
+                $field = $this->parentType->getField($fieldNode->name->value);
+                $fieldType = $field->getType();
 
                 $fields = array_merge_recursive(
                     $fields,
@@ -441,19 +441,22 @@ class ResolveInfo
                 if ($fieldName === Introspection::TYPE_NAME_FIELD_NAME) {
                     continue;
                 }
-
                 assert($parentType instanceof HasFieldsType, 'ensured by query validation');
 
-                $fieldDef = $parentType->getField($fieldName);
-                $fieldType = $fieldDef->getType();
-                $fields[$fieldName][$aliasName]['args'] = Values::getArgumentValues($fieldDef, $selection, $this->variableValues);
+                $aliasInfo = &$fields[$fieldName][$aliasName];
 
-                $innerType = $fieldType;
-                if ($innerType instanceof WrappingType) {
-                    $innerType = $innerType->getInnermostType();
+                $fieldDef = $parentType->getField($fieldName);
+
+                $aliasInfo['args'] = Values::getArgumentValues($fieldDef, $selection, $this->variableValues);
+
+                $fieldType = $fieldDef->getType();
+
+                $namedFieldType = $fieldType;
+                if ($namedFieldType instanceof WrappingType) {
+                    $namedFieldType = $namedFieldType->getInnermostType();
                 }
 
-                $fields[$fieldName][$aliasName]['type'] = $innerType;
+                $aliasInfo['type'] = $namedFieldType;
 
                 if ($descend <= 0) {
                     continue;
@@ -464,12 +467,12 @@ class ResolveInfo
                     continue;
                 }
 
-                if (is_a($innerType, UnionType::class)) {
-                    $fields[$fieldName][$aliasName]['unions'] = $this->foldSelectionWithAlias($nestedSelectionSet, $descend, $fieldType);
+                if ($namedFieldType instanceof UnionType) {
+                    $aliasInfo['unions'] = $this->foldSelectionWithAlias($nestedSelectionSet, $descend, $fieldType);
                     continue;
                 }
 
-                $fields[$fieldName][$aliasName]['selectionSet'] = $this->foldSelectionWithAlias($nestedSelectionSet, $descend - 1, $fieldType);
+                $aliasInfo['selectionSet'] = $this->foldSelectionWithAlias($nestedSelectionSet, $descend - 1, $fieldType);
             } elseif ($selection instanceof FragmentSpreadNode) {
                 $spreadName = $selection->name->value;
                 $fragment = $this->fragments[$spreadName] ?? null;
@@ -491,16 +494,18 @@ class ResolveInfo
                     : $this->schema->getType($typeCondition->name->value);
                 assert($fieldType instanceof Type, 'ensured by query validation');
 
-                if (is_a($parentType, UnionType::class)) {
+                if ($parentType instanceof UnionType) {
                     assert($fieldType instanceof NamedType, 'ensured by query validation');
-                    $fields[$fieldType->name()]['type'] = $fieldType;
-                    $fields[$fieldType->name()]['selectionSet'] = $this->foldSelectionWithAlias($selection->selectionSet, $descend, $fieldType);
-                } else {
-                    $fields = array_merge_recursive(
-                        $this->foldSelectionWithAlias($selection->selectionSet, $descend, $fieldType),
-                        $fields
-                    );
+                    $fieldTypeInfo = &$fields[$fieldType->name()];
+                    $fieldTypeInfo['type'] = $fieldType;
+                    $fieldTypeInfo['selectionSet'] = $this->foldSelectionWithAlias($selection->selectionSet, $descend, $fieldType);
+                    continue;
                 }
+
+                $fields = array_merge_recursive(
+                    $this->foldSelectionWithAlias($selection->selectionSet, $descend, $fieldType),
+                    $fields
+                );
             }
         }
 
