@@ -156,6 +156,7 @@ final class SyncPromiseAdapterTest extends TestCase
 
     public function testWait(): void
     {
+        /** @var list<int> $called */
         $called = [];
 
         $deferred1 = new Deferred(static function () use (&$called): int {
@@ -211,7 +212,7 @@ final class SyncPromiseAdapterTest extends TestCase
         $expectedResult = [0, 1, 2, 3, 4];
         $result = $this->promises->wait($all);
         self::assertSame($expectedResult, $result);
-        self::assertSame([1, 2, 3, 4], $called);
+        self::assertSame([1, 2, 3, 4], $called); // @phpstan-ignore staticMethod.alreadyNarrowedType ($called may be mutated)
         self::assertValidPromise($all, null, [0, 1, 2, 3, 4], SyncPromise::FULFILLED);
     }
 }
