@@ -24,7 +24,7 @@
     "phpbench/phpbench": "^1.2",
     "phpstan/extension-installer": "^1.1",
     "phpstan/phpstan": "2.1.11",
-    "phpstan/phpstan-phpunit": "2.0.5",
+    "phpstan/phpstan-phpunit": "2.0.6",
     "phpstan/phpstan-strict-rules": "2.0.4",
     "phpunit/phpunit": "^9.5 || ^10.5.21 || ^11",
     "psr/http-message": "^1 || ^2",
