@@ -68,3 +68,5 @@ jobs:
       - run: vendor/bin/php-cs-fixer fix
 
       - uses: autofix-ci/action@v1
+        with:
+          commit-message: Apply php-cs-fixer changes
