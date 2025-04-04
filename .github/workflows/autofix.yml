@@ -26,6 +26,7 @@ jobs:
 
       - run: composer docs
       - run: npx prettier --write --tab-width=2 *.md **/*.md
+
       - run: vendor/bin/php-cs-fixer fix
 
       - uses: autofix-ci/action@v1
