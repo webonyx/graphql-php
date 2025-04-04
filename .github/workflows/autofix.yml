@@ -1,0 +1,34 @@
+name: autofix.ci # needed to securely identify the workflow by the action
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  autofix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          coverage: none
+          extensions: mbstring
+          php-version: 8.3
+
+      - uses: ramsey/composer-install@v2
+
+      - run: composer normalize
+
+      - run: composer docs
+      - run: npx prettier --write --tab-width=2 *.md **/*.md
+
+      - run: vendor/bin/php-cs-fixer fix
+
+      - uses: autofix-ci/action@v1
+        with:
+          commit-message: Autofix
