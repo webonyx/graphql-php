@@ -5,9 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
-
-
-
 break docs
 You can find and compare releases at the [GitHub release page](https://github.com/webonyx/graphql-php/releases).
 
@@ -24,7 +21,6 @@ You can find and compare releases at the [GitHub release page](https://github.co
 ### Fixed
 
         - Handle fields that return lists in `ResolveInfo::getFieldSelectionWithAliases` https://github.com/webonyx/graphql-php/pull/1664
-
 
 ## v15.19.0
 
@@ -68,7 +64,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 - Add field config decorator when building schema from SDL https://github.com/webonyx/graphql-php/pull/1590
 
-## v15.14.3    
+## v15.14.3
 
 ### Fixed
 
