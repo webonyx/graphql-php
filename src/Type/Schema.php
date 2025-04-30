@@ -99,6 +99,10 @@ class Schema
         $this->extensionASTNodes = $config->extensionASTNodes;
 
         $this->config = $config;
+
+        foreach ($this->config->types as $type) {
+            $this->resolvedTypes[$type->name()] = $type;
+        }
     }
 
     /**
