@@ -181,7 +181,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     {
         Utils::assertValidName($this->name);
 
-        $fields = $this->config['fields'] ?? null;
+        $fields = $this->config['fields'] ?? null; // @phpstan-ignore nullCoalesce.initializedProperty (unnecessary according to types, but can happen during runtime)
         if (is_callable($fields)) {
             $fields = $fields();
         }

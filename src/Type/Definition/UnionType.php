@@ -89,7 +89,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         if (! isset($this->types)) {
             $this->types = [];
 
-            $types = $this->config['types'] ?? null;
+            $types = $this->config['types'] ?? null; // @phpstan-ignore nullCoalesce.initializedProperty (unnecessary according to types, but can happen during runtime)
             if (is_callable($types)) {
                 $types = $types();
             }
@@ -120,7 +120,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         Utils::assertValidName($this->name);
 
         $resolveType = $this->config['resolveType'] ?? null;
-        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
+        // @phpstan-ignore-next-line unnecessary according to types, but can happen during runtime
         if (isset($resolveType) && ! is_callable($resolveType)) {
             $notCallable = Utils::printSafe($resolveType);
             throw new InvariantViolation("{$this->name} must provide \"resolveType\" as null or a callable, but got: {$notCallable}.");

@@ -479,7 +479,7 @@ final class CoerceInputValueTest extends TestCase
      * @see it('throw error without path', () => {
      * @see it('throw error with path', () => {
      *
-     * Not necessary because we do not implement the callback variant coerceInputValue.
+     * Unnecessary because we do not implement the callback variant coerceInputValue.
      */
 
     /**

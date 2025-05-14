@@ -222,7 +222,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     {
         Utils::assertValidName($this->name);
 
-        $values = $this->config['values'] ?? null;
+        $values = $this->config['values'] ?? null; // @phpstan-ignore nullCoalesce.initializedProperty (unnecessary according to types, but can happen during runtime)
         if (! is_iterable($values) && ! is_callable($values)) {
             $notIterable = Utils::printSafe($values);
             throw new InvariantViolation("{$this->name} values must be an iterable or callable, got: {$notIterable}");
