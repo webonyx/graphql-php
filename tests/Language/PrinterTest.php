@@ -44,7 +44,7 @@ final class PrinterTest extends TestCaseBase
     /** @see it('produces helpful error messages', () => { */
     public function testProducesHelpfulErrorMessages(): void
     {
-        self::markTestSkipped('Not necessary because our class based AST makes it impossible to pass bad data.');
+        self::markTestSkipped('Unnecessary because our class based AST makes it impossible to pass bad data.');
     }
 
     /** @see it('correctly prints non-query operations without name', () => { */

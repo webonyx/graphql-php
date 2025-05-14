@@ -116,7 +116,10 @@ class Utils
             return pack('N', $ord);
         }
 
-        return mb_convert_encoding(self::chr($ord, 'UCS-4BE'), $encoding, 'UCS-4BE');
+        $converted = mb_convert_encoding(self::chr($ord, 'UCS-4BE'), $encoding, 'UCS-4BE');
+        assert(is_string($converted), 'format string is statically known to be correct');
+
+        return $converted;
     }
 
     /** UTF-8 compatible ord(). */
@@ -128,10 +131,13 @@ class Utils
 
         if ($encoding !== 'UCS-4BE') {
             $char = mb_convert_encoding($char, 'UCS-4BE', $encoding);
+            assert(is_string($char), 'format string is statically known to be correct');
         }
 
-        // @phpstan-ignore-next-line format string is statically known to be correct
-        return unpack('N', $char)[1];
+        $unpacked = unpack('N', $char);
+        assert(is_array($unpacked), 'format string is statically known to be correct');
+
+        return $unpacked[1];
     }
 
     /** Returns UTF-8 char code at given $positing of the $string. */

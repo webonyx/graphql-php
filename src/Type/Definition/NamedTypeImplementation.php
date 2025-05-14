@@ -4,9 +4,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 
-/**
- * @see NamedType
- */
+/** @see NamedType */
 trait NamedTypeImplementation
 {
     public string $name;
@@ -21,7 +19,7 @@ trait NamedTypeImplementation
     /** @throws InvariantViolation */
     protected function inferName(): string
     {
-        if (isset($this->name)) {
+        if (isset($this->name)) { // @phpstan-ignore-line property might be uninitialized
             return $this->name;
         }
 

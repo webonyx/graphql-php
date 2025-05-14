@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 abstract class TestCaseBase extends TestCase
 {
     /**
-     * Useful to test code with no observable behaviour other than not crashing.
+     * Useful to test code with no observable behavior other than not crashing.
      *
      * In contrast to PHPUnit's native method, this lets the test case count towards coverage.
      *
