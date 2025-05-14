@@ -1212,7 +1212,7 @@ final class BuildSchemaTest extends TestCaseBase
     /** @see it('Do not override standard types') */
     public function testDoNotOverrideStandardTypes(): void
     {
-        // NOTE: not sure it's desired behaviour to just silently ignore override
+        // NOTE: not sure it's desired behavior to just silently ignore override
         // attempts so just documenting it here.
 
         $schema = BuildSchema::build('
