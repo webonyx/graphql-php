@@ -63,7 +63,7 @@ class SchemaGenerator
 
         ++$this->typeIndex;
         if ($typeName === null) {
-            $typeName = 'Level_' . $nestingLevel . '_Type' . $this->typeIndex;
+            $typeName = "Level_{$nestingLevel}_Type{$this->typeIndex}";
         }
 
         $type = new ObjectType([
@@ -81,13 +81,13 @@ class SchemaGenerator
     {
         if ($nestingLevel >= $this->config['nestingLevel']) {
             $fieldType = Type::string();
-            $fieldName = 'leafField' . $fieldIndex;
+            $fieldName = "leafField{$fieldIndex}";
         } elseif ($this->typeIndex >= $this->config['totalTypes']) {
             $fieldType = $this->objectTypes[array_rand($this->objectTypes)];
-            $fieldName = 'randomTypeField' . $fieldIndex;
+            $fieldName = "randomTypeField{$fieldIndex}";
         } else {
             $fieldType = $this->createType($nestingLevel);
-            $fieldName = 'field' . $fieldIndex;
+            $fieldName = "field{$fieldIndex}";
         }
 
         return [$fieldType, $fieldName];
@@ -136,7 +136,7 @@ class SchemaGenerator
             ],
             'argEnum' => [
                 'type' => new EnumType([
-                    'name' => $typeName . $fieldName . 'Enum',
+                    'name' => "{$typeName}{$fieldName}Enum",
                     'values' => [
                         'ONE',
                         'TWO',
@@ -146,7 +146,7 @@ class SchemaGenerator
             ],
             'argInputObject' => [
                 'type' => new InputObjectType([
-                    'name' => $typeName . $fieldName . 'Input',
+                    'name' => "{$typeName}{$fieldName}Input",
                     'fields' => [
                         'field1' => Type::string(),
                         'field2' => Type::int(),
@@ -163,6 +163,6 @@ class SchemaGenerator
      */
     public function resolveField($root, array $args, $context, ResolveInfo $resolveInfo): string
     {
-        return $resolveInfo->fieldName . '-value';
+        return "{$resolveInfo->fieldName}-value";
     }
 }
