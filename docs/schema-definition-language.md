@@ -63,6 +63,8 @@ $contents = file_get_contents('schema.graphql');
 $schema = BuildSchema::build($contents, $typeConfigDecorator);
 ```
 
+You can learn more about using `$typeConfigDecorator` in [examples/05-using-typeConfigDecorator-with-SDL](../examples/05-using-typeConfigDecorator-with-SDL/)
+
 ## Performance considerations
 
 Since 0.10.0
