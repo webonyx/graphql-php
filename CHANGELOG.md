@@ -9,10 +9,6 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
-### Added
-  - Add **examples/05-using-typeConfigDecorator-with-SDL** to provide a solid example about resolving
-  fields on using [SDL](https://webonyx.github.io/graphql-php/schema-definition-language/) instead of [Object Types](https://webonyx.github.io/graphql-php/type-definitions/object-types/). 
-
 ## v15.20.0
 
 ### Added
