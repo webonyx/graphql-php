@@ -1,6 +1,5 @@
 type Query {
-  tracksForHome: [Track]
-
+  tracksForHome: [Track!]!
 }
 
 type Track {
