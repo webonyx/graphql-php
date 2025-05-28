@@ -32,6 +32,30 @@ final class KnownTypeNamesTest extends ValidatorTestCase
         );
     }
 
+    /** @see it('known type names are valid') */
+    public function testKnownTypeWithExperimentalFragmentVariablesAreValid(): void
+    {
+        $this->expectPassesRule(
+            new KnownTypeNames(),
+            '
+      query Foo(
+        $var: String
+        $required: [Int!]!
+        $introspectionType: __EnumValue
+      ) {
+        user(id: 4) {
+          pets { ... on Dog { isAtLocationField(x: 0, y: 0) } }
+        }
+      }
+
+      fragment isAtLocationField($x: Int = 0, $y: Int = 0) on Dog {
+        isAtLocation(x: $x, y: $y)
+      }
+            ',
+            ['experimentalFragmentVariables' => true]
+        );
+    }
+
     /** @see it('unknown type names are invalid') */
     public function testUnknownTypeNamesAreInvalid(): void
     {

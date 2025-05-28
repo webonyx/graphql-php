@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Fixed
+
+- KnownTypeNames validation for fragments with variables (experimentalFragmentVariables option)
+
 ## v15.20.0
 
 ### Added
