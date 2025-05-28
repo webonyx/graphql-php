@@ -2,7 +2,7 @@
 
 namespace GraphQL\Language\AST;
 
-class FragmentDefinitionNode extends Node implements ExecutableDefinitionNode, HasSelectionSet
+class FragmentDefinitionNode extends Node implements ExecutableDefinitionNode, HasSelectionSet, TypeSystemDefinitionNode
 {
     public string $kind = NodeKind::FRAGMENT_DEFINITION;
 
