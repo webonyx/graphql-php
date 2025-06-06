@@ -65,6 +65,7 @@ It is recommended to cache the intermediate parsed representation of the schema 
 
 ```php
 use GraphQL\Language\Parser;
+use GraphQL\Validator\DocumentValidator;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\AST;
 
@@ -72,11 +73,12 @@ $cacheFilename = 'cached_schema.php';
 
 if (!file_exists($cacheFilename)) {
     $document = Parser::parse(file_get_contents('./schema.graphql'));
+    DocumentValidator::assertValidSDL($document);
     file_put_contents($cacheFilename, "<?php\nreturn " . var_export(AST::toArray($document), true) . ";\n");
 } else {
     $document = AST::fromArray(require $cacheFilename); // fromArray() is a lazy operation as well
 }
 
 $typeConfigDecorator = function () {};
-$schema = BuildSchema::build($document, $typeConfigDecorator);
+$schema = BuildSchema::build($document, $typeConfigDecorator, ['assumeValidSDL' => true]);
 ```
