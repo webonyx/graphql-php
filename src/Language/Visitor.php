@@ -28,10 +28,10 @@ use GraphQL\Utils\Utils;
  * visit function.
  *
  *   $editedAST = Visitor::visit($ast, [
- *       'enter' => function ($node, $key, $parent, $path, $ancestors) {
+ *       'enter' => function (Node $node, $key, $parent, array $path, array $ancestors) {
  *           // ...
  *       },
- *       'leave' => function ($node, $key, $parent, $path, $ancestors) {
+ *       'leave' => function (Node $node, $key, $parent, array $path, array $ancestors) {
  *           // ...
  *       }
  *   ]);
@@ -44,8 +44,8 @@ use GraphQL\Utils\Utils;
  * 1. Named visitors triggered when entering a node a specific kind.
  *
  *     Visitor::visit($ast, [
- *       'Kind' => function ($node) {
- *         // enter the "Kind" node
+ *       NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+ *         // enter the "ObjectTypeDefinition" node
  *       }
  *     ]);
  *
@@ -53,12 +53,12 @@ use GraphQL\Utils\Utils;
  *    a specific kind.
  *
  *     Visitor::visit($ast, [
- *       'Kind' => [
- *         'enter' => function ($node) {
- *           // enter the "Kind" node
+ *       NodeKind::OBJECT_TYPE_DEFINITION => [
+ *         'enter' => function (ObjectTypeDefinitionNode $node) {
+ *           // enter the "ObjectTypeDefinition" node
  *         }
- *         'leave' => function ($node) {
- *           // leave the "Kind" node
+ *         'leave' => function (ObjectTypeDefinitionNode $node) {
+ *           // leave the "ObjectTypeDefinition" node
  *         }
  *       ]
  *     ]);
@@ -78,13 +78,13 @@ use GraphQL\Utils\Utils;
  *
  *     Visitor::visit($ast, [
  *       'enter' => [
- *         'Kind' => function($node) {
- *           // enter the "Kind" node
+ *         NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+ *           // enter the "ObjectTypeDefinition" node
  *         }
  *       },
  *       'leave' => [
- *         'Kind' => function ($node) {
- *           // leave the "Kind" node
+ *         NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+ *           // leave the "ObjectTypeDefinition" node
  *         }
  *       ]
  *     ]);
@@ -478,7 +478,7 @@ class Visitor
     /**
      * @phpstan-param VisitorArray $visitor
      *
-     * @return (callable(Node $node, string $key, Node|NodeList<Node>|null $parent, array<int, int|string> $path, array<int, Node|NodeList<Node>> $ancestors): (VisitorOperation|Node|null))|(callable(Node): (VisitorOperation|void|false|null))|null
+     * @return (callable(Node $node, string|int|null $key, Node|NodeList<Node>|null $parent, array<int, int|string> $path, array<int, Node|NodeList<Node>> $ancestors): (VisitorOperation|Node|null))|(callable(Node): (VisitorOperation|void|false|null))|null
      */
     protected static function extractVisitFn(array $visitor, string $kind, bool $isLeaving): ?callable
     {

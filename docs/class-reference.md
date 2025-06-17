@@ -1269,10 +1269,10 @@ a new version of the AST with the changes applied will be returned from the
 visit function.
 
 $editedAST = Visitor::visit($ast, [
-'enter' => function ($node, $key, $parent, $path, $ancestors) {
+'enter' => function (Node $node, $key, $parent, array $path, array $ancestors) {
 // ...
 },
-'leave' => function ($node, $key, $parent, $path, $ancestors) {
+'leave' => function (Node $node, $key, $parent, array $path, array $ancestors) {
 // ...
 }
 ]);
@@ -1285,8 +1285,8 @@ visitor API:
 1. Named visitors triggered when entering a node a specific kind.
 
    Visitor::visit($ast, [
-      'Kind' => function ($node) {
-   // enter the "Kind" node
+   NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+   // enter the "ObjectTypeDefinition" node
    }
    ]);
 
@@ -1294,12 +1294,12 @@ visitor API:
    a specific kind.
 
    Visitor::visit($ast, [
-      'Kind' => [
-        'enter' => function ($node) {
-   // enter the "Kind" node
+   NodeKind::OBJECT_TYPE_DEFINITION => [
+   'enter' => function (ObjectTypeDefinitionNode $node) {
+   // enter the "ObjectTypeDefinition" node
    }
-   'leave' => function ($node) {
-   // leave the "Kind" node
+   'leave' => function (ObjectTypeDefinitionNode $node) {
+   // leave the "ObjectTypeDefinition" node
    }
    ]
    ]);
@@ -1318,14 +1318,14 @@ visitor API:
 4. Parallel visitors for entering and leaving nodes of a specific kind.
 
    Visitor::visit($ast, [
-      'enter' => [
-        'Kind' => function($node) {
-   // enter the "Kind" node
+   'enter' => [
+   NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+   // enter the "ObjectTypeDefinition" node
    }
    },
    'leave' => [
-   'Kind' => function ($node) {
-   // leave the "Kind" node
+   NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+   // leave the "ObjectTypeDefinition" node
    }
    ]
    ]);
