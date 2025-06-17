@@ -3,11 +3,15 @@
 namespace GraphQL\Tests\Language;
 
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionNode;
 use GraphQL\Language\AST\SelectionSetNode;
@@ -1683,5 +1687,49 @@ final class VisitorTest extends ValidatorTestCase
             ],
             $visited
         );
+    }
+
+    public function testAncestorsForInputValueDefinition(): void
+    {
+        $ast = Parser::parse('
+            input UserInput {
+              alwaysTwoItems: [Int]
+            }
+        ');
+
+        Visitor::visit($ast, [
+            NodeKind::LIST_TYPE => [
+                'enter' => function (Node $node, $key, $parent, $path, $ancestors): void {
+                    self::assertInstanceOf(InputValueDefinitionNode::class, $parent);
+                    self::assertCount(4, $ancestors);
+                    self::assertInstanceOf(DocumentNode::class, $ancestors[0]);
+                    self::assertInstanceOf(NodeList::class, $ancestors[1]);
+                    self::assertInstanceOf(InputObjectTypeDefinitionNode::class, $ancestors[2]);
+                    self::assertInstanceOf(NodeList::class, $ancestors[3]);
+                },
+            ],
+        ]);
+    }
+
+    public function testAncestorsForObjectTypeDefinition(): void
+    {
+        $ast = Parser::parse('
+            type User {
+              alwaysTwoItems: [Int]
+            }
+        ');
+
+        Visitor::visit($ast, [
+            NodeKind::LIST_TYPE => [
+                'enter' => function (Node $node, $key, $parent, $path, $ancestors): void {
+                    self::assertInstanceOf(FieldDefinitionNode::class, $parent);
+                    self::assertCount(4, $ancestors);
+                    self::assertInstanceOf(DocumentNode::class, $ancestors[0]);
+                    self::assertInstanceOf(NodeList::class, $ancestors[1]);
+                    self::assertInstanceOf(ObjectTypeDefinitionNode::class, $ancestors[2]);
+                    self::assertInstanceOf(NodeList::class, $ancestors[3]);
+                },
+            ],
+        ]);
     }
 }
