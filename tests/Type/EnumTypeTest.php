@@ -33,7 +33,7 @@ final class EnumTypeTest extends TestCase
     /** @var \ArrayObject<string, int> */
     private \ArrayObject $Complex2;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $ColorType = new EnumType([
             'name' => 'Color',

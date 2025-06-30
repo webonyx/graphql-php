@@ -15,7 +15,7 @@ final class KnownDirectivesTest extends ValidatorTestCase
 {
     public Schema $schemaWithSDLDirectives;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->schemaWithSDLDirectives = BuildSchema::build('
           directive @onSchema on SCHEMA

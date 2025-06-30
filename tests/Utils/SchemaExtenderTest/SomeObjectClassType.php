@@ -5,9 +5,7 @@ namespace GraphQL\Tests\Utils\SchemaExtenderTest;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
-/**
- * Custom class-based interface type for testing.
- */
+/** Custom class-based interface type for testing. */
 final class SomeObjectClassType extends ObjectType
 {
     public function isTypeOf($objectValue, $context, ResolveInfo $info): bool

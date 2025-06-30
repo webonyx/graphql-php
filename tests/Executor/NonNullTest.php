@@ -39,7 +39,7 @@ final class NonNullTest extends TestCase
 
     public Schema $schemaWithNonNullArg;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->syncError = new UserError('sync');
         $this->syncNonNullError = new UserError('syncNonNull');

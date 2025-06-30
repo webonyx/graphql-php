@@ -13,7 +13,7 @@ final class SyncPromiseAdapterTest extends TestCase
 {
     private SyncPromiseAdapter $promises;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->promises = new SyncPromiseAdapter();
     }

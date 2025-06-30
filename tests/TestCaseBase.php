@@ -15,7 +15,7 @@ abstract class TestCaseBase extends TestCase
      *
      * @see TestCase::expectNotToPerformAssertions()
      */
-    public function assertDidNotCrash(): void
+    protected function assertDidNotCrash(): void
     {
         $this->addToAssertionCount(1);
     }

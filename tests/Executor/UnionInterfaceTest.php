@@ -30,7 +30,7 @@ final class UnionInterfaceTest extends TestCase
 
     public Person $john;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $NamedType = new InterfaceType([
             'name' => 'Named',

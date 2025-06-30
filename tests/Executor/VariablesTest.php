@@ -134,7 +134,7 @@ final class VariablesTest extends TestCase
     }
 
     /** @throws InvariantViolation */
-    public function schema(): Schema
+    private function schema(): Schema
     {
         $ComplexScalarType = new ComplexScalar();
 

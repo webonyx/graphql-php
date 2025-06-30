@@ -23,7 +23,7 @@ final class QueryExecutionTest extends ServerTestCase
 
     private ServerConfig $config;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $schema = $this->buildSchema();
         $this->config = ServerConfig::create()

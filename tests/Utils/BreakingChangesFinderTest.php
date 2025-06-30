@@ -18,7 +18,7 @@ final class BreakingChangesFinderTest extends TestCase
 {
     private ObjectType $queryType;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->queryType = new ObjectType([
             'name' => 'Query',
