@@ -5,9 +5,7 @@ namespace GraphQL\Tests\Utils\SchemaExtenderTest;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\ScalarType;
 
-/**
- * Custom class-based scalar type for testing.
- */
+/** Custom class-based scalar type for testing. */
 final class SomeScalarClassType extends ScalarType
 {
     public const SERIALIZE_RETURN = 'a constant value that is always returned from serialize';

@@ -21,7 +21,7 @@ final class StandardServerTest extends ServerTestCase
     /** @var ServerConfig */
     private $config;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $schema = $this->buildSchema();
         $this->config = ServerConfig::create()

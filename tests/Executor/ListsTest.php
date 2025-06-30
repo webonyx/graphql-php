@@ -502,7 +502,7 @@ final class ListsTest extends TestCase
      * @throws \Exception
      * @throws InvariantViolation
      */
-    public function checkHandlesNonNullListOfNonNulls($testData, array $expected, int $debug = DebugFlag::NONE): void
+    private function checkHandlesNonNullListOfNonNulls($testData, array $expected, int $debug = DebugFlag::NONE): void
     {
         $testType = Type::nonNull(Type::listOf(Type::nonNull(Type::int())));
         $this->check($testType, $testData, $expected, $debug);

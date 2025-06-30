@@ -55,7 +55,7 @@ final class DefinitionTest extends TestCaseBase
 
     public CustomScalarType $scalarType;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->objectType = new ObjectType(['name' => 'Object', 'fields' => ['tmp' => Type::string()]]);
         $this->interfaceType = new InterfaceType(['name' => 'Interface', 'fields' => ['irrelevant' => Type::int()]]);

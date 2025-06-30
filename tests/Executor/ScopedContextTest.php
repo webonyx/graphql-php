@@ -24,7 +24,7 @@ final class ScopedContextTest extends TestCase
     /** @var array<string, MyScopedContext|MySharedContext> */
     private array $contexts = [];
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->contexts = [];
 

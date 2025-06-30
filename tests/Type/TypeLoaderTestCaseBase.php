@@ -24,7 +24,7 @@ abstract class TypeLoaderTestCaseBase extends TestCaseBase
     /** @var array<int, string> */
     protected array $calls;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->calls = [];
     }

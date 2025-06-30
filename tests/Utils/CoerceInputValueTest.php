@@ -36,7 +36,7 @@ final class CoerceInputValueTest extends TestCase
     /** @var ListOfType<ListOfType<ScalarType>> */
     private ListOfType $testNestedList;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->testNonNull = Type::nonNull(Type::int());
 

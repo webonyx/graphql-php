@@ -28,7 +28,7 @@ final class SyncTest extends TestCase
 
     private SyncPromiseAdapter $promiseAdapter;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->schema = new Schema([
             'query' => new ObjectType([

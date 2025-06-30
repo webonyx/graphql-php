@@ -4,8 +4,7 @@ namespace GraphQL\Tests\Executor\TestClasses;
 
 final class NumberHolder
 {
-    /** @var float */
-    public $theNumber;
+    public float $theNumber;
 
     public function __construct(float $originalNumber)
     {

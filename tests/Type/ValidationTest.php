@@ -55,7 +55,7 @@ final class ValidationTest extends TestCaseBase
 
     public float $Number;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->Number = 1;
 

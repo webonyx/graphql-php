@@ -25,7 +25,7 @@ final class SchemaTest extends TestCase
 
     private Schema $schema;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->interfaceType = new InterfaceType([
             'name' => 'Interface',
