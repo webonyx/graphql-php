@@ -1011,6 +1011,9 @@ final class SchemaPrinterTest extends TestCase
         reason: String = "No longer supported"
       ) on FIELD_DEFINITION | ENUM_VALUE | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
+      "Indicates that an input object is a oneof input object and exactly one of the input fields must be specified."
+      directive @oneOf on INPUT_OBJECT
+
       "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations."
       type __Schema {
         "A list of all types supported by this server."
@@ -1044,6 +1047,7 @@ final class SchemaPrinterTest extends TestCase
         enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
         inputFields(includeDeprecated: Boolean = false): [__InputValue!]
         ofType: __Type
+        isOneOf: Boolean
       }
 
       "An enum describing what kind of type a given `__Type` is."
