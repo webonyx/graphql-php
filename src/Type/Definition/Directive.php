@@ -27,6 +27,7 @@ class Directive
     public const SKIP_NAME = 'skip';
     public const DEPRECATED_NAME = 'deprecated';
     public const REASON_ARGUMENT_NAME = 'reason';
+    public const ONE_OF_NAME = 'oneOf';
 
     /**
      * Lazily initialized.
@@ -86,6 +87,7 @@ class Directive
             self::INCLUDE_NAME => self::includeDirective(),
             self::SKIP_NAME => self::skipDirective(),
             self::DEPRECATED_NAME => self::deprecatedDirective(),
+            self::ONE_OF_NAME => self::oneOfDirective(),
         ];
     }
 
@@ -148,6 +150,19 @@ class Directive
                     'defaultValue' => self::DEFAULT_DEPRECATION_REASON,
                 ],
             ],
+        ]);
+    }
+
+    /** @throws InvariantViolation */
+    public static function oneOfDirective(): Directive
+    {
+        return self::$internalDirectives[self::ONE_OF_NAME] ??= new self([
+            'name' => self::ONE_OF_NAME,
+            'description' => 'Indicates that an input object is a oneof input object and exactly one of the input fields must be specified.',
+            'locations' => [
+                DirectiveLocation::INPUT_OBJECT,
+            ],
+            'args' => [],
         ]);
     }
 

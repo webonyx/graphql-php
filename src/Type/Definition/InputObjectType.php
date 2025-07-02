@@ -18,6 +18,7 @@ use GraphQL\Utils\Utils;
  *   name?: string|null,
  *   description?: string|null,
  *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
+ *   isOneOf?: bool|null,
  *   parseValue?: callable(array<string, mixed>): mixed,
  *   astNode?: InputObjectTypeDefinitionNode|null,
  *   extensionASTNodes?: array<InputObjectTypeExtensionNode>|null
@@ -34,6 +35,8 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
     /** @phpstan-var InputObjectConfig */
     public array $config;
+
+    public bool $isOneOf;
 
     /**
      * Lazily initialized.
@@ -55,6 +58,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         $this->description = $config['description'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
+        $this->isOneOf = $config['isOneOf'] ?? false;
 
         $this->config = $config;
     }
@@ -89,6 +93,12 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         }
 
         return isset($this->fields[$name]);
+    }
+
+    /** Returns true if this is a oneOf input object type. */
+    public function isOneOf(): bool
+    {
+        return $this->isOneOf;
     }
 
     /**
@@ -195,6 +205,44 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
         foreach ($resolvedFields as $field) {
             $field->assertValid($this);
+        }
+
+        // Additional validation for oneOf input objects
+        if ($this->isOneOf()) {
+            $this->validateOneOfConstraints($resolvedFields);
+        }
+    }
+
+    /**
+     * Validates that oneOf input object constraints are met.
+     *
+     * @param array<string, InputObjectField> $fields
+     *
+     * @throws InvariantViolation
+     */
+    private function validateOneOfConstraints(array $fields): void
+    {
+        if (count($fields) === 0) {
+            throw new InvariantViolation("OneOf input object type {$this->name} must define one or more fields.");
+        }
+
+        foreach ($fields as $fieldName => $field) {
+            $fieldType = $field->getType();
+
+            // OneOf fields must be nullable (not wrapped in NonNull)
+            if ($fieldType instanceof NonNull) {
+                throw new InvariantViolation("OneOf input object type {$this->name} field {$fieldName} must be nullable.");
+            }
+
+            // OneOf fields cannot have default values
+            if ($field->defaultValueExists()) {
+                throw new InvariantViolation("OneOf input object type {$this->name} field {$fieldName} cannot have a default value.");
+            }
+
+            // OneOf fields cannot be deprecated (optional constraint for now)
+            if ($field->isDeprecated()) {
+                throw new InvariantViolation("OneOf input object type {$this->name} field {$fieldName} cannot be deprecated.");
+            }
         }
     }
 
