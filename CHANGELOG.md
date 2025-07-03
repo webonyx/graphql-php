@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Added
+
+- Add support for `@oneOf` input object directive - enables "input unions" where exactly one field must be provided
+
 ## v15.20.0
 
 ### Added
