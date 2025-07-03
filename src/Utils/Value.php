@@ -88,7 +88,7 @@ class Value
                     $coercedItem = self::coerceInputValue(
                         $itemValue,
                         $itemType,
-                        [...$path ?? [], $index]
+                        $path === null ? [$index] : [...$path, $index]
                     );
 
                     if (isset($coercedItem['errors'])) {
@@ -132,7 +132,7 @@ class Value
                 $coercedField = self::coerceInputValue(
                     $fieldValue,
                     $field->getType(),
-                    [...$path ?? [], $fieldName],
+                    $path === null ? [$fieldName] : [...$path, $fieldName],
                 );
 
                 if (isset($coercedField['errors'])) {
@@ -169,6 +169,38 @@ class Value
                 $errors,
                 CoercionError::make($message, $path, $value)
             );
+        }
+
+        // Validate OneOf constraints if this is a OneOf input type
+        if ($type->isOneOf()) {
+            $providedFieldCount = 0;
+            $nullFieldName = null;
+            
+            foreach ($coercedValue as $fieldName => $fieldValue) {
+                if ($fieldValue !== null) {
+                    $providedFieldCount++;
+                } else {
+                    $nullFieldName = $fieldName;
+                }
+            }
+            
+            // Check for null field values first (takes precedence)
+            if ($nullFieldName !== null) {
+                $errors = self::add(
+                    $errors,
+                    CoercionError::make("OneOf input object \"{$type->name}\" field \"{$nullFieldName}\" must be non-null.", $path, $value)
+                );
+            } elseif ($providedFieldCount === 0) {
+                $errors = self::add(
+                    $errors,
+                    CoercionError::make("OneOf input object \"{$type->name}\" must specify exactly one field.", $path, $value)
+                );
+            } elseif ($providedFieldCount > 1) {
+                $errors = self::add(
+                    $errors,
+                    CoercionError::make("OneOf input object \"{$type->name}\" must specify exactly one field.", $path, $value)
+                );
+            }
         }
 
         return $errors === []
