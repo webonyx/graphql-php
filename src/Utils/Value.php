@@ -175,15 +175,15 @@ class Value
         if ($type->isOneOf()) {
             $providedFieldCount = 0;
             $nullFieldName = null;
-            
+
             foreach ($coercedValue as $fieldName => $fieldValue) {
                 if ($fieldValue !== null) {
-                    $providedFieldCount++;
+                    ++$providedFieldCount;
                 } else {
                     $nullFieldName = $fieldName;
                 }
             }
-            
+
             // Check for null field values first (takes precedence)
             if ($nullFieldName !== null) {
                 $errors = self::add(

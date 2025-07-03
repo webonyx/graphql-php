@@ -213,25 +213,25 @@ class OneOfInputObjectTest extends TestCase
 
         // Test valid input (exactly one field)
         $validResult = Value::coerceInputValue(['stringField' => 'test'], $oneOfType);
-        $this->assertNull($validResult['errors']);
-        $this->assertEquals(['stringField' => 'test'], $validResult['value']);
+        self::assertNull($validResult['errors']);
+        self::assertEquals(['stringField' => 'test'], $validResult['value']);
 
         // Test invalid input (no fields)
         $noFieldsResult = Value::coerceInputValue([], $oneOfType);
-        $this->assertNotNull($noFieldsResult['errors']);
-        $this->assertCount(1, $noFieldsResult['errors']);
-        $this->assertEquals('OneOf input object "OneOfInput" must specify exactly one field.', $noFieldsResult['errors'][0]->getMessage());
+        self::assertNotNull($noFieldsResult['errors']);
+        self::assertCount(1, $noFieldsResult['errors']);
+        self::assertEquals('OneOf input object "OneOfInput" must specify exactly one field.', $noFieldsResult['errors'][0]->getMessage());
 
         // Test invalid input (multiple fields)
         $multipleFieldsResult = Value::coerceInputValue(['stringField' => 'test', 'intField' => 42], $oneOfType);
-        $this->assertNotNull($multipleFieldsResult['errors']);
-        $this->assertCount(1, $multipleFieldsResult['errors']);
-        $this->assertEquals('OneOf input object "OneOfInput" must specify exactly one field.', $multipleFieldsResult['errors'][0]->getMessage());
+        self::assertNotNull($multipleFieldsResult['errors']);
+        self::assertCount(1, $multipleFieldsResult['errors']);
+        self::assertEquals('OneOf input object "OneOfInput" must specify exactly one field.', $multipleFieldsResult['errors'][0]->getMessage());
 
         // Test invalid input (null field value)
         $nullFieldResult = Value::coerceInputValue(['stringField' => null], $oneOfType);
-        $this->assertNotNull($nullFieldResult['errors']);
-        $this->assertCount(1, $nullFieldResult['errors']);
-        $this->assertEquals('OneOf input object "OneOfInput" field "stringField" must be non-null.', $nullFieldResult['errors'][0]->getMessage());
+        self::assertNotNull($nullFieldResult['errors']);
+        self::assertCount(1, $nullFieldResult['errors']);
+        self::assertEquals('OneOf input object "OneOfInput" field "stringField" must be non-null.', $nullFieldResult['errors'][0]->getMessage());
     }
 }
