@@ -124,6 +124,13 @@ class OneOfInputObjectTest extends TestCase
         self::assertNotEmpty($result->errors ?? []);
         self::assertCount(1, $result->errors);
         self::assertStringContainsString('must specify exactly one field', $result->errors[0]->getMessage());
+
+        // Invalid query with null field value
+        $nullQuery = '{ test(input: { stringField: null }) }';
+        $result = GraphQL::executeQuery($schema, $nullQuery);
+        self::assertNotEmpty($result->errors ?? []);
+        self::assertCount(1, $result->errors);
+        self::assertStringContainsString('must be non-null', $result->errors[0]->getMessage());
     }
 
     public function testOneOfIntrospection(): void

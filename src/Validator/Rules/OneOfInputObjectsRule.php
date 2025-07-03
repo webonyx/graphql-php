@@ -32,9 +32,16 @@ class OneOfInputObjectsRule extends ValidationRule
                 }
 
                 $providedFields = [];
+                $nullFields = [];
+
                 foreach ($node->fields as $fieldNode) {
                     $fieldName = $fieldNode->name->value;
                     $providedFields[] = $fieldName;
+
+                    // Check if the field value is explicitly null
+                    if ($fieldNode->value->kind === NodeKind::NULL) {
+                        $nullFields[] = $fieldName;
+                    }
                 }
 
                 $fieldCount = count($providedFields);
@@ -44,9 +51,24 @@ class OneOfInputObjectsRule extends ValidationRule
                         static::oneOfInputObjectExpectedExactlyOneFieldMessage($namedType->name),
                         [$node]
                     ));
-                } elseif ($fieldCount > 1) {
+
+                    return;
+                }
+
+                if ($fieldCount > 1) {
                     $context->reportError(new Error(
                         static::oneOfInputObjectExpectedExactlyOneFieldMessage($namedType->name, $fieldCount),
+                        [$node]
+                    ));
+
+                    return;
+                }
+
+                // At this point, $fieldCount === 1
+                if (count($nullFields) > 0) {
+                    // Exactly one field provided, but it's null
+                    $context->reportError(new Error(
+                        static::oneOfInputObjectFieldValueMustNotBeNullMessage($namedType->name, $nullFields[0]),
                         [$node]
                     ));
                 }
@@ -61,5 +83,10 @@ class OneOfInputObjectsRule extends ValidationRule
         }
 
         return "OneOf input object '{$typeName}' must specify exactly one field, but {$providedCount} fields were provided.";
+    }
+
+    public static function oneOfInputObjectFieldValueMustNotBeNullMessage(string $typeName, string $fieldName): string
+    {
+        return "OneOf input object '{$typeName}' field '{$fieldName}' must be non-null.";
     }
 }
