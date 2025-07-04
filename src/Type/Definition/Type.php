@@ -37,56 +37,58 @@ abstract class Type implements \JsonSerializable
     protected static ?array $builtInTypes;
 
     /**
-     * @api
+     * Returns the registered or default standard Int type.
      *
-     * @throws InvariantViolation
+     * @api
      */
     public static function int(): ScalarType
     {
-        return static::$standardTypes[self::INT] ??= new IntType();
+        return static::$standardTypes[self::INT] ??= new IntType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     /**
-     * @api
+     * Returns the registered or default standard Float type.
      *
-     * @throws InvariantViolation
+     * @api
      */
     public static function float(): ScalarType
     {
-        return static::$standardTypes[self::FLOAT] ??= new FloatType();
+        return static::$standardTypes[self::FLOAT] ??= new FloatType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     /**
-     * @api
+     * Returns the registered or default standard String type.
      *
-     * @throws InvariantViolation
+     * @api
      */
     public static function string(): ScalarType
     {
-        return static::$standardTypes[self::STRING] ??= new StringType();
+        return static::$standardTypes[self::STRING] ??= new StringType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     /**
-     * @api
+     * Returns the registered or default standard Boolean type.
      *
-     * @throws InvariantViolation
+     * @api
      */
     public static function boolean(): ScalarType
     {
-        return static::$standardTypes[self::BOOLEAN] ??= new BooleanType();
+        return static::$standardTypes[self::BOOLEAN] ??= new BooleanType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     /**
-     * @api
+     * Returns the registered or default standard ID type.
      *
-     * @throws InvariantViolation
+     * @api
      */
     public static function id(): ScalarType
     {
-        return static::$standardTypes[self::ID] ??= new IDType();
+        return static::$standardTypes[self::ID] ??= new IDType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     /**
+     * Wraps the given type in a list type.
+     *
      * @template T of Type
      *
      * @param T|callable():T $type
@@ -101,6 +103,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * Wraps the given type in a non-null type.
+     *
      * @param (NullableType&Type)|callable():(NullableType&Type) $type
      *
      * @api
@@ -112,8 +116,6 @@ abstract class Type implements \JsonSerializable
 
     /**
      * Returns all builtin in types including base scalar and introspection types.
-     *
-     * @throws InvariantViolation
      *
      * @return array<string, Type&NamedType>
      */
@@ -127,8 +129,6 @@ abstract class Type implements \JsonSerializable
 
     /**
      * Returns all builtin scalar types.
-     *
-     * @throws InvariantViolation
      *
      * @return array<string, ScalarType>
      */
@@ -144,6 +144,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * Allows partially or completely overriding the standard types.
+     *
      * @param array<ScalarType> $types
      *
      * @throws InvariantViolation
@@ -174,6 +176,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * Determines if the given type is an input type.
+     *
      * @param mixed $type
      *
      * @api
@@ -184,6 +188,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * Returns the underlying named type of the given type.
+     *
      * @return (Type&NamedType)|null
      *
      * @api
@@ -200,6 +206,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * Determines if the given type is an output type.
+     *
      * @param mixed $type
      *
      * @api
@@ -210,6 +218,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * Determines if the given type is a leaf type.
+     *
      * @param mixed $type
      *
      * @api
@@ -220,6 +230,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * Determines if the given type is a composite type.
+     *
      * @param mixed $type
      *
      * @api
@@ -230,6 +242,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * Determines if the given type is an abstract type.
+     *
      * @param mixed $type
      *
      * @api
@@ -240,6 +254,8 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * Unwraps a potentially non-null type to return the underlying nullable type.
+     *
      * @return Type&NullableType
      *
      * @api

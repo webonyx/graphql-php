@@ -27,7 +27,9 @@ class OneOfInputObjectsRule extends ValidationRule
                 }
 
                 $namedType = Type::getNamedType($type);
-                if (! ($namedType instanceof InputObjectType) || ! $namedType->isOneOf()) {
+                if (! ($namedType instanceof InputObjectType)
+                    || ! $namedType->isOneOf()
+                ) {
                     return;
                 }
 

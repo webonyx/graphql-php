@@ -88,7 +88,7 @@ class Value
                     $coercedItem = self::coerceInputValue(
                         $itemValue,
                         $itemType,
-                        $path === null ? [$index] : [...$path, $index]
+                        [...$path ?? [], $index]
                     );
 
                     if (isset($coercedItem['errors'])) {

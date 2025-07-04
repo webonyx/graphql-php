@@ -4,14 +4,14 @@ namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
+use GraphQL\Tests\TestCaseBase;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Value;
-use PHPUnit\Framework\TestCase;
 
-class OneOfInputObjectTest extends TestCase
+final class OneOfInputObjectTest extends TestCaseBase
 {
     public function testOneOfInputObjectBasicDefinition(): void
     {
@@ -41,14 +41,11 @@ class OneOfInputObjectTest extends TestCase
 
         // Should not throw for valid oneOf input
         $oneOfInput->assertValid();
-        self::addToAssertionCount(1); // Test passes if no exception thrown
+        $this->assertDidNotCrash();
     }
 
     public function testOneOfInputObjectRejectsNonNullFields(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('OneOf input object type OneOfInput field stringField must be nullable');
-
         $oneOfInput = new InputObjectType([
             'name' => 'OneOfInput',
             'isOneOf' => true,
@@ -58,14 +55,14 @@ class OneOfInputObjectTest extends TestCase
             ],
         ]);
 
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('OneOf input object type OneOfInput field stringField must be nullable');
+
         $oneOfInput->assertValid();
     }
 
     public function testOneOfInputObjectRejectsDefaultValues(): void
     {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('OneOf input object type OneOfInput field stringField cannot have a default value');
-
         $oneOfInput = new InputObjectType([
             'name' => 'OneOfInput',
             'isOneOf' => true,
@@ -77,6 +74,9 @@ class OneOfInputObjectTest extends TestCase
                 'intField' => Type::int(),
             ],
         ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('OneOf input object type OneOfInput field stringField cannot have a default value');
 
         $oneOfInput->assertValid();
     }
@@ -100,7 +100,7 @@ class OneOfInputObjectTest extends TestCase
                     'args' => [
                         'input' => $oneOfInput,
                     ],
-                    'resolve' => static fn ($source, $args) => 'test',
+                    'resolve' => static fn () => 'test',
                 ],
             ],
         ]);
@@ -180,7 +180,7 @@ class OneOfInputObjectTest extends TestCase
         ';
 
         $result = GraphQL::executeQuery($schema, $introspectionQuery);
-        self::assertEmpty($result->errors ?? []);
+        self::assertEmpty($result->errors);
 
         $types = $result->data['__schema']['types'] ?? [];
         $oneOfType = null;

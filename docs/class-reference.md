@@ -184,51 +184,53 @@ Registry of standard GraphQL types and base class for all other types.
 
 ```php
 /**
- * @api
+ * Returns the registered or default standard Int type.
  *
- * @throws InvariantViolation
+ * @api
  */
 static function int(): GraphQL\Type\Definition\ScalarType
 ```
 
 ```php
 /**
- * @api
+ * Returns the registered or default standard Float type.
  *
- * @throws InvariantViolation
+ * @api
  */
 static function float(): GraphQL\Type\Definition\ScalarType
 ```
 
 ```php
 /**
- * @api
+ * Returns the registered or default standard String type.
  *
- * @throws InvariantViolation
+ * @api
  */
 static function string(): GraphQL\Type\Definition\ScalarType
 ```
 
 ```php
 /**
- * @api
+ * Returns the registered or default standard Boolean type.
  *
- * @throws InvariantViolation
+ * @api
  */
 static function boolean(): GraphQL\Type\Definition\ScalarType
 ```
 
 ```php
 /**
- * @api
+ * Returns the registered or default standard ID type.
  *
- * @throws InvariantViolation
+ * @api
  */
 static function id(): GraphQL\Type\Definition\ScalarType
 ```
 
 ```php
 /**
+ * Wraps the given type in a list type.
+ *
  * @template T of Type
  *
  * @param T|callable():T $type
@@ -242,6 +244,8 @@ static function listOf($type): GraphQL\Type\Definition\ListOfType
 
 ```php
 /**
+ * Wraps the given type in a non-null type.
+ *
  * @param (NullableType&Type)|callable():(NullableType&Type) $type
  *
  * @api
@@ -251,6 +255,8 @@ static function nonNull($type): GraphQL\Type\Definition\NonNull
 
 ```php
 /**
+ * Determines if the given type is an input type.
+ *
  * @param mixed $type
  *
  * @api
@@ -260,6 +266,8 @@ static function isInputType($type): bool
 
 ```php
 /**
+ * Returns the underlying named type of the given type.
+ *
  * @return (Type&NamedType)|null
  *
  * @api
@@ -269,6 +277,8 @@ static function getNamedType(?GraphQL\Type\Definition\Type $type): ?GraphQL\Type
 
 ```php
 /**
+ * Determines if the given type is an output type.
+ *
  * @param mixed $type
  *
  * @api
@@ -278,6 +288,8 @@ static function isOutputType($type): bool
 
 ```php
 /**
+ * Determines if the given type is a leaf type.
+ *
  * @param mixed $type
  *
  * @api
@@ -287,6 +299,8 @@ static function isLeafType($type): bool
 
 ```php
 /**
+ * Determines if the given type is a composite type.
+ *
  * @param mixed $type
  *
  * @api
@@ -296,6 +310,8 @@ static function isCompositeType($type): bool
 
 ```php
 /**
+ * Determines if the given type is an abstract type.
+ *
  * @param mixed $type
  *
  * @api
@@ -305,6 +321,8 @@ static function isAbstractType($type): bool
 
 ```php
 /**
+ * Unwraps a potentially non-null type to return the underlying nullable type.
+ *
  * @return Type&NullableType
  *
  * @api
