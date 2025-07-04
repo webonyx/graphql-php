@@ -143,7 +143,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     }
 
     /**
-     * Validates type config and throws if one of type options is invalid.
+     * Validates type config and throws if one of the type options is invalid.
      * Note: this method is shallow, it won't validate object fields and their arguments.
      *
      * @throws Error

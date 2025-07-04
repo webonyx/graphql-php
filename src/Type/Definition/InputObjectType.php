@@ -14,11 +14,12 @@ use GraphQL\Utils\Utils;
  * @phpstan-type EagerFieldConfig InputObjectField|(Type&InputType)|UnnamedInputObjectFieldConfig
  * @phpstan-type LazyFieldConfig callable(): EagerFieldConfig
  * @phpstan-type FieldConfig EagerFieldConfig|LazyFieldConfig
+ * @phpstan-type ParseValueFn callable(array<string, mixed>): mixed
  * @phpstan-type InputObjectConfig array{
  *   name?: string|null,
  *   description?: string|null,
  *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
- *   parseValue?: callable(array<string, mixed>): mixed,
+ *   parseValue?: ParseValueFn|null,
  *   astNode?: InputObjectTypeDefinitionNode|null,
  *   extensionASTNodes?: array<InputObjectTypeExtensionNode>|null
  * }
@@ -27,6 +28,16 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 {
     use NamedTypeImplementation;
 
+    /**
+     * Lazily initialized.
+     *
+     * @var array<string, InputObjectField>
+     */
+    private array $fields;
+
+    /** @var ParseValueFn|null */
+    private $parseValue;
+
     public ?InputObjectTypeDefinitionNode $astNode;
 
     /** @var array<InputObjectTypeExtensionNode> */
@@ -34,13 +45,6 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
     /** @phpstan-var InputObjectConfig */
     public array $config;
-
-    /**
-     * Lazily initialized.
-     *
-     * @var array<string, InputObjectField>
-     */
-    private array $fields;
 
     /**
      * @throws InvariantViolation
@@ -53,6 +57,8 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     {
         $this->name = $config['name'] ?? $this->inferName();
         $this->description = $config['description'] ?? null;
+        // $this->fields is initialized lazily
+        $this->parseValue = $config['parseValue'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
 
@@ -155,7 +161,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     /**
      * Parses an externally provided value (query variable) to use as an input.
      *
-     * Should throw an exception with a client friendly message on invalid values, @see ClientAware.
+     * Should throw an exception with a client-friendly message on invalid values, @see ClientAware.
      *
      * @param array<string, mixed> $value
      *
@@ -163,15 +169,15 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      */
     public function parseValue(array $value)
     {
-        if (isset($this->config['parseValue'])) {
-            return $this->config['parseValue']($value);
+        if (isset($this->parseValue)) {
+            return ($this->parseValue)($value);
         }
 
         return $value;
     }
 
     /**
-     * Validates type config and throws if one of type options is invalid.
+     * Validates type config and throws if one of the type options is invalid.
      * Note: this method is shallow, it won't validate object fields and their arguments.
      *
      * @throws Error
