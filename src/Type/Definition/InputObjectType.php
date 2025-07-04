@@ -69,12 +69,6 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         $this->config = $config;
     }
 
-    /** Returns true if this is a oneOf input object type. */
-    public function isOneOf(): bool
-    {
-        return $this->isOneOf;
-    }
-
     /** @throws InvariantViolation */
     public function getField(string $name): InputObjectField
     {
@@ -105,6 +99,12 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         }
 
         return isset($this->fields[$name]);
+    }
+
+    /** Returns true if this is a oneOf input object type. */
+    public function isOneOf(): bool
+    {
+        return $this->isOneOf;
     }
 
     /**
@@ -243,11 +243,6 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
             // OneOf fields cannot have default values
             if ($field->defaultValueExists()) {
                 throw new InvariantViolation("OneOf input object type {$this->name} field {$fieldName} cannot have a default value.");
-            }
-
-            // OneOf fields cannot be deprecated (optional constraint for now)
-            if ($field->isDeprecated()) {
-                throw new InvariantViolation("OneOf input object type {$this->name} field {$fieldName} cannot be deprecated.");
             }
         }
     }

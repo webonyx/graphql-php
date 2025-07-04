@@ -81,6 +81,20 @@ final class OneOfInputObjectTest extends TestCaseBase
         $oneOfInput->assertValid();
     }
 
+    public function testOneOfInputObjectRequiresAtLeastOneField(): void
+    {
+        $oneOfInput = new InputObjectType([
+            'name' => 'OneOfInput',
+            'isOneOf' => true,
+            'fields' => [], // Empty fields array should fail
+        ]);
+
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('OneOf input object type OneOfInput must define one or more fields');
+
+        $oneOfInput->assertValid();
+    }
+
     public function testOneOfInputObjectSchemaValidation(): void
     {
         $oneOfInput = new InputObjectType([
@@ -110,26 +124,26 @@ final class OneOfInputObjectTest extends TestCaseBase
         // Valid query with exactly one field
         $validQuery = '{ test(input: { stringField: "hello" }) }';
         $result = GraphQL::executeQuery($schema, $validQuery);
-        self::assertEmpty($result->errors ?? []);
+        self::assertEmpty($result->errors);
 
         // Invalid query with multiple fields
         $invalidQuery = '{ test(input: { stringField: "hello", intField: 42 }) }';
         $result = GraphQL::executeQuery($schema, $invalidQuery);
-        self::assertNotEmpty($result->errors ?? []);
+        self::assertNotEmpty($result->errors);
         self::assertCount(1, $result->errors);
         self::assertStringContainsString('must specify exactly one field', $result->errors[0]->getMessage());
 
         // Invalid query with no fields
         $emptyQuery = '{ test(input: {}) }';
         $result = GraphQL::executeQuery($schema, $emptyQuery);
-        self::assertNotEmpty($result->errors ?? []);
+        self::assertNotEmpty($result->errors);
         self::assertCount(1, $result->errors);
         self::assertStringContainsString('must specify exactly one field', $result->errors[0]->getMessage());
 
         // Invalid query with null field value
         $nullQuery = '{ test(input: { stringField: null }) }';
         $result = GraphQL::executeQuery($schema, $nullQuery);
-        self::assertNotEmpty($result->errors ?? []);
+        self::assertNotEmpty($result->errors);
         self::assertCount(1, $result->errors);
         self::assertStringContainsString('must be non-null', $result->errors[0]->getMessage());
     }
