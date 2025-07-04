@@ -231,11 +231,7 @@ GRAPHQL;
         return in_array($type->name, self::TYPE_NAMES, true);
     }
 
-    /**
-     * @throws InvariantViolation
-     *
-     * @return array<string, Type&NamedType>
-     */
+    /** @return array<string, Type&NamedType> */
     public static function getTypes(): array
     {
         return [
@@ -250,10 +246,9 @@ GRAPHQL;
         ];
     }
 
-    /** @throws InvariantViolation */
     public static function _schema(): ObjectType
     {
-        return self::$cachedInstances[self::SCHEMA_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::SCHEMA_OBJECT_NAME] ??= new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::SCHEMA_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'A GraphQL Schema defines the capabilities of a GraphQL '
@@ -290,10 +285,9 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function _type(): ObjectType
     {
-        return self::$cachedInstances[self::TYPE_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::TYPE_OBJECT_NAME] ??= new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::TYPE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'The fundamental unit of any GraphQL Schema is the type. There are '
@@ -441,10 +435,9 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function _typeKind(): EnumType
     {
-        return self::$cachedInstances[self::TYPE_KIND_ENUM_NAME] ??= new EnumType([
+        return self::$cachedInstances[self::TYPE_KIND_ENUM_NAME] ??= new EnumType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::TYPE_KIND_ENUM_NAME,
             'isIntrospection' => true,
             'description' => 'An enum describing what kind of type a given `__Type` is.',
@@ -485,10 +478,9 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function _field(): ObjectType
     {
-        return self::$cachedInstances[self::FIELD_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::FIELD_OBJECT_NAME] ??= new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::FIELD_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'Object and Interface types are described by a list of Fields, each of '
@@ -539,10 +531,9 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function _inputValue(): ObjectType
     {
-        return self::$cachedInstances[self::INPUT_VALUE_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::INPUT_VALUE_OBJECT_NAME] ??= new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::INPUT_VALUE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'Arguments provided to Fields or Directives and the input fields of an '
@@ -597,10 +588,9 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function _enumValue(): ObjectType
     {
-        return self::$cachedInstances[self::ENUM_VALUE_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::ENUM_VALUE_OBJECT_NAME] ??= new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::ENUM_VALUE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'One possible value for a given Enum. Enum values are unique values, not '
@@ -627,10 +617,9 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function _directive(): ObjectType
     {
-        return self::$cachedInstances[self::DIRECTIVE_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::DIRECTIVE_OBJECT_NAME] ??= new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::DIRECTIVE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'A Directive provides a way to describe alternate runtime execution and '
@@ -666,10 +655,9 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function _directiveLocation(): EnumType
     {
-        return self::$cachedInstances[self::DIRECTIVE_LOCATION_ENUM_NAME] ??= new EnumType([
+        return self::$cachedInstances[self::DIRECTIVE_LOCATION_ENUM_NAME] ??= new EnumType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::DIRECTIVE_LOCATION_ENUM_NAME,
             'isIntrospection' => true,
             'description' => 'A Directive can be adjacent to many parts of the GraphQL language, a '
@@ -755,7 +743,6 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function schemaMetaFieldDef(): FieldDefinition
     {
         return self::$cachedInstances[self::SCHEMA_FIELD_NAME] ??= new FieldDefinition([
@@ -767,7 +754,6 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function typeMetaFieldDef(): FieldDefinition
     {
         return self::$cachedInstances[self::TYPE_FIELD_NAME] ??= new FieldDefinition([
@@ -784,7 +770,6 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function typeNameMetaFieldDef(): FieldDefinition
     {
         return self::$cachedInstances[self::TYPE_NAME_FIELD_NAME] ??= new FieldDefinition([
