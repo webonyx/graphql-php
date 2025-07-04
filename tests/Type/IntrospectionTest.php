@@ -365,6 +365,17 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
+                                9 => [
+                                    'name' => 'isOneOf',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'Boolean',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
+                                ],
                             ],
                             'inputFields' => null,
                             'interfaces' => [],
@@ -960,6 +971,14 @@ final class IntrospectionTest extends TestCase
                                 1 => 'ENUM_VALUE',
                                 2 => 'ARGUMENT_DEFINITION',
                                 3 => 'INPUT_FIELD_DEFINITION',
+                            ],
+                        ],
+                        [
+                            'name' => 'oneOf',
+                            'args' => [],
+                            'isRepeatable' => false,
+                            'locations' => [
+                                0 => 'INPUT_OBJECT',
                             ],
                         ],
                     ],

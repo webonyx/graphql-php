@@ -22,6 +22,7 @@ use GraphQL\Validator\Rules\NoFragmentCycles;
 use GraphQL\Validator\Rules\NoUndefinedVariables;
 use GraphQL\Validator\Rules\NoUnusedFragments;
 use GraphQL\Validator\Rules\NoUnusedVariables;
+use GraphQL\Validator\Rules\OneOfInputObjectsRule;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
 use GraphQL\Validator\Rules\PossibleTypeExtensions;
@@ -179,6 +180,7 @@ class DocumentValidator
             VariablesInAllowedPosition::class => new VariablesInAllowedPosition(),
             OverlappingFieldsCanBeMerged::class => new OverlappingFieldsCanBeMerged(),
             UniqueInputFieldNames::class => new UniqueInputFieldNames(),
+            OneOfInputObjectsRule::class => new OneOfInputObjectsRule(),
         ];
     }
 

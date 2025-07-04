@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Added
+
+- Add support for `@oneOf` input object directive - enables "input unions" where exactly one field must be provided https://github.com/webonyx/graphql-php/pull/1715
+
 ## v15.20.1
 
 ### Fixed
