@@ -132,7 +132,7 @@ class Value
                 $coercedField = self::coerceInputValue(
                     $fieldValue,
                     $field->getType(),
-                    $path === null ? [$fieldName] : [...$path, $fieldName],
+                    [...$path ?? [], $fieldName],
                 );
 
                 if (isset($coercedField['errors'])) {
