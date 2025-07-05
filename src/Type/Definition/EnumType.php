@@ -63,9 +63,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     private array $nameLookup;
 
     /**
-     * @throws InvariantViolation
-     *
      * @phpstan-param EnumTypeConfig $config
+     *
+     * @throws InvariantViolation
      */
     public function __construct(array $config)
     {

@@ -93,11 +93,11 @@ abstract class QuerySecurityRule extends ValidationRule
      *
      * @phpstan-param ASTAndDefs|null $astAndDefs
      *
-     * @phpstan-return ASTAndDefs
-     *
      * @throws \Exception
      * @throws \ReflectionException
      * @throws InvariantViolation
+     *
+     * @phpstan-return ASTAndDefs
      */
     protected function collectFieldASTsAndDefs(
         QueryValidationContext $context,

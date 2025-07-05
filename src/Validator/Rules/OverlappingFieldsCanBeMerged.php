@@ -79,9 +79,9 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * via spreading in fragments. Called when visiting each SelectionSet in the
      * GraphQL Document.
      *
-     * @phpstan-return array<int, Conflict>
-     *
      * @throws \Exception
+     *
+     * @phpstan-return array<int, Conflict>
      */
     protected function findConflictsWithinSelectionSet(
         QueryValidationContext $context,
@@ -332,9 +332,9 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @param array{Type|null, FieldNode, FieldDefinition|null} $field1
      * @param array{Type|null, FieldNode, FieldDefinition|null} $field2
      *
-     * @phpstan-return Conflict|null
-     *
      * @throws \Exception
+     *
+     * @phpstan-return Conflict|null
      */
     protected function findConflict(
         QueryValidationContext $context,
@@ -708,9 +708,9 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * Given a reference to a fragment, return the represented collection of fields
      * as well as a list of nested fragment names referenced via fragment spreads.
      *
-     * @phpstan-return array{FieldMap, array<int, string>}
-     *
      * @throws \Exception
+     *
+     * @phpstan-return array{FieldMap, array<int, string>}
      */
     protected function getReferencedFieldsAndFragmentNames(
         QueryValidationContext $context,

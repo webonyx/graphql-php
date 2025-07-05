@@ -57,9 +57,9 @@ class KnownDirectives extends ValidationRule
     }
 
     /**
-     * @phpstan-return VisitorArray
-     *
      * @throws InvariantViolation
+     *
+     * @phpstan-return VisitorArray
      */
     public function getASTVisitor(ValidationContext $context): array
     {

@@ -393,10 +393,10 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @phpstan-param Fields $fields
      *
-     * @phpstan-return Fields
-     *
      * @throws \Exception
      * @throws Error
+     *
+     * @phpstan-return Fields
      */
     protected function collectFields(
         ObjectType $runtimeType,
@@ -596,11 +596,10 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param list<string|int> $path
      * @param list<string|int> $unaliasedPath
      * @param mixed $contextValue
+     * @param \ArrayObject<int, FieldNode> $fieldNodes
      *
      * @phpstan-param Path                $path
      * @phpstan-param Path                $unaliasedPath
-     *
-     * @param \ArrayObject<int, FieldNode> $fieldNodes
      *
      * @throws Error
      * @throws InvariantViolation
@@ -765,11 +764,10 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param list<string|int> $path
      * @param list<string|int> $unaliasedPath
      * @param mixed $contextValue
+     * @param mixed $result
      *
      * @phpstan-param Path                $path
      * @phpstan-param Path                $unaliasedPath
-     *
-     * @param mixed $result
      *
      * @throws Error
      *
@@ -1321,10 +1319,10 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param \ArrayObject<int, FieldNode> $fieldNodes
      *
-     * @phpstan-return Fields
-     *
      * @throws \Exception
      * @throws Error
+     *
+     * @phpstan-return Fields
      */
     protected function collectSubFields(ObjectType $returnType, \ArrayObject $fieldNodes): \ArrayObject
     {
