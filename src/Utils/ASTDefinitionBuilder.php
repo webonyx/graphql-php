@@ -349,9 +349,9 @@ class ASTDefinitionBuilder
     /**
      * @param array<ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode> $nodes
      *
-     * @phpstan-return array<string, UnnamedFieldDefinitionConfig>
-     *
      * @throws \Exception
+     *
+     * @phpstan-return array<string, UnnamedFieldDefinitionConfig>
      */
     private function makeFieldDefMap(array $nodes): array
     {

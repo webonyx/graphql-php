@@ -33,9 +33,9 @@ class Value
      *
      * @phpstan-param InputPath|null $path
      *
-     * @phpstan-return CoercedValue|CoercedErrors
-     *
      * @throws InvariantViolation
+     *
+     * @phpstan-return CoercedValue|CoercedErrors
      */
     public static function coerceInputValue($value, InputType $type, ?array $path = null): array
     {

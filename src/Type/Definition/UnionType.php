@@ -48,9 +48,9 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     private array $possibleTypeNames;
 
     /**
-     * @throws InvariantViolation
-     *
      * @phpstan-param UnionConfig $config
+     *
+     * @throws InvariantViolation
      */
     public function __construct(array $config)
     {

@@ -47,10 +47,9 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     public array $config;
 
     /**
-     * @throws InvariantViolation
-     *
      * @phpstan-param InputObjectConfig $config
      *
+     * @throws InvariantViolation
      * @throws InvariantViolation
      */
     public function __construct(array $config)
