@@ -144,13 +144,10 @@ class SchemaConfig
     /**
      * @param MaybeLazyObjectType $query
      *
-     * @throws InvariantViolation
-     *
      * @api
      */
     public function setQuery($query): self
     {
-        $this->assertMaybeLazyObjectType($query);
         $this->query = $query;
 
         return $this;
@@ -169,13 +166,10 @@ class SchemaConfig
     /**
      * @param MaybeLazyObjectType $mutation
      *
-     * @throws InvariantViolation
-     *
      * @api
      */
     public function setMutation($mutation): self
     {
-        $this->assertMaybeLazyObjectType($mutation);
         $this->mutation = $mutation;
 
         return $this;
@@ -194,13 +188,10 @@ class SchemaConfig
     /**
      * @param MaybeLazyObjectType $subscription
      *
-     * @throws InvariantViolation
-     *
      * @api
      */
     public function setSubscription($subscription): self
     {
-        $this->assertMaybeLazyObjectType($subscription);
         $this->subscription = $subscription;
 
         return $this;
@@ -314,23 +305,5 @@ class SchemaConfig
         $this->extensionASTNodes = $extensionASTNodes;
 
         return $this;
-    }
-
-    /**
-     * @param mixed $maybeLazyObjectType Should be MaybeLazyObjectType
-     *
-     * @throws InvariantViolation
-     */
-    protected function assertMaybeLazyObjectType($maybeLazyObjectType): void
-    {
-        if ($maybeLazyObjectType instanceof ObjectType || is_callable($maybeLazyObjectType) || is_null($maybeLazyObjectType)) {
-            return;
-        }
-
-        $notMaybeLazyObjectType = is_object($maybeLazyObjectType)
-            ? get_class($maybeLazyObjectType)
-            : gettype($maybeLazyObjectType);
-        $objectTypeClass = ObjectType::class;
-        throw new InvariantViolation("Expected instanceof {$objectTypeClass}, a callable that returns such an instance, or null, got: {$notMaybeLazyObjectType}.");
     }
 }
