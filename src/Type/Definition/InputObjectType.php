@@ -18,8 +18,8 @@ use GraphQL\Utils\Utils;
  * @phpstan-type InputObjectConfig array{
  *   name?: string|null,
  *   description?: string|null,
- *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
  *   isOneOf?: bool|null,
+ *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
  *   parseValue?: ParseValueFn|null,
  *   astNode?: InputObjectTypeDefinitionNode|null,
  *   extensionASTNodes?: array<InputObjectTypeExtensionNode>|null
