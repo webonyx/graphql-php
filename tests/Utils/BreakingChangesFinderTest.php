@@ -1333,12 +1333,17 @@ final class BreakingChangesFinderTest extends TestCase
         ]);
 
         $deprecatedDirective = Directive::deprecatedDirective();
+        $oneOfDirective = Directive::oneOfDirective();
 
         self::assertEquals(
             [
                 [
                     'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
                     'description' => "{$deprecatedDirective->name} was removed",
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                    'description' => "{$oneOfDirective->name} was removed",
                 ],
             ],
             BreakingChangesFinder::findRemovedDirectives($oldSchema, $newSchema)

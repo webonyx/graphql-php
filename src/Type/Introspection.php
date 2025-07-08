@@ -431,6 +431,12 @@ GRAPHQL;
                         ? $type->getWrappedType()
                         : null,
                 ],
+                'isOneOf' => [
+                    'type' => Type::boolean(),
+                    'resolve' => static fn ($type): ?bool => $type instanceof InputObjectType
+                        ? $type->isOneOf()
+                        : null,
+                ],
             ],
         ]);
     }
