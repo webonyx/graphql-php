@@ -149,7 +149,7 @@ class Directive
     {
         return self::$internalDirectives[self::ONE_OF_NAME] ??= new self([
             'name' => self::ONE_OF_NAME,
-            'description' => 'Indicates that an input object is a oneof input object and exactly one of the input fields must be specified.',
+            'description' => 'Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its fields be provided).',
             'locations' => [
                 DirectiveLocation::INPUT_OBJECT,
             ],

@@ -1011,7 +1011,7 @@ final class SchemaPrinterTest extends TestCase
         reason: String = "No longer supported"
       ) on FIELD_DEFINITION | ENUM_VALUE | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
-      "Indicates that an input object is a oneof input object and exactly one of the input fields must be specified."
+      "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its fields be provided)."
       directive @oneOf on INPUT_OBJECT
 
       "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations."
