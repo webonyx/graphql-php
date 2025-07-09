@@ -106,7 +106,9 @@ final class NonNullTest extends TestCase
             },
         ]);
 
-        $this->schema = new Schema(['query' => $dataType]);
+        $this->schema = new Schema([
+            'query' => $dataType,
+        ]);
 
         $this->schemaWithNonNullArg = new Schema([
             'query' => new ObjectType([

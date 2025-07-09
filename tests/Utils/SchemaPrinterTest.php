@@ -55,7 +55,9 @@ final class SchemaPrinterTest extends TestCase
             'fields' => ['singleField' => $fieldConfig],
         ]);
 
-        return new Schema(['query' => $query]);
+        return new Schema([
+            'query' => $query,
+        ]);
     }
 
     /** @see it('Prints String Field') */
@@ -213,7 +215,9 @@ final class SchemaPrinterTest extends TestCase
             'name' => 'Foo',
             'fields' => ['str' => ['type' => Type::string()]],
         ]);
-        $schema = new Schema(['types' => [$fooType]]);
+        $schema = new Schema([
+            'types' => [$fooType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
@@ -250,7 +254,9 @@ final class SchemaPrinterTest extends TestCase
                 ],
             ],
         ]);
-        $schema = new Schema(['types' => [$fooType]]);
+        $schema = new Schema([
+            'types' => [$fooType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
@@ -559,7 +565,9 @@ final class SchemaPrinterTest extends TestCase
             'interfaces' => [$fooType],
         ]);
 
-        $schema = new Schema(['types' => [$barType]]);
+        $schema = new Schema([
+            'types' => [$barType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
@@ -598,7 +606,9 @@ final class SchemaPrinterTest extends TestCase
             'interfaces' => [$fooType, $bazType],
         ]);
 
-        $schema = new Schema(['types' => [$barType]]);
+        $schema = new Schema([
+            'types' => [$barType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
@@ -739,7 +749,9 @@ final class SchemaPrinterTest extends TestCase
             'fields' => ['int' => ['type' => Type::int()]],
         ]);
 
-        $schema = new Schema(['types' => [$inputType]]);
+        $schema = new Schema([
+            'types' => [$inputType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
@@ -760,7 +772,9 @@ final class SchemaPrinterTest extends TestCase
             'serialize' => static fn () => null,
         ]);
 
-        $schema = new Schema(['types' => [$oddType]]);
+        $schema = new Schema([
+            'types' => [$oddType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
@@ -783,7 +797,9 @@ final class SchemaPrinterTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['types' => [$RGBType]]);
+        $schema = new Schema([
+            'types' => [$RGBType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'

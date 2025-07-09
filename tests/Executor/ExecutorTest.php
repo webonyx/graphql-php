@@ -156,7 +156,9 @@ final class ExecutorTest extends TestCase
                 'deeper' => ['type' => Type::listOf($dataType)],
             ],
         ]);
-        $schema = new Schema(['query' => $dataType]);
+        $schema = new Schema([
+            'query' => $dataType,
+        ]);
 
         self::assertEquals(
             $expected,
@@ -205,7 +207,9 @@ final class ExecutorTest extends TestCase
             },
         ]);
 
-        $schema = new Schema(['query' => $Type]);
+        $schema = new Schema([
+            'query' => $Type,
+        ]);
         $expected = [
             'data' => [
                 'a' => 'Apple',
@@ -826,7 +830,9 @@ final class ExecutorTest extends TestCase
                 'e' => ['type' => Type::string()],
             ],
         ]);
-        $schema = new Schema(['query' => $queryType]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
 
         $expected = [
             'data' => [

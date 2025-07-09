@@ -601,7 +601,9 @@ final class ValidationTest extends TestCaseBase
                 ],
             ],
         ]);
-        $schema = new Schema(['query' => $QueryType]);
+        $schema = new Schema([
+            'query' => $QueryType,
+        ]);
 
         $this->assertMatchesValidationMessage(
             $schema->validate(),

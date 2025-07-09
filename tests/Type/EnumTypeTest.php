@@ -651,7 +651,9 @@ final class EnumTypeTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $QueryType]);
+        $schema = new Schema([
+            'query' => $QueryType,
+        ]);
 
         self::assertSame(0, $called, 'Should not eagerly call enum values during schema construction');
 

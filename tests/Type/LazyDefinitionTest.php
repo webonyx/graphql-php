@@ -113,7 +113,9 @@ final class LazyDefinitionTest extends TestCaseBase
             ],
         ]);
 
-        $schema = new Schema(['query' => $query]);
+        $schema = new Schema([
+            'query' => $query,
+        ]);
         $result = Executor::execute($schema, Parser::parse('{ f }'));
 
         self::assertSame(['f' => null], $result->data);
@@ -170,7 +172,9 @@ final class LazyDefinitionTest extends TestCaseBase
             },
         ]);
 
-        $blogSchema = new Schema(['query' => $type]);
+        $blogSchema = new Schema([
+            'query' => $type,
+        ]);
 
         self::assertSame($blogSchema->getQueryType(), $type);
 

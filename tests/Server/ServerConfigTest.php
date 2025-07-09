@@ -40,13 +40,17 @@ final class ServerConfigTest extends TestCase
 
     public function testAllowsSettingSchema(): void
     {
-        $schema = new Schema(['query' => new ObjectType(['name' => 'a', 'fields' => []])]);
+        $schema = new Schema([
+            'query' => new ObjectType(['name' => 'a', 'fields' => []]),
+        ]);
         $config = ServerConfig::create()
             ->setSchema($schema);
 
         self::assertSame($schema, $config->getSchema());
 
-        $schema2 = new Schema(['query' => new ObjectType(['name' => 'a', 'fields' => []])]);
+        $schema2 = new Schema([
+            'query' => new ObjectType(['name' => 'a', 'fields' => []]),
+        ]);
         $config->setSchema($schema2);
         self::assertSame($schema2, $config->getSchema());
     }
