@@ -775,7 +775,9 @@ final class SchemaPrinterTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['types' => [$inputType]]);
+        $schema = new Schema([
+            'types' => [$inputType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
