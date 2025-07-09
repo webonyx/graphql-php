@@ -764,6 +764,32 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
+    /** @see it('Print Input Type with @oneOf directive') */
+    public function testInputTypeWithOneOfDirective(): void
+    {
+        $inputType = new InputObjectType([
+            'name' => 'InputType',
+            'isOneOf' => true,
+            'fields' => [
+                'int' => Type::int(),
+            ],
+        ]);
+
+        $schema = new Schema([
+            'types' => [$inputType],
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            input InputType @oneOf {
+              int: Int
+            }
+
+            GRAPHQL,
+            $schema
+        );
+    }
+
     /** @see it('Custom Scalar') */
     public function testCustomScalar(): void
     {

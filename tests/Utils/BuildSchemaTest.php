@@ -1042,6 +1042,39 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame($inputSDL, $this->printAllASTNodes($someInput));
     }
 
+    /** @see it('Correctly extend input object type with @oneOf directive') */
+    public function testCorrectlyExtendInputObjectTypeWithOneOfDirective(): void
+    {
+        $inputSDL = <<<'GRAPHQL'
+            input SomeInput {
+              first: String
+            }
+            
+            extend input SomeInput @oneOf {
+              second: Int
+            }
+            
+            GRAPHQL;
+
+        $schema = BuildSchema::build($inputSDL);
+
+        $someInput = $schema->getType('SomeInput');
+        assert($someInput instanceof InputObjectType);
+
+        // Verify that the @oneOf directive from the extension is properly applied
+        self::assertTrue($someInput->isOneOf());
+
+        $expectedSomeInputSDL = <<<'GRAPHQL'
+            input SomeInput @oneOf {
+              first: String
+              second: Int
+            }
+            GRAPHQL;
+
+        self::assertSame($expectedSomeInputSDL, SchemaPrinter::printType($someInput));
+        self::assertSame($inputSDL, $this->printAllASTNodes($someInput));
+    }
+
     /** @see it('Correctly assign AST nodes') */
     public function testCorrectlyAssignASTNodes(): void
     {

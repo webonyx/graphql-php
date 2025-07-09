@@ -563,6 +563,7 @@ class SchemaPrinter
 
         return static::printDescription($options, $type)
             . "input {$type->name}"
+            . ($type->isOneOf() ? ' @oneOf' : '')
             . static::printBlock($fields);
     }
 
