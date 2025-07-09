@@ -547,9 +547,11 @@ class ASTDefinitionBuilder
         /** @var array<InputObjectTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
         $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
 
+        $oneOfDirective = Directive::oneOfDirective();
+
         // Check for @oneOf directive in the definition node
         $isOneOf = Values::getDirectiveValues(
-            Directive::oneOfDirective(),
+            $oneOfDirective,
             $def
         ) !== null;
 
@@ -557,7 +559,7 @@ class ASTDefinitionBuilder
         if (! $isOneOf) {
             foreach ($extensionASTNodes as $extensionNode) {
                 if (Values::getDirectiveValues(
-                    Directive::oneOfDirective(),
+                    $oneOfDirective,
                     $extensionNode
                 ) !== null) {
                     $isOneOf = true;
