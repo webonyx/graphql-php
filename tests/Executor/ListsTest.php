@@ -86,7 +86,9 @@ final class ListsTest extends TestCase
             },
         ]);
 
-        $schema = new Schema(['query' => $dataType]);
+        $schema = new Schema([
+            'query' => $dataType,
+        ]);
 
         $ast = Parser::parse('{ nest { test } }');
 

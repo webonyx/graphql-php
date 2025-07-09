@@ -194,7 +194,9 @@ final class VariablesTest extends TestCase
             ],
         ]);
 
-        return new Schema(['query' => $TestType]);
+        return new Schema([
+            'query' => $TestType,
+        ]);
     }
 
     /**

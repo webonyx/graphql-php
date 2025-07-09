@@ -1648,7 +1648,9 @@ GRAPHQL,
             ],
         ]);
 
-        $schema = new Schema(['query' => $queryType]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
 
         $documentNode = Parser::parse(/** @lang GraphQL */ '
             extend type Query {
@@ -1682,7 +1684,9 @@ GRAPHQL,
             'resolveField' => static fn (): string => $value,
         ]);
 
-        $schema = new Schema(['query' => $queryType]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
 
         $documentNode = Parser::parse(/** @lang GraphQL */ '
             extend type Query {
@@ -1780,7 +1784,9 @@ GRAPHQL,
             'resolveField' => static fn (): string => $helloValue,
         ]);
 
-        $schema = new Schema(['query' => $queryType]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
 
         $documentNode = Parser::parse(/** @lang GraphQL */ '
               type Foo {
@@ -1847,7 +1853,9 @@ GRAPHQL,
             ],
         ]);
 
-        $schema = new Schema(['query' => $queryType]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
 
         $documentNode = Parser::parse(/** @lang GraphQL */ '
         extend type Query {
@@ -1902,7 +1910,9 @@ GRAPHQL,
             'resolveField' => static fn (): \stdClass => new \stdClass(),
         ]);
 
-        $schema = new Schema(['query' => $QueryType]);
+        $schema = new Schema([
+            'query' => $QueryType,
+        ]);
 
         $documentNode = Parser::parse(/** @lang GraphQL */ '
         extend type Query {

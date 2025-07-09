@@ -550,7 +550,9 @@ final class UnionInterfaceTest extends TestCase
             ],
         ]);
 
-        $schema2 = new Schema(['query' => $PersonType2]);
+        $schema2 = new Schema([
+            'query' => $PersonType2,
+        ]);
 
         $john2 = new Person('John', [], [$this->liz]);
 

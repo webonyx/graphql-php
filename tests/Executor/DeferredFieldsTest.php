@@ -452,7 +452,9 @@ final class DeferredFieldsTest extends TestCase
             },
         ]);
 
-        $schema = new Schema(['query' => $complexType]);
+        $schema = new Schema([
+            'query' => $complexType,
+        ]);
 
         $query = Parser::parse('
             {

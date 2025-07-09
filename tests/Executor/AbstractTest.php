@@ -751,7 +751,9 @@ final class AbstractTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $query]);
+        $schema = new Schema([
+            'query' => $query,
+        ]);
         $schema->assertValid();
 
         $query = '

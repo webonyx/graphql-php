@@ -1014,7 +1014,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestInputObject") {
@@ -1100,7 +1102,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestType") {
@@ -1134,7 +1138,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestType") {
@@ -1186,7 +1192,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
       {
         __type(name: "TestType") {
@@ -1246,7 +1254,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestType") {
@@ -1303,7 +1313,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestType") {
@@ -1353,7 +1365,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestEnum") {
@@ -1413,7 +1427,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestEnum") {
@@ -1479,7 +1495,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestInputObject") {
@@ -1534,7 +1552,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestInputObject") {
@@ -1580,7 +1600,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
       {
         __type {
@@ -1607,7 +1629,9 @@ final class IntrospectionTest extends TestCase
             'fields' => ['a' => Type::string()],
         ]);
 
-        $schema = new Schema(['query' => $QueryRoot]);
+        $schema = new Schema([
+            'query' => $QueryRoot,
+        ]);
         $request = '
       {
         schemaType: __type(name: "__Schema") {
@@ -1664,7 +1688,9 @@ final class IntrospectionTest extends TestCase
             'fields' => ['a' => Type::string()],
         ]);
 
-        $schema = new Schema(['query' => $QueryRoot]);
+        $schema = new Schema([
+            'query' => $QueryRoot,
+        ]);
         $request = '
       {
         typeKindType: __type(name: "__TypeKind") {
@@ -1733,7 +1759,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $QueryRoot]);
+        $schema = new Schema([
+            'query' => $QueryRoot,
+        ]);
         $source = Introspection::getIntrospectionQuery(['directiveIsRepeatable' => true]);
 
         $calledForFields = [];
@@ -1767,7 +1795,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestType") {

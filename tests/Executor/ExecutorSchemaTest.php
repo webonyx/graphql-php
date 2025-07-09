@@ -105,7 +105,9 @@ final class ExecutorSchemaTest extends TestCase
             ],
         ]);
 
-        $BlogSchema = new Schema(['query' => $BlogQuery]);
+        $BlogSchema = new Schema([
+            'query' => $BlogQuery,
+        ]);
 
         $request = '
       {

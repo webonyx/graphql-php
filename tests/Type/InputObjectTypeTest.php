@@ -120,7 +120,9 @@ final class InputObjectTypeTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['mutation' => $mutation]);
+        $schema = new Schema([
+            'mutation' => $mutation,
+        ]);
 
         $result = GraphQL::executeQuery(
             $schema,
@@ -203,7 +205,9 @@ final class InputObjectTypeTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['mutation' => $mutation]);
+        $schema = new Schema([
+            'mutation' => $mutation,
+        ]);
 
         $result = GraphQL::executeQuery($schema, /** @lang GraphQL */ '
             mutation {
@@ -289,7 +293,9 @@ final class InputObjectTypeTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['mutation' => $mutation]);
+        $schema = new Schema([
+            'mutation' => $mutation,
+        ]);
 
         $result = GraphQL::executeQuery(
             $schema,
@@ -349,7 +355,9 @@ final class InputObjectTypeTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['mutation' => $mutation]);
+        $schema = new Schema([
+            'mutation' => $mutation,
+        ]);
 
         $result = GraphQL::executeQuery(
             $schema,

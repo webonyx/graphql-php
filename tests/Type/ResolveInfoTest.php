@@ -174,7 +174,9 @@ final class ResolveInfoTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $blogQuery]);
+        $schema = new Schema([
+            'query' => $blogQuery,
+        ]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
         self::assertEquals(['data' => ['article' => null]], $result);
@@ -204,7 +206,9 @@ final class ResolveInfoTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $pingPongQuery]);
+        $schema = new Schema([
+            'query' => $pingPongQuery,
+        ]);
         $result = GraphQL::executeQuery($schema, $query)->toArray();
 
         self::assertSame(['data' => ['ping' => 'pong']], $result);
@@ -370,7 +374,9 @@ final class ResolveInfoTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $blogQuery]);
+        $schema = new Schema([
+            'query' => $blogQuery,
+        ]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
         self::assertTrue($hasCalled);
@@ -446,7 +452,9 @@ final class ResolveInfoTest extends TestCase
             'scalar2' => true,
         ];
 
-        $schema = new Schema(['query' => $query]);
+        $schema = new Schema([
+            'query' => $query,
+        ]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
         self::assertTrue($hasCalled);

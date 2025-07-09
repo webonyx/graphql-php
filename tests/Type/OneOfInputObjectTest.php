@@ -119,7 +119,9 @@ final class OneOfInputObjectTest extends TestCaseBase
             ],
         ]);
 
-        $schema = new Schema(['query' => $query]);
+        $schema = new Schema([
+            'query' => $query,
+        ]);
 
         // Valid query with exactly one field
         $validQuery = '{ test(input: { stringField: "hello" }) }';

@@ -35,7 +35,9 @@ final class IntegerFloatPrimitiveIntrospectionTest extends TestCase
             ],
         ]);
 
-        return new Schema(['query' => $queryType]);
+        return new Schema([
+            'query' => $queryType,
+        ]);
     }
 
     public function testDefaultValues(): void
