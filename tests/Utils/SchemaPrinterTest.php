@@ -758,7 +758,9 @@ final class SchemaPrinterTest extends TestCase
         $inputType = new InputObjectType([
             'name' => 'InputType',
             'isOneOf' => true,
-            'fields' => ['int' => ['type' => Type::int()]],
+            'fields' => [
+                'int' => Type::int(),
+            ],
         ]);
 
         $schema = new Schema(['types' => [$inputType]]);
