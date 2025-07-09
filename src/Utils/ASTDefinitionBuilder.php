@@ -550,18 +550,12 @@ class ASTDefinitionBuilder
         $oneOfDirective = Directive::oneOfDirective();
 
         // Check for @oneOf directive in the definition node
-        $isOneOf = Values::getDirectiveValues(
-            $oneOfDirective,
-            $def
-        ) !== null;
+        $isOneOf = Values::getDirectiveValues($oneOfDirective, $def) !== null;
 
         // Check for @oneOf directive in extension nodes
         if (! $isOneOf) {
             foreach ($extensionASTNodes as $extensionNode) {
-                if (Values::getDirectiveValues(
-                    $oneOfDirective,
-                    $extensionNode
-                ) !== null) {
+                if (Values::getDirectiveValues($oneOfDirective, $extensionNode) !== null) {
                     $isOneOf = true;
                     break;
                 }
