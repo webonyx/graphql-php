@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.21.2
+
+### Fixed
+
+- Add missing `isOneOf` to Introspection query https://github.com/webonyx/graphql-php/pull/1729
+
 ## v15.21.1
 
 ### Fixed
