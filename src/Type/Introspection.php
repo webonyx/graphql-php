@@ -115,6 +115,7 @@ class Introspection
     kind
     name
     {$descriptions}
+    isOneOf
     fields(includeDeprecated: true) {
       name
       {$descriptions}

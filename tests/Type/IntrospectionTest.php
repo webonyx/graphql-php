@@ -53,6 +53,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'OBJECT',
                             'name' => 'SomeObject',
+                            'isOneOf' => null,
                             'fields' => [
                                 [
                                     'name' => 'someField',
@@ -74,6 +75,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'SCALAR',
                             'name' => 'String',
+                            'isOneOf' => null,
                             'fields' => null,
                             'inputFields' => null,
                             'interfaces' => null,
@@ -83,6 +85,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'SCALAR',
                             'name' => 'Boolean',
+                            'isOneOf' => null,
                             'fields' => null,
                             'inputFields' => null,
                             'interfaces' => null,
@@ -92,6 +95,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'OBJECT',
                             'name' => '__Schema',
+                            'isOneOf' => null,
                             'fields' => [
                                 0 => [
                                     'name' => 'types',
@@ -185,6 +189,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'OBJECT',
                             'name' => '__Type',
+                            'isOneOf' => null,
                             'fields' => [
                                 0 => [
                                     'name' => 'kind',
@@ -385,6 +390,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'ENUM',
                             'name' => '__TypeKind',
+                            'isOneOf' => null,
                             'fields' => null,
                             'inputFields' => null,
                             'interfaces' => null,
@@ -435,6 +441,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'OBJECT',
                             'name' => '__Field',
+                            'isOneOf' => null,
                             'fields' => [
                                 0 => [
                                     'name' => 'name',
@@ -547,6 +554,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'OBJECT',
                             'name' => '__InputValue',
+                            'isOneOf' => null,
                             'fields' => [
                                 0 => [
                                     'name' => 'name',
@@ -635,6 +643,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'OBJECT',
                             'name' => '__EnumValue',
+                            'isOneOf' => null,
                             'fields' => [
                                 0 => [
                                     'name' => 'name',
@@ -697,6 +706,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'OBJECT',
                             'name' => '__Directive',
+                            'isOneOf' => null,
                             'fields' => [
                                 [
                                     'name' => 'name',
@@ -794,6 +804,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'ENUM',
                             'name' => '__DirectiveLocation',
+                            'isOneOf' => null,
                             'fields' => null,
                             'inputFields' => null,
                             'interfaces' => null,
@@ -1830,5 +1841,31 @@ final class IntrospectionTest extends TestCase
     {
         yield [fn (): bool => false];
         yield [false];
+    }
+
+    public function testIsOneOf(): void
+    {
+        $input = new InputObjectType([
+            'name' => 'SearchInput',
+            'isOneOf' => true,
+            'fields' => [
+                'name' => ['type' => Type::string()],
+                'email' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $query = new ObjectType([
+            'name' => 'QueryRoot',
+            'fields' => [
+                'input' => ['type' => $input],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $query,
+        ]);
+
+        $introspection = Introspection::fromSchema($schema);
+        self::assertTrue($introspection['__schema']['types'][1]['isOneOf']);
     }
 }
