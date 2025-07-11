@@ -138,7 +138,7 @@ class DocumentValidator
 
         // Only cache clean results
         if ($cache && $cacheKey && count($errors) === 0) {
-            $cache->set($cacheKey, $errors, 300); // TTL = 5 min
+            $cache->set($cacheKey, $errors);
         }
 
         return $errors;
