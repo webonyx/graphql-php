@@ -49,6 +49,7 @@ use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
+use Psr\SimpleCache\CacheInterface;
 
 /**
  * Implements the "Validation" section of the spec.
@@ -99,16 +100,25 @@ class DocumentValidator
         Schema $schema,
         DocumentNode $ast,
         ?array $rules = null,
-        ?TypeInfo $typeInfo = null
+        ?TypeInfo $typeInfo = null,
+        ?CacheInterface $cache = null
     ): array {
-        $rules ??= static::allRules();
+        $cacheKey = null;
 
+        if ($cache) {
+            $cacheKey = 'gql_validation_' . md5($ast->__toString());
+
+            if ($cache->has($cacheKey)) {
+                return $cache->get($cacheKey);
+            }
+        }
+
+        $rules ??= static::allRules();
         if ($rules === []) {
             return [];
         }
 
         $typeInfo ??= new TypeInfo($schema);
-
         $context = new QueryValidationContext($schema, $ast, $typeInfo);
 
         $visitors = [];
@@ -124,7 +134,14 @@ class DocumentValidator
             )
         );
 
-        return $context->getErrors();
+        $errors = $context->getErrors();
+
+        // Only cache clean results
+        if ($cache && $cacheKey && count($errors) === 0) {
+            $cache->set($cacheKey, $errors, 300); // TTL = 5 min
+        }
+
+        return $errors;
     }
 
     /**

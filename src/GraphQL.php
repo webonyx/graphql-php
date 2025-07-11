@@ -19,6 +19,7 @@ use GraphQL\Type\Schema as SchemaType;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\ValidationRule;
+use Psr\SimpleCache\CacheInterface;
 
 /**
  * This is the primary facade for fulfilling GraphQL operations.
@@ -90,7 +91,8 @@ class GraphQL
         ?array $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null,
-        ?array $validationRules = null
+        ?array $validationRules = null,
+        ?CacheInterface $cache = null,
     ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
@@ -103,7 +105,8 @@ class GraphQL
             $variableValues,
             $operationName,
             $fieldResolver,
-            $validationRules
+            $validationRules,
+            $cache
         );
 
         return $promiseAdapter->wait($promise);
@@ -132,7 +135,8 @@ class GraphQL
         ?array $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null,
-        ?array $validationRules = null
+        ?array $validationRules = null,
+        ?CacheInterface $cache = null
     ): Promise {
         try {
             $documentNode = $source instanceof DocumentNode
@@ -152,7 +156,7 @@ class GraphQL
                 }
             }
 
-            $validationErrors = DocumentValidator::validate($schema, $documentNode, $validationRules);
+            $validationErrors = DocumentValidator::validate($schema, $documentNode, $validationRules, null, $cache);
 
             if ($validationErrors !== []) {
                 return $promiseAdapter->createFulfilled(
