@@ -105,7 +105,7 @@ class DocumentValidator
     ): array {
         $cacheKey = null;
 
-        if ($cache) {
+        if (isset($cache)) {
             $cacheKey = 'gql_validation_' . md5($ast->__toString());
 
             if ($cache->has($cacheKey)) {
