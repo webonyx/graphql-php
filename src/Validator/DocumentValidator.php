@@ -50,6 +50,7 @@ use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 use Psr\SimpleCache\CacheInterface;
+use Psr\SimpleCache\InvalidArgumentException;
 
 /**
  * Implements the "Validation" section of the spec.
@@ -108,9 +109,11 @@ class DocumentValidator
         if (isset($cache)) {
             $cacheKey = 'gql_validation_' . md5($ast->__toString());
 
-            if ($cache->has($cacheKey)) {
-                return $cache->get($cacheKey);
-            }
+            try {
+                if ($cache->has($cacheKey)) {
+                    return $cache->get($cacheKey);
+                }
+            } catch (InvalidArgumentException $e) {}
         }
 
         $rules ??= static::allRules();
@@ -137,9 +140,11 @@ class DocumentValidator
         $errors = $context->getErrors();
 
         // Only cache clean results
-        if ($cache && $cacheKey && count($errors) === 0) {
-            $cache->set($cacheKey, $errors);
-        }
+        try {
+            if (isset($cacheKey) && count($errors) === 0) {
+                $cache->set($cacheKey, $errors);
+            }
+        } catch (InvalidArgumentException $e) {}
 
         return $errors;
     }
