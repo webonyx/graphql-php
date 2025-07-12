@@ -19,7 +19,7 @@ use GraphQL\Type\Schema as SchemaType;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\ValidationRule;
-use Psr\SimpleCache\CacheInterface;
+use GraphQL\Validator\ValidationCache;
 
 /**
  * This is the primary facade for fulfilling GraphQL operations.
@@ -92,7 +92,7 @@ class GraphQL
         ?string $operationName = null,
         ?callable $fieldResolver = null,
         ?array $validationRules = null,
-        ?CacheInterface $cache = null,
+        ?ValidationCache $cache = null,
     ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
@@ -136,7 +136,7 @@ class GraphQL
         ?string $operationName = null,
         ?callable $fieldResolver = null,
         ?array $validationRules = null,
-        ?CacheInterface $cache = null
+        ?ValidationCache $cache = null
     ): Promise {
         try {
             $documentNode = $source instanceof DocumentNode
