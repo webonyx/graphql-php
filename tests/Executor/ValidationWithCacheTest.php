@@ -1,0 +1,121 @@
+<?php declare(strict_types=1);
+
+namespace GraphQL\Tests\Executor;
+
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+use GraphQL\Deferred;
+use GraphQL\GraphQL;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Tests\Executor\TestClasses\Cat;
+use GraphQL\Tests\Executor\TestClasses\Dog;
+use GraphQL\Tests\PsrValidationCacheAdapter;
+use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Psr16Cache;
+
+final class SpyValidationCacheAdapter extends PsrValidationCacheAdapter
+{
+    public int $isValidatedCalls = 0;
+
+    public int $markValidatedCalls = 0;
+
+    public function isValidated(Schema $schema, DocumentNode $ast): bool
+    {
+        ++$this->isValidatedCalls;
+
+        return parent::isValidated($schema, $ast);
+    }
+
+    public function markValidated(Schema $schema, DocumentNode $ast): void
+    {
+        ++$this->markValidatedCalls;
+        parent::markValidated($schema, $ast);
+    }
+}
+
+final class ValidationWithCacheTest extends TestCase
+{
+    use ArraySubsetAsserts;
+
+    public function testIsValidationCachedWithAdapter(): void
+    {
+        $cache = new SpyValidationCacheAdapter(new Psr16Cache(new ArrayAdapter()));
+        $petType = new InterfaceType([
+            'name' => 'Pet',
+            'fields' => [
+                'name' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $DogType = new ObjectType([
+            'name' => 'Dog',
+            'interfaces' => [$petType],
+            'isTypeOf' => static fn ($obj): Deferred => new Deferred(static fn (): bool => $obj instanceof Dog),
+            'fields' => [
+                'name' => ['type' => Type::string()],
+                'woofs' => ['type' => Type::boolean()],
+            ],
+        ]);
+
+        $CatType = new ObjectType([
+            'name' => 'Cat',
+            'interfaces' => [$petType],
+            'isTypeOf' => static fn ($obj): Deferred => new Deferred(static fn (): bool => $obj instanceof Cat),
+            'fields' => [
+                'name' => ['type' => Type::string()],
+                'meows' => ['type' => Type::boolean()],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'pets' => [
+                        'type' => Type::listOf($petType),
+                        'resolve' => static fn (): array => [
+                            new Dog('Odie', true),
+                            new Cat('Garfield', false),
+                        ],
+                    ],
+                ],
+            ]),
+            'types' => [$CatType, $DogType],
+        ]);
+
+        $query = '{
+          pets {
+            name
+            ... on Dog {
+              woofs
+            }
+            ... on Cat {
+              meows
+            }
+          }
+        }';
+
+        // make the same call twice in a row. We'll then inspect the cache object to count calls
+        GraphQL::executeQuery($schema, $query, null, null, null, null, null, null, $cache)->toArray();
+        $result = GraphQL::executeQuery($schema, $query, null, null, null, null, null, null, $cache)->toArray();
+
+        // ✅ Assert that validation only happened once
+        self::assertEquals(2, $cache->isValidatedCalls, 'Should check cache twice');
+        self::assertEquals(1, $cache->markValidatedCalls, 'Should mark as validated once');
+
+        $expected = [
+            'data' => [
+                'pets' => [
+                    ['name' => 'Odie', 'woofs' => true],
+                    ['name' => 'Garfield', 'meows' => false],
+                ],
+            ],
+        ];
+
+        self::assertEquals($expected, $result);
+    }
+}
