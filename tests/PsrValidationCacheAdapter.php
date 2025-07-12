@@ -9,12 +9,6 @@ use GraphQL\Validator\ValidationCache;
 use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\String\Exception\InvalidArgumentException;
 
-/**
- * @phpstan-type ErrorArray array{
- *     message: string,
- *     locations?: array<int, array{line: int, column: int}>
- * }
- */
 final class PsrValidationCacheAdapter implements ValidationCache
 {
     private const KEY_PREFIX = 'gql_validation_';
