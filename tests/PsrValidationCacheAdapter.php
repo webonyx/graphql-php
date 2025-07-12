@@ -1,0 +1,74 @@
+<?php declare(strict_types=1);
+
+namespace GraphQL\Tests;
+
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Type\Schema;
+use GraphQL\Utils\SchemaPrinter;
+use GraphQL\Validator\ValidationCache;
+use Psr\SimpleCache\CacheInterface;
+use Symfony\Component\String\Exception\InvalidArgumentException;
+
+/**
+ * @phpstan-type ErrorArray array{
+ *     message: string,
+ *     locations?: array<int, array{line: int, column: int}>
+ * }
+ */
+final class PsrValidationCacheAdapter implements ValidationCache
+{
+    private const KEY_PREFIX = 'gql_validation_';
+    private int $ttl;
+    private CacheInterface $cache;
+
+    public function __construct(
+        CacheInterface  $cache,
+        int $ttlSeconds = 300
+    ) {
+        $this->ttl = $ttlSeconds;
+        $this->cache = $cache;
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function isValidated(Schema $schema, DocumentNode $ast): bool
+    {
+        try {
+            $key = $this->buildKey($schema, $ast);
+            /** @phpstan-ignore-next-line */
+            return $this->cache->has($key);
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function markValidated(Schema $schema, DocumentNode $ast): void
+    {
+        try {
+            $key = $this->buildKey($schema, $ast);
+            /** @phpstan-ignore-next-line */
+            $this->cache->set($key, true, $this->ttl);
+        } catch (\Throwable $e) {
+            // ignore silently
+        }
+    }
+
+    /**
+     * @throws \GraphQL\Error\Error
+     * @throws \GraphQL\Error\InvariantViolation
+     * @throws \GraphQL\Error\SerializationError
+     * @throws \JsonException
+     */
+    private function buildKey(Schema $schema, DocumentNode $ast): string
+    {
+        // NOTE: You can override this strategy if you want to make schema fingerprinting cheaper
+        $schemaHash = md5(SchemaPrinter::doPrint($schema));
+        $astHash = md5($ast->__toString());
+
+        return self::KEY_PREFIX . $schemaHash . '_' . $astHash;
+    }
+}
