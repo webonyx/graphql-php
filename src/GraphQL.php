@@ -92,7 +92,7 @@ class GraphQL
         ?string $operationName = null,
         ?callable $fieldResolver = null,
         ?array $validationRules = null,
-        ?ValidationCache $cache = null,
+        ?ValidationCache $cache = null
     ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
