@@ -20,13 +20,9 @@ final class ValidationWithCacheTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /** @see it('isTypeOf used to resolve runtime type for Interface') */
     public function testIsValidationCachedWithAdapter(): void
     {
         $cache = new PsrValidationCacheAdapter(new Psr16Cache(new ArrayAdapter()));
-
-
-
         $petType = new InterfaceType([
             'name' => 'Pet',
             'fields' => [
