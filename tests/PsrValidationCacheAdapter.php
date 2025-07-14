@@ -30,7 +30,7 @@ class PsrValidationCacheAdapter implements ValidationCache
     {
         try {
             $key = $this->buildKey($schema, $ast);
-            /** @phpstan-ignore-next-line */
+            /** @phpstan-ignore missingType.checkedException */
             return $this->cache->has($key);
         } catch (\Throwable $e) {
             return false;
@@ -44,7 +44,7 @@ class PsrValidationCacheAdapter implements ValidationCache
     {
         try {
             $key = $this->buildKey($schema, $ast);
-            /** @phpstan-ignore-next-line */
+            /** @phpstan-ignore missingType.checkedException */
             $this->cache->set($key, true, $this->ttl);
         } catch (\Throwable $e) {
             // ignore silently
