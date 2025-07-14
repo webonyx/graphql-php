@@ -2,7 +2,6 @@
 
 namespace GraphQL\Validator;
 
-use GraphQL\GraphQL;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Type\Schema;
 
