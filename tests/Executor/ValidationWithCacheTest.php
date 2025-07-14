@@ -5,11 +5,9 @@ namespace GraphQL\Tests\Executor;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Deferred;
 use GraphQL\GraphQL;
-use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Tests\Executor\TestClasses\Cat;
 use GraphQL\Tests\Executor\TestClasses\Dog;
 use GraphQL\Tests\Executor\TestClasses\SpyValidationCacheAdapter;
-use GraphQL\Tests\PsrValidationCacheAdapter;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -28,7 +26,7 @@ final class ValidationWithCacheTest extends TestCase
         $petType = new InterfaceType([
             'name' => 'Pet',
             'fields' => [
-                'name' => ['type' => Type::string()],
+                'name' => Type::string(),
             ],
         ]);
 
@@ -37,8 +35,8 @@ final class ValidationWithCacheTest extends TestCase
             'interfaces' => [$petType],
             'isTypeOf' => static fn ($obj): Deferred => new Deferred(static fn (): bool => $obj instanceof Dog),
             'fields' => [
-                'name' => ['type' => Type::string()],
-                'woofs' => ['type' => Type::boolean()],
+                'name' => Type::string(),
+                'woofs' => Type::boolean(),
             ],
         ]);
 
@@ -47,8 +45,8 @@ final class ValidationWithCacheTest extends TestCase
             'interfaces' => [$petType],
             'isTypeOf' => static fn ($obj): Deferred => new Deferred(static fn (): bool => $obj instanceof Cat),
             'fields' => [
-                'name' => ['type' => Type::string()],
-                'meows' => ['type' => Type::boolean()],
+                'name' => Type::string(),
+                'meows' => Type::boolean(),
             ],
         ]);
 
