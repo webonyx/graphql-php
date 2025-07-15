@@ -59,7 +59,11 @@ class PsrValidationCacheAdapter implements ValidationCache
      */
     private function buildKey(Schema $schema, DocumentNode $ast): string
     {
-        // NOTE: You can override this strategy if you want to make schema fingerprinting cheaper
+        /**
+         * NOTE: This default strategy generates a cache key by hashing the printed schema and AST.
+         * You'll likely want to replace this with a more stable or efficient method for fingerprinting
+         * the schema -- for example, a build-time hash, schema version number, or an environment-based identifier.
+         */
         $schemaHash = md5(SchemaPrinter::doPrint($schema));
         $astHash = md5($ast->__toString());
 
