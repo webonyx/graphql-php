@@ -26,7 +26,7 @@ interface ValidationCache
      * for example, when using persisted queries that are known to be valid ahead of time. In such cases, you
      * can implement this method to always return true.
      *
-     * @return bool True if validation for the given schema + AST is already known to be valid; false otherwise.
+     * @return bool true if validation for the given schema + AST is already known to be valid; false otherwise
      */
     public function isValidated(Schema $schema, DocumentNode $ast): bool;
 

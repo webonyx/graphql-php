@@ -12,24 +12,25 @@ use Symfony\Component\String\Exception\InvalidArgumentException;
 class PsrValidationCacheAdapter implements ValidationCache
 {
     private const KEY_PREFIX = 'gql_validation_';
+
     private int $ttl;
+
     private CacheInterface $cache;
 
     public function __construct(
-        CacheInterface  $cache,
+        CacheInterface $cache,
         int $ttlSeconds = 300
     ) {
         $this->ttl = $ttlSeconds;
         $this->cache = $cache;
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
+    /** @throws InvalidArgumentException */
     public function isValidated(Schema $schema, DocumentNode $ast): bool
     {
         try {
             $key = $this->buildKey($schema, $ast);
+
             /** @phpstan-ignore missingType.checkedException */
             return $this->cache->has($key);
         } catch (\Throwable $e) {
@@ -37,9 +38,7 @@ class PsrValidationCacheAdapter implements ValidationCache
         }
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
+    /** @throws InvalidArgumentException */
     public function markValidated(Schema $schema, DocumentNode $ast): void
     {
         try {

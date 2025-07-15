@@ -79,9 +79,8 @@ final class ValidationWithCacheTest extends TestCase
         }';
 
         // make the same call twice in a row. We'll then inspect the cache object to count calls
-        $resultA = GraphQL::executeQuery( $schema, $query, null, null, null, null, null, null, $cache)->toArray();
-        $resultB = GraphQL::executeQuery( $schema, $query, null, null, null, null, null, null, $cache)->toArray();
-
+        $resultA = GraphQL::executeQuery($schema, $query, null, null, null, null, null, null, $cache)->toArray();
+        $resultB = GraphQL::executeQuery($schema, $query, null, null, null, null, null, null, $cache)->toArray();
 
         // ✅ Assert that validation only happened once
         self::assertEquals(2, $cache->isValidatedCalls, 'Should check cache twice');
