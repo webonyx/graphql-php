@@ -64,7 +64,7 @@ class PsrValidationCacheAdapter implements ValidationCache
          * the schema -- for example, a build-time hash, schema version number, or an environment-based identifier.
          */
         $schemaHash = md5(SchemaPrinter::doPrint($schema));
-        $astHash = md5($ast->__toString());
+        $astHash = md5(serialize($ast));
 
         return self::KEY_PREFIX . $schemaHash . '_' . $astHash;
     }
