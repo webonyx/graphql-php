@@ -83,8 +83,8 @@ final class ValidationWithCacheTest extends TestCase
         $resultB = GraphQL::executeQuery($schema, $query, null, null, null, null, null, null, $cache)->toArray();
 
         // ✅ Assert that validation only happened once
-        self::assertEquals(2, $cache->isValidatedCalls, 'Should check cache twice');
-        self::assertEquals(1, $cache->markValidatedCalls, 'Should mark as validated once');
+        self::assertSame(2, $cache->isValidatedCalls, 'Should check cache twice');
+        self::assertSame(1, $cache->markValidatedCalls, 'Should mark as validated once');
 
         $expected = [
             'data' => [
@@ -95,7 +95,7 @@ final class ValidationWithCacheTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, $resultA);
-        self::assertEquals($expected, $resultB);
+        self::assertSame($expected, $resultA);
+        self::assertSame($expected, $resultB);
     }
 }

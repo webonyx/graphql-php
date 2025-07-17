@@ -22,9 +22,8 @@ interface ValidationCache
      * This method should return true if the query has previously passed validation for the provided schema.
      * Only successful validations should be considered "cached" — failed validations are not cached.
      *
-     * Note: This allows for optimizations in systems where validation may not be necessary on every request —
-     * for example, when using persisted queries that are known to be valid ahead of time. In such cases, you
-     * can implement this method to always return true.
+     * This allows for optimizations in systems where validation may not be necessary on every request.
+     * For example, you can always return true for persisted queries that are known to be valid ahead of time.
      *
      * @return bool true if validation for the given schema + AST is already known to be valid; false otherwise
      */
