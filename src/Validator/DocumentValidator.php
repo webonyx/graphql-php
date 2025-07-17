@@ -132,8 +132,7 @@ class DocumentValidator
 
         $errors = $context->getErrors();
 
-        // Only cache clean results
-        if (isset($cache) && count($errors) === 0) {
+        if (isset($cache) && $errors === []) {
             $cache->markValidated($schema, $ast);
         }
 
