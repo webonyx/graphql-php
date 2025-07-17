@@ -584,7 +584,7 @@ Before:
 ```php
 use GraphQL\Validator\DocumentValidator;
 
-$myRule = function(ValidationContext $context) {};
+$myRule = function (ValidationContext $context) {};
 DocumentValidator::validate($schema, $ast, [$myRule]);
 ```
 
@@ -594,7 +594,7 @@ After:
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\DocumentValidator;
 
-$myRule = new CustomValidationRule('MyRule', function(ValidationContext $context) {});
+$myRule = new CustomValidationRule('MyRule', function (ValidationContext $context) {});
 DocumentValidator::validate($schema, $ast, [$myRule]);
 ```
 
@@ -605,7 +605,7 @@ Before the change:
 ```php
 use GraphQL\Validator\DocumentValidator;
 
-$myRule = function(ValidationContext $context) {};
+$myRule = function (ValidationContext $context) {};
 DocumentValidator::addRule('MyRuleName', $myRule);
 ```
 
@@ -614,7 +614,7 @@ After the change:
 ```php
 use GraphQL\Validator\DocumentValidator;
 
-$myRule = new CustomValidationRulefunction('MyRule', ValidationContext $context) {});
+$myRule = new CustomValidationRule('MyRule', function (ValidationContext $context) {});
 DocumentValidator::addRule($myRule);
 ```
 

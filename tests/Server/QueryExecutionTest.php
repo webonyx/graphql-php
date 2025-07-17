@@ -113,6 +113,8 @@ final class QueryExecutionTest extends ServerTestCase
                     'path' => ['fieldWithSafeException'],
                     'extensions' => [
                         'trace' => [],
+                        'line' => 40,
+                        'file' => __DIR__ . '/ServerTestCase.php',
                     ],
                 ],
             ],
@@ -120,8 +122,6 @@ final class QueryExecutionTest extends ServerTestCase
 
         $result = $this->executeQuery($query)->toArray();
         self::assertArraySubset($expected, $result);
-        self::assertSame(40, $result['errors'][0]['extensions']['line'] ?? null);
-        self::assertStringContainsString('tests/Server/ServerTestCase.php', $result['errors'][0]['extensions']['file'] ?? '');
     }
 
     public function testRethrowUnsafeExceptions(): void

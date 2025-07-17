@@ -19,17 +19,15 @@ use GraphQL\Utils\Utils;
  * Example:
  *
  *     $AddressType = new ObjectType([
- *       'name' => 'Address',
- *       'fields' => [
- *         'street' => [ 'type' => GraphQL\Type\Definition\Type::string() ],
- *         'number' => [ 'type' => GraphQL\Type\Definition\Type::int() ],
- *         'formatted' => [
- *           'type' => GraphQL\Type\Definition\Type::string(),
- *           'resolve' => function($obj) {
- *             return $obj->number . ' ' . $obj->street;
- *           }
- *         ]
- *       ]
+ *         'name' => 'Address',
+ *         'fields' => [
+ *             'street' => GraphQL\Type\Definition\Type::string(),
+ *             'number' => GraphQL\Type\Definition\Type::int(),
+ *             'formatted' => [
+ *                 'type' => GraphQL\Type\Definition\Type::string(),
+ *                 'resolve' => fn (AddressModel $address): string => "{$address->number} {$address->street}",
+ *             ],
+ *         ],
  *     ]);
  *
  * When two types need to refer to each other, or a type needs to refer to
@@ -40,13 +38,11 @@ use GraphQL\Utils\Utils;
  *
  *     $PersonType = null;
  *     $PersonType = new ObjectType([
- *       'name' => 'Person',
- *       'fields' => function() use (&$PersonType) {
- *          return [
- *              'name' => ['type' => GraphQL\Type\Definition\Type::string() ],
- *              'bestFriend' => [ 'type' => $PersonType ],
- *          ];
- *        }
+ *         'name' => 'Person',
+ *         'fields' => fn (): array => [
+ *             'name' => GraphQL\Type\Definition\Type::string(),
+ *             'bestFriend' => $PersonType,
+ *         ],
  *     ]);
  *
  * @phpstan-import-type FieldResolver from Executor
