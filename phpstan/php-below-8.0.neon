@@ -4,6 +4,11 @@ parameters:
         - ../src/Type/Definition/Deprecated.php
         - ../src/Type/Definition/Description.php
     ignoreErrors:
+        - path: ../src/Utils/Utils.php
+          identifier: return.type
+          message: "#::chr#"
+          count: 1
+
         # Native enums require PHP 8.1, but checking if a value is of an unknown class still works
         - path: ../src/Type/Definition/EnumType.php
           identifier: class.notFound
