@@ -23,9 +23,6 @@ interface ValidationCache
      * This method should return true if the query has previously passed validation for the provided schema.
      * Only successful validations should be considered "cached" — failed validations are not cached.
      *
-     * This allows for optimizations in systems where validation may not be necessary on every request.
-     * For example, you can always return true for persisted queries that are known to be valid ahead of time.
-     *
      * @param array<ValidationRule>|null $rules
      *
      * @return bool true if validation for the given schema + AST + rules is already known to be valid; false otherwise
