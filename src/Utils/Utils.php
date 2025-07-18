@@ -117,7 +117,6 @@ class Utils
         }
 
         $converted = mb_convert_encoding(self::chr($ord, 'UCS-4BE'), $encoding, 'UCS-4BE');
-        assert(is_string($converted), 'format string is statically known to be correct');
 
         return $converted;
     }
