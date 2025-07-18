@@ -30,7 +30,7 @@ interface ValidationCache
      *
      * @return bool true if validation for the given schema + AST + rules is already known to be valid; false otherwise
      */
-    public function isValidated(Schema $schema, DocumentNode $ast, array $rules = null): bool;
+    public function isValidated(Schema $schema, DocumentNode $ast, ?array $rules = null): bool;
 
     /**
      * @param array<ValidationRule>|null $rules
@@ -40,5 +40,5 @@ interface ValidationCache
      * This is typically called after a query passes validation.
      * You should store enough information to recognize this combination on future requests.
      */
-    public function markValidated(Schema $schema, DocumentNode $ast, array $rules = null): void;
+    public function markValidated(Schema $schema, DocumentNode $ast, ?array $rules = null): void;
 }

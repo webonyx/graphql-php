@@ -36,7 +36,7 @@ class PsrValidationCacheAdapter implements ValidationCache
      * @throws InvariantViolation
      * @throws SerializationError
      */
-    public function isValidated(Schema $schema, DocumentNode $ast, array $rules = null): bool
+    public function isValidated(Schema $schema, DocumentNode $ast, ?array $rules = null): bool
     {
         $key = $this->buildKey($schema, $ast);
 
@@ -52,7 +52,7 @@ class PsrValidationCacheAdapter implements ValidationCache
      * @throws InvariantViolation
      * @throws SerializationError
      */
-    public function markValidated(Schema $schema, DocumentNode $ast, array $rules = null): void
+    public function markValidated(Schema $schema, DocumentNode $ast, ?array $rules = null): void
     {
         $key = $this->buildKey($schema, $ast);
 
@@ -67,7 +67,7 @@ class PsrValidationCacheAdapter implements ValidationCache
      * @throws InvariantViolation
      * @throws SerializationError
      */
-    private function buildKey(Schema $schema, DocumentNode $ast, array $rules = null): string
+    private function buildKey(Schema $schema, DocumentNode $ast, ?array $rules = null): string
     {
         /**
          * This default strategy generates a cache key by hashing the printed schema and AST.
@@ -78,6 +78,6 @@ class PsrValidationCacheAdapter implements ValidationCache
         $astHash = md5(serialize($ast));
         $rulesHash = md5(serialize($rules));
 
-        return "graphql_validation_{$schemaHash}_{$astHash}_$rulesHash";
+        return "graphql_validation_{$schemaHash}_{$astHash}_{$rulesHash}";
     }
 }
