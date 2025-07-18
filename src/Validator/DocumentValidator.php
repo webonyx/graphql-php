@@ -99,16 +99,22 @@ class DocumentValidator
         Schema $schema,
         DocumentNode $ast,
         ?array $rules = null,
-        ?TypeInfo $typeInfo = null
+        ?TypeInfo $typeInfo = null,
+        ?ValidationCache $cache = null
     ): array {
-        $rules ??= static::allRules();
+        if (isset($cache)) {
+            $cached = $cache->isValidated($schema, $ast, $rules);
+            if ($cached) {
+                return [];
+            }
+        }
 
+        $rules ??= static::allRules();
         if ($rules === []) {
             return [];
         }
 
         $typeInfo ??= new TypeInfo($schema);
-
         $context = new QueryValidationContext($schema, $ast, $typeInfo);
 
         $visitors = [];
@@ -124,7 +130,13 @@ class DocumentValidator
             )
         );
 
-        return $context->getErrors();
+        $errors = $context->getErrors();
+
+        if (isset($cache) && $errors === []) {
+            $cache->markValidated($schema, $ast);
+        }
+
+        return $errors;
     }
 
     /**
@@ -273,7 +285,6 @@ class DocumentValidator
         ?array $rules = null
     ): array {
         $rules ??= self::sdlRules();
-
         if ($rules === []) {
             return [];
         }
