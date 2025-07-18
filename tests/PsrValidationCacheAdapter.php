@@ -70,7 +70,7 @@ class PsrValidationCacheAdapter implements ValidationCache
     private function buildKey(Schema $schema, DocumentNode $ast, array $rules = null): string
     {
         /**
-         * This default strategy generates a cache key by hashing the printed schema and AST.
+         * This default strategy generates a cache key by hashing the printed schema, AST, and any custom rules.
          * You'll likely want to replace this with a more stable or efficient method for fingerprinting the schema.
          * For example, you may use a build-time hash, schema version number, or an environment-based identifier.
          */

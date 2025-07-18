@@ -10,8 +10,8 @@ use GraphQL\Validator\Rules\ValidationRule;
 /**
  * Implement this interface and pass an instance to GraphQL::executeQuery to enable caching of successful query validations.
  *
- * This can improve performance by skipping validation for known-good query and schema combinations.
- * You are responsible for defining how cache keys are computed, and when validation should be skipped.
+ * This can improve performance by skipping validation for known-good query, schema, and rules combinations.
+ * You are responsible for defining how cache keys are computed.
  *
  * @see PsrValidationCacheAdapter for a toy implementation.
  */
@@ -35,7 +35,7 @@ interface ValidationCache
     /**
      * @param array<ValidationRule>|null $rules
      *
-     * Mark the given schema + AST pair as successfully validated.
+     * Mark the given schema/AST/rules set as successfully validated.
      *
      * This is typically called after a query passes validation.
      * You should store enough information to recognize this combination on future requests.
