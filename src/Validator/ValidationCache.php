@@ -5,6 +5,7 @@ namespace GraphQL\Validator;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Tests\PsrValidationCacheAdapter;
 use GraphQL\Type\Schema;
+use GraphQL\Validator\Rules\ValidationRule;
 
 /**
  * Implement this interface and pass an instance to GraphQL::executeQuery to enable caching of successful query validations.
@@ -17,7 +18,7 @@ use GraphQL\Type\Schema;
 interface ValidationCache
 {
     /**
-     * Determine whether the given schema + AST pair has already been successfully validated.
+     * Determine whether the given schema/AST/rules set has already been successfully validated.
      *
      * This method should return true if the query has previously passed validation for the provided schema.
      * Only successful validations should be considered "cached" — failed validations are not cached.
@@ -25,15 +26,19 @@ interface ValidationCache
      * This allows for optimizations in systems where validation may not be necessary on every request.
      * For example, you can always return true for persisted queries that are known to be valid ahead of time.
      *
-     * @return bool true if validation for the given schema + AST is already known to be valid; false otherwise
+     * @param array<ValidationRule>|null $rules
+     *
+     * @return bool true if validation for the given schema + AST + rules is already known to be valid; false otherwise
      */
-    public function isValidated(Schema $schema, DocumentNode $ast): bool;
+    public function isValidated(Schema $schema, DocumentNode $ast, array $rules = null): bool;
 
     /**
+     * @param array<ValidationRule>|null $rules
+     *
      * Mark the given schema + AST pair as successfully validated.
      *
      * This is typically called after a query passes validation.
      * You should store enough information to recognize this combination on future requests.
      */
-    public function markValidated(Schema $schema, DocumentNode $ast): void;
+    public function markValidated(Schema $schema, DocumentNode $ast, array $rules = null): void;
 }

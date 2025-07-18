@@ -103,7 +103,7 @@ class DocumentValidator
         ?ValidationCache $cache = null
     ): array {
         if (isset($cache)) {
-            $cached = $cache->isValidated($schema, $ast);
+            $cached = $cache->isValidated($schema, $ast, $rules);
             if ($cached) {
                 return [];
             }

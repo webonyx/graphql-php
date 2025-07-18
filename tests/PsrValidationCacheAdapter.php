@@ -8,6 +8,7 @@ use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaPrinter;
+use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\ValidationCache;
 use Psr\SimpleCache\CacheInterface;
 use Psr\SimpleCache\InvalidArgumentException;
@@ -27,13 +28,15 @@ class PsrValidationCacheAdapter implements ValidationCache
     }
 
     /**
+     * @param array<ValidationRule>|null $rules
+     *
      * @throws \JsonException
      * @throws Error
      * @throws InvalidArgumentException&\Throwable
      * @throws InvariantViolation
      * @throws SerializationError
      */
-    public function isValidated(Schema $schema, DocumentNode $ast): bool
+    public function isValidated(Schema $schema, DocumentNode $ast, array $rules = null): bool
     {
         $key = $this->buildKey($schema, $ast);
 
@@ -41,13 +44,15 @@ class PsrValidationCacheAdapter implements ValidationCache
     }
 
     /**
+     * @param array<ValidationRule>|null $rules
+     *
      * @throws \JsonException
      * @throws Error
      * @throws InvalidArgumentException&\Throwable
      * @throws InvariantViolation
      * @throws SerializationError
      */
-    public function markValidated(Schema $schema, DocumentNode $ast): void
+    public function markValidated(Schema $schema, DocumentNode $ast, array $rules = null): void
     {
         $key = $this->buildKey($schema, $ast);
 
@@ -55,12 +60,14 @@ class PsrValidationCacheAdapter implements ValidationCache
     }
 
     /**
+     * @param array<ValidationRule>|null $rules
+     *
      * @throws \JsonException
      * @throws Error
      * @throws InvariantViolation
      * @throws SerializationError
      */
-    private function buildKey(Schema $schema, DocumentNode $ast): string
+    private function buildKey(Schema $schema, DocumentNode $ast, array $rules = null): string
     {
         /**
          * This default strategy generates a cache key by hashing the printed schema and AST.
@@ -69,7 +76,8 @@ class PsrValidationCacheAdapter implements ValidationCache
          */
         $schemaHash = md5(SchemaPrinter::doPrint($schema));
         $astHash = md5(serialize($ast));
+        $rulesHash = md5(serialize($rules));
 
-        return "graphql_validation_{$schemaHash}_{$astHash}";
+        return "graphql_validation_{$schemaHash}_{$astHash}_$rulesHash";
     }
 }

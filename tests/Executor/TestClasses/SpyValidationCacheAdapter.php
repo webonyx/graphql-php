@@ -12,14 +12,14 @@ final class SpyValidationCacheAdapter extends PsrValidationCacheAdapter
 
     public int $markValidatedCalls = 0;
 
-    public function isValidated(Schema $schema, DocumentNode $ast): bool
+    public function isValidated(Schema $schema, DocumentNode $ast, array $rules = null): bool
     {
         ++$this->isValidatedCalls;
 
         return parent::isValidated($schema, $ast);
     }
 
-    public function markValidated(Schema $schema, DocumentNode $ast): void
+    public function markValidated(Schema $schema, DocumentNode $ast, array $rules = null): void
     {
         ++$this->markValidatedCalls;
 
