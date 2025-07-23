@@ -103,14 +103,13 @@ class DocumentValidator
         ?ValidationCache $cache = null
     ): array {
         if (isset($cache)) {
-            $cached = $cache->isValidated($schema, $ast, $rules);
-            if ($cached) {
+            if ($cache->isValidated($schema, $ast, $rules)) {
                 return [];
             }
         }
 
-        $rules ??= static::allRules();
-        if ($rules === []) {
+        $finalRules = $rules ?? static::allRules();
+        if ($finalRules === []) {
             return [];
         }
 
@@ -118,7 +117,7 @@ class DocumentValidator
         $context = new QueryValidationContext($schema, $ast, $typeInfo);
 
         $visitors = [];
-        foreach ($rules as $rule) {
+        foreach ($finalRules as $rule) {
             $visitors[] = $rule->getVisitor($context);
         }
 
@@ -133,7 +132,7 @@ class DocumentValidator
         $errors = $context->getErrors();
 
         if (isset($cache) && $errors === []) {
-            $cache->markValidated($schema, $ast);
+            $cache->markValidated($schema, $ast, $rules);
         }
 
         return $errors;
