@@ -222,9 +222,8 @@ To optimize for this, `graphql-php` supports pluggable validation caching. By im
 ```php
 use GraphQL\Validator\ValidationCache;
 use GraphQL\GraphQL;
-use GraphQL\Tests\PsrValidationCacheAdapter;
 
-$validationCache = new PsrValidationCacheAdapter();
+$validationCache = new MyPsrValidationCacheAdapter();
 
 $result = GraphQL::executeQuery(
     $schema,
@@ -262,7 +261,7 @@ use Composer\InstalledVersions;
  * 
  * @see GraphQl\Tests\PsrValidationCacheAdapter
  */
-class PsrValidationCacheAdapter implements ValidationCache
+class MyPsrValidationCacheAdapter implements ValidationCache
 {
     private CacheInterface $cache;
 
