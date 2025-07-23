@@ -3,7 +3,6 @@
 namespace GraphQL\Validator;
 
 use GraphQL\Language\AST\DocumentNode;
-use GraphQL\Tests\PsrValidationCacheAdapter;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\Rules\ValidationRule;
 
@@ -20,7 +19,6 @@ use GraphQL\Validator\Rules\ValidationRule;
  * - Keep in mind that there are internal `$rules` that are applied in addition to any you pass in,
  *   and it's possible these may shift or expand as the library evolves,
  *   so it might make sense to include the library version number in your keys.
- *
  */
 interface ValidationCache
 {
