@@ -21,7 +21,6 @@ use GraphQL\Validator\Rules\ValidationRule;
  *   and it's possible these may shift or expand as the library evolves,
  *   so it might make sense to include the library version number in your keys.
  *
- * @see PsrValidationCacheAdapter for a simple reference implementation.
  */
 interface ValidationCache
 {
