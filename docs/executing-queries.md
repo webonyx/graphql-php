@@ -210,14 +210,15 @@ $server = new StandardServer([
     'validationRules' => $myValidationRules
 ]);
 ```
+
 ## Validation Caching
 
-Validation is a required step in GraphQL execution, but it can become a performance bottleneck when the same queries are 
-run repeatedly — especially in production environments where queries are often static or pre-generated (e.g., persisted 
-queries or queries emitted by client libraries).
+Validation is a required step in GraphQL execution, but it can become a performance bottleneck.
+In production environments, queries are often static or pre-generated (e.g. persisted queries or queries emitted by client libraries).
+This means that many queries will be identical and their validation results can be reused.
 
-To optimize for this, `graphql-php` supports pluggable validation caching. By implementing the `GraphQL\Validator\ValidationCache` interface and passing it to 
-`GraphQL::executeQuery()`, you can skip validation for queries that are already known to be valid.
+To optimize for this, `graphql-php` allows skipping validation for known valid queries.
+Leverage pluggable validation caching by passing an implementation of the `GraphQL\Validator\ValidationCache` interface to `GraphQL::executeQuery()`:
 
 ```php
 use GraphQL\Validator\ValidationCache;
@@ -239,15 +240,26 @@ $result = GraphQL::executeQuery(
 ```
 
 ### Key Generation Tips
-You are responsible for generating your own cache keys in a way that uniquely identifies the schema, the query, and
-(optionally) any custom validation rules. Here are some tips:
 
-* Hash your schema once at build time and store the result in an environment variable or constant.
-* Avoid using serialize() on schema objects — closures and internal references may cause errors.
-* If using custom validation rules, be sure to account for them in your key (e.g., by serializing or listing their class names).
-* Consider including the graphql-php version number to account for internal rule changes across versions.
+You are responsible for generating cache keys that are unique and dependent on the following inputs:
+
+- the client-given query
+- the current schema
+- the passed validation rules and their implementation
+- the implementation of `graphql-php`
+
+Here are some tips:
+
+- Using `serialize()` directly on the schema object may error due to closures or circular references.
+  Instead, use `GraphQL\Utils\SchemaPrinter::doPrint($schema)` to get a stable string representation of the schema.
+- If using custom validation rules, be sure to account for them in your key (e.g., by serializing or listing their class names and versioning them).
+- Include the version number of the `webonyx/graphql-php` package to account for implementation changes in the library.
+- Use a stable hash function like `md5()` or `sha256()` to generate the key from the schema, AST, and rules.
+- Improve performance even further by hashing inputs known before deploying such as the schema or the installed package version.
+  You may store the hash in an environment variable or a constant to avoid recalculating it on every request.
 
 ### Sample Implementation
+
 ```php
 use GraphQL\Validator\ValidationCache;
 use GraphQL\Language\AST\DocumentNode;
@@ -258,7 +270,7 @@ use Composer\InstalledVersions;
 
 /**
  * Reference implementation of ValidationCache using PSR-16 cache.
- * 
+ *
  * @see GraphQl\Tests\PsrValidationCacheAdapter
  */
 class MyPsrValidationCacheAdapter implements ValidationCache
@@ -289,18 +301,44 @@ class MyPsrValidationCacheAdapter implements ValidationCache
 
     private function buildKey(Schema $schema, DocumentNode $ast, ?array $rules = null): string
     {
-        // Use a stable hash for schema. In production, prefer a build-time constant:
-        // $schemaHash = $_ENV['SCHEMA_VERSION'] ?? 'v1';
+        // Include package version to account for implementation changes
+        $libraryVersion = \Composer\InstalledVersions::getVersion('webonyx/graphql-php')
+            ?? throw new \RuntimeException('webonyx/graphql-php version not found. Ensure the package is installed.');
+
+        // Use a stable hash for the schema
         $schemaHash = md5(SchemaPrinter::doPrint($schema));
 
         // Serialize AST and rules — both are predictable and safe in this context
         $astHash = md5(serialize($ast));
         $rulesHash = md5(serialize($rules));
 
-        // Include graphql-php version to account for internal changes
-        $libraryVersion = \Composer\InstalledVersions::getVersion('webonyx/graphql-php') ?: 'unknown';
-        
         return "graphql_validation_{$libraryVersion}_{$schemaHash}_{$astHash}_{$rulesHash}";
     }
 }
+```
+
+An optimized version of `buildKey` might leverage a key prefix for inputs known before deployment.
+For example, you may run the following once during deployment and save the output in an environment variable `GRAPHQL_VALIDATION_KEY_PREFIX`:
+
+```php
+$libraryVersion = \Composer\InstalledVersions::getVersion('webonyx/graphql-php')
+    ?? throw new \RuntimeException('webonyx/graphql-php version not found. Ensure the package is installed.');
+
+$schemaHash = md5(SchemaPrinter::doPrint($schema));
+
+echo "{$libraryVersion}_{$schemaHash}";
+```
+
+Then use the environment variable in your key generation:
+
+```php
+    private function buildKey(Schema $schema, DocumentNode $ast, ?array $rules = null): string
+    {
+        $keyPrefix = getenv('GRAPHQL_VALIDATION_KEY_PREFIX')
+            ?? throw new \RuntimeException('Environment variable GRAPHQL_VALIDATION_KEY_PREFIX is not set.');
+        $astHash = md5(serialize($ast));
+        $rulesHash = md5(serialize($rules));
+
+        return "graphql_validation_{$keyPrefix}_{$astHash}_{$rulesHash}";
+    }
 ```
