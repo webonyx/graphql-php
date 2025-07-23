@@ -210,3 +210,101 @@ $server = new StandardServer([
     'validationRules' => $myValidationRules
 ]);
 ```
+## Validation Caching
+
+Validation is a required step in GraphQL execution, but it can become a performance bottleneck when the same queries are 
+run repeatedly — especially in production environments where queries are often static or pre-generated (e.g., persisted 
+queries or queries emitted by client libraries).
+
+To optimize for this, graphql-php supports pluggable validation caching. By implementing the GraphQL\Validator\ValidationCache 
+interface and passing it to GraphQL::executeQuery(), you can skip validation for queries already known to be valid:
+
+To optimize for this, `graphql-php` supports pluggable validation caching. By implementing the `GraphQL\Validator\ValidationCache` interface and passing it to 
+`GraphQL::executeQuery()`, you can skip validation for queries that are already known to be valid.
+
+```php
+use GraphQL\Validator\ValidationCache;
+use GraphQL\GraphQL;
+use GraphQL\Tests\PsrValidationCacheAdapter;
+
+$validationCache = new PsrValidationCacheAdapter();
+
+$result = GraphQL::executeQuery(
+    $schema,
+    $queryString,
+    $rootValue,
+    $context,
+    $variableValues,
+    $operationName,
+    $fieldResolver,
+    $validationRules,
+    $validationCache
+);
+```
+
+### Key Generation Tips
+You are responsible for generating your own cache keys in a way that uniquely identifies the schema, the query, and
+(optionally) any custom validation rules. Here are some tips:
+
+* Hash your schema once at build time and store the result in an environment variable or constant.
+* Avoid using serialize() on schema objects — closures and internal references may cause errors.
+* If using custom validation rules, be sure to account for them in your key (e.g., by serializing or listing their class names).
+* Consider including the graphql-php version number to account for internal rule changes across versions.
+
+### Sample Implementation
+```php
+use GraphQL\Validator\ValidationCache;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Type\Schema;
+use GraphQL\Utils\SchemaPrinter;
+use Psr\SimpleCache\CacheInterface;
+use Composer\InstalledVersions;
+
+/**
+ * Reference implementation of ValidationCache using PSR-16 cache.
+ * 
+ * @see GraphQl\Tests\PsrValidationCacheAdapter
+ */
+class PsrValidationCacheAdapter implements ValidationCache
+{
+    private CacheInterface $cache;
+
+    private int $ttlSeconds;
+
+    public function __construct(
+        CacheInterface $cache,
+        int $ttlSeconds = 300
+    ) {
+        $this->cache = $cache;
+        $this->ttlSeconds = $ttlSeconds;
+    }
+
+    public function isValidated(Schema $schema, DocumentNode $ast, ?array $rules = null): bool
+    {
+        $key = $this->buildKey($schema, $ast);
+        return $this->cache->has($key);
+    }
+
+    public function markValidated(Schema $schema, DocumentNode $ast, ?array $rules = null): void
+    {
+        $key = $this->buildKey($schema, $ast);
+        $this->cache->set($key, true, $this->ttlSeconds);
+    }
+
+    private function buildKey(Schema $schema, DocumentNode $ast, ?array $rules = null): string
+    {
+        // Use a stable hash for schema. In production, prefer a build-time constant:
+        // $schemaHash = $_ENV['SCHEMA_VERSION'] ?? 'v1';
+        $schemaHash = md5(SchemaPrinter::doPrint($schema));
+
+        // Serialize AST and rules — both are predictable and safe in this context
+        $astHash = md5(serialize($ast));
+        $rulesHash = md5(serialize($rules));
+
+        // Include graphql-php version to account for internal changes
+        $libraryVersion = \Composer\InstalledVersions::getVersion('webonyx/graphql-php') ?: 'unknown';
+        
+        return "graphql_validation_{$libraryVersion}_{$schemaHash}_{$astHash}_{$rulesHash}";
+    }
+}
+```

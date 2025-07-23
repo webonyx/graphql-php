@@ -10,18 +10,18 @@ use GraphQL\Validator\Rules\ValidationRule;
 /**
  * Implement this interface and pass an instance to GraphQL::executeQuery to enable caching of successful query validations.
  *
- * This can improve performance by skipping validation for known-good query, schema, and rules combinations.
+ * This can improve performance by skipping validation for known-good combinations of query, schema, and rules.
  * You are responsible for defining how cache keys are computed.
  *
  * Some things to keep in mind when generating keys:
  * - PHP's `serialize` method is fast, but can't handle certain structures such as closures.
- * - If your `schema` does include closures or is quite large and complex, consider
- *   using some kind of build-time version number or other environment variable.
+ * - If your `schema` includes closures or is too large or complex to serialize,
+ *   consider using a build-time version number or environment-based fingerprint instead.
  * - Keep in mind that there are internal `rules` that are applied in addition to any you pass in,
  *   and it's possible these may shift or expand as the library evolves, so it might make sense
  *   to include the library version number in your keys.
  *
- * @see PsrValidationCacheAdapter for a toy implementation.
+ * @see PsrValidationCacheAdapter for a simple reference implementation.
  */
 interface ValidationCache
 {
