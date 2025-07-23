@@ -243,12 +243,14 @@ $result = GraphQL::executeQuery(
 ### Key Generation Tips
 
 You are responsible for generating cache keys that are unique and dependent on the following inputs:
+
 - the client-given query
 - the current schema
 - the passed validation rules and their implementation
 - the implementation of `graphql-php`
 
 Here are some tips:
+
 - Using `serialize()` directly on the schema object may error due to closures or circular references.
   Instead, use `GraphQL\Utils\SchemaPrinter::doPrint($schema)` to get a stable string representation of the schema.
 - If using custom validation rules, be sure to account for them in your key (e.g., by serializing or listing their class names and versioning them).
