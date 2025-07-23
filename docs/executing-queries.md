@@ -216,8 +216,8 @@ Validation is a required step in GraphQL execution, but it can become a performa
 run repeatedly — especially in production environments where queries are often static or pre-generated (e.g., persisted 
 queries or queries emitted by client libraries).
 
-To optimize for this, graphql-php supports pluggable validation caching. By implementing the GraphQL\Validator\ValidationCache 
-interface and passing it to GraphQL::executeQuery(), you can skip validation for queries already known to be valid:
+To optimize for this, graphql-php supports pluggable validation caching. By implementing the `GraphQL\Validator\ValidationCache` 
+interface and passing it to `GraphQL::executeQuery()`, you can skip validation for queries already known to be valid:
 
 To optimize for this, `graphql-php` supports pluggable validation caching. By implementing the `GraphQL\Validator\ValidationCache` interface and passing it to 
 `GraphQL::executeQuery()`, you can skip validation for queries that are already known to be valid.
