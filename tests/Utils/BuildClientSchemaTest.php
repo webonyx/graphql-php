@@ -26,7 +26,10 @@ final class BuildClientSchemaTest extends TestCase
      */
     protected static function assertCycleIntrospection(string $sdl): void
     {
-        $options = ['directiveIsRepeatable' => true];
+        $options = [
+            'directiveIsRepeatable' => true,
+            'typeIsOneOf' => true,
+        ];
 
         $serverSchema = BuildSchema::build($sdl);
         $initialIntrospection = Introspection::fromSchema($serverSchema, $options);
