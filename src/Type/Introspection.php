@@ -30,14 +30,18 @@ use GraphQL\Utils\Utils;
  * @phpstan-type IntrospectionOptions array{
  *     descriptions?: bool,
  *     directiveIsRepeatable?: bool,
+ *     typeIsOneOf?: bool,
  * }
  *
  * Available options:
  * - descriptions
- *   Whether to include descriptions in the introspection result.
+ *   Include descriptions in the introspection result?
  *   Default: true
  * - directiveIsRepeatable
- *   Whether to include `isRepeatable` flag on directives.
+ *   Include field `isRepeatable` for directives?
+ *   Default: false
+ * - typeIsOneOf
+ *   Include field `isOneOf` for types?
  *   Default: false
  *
  * @see \GraphQL\Tests\Type\IntrospectionTest
@@ -81,6 +85,7 @@ class Introspection
         $optionsWithDefaults = array_merge([
             'descriptions' => true,
             'directiveIsRepeatable' => false,
+            'typeIsOneOf' => false,
         ], $options);
 
         $descriptions = $optionsWithDefaults['descriptions']
@@ -88,6 +93,9 @@ class Introspection
             : '';
         $directiveIsRepeatable = $optionsWithDefaults['directiveIsRepeatable']
             ? 'isRepeatable'
+            : '';
+        $typeIsOneOf = $optionsWithDefaults['typeIsOneOf']
+            ? 'isOneOf'
             : '';
 
         return <<<GRAPHQL
@@ -115,7 +123,7 @@ class Introspection
     kind
     name
     {$descriptions}
-    isOneOf
+    {$typeIsOneOf}
     fields(includeDeprecated: true) {
       name
       {$descriptions}
@@ -210,7 +218,10 @@ GRAPHQL;
      */
     public static function fromSchema(Schema $schema, array $options = []): array
     {
-        $optionsWithDefaults = array_merge(['directiveIsRepeatable' => true], $options);
+        $optionsWithDefaults = array_merge([
+            'directiveIsRepeatable' => true,
+            'typeIsOneOf' => true,
+        ], $options);
 
         $result = GraphQL::executeQuery(
             $schema,

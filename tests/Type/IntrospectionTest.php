@@ -41,6 +41,7 @@ final class IntrospectionTest extends TestCase
         $source = Introspection::getIntrospectionQuery([
             'descriptions' => false,
             'directiveIsRepeatable' => true,
+            'typeIsOneOf' => true,
         ]);
 
         $expected = [
@@ -1773,7 +1774,10 @@ final class IntrospectionTest extends TestCase
         $schema = new Schema([
             'query' => $QueryRoot,
         ]);
-        $source = Introspection::getIntrospectionQuery(['directiveIsRepeatable' => true]);
+        $source = Introspection::getIntrospectionQuery([
+            'directiveIsRepeatable' => true,
+            'typeIsOneOf' => true,
+        ]);
 
         $calledForFields = [];
         $fieldResolver = static function ($value, array $args, $context, ResolveInfo $info) use (&$calledForFields) {
