@@ -110,7 +110,7 @@ class Introspection
       directives {
         name
         {$descriptions}
-        args {
+        args(includeDeprecated: true) {
           ...InputValue
         }
         {$directiveIsRepeatable}
@@ -667,7 +667,24 @@ GRAPHQL;
                 ],
                 'args' => [
                     'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                    'resolve' => static fn (Directive $directive): array => $directive->args,
+                    'args' => [
+                        'includeDeprecated' => [
+                            'type' => Type::boolean(),
+                            'defaultValue' => false,
+                        ],
+                    ],
+                    'resolve' => static function (Directive $directive, $args): array {
+                        $values = $directive->args;
+
+                        if (! ($args['includeDeprecated'] ?? false)) {
+                            return array_filter(
+                                $values,
+                                static fn (Argument $value): bool => ! $value->isDeprecated(),
+                            );
+                        }
+
+                        return $values;
+                    },
                 ],
             ],
         ]);

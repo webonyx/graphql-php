@@ -1160,7 +1160,7 @@ final class SchemaPrinterTest extends TestCase
         description: String
         isRepeatable: Boolean!
         locations: [__DirectiveLocation!]!
-        args: [__InputValue!]!
+        args(includeDeprecated: Boolean = false): [__InputValue!]!
       }
 
       "A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies."
