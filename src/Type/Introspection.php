@@ -110,7 +110,7 @@ class Introspection
       directives {
         name
         {$descriptions}
-        args {
+        args(includeDeprecated: true) {
           ...InputValue
         }
         {$directiveIsRepeatable}
@@ -362,7 +362,7 @@ GRAPHQL;
                         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
                             $fields = $type->getVisibleFields();
 
-                            if (! ($args['includeDeprecated'] ?? false)) {
+                            if (! $args['includeDeprecated']) {
                                 return array_filter(
                                     $fields,
                                     static fn (FieldDefinition $field): bool => ! $field->isDeprecated()
@@ -399,7 +399,7 @@ GRAPHQL;
                         if ($type instanceof EnumType) {
                             $values = $type->getValues();
 
-                            if (! ($args['includeDeprecated'] ?? false)) {
+                            if (! $args['includeDeprecated']) {
                                 return array_filter(
                                     $values,
                                     static fn (EnumValueDefinition $value): bool => ! $value->isDeprecated()
@@ -424,7 +424,7 @@ GRAPHQL;
                         if ($type instanceof InputObjectType) {
                             $fields = $type->getFields();
 
-                            if (! ($args['includeDeprecated'] ?? false)) {
+                            if (! $args['includeDeprecated']) {
                                 return array_filter(
                                     $fields,
                                     static fn (InputObjectField $field): bool => ! $field->isDeprecated(),
@@ -523,7 +523,7 @@ GRAPHQL;
                     'resolve' => static function (FieldDefinition $field, $args): array {
                         $values = $field->args;
 
-                        if (! ($args['includeDeprecated'] ?? false)) {
+                        if (! $args['includeDeprecated']) {
                             return array_filter(
                                 $values,
                                 static fn (Argument $value): bool => ! $value->isDeprecated(),
@@ -667,7 +667,24 @@ GRAPHQL;
                 ],
                 'args' => [
                     'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                    'resolve' => static fn (Directive $directive): array => $directive->args,
+                    'args' => [
+                        'includeDeprecated' => [
+                            'type' => Type::boolean(),
+                            'defaultValue' => false,
+                        ],
+                    ],
+                    'resolve' => static function (Directive $directive, $args): array {
+                        $values = $directive->args;
+
+                        if (! $args['includeDeprecated']) {
+                            return array_filter(
+                                $values,
+                                static fn (Argument $value): bool => ! $value->isDeprecated(),
+                            );
+                        }
+
+                        return $values;
+                    },
                 ],
             ],
         ]);
