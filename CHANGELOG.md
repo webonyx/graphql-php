@@ -9,17 +9,27 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.22.0
+
+### Added
+
+- Add argument `includeDeprecated` to introspection field `__Directive.args` https://github.com/webonyx/graphql-php/pull/1738/commits/0dd03675dc7c971abfad86cafaf2da353778529f
+
+### Changed
+
+- Make all `includeDeprecated` arguments in introspection fields non-nullable with default value `false` https://github.com/webonyx/graphql-php/pull/1738/commits/851ddb55d722035904191705b6d62ba56950680c
+
 ## v15.21.3
 
 ### Fixed
 
-- Make querying `isOneOf` optional in Introspection query https://github.com/webonyx/graphql-php/pull/1737
+- Make querying `isOneOf` optional in introspection query https://github.com/webonyx/graphql-php/pull/1737
 
 ## v15.21.2
 
 ### Fixed
 
-- Add missing `isOneOf` to Introspection query https://github.com/webonyx/graphql-php/pull/1729
+- Add missing `isOneOf` to introspection query https://github.com/webonyx/graphql-php/pull/1729
 
 ## v15.21.1
 
