@@ -354,7 +354,7 @@ GRAPHQL;
                     'type' => Type::listOf(Type::nonNull(self::_field())),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => Type::nonNull(Type::boolean()),
                             'defaultValue' => false,
                         ],
                     ],
@@ -391,7 +391,7 @@ GRAPHQL;
                     'type' => Type::listOf(Type::nonNull(self::_enumValue())),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => Type::nonNull(Type::boolean()),
                             'defaultValue' => false,
                         ],
                     ],
@@ -416,7 +416,7 @@ GRAPHQL;
                     'type' => Type::listOf(Type::nonNull(self::_inputValue())),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => Type::nonNull(Type::boolean()),
                             'defaultValue' => false,
                         ],
                     ],
@@ -516,7 +516,7 @@ GRAPHQL;
                     'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => Type::nonNull(Type::boolean()),
                             'defaultValue' => false,
                         ],
                     ],
@@ -669,7 +669,7 @@ GRAPHQL;
                     'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => Type::nonNull(Type::boolean()),
                             'defaultValue' => false,
                         ],
                     ],

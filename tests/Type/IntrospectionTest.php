@@ -237,9 +237,13 @@ final class IntrospectionTest extends TestCase
                                         0 => [
                                             'name' => 'includeDeprecated',
                                             'type' => [
-                                                'kind' => 'SCALAR',
-                                                'name' => 'Boolean',
-                                                'ofType' => null,
+                                                'kind' => 'NON_NULL',
+                                                'name' => null,
+                                                'ofType' => [
+                                                    'kind' => 'SCALAR',
+                                                    'name' => 'Boolean',
+                                                    'ofType' => null,
+                                                ],
                                             ],
                                             'defaultValue' => 'false',
                                             'isDeprecated' => false,
@@ -306,9 +310,13 @@ final class IntrospectionTest extends TestCase
                                         0 => [
                                             'name' => 'includeDeprecated',
                                             'type' => [
-                                                'kind' => 'SCALAR',
-                                                'name' => 'Boolean',
-                                                'ofType' => null,
+                                                'kind' => 'NON_NULL',
+                                                'name' => null,
+                                                'ofType' => [
+                                                    'kind' => 'SCALAR',
+                                                    'name' => 'Boolean',
+                                                    'ofType' => null,
+                                                ],
                                             ],
                                             'defaultValue' => 'false',
                                             'isDeprecated' => false,
@@ -337,9 +345,13 @@ final class IntrospectionTest extends TestCase
                                         0 => [
                                             'name' => 'includeDeprecated',
                                             'type' => [
-                                                'kind' => 'SCALAR',
-                                                'name' => 'Boolean',
-                                                'ofType' => null,
+                                                'kind' => 'NON_NULL',
+                                                'name' => null,
+                                                'ofType' => [
+                                                    'kind' => 'SCALAR',
+                                                    'name' => 'Boolean',
+                                                    'ofType' => null,
+                                                ],
                                             ],
                                             'defaultValue' => 'false',
                                             'isDeprecated' => false,
@@ -478,9 +490,13 @@ final class IntrospectionTest extends TestCase
                                         0 => [
                                             'name' => 'includeDeprecated',
                                             'type' => [
-                                                'kind' => 'SCALAR',
-                                                'name' => 'Boolean',
-                                                'ofType' => null,
+                                                'kind' => 'NON_NULL',
+                                                'name' => null,
+                                                'ofType' => [
+                                                    'kind' => 'SCALAR',
+                                                    'name' => 'Boolean',
+                                                    'ofType' => null,
+                                                ],
                                             ],
                                             'defaultValue' => 'false',
                                             'isDeprecated' => false,
@@ -781,9 +797,13 @@ final class IntrospectionTest extends TestCase
                                         0 => [
                                             'name' => 'includeDeprecated',
                                             'type' => [
-                                                'kind' => 'SCALAR',
-                                                'name' => 'Boolean',
-                                                'ofType' => null,
+                                                'kind' => 'NON_NULL',
+                                                'name' => null,
+                                                'ofType' => [
+                                                    'kind' => 'SCALAR',
+                                                    'name' => 'Boolean',
+                                                    'ofType' => null,
+                                                ],
                                             ],
                                             'defaultValue' => 'false',
                                             'isDeprecated' => false,
