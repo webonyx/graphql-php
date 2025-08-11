@@ -285,6 +285,7 @@ class SchemaExtender
             'parseValue' => [$type, 'parseValue'],
             'astNode' => $type->astNode,
             'extensionASTNodes' => $extensionASTNodes,
+            'isOneOf' => $type->isOneOf,
         ]);
     }
 

@@ -1234,6 +1234,38 @@ GRAPHQL,
         );
     }
 
+    /** @see it('extends input but keeps isOneOf') */
+    public function testExtendsInputObjectsAndKeepsIsOneOf(): void
+    {
+        $schema = BuildSchema::build('
+          input Foo @oneOf {
+            barA: String
+            barB: String
+          }
+          type Query {
+            someQuery(args: Foo!): Boolean
+          }
+        ');
+        $extendAST = Parser::parse('
+          extend input Foo {
+            barC: String
+          }
+        ');
+        $extendedSchema = SchemaExtender::extend($schema, $extendAST);
+
+        self::assertEmpty($extendedSchema->validate());
+        self::assertSame(
+            <<<GRAPHQL
+              input Foo @oneOf {
+                barA: String
+                barB: String
+                barC: String
+              }
+              GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema)
+        );
+    }
+
     /** @see it('allows extension of interface with missing Object fields') */
     public function testAllowsExtensionOfInterfaceWithMissingObjectFields(): void
     {
