@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.22.1
+
+### Fixed
+
+- Keep `isOneOf` directive when extending input objects with `SchemaExtender` https://github.com/webonyx/graphql-php/pull/1745
+
 ## v15.22.0
 
 ### Added
