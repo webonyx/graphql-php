@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.22.2
+
+### Fixed
+
+- Do not escape forward slashes in `Printer::doPrint` https://github.com/webonyx/graphql-php/pull/1748
+
 ## v15.22.1
 
 ### Fixed
