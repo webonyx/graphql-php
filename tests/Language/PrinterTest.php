@@ -294,7 +294,8 @@ GRAPHQL, Printer::doPrint($ast));
 
     public function testDoNotEscapeForwardSlash(): void
     {
-        $ast = Parser::parse(<<<'GRAPHQL'
+        $ast = Parser::parse(
+            <<<'GRAPHQL'
 query {
     search(query: "repo: webonyx/graphql-php") {
         id
