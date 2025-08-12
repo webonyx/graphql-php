@@ -70,16 +70,13 @@ class Printer
      * Handles both executable definitions and schema definitions.
      *
      * @api
+     *
+     * @throws \JsonException
      */
     public static function doPrint(Node $ast): string
     {
-        static $instance;
-        $instance ??= new static();
-
-        return $instance->printAST($ast);
+        return (new static())->printAST($ast);
     }
-
-    protected function __construct() {}
 
     /**
      * Recursively traverse an AST depth-first and produce a pretty string.
