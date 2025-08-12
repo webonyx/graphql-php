@@ -1261,6 +1261,8 @@ $printed = GraphQL\Language\Printer::doPrint($ast);
  * Handles both executable definitions and schema definitions.
  *
  * @api
+ *
+ * @throws \JsonException
  */
 static function doPrint(GraphQL\Language\AST\Node $ast): string
 ```
