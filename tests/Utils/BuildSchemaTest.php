@@ -67,7 +67,11 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame($sdl, $cycled);
     }
 
-    /** @param ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType $obj */
+    /**
+     * @param ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType $obj
+     *
+     * @throws \JsonException
+     */
     private function printAllASTNodes(NamedType $obj): string
     {
         self::assertNotNull($obj->astNode);

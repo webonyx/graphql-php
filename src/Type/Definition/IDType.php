@@ -47,6 +47,10 @@ When expected as an input type, any string (such as `"4"`) or integer
         throw new Error("ID cannot represent a non-string and non-integer value: {$notID}");
     }
 
+    /**
+     * @throws \JsonException
+     * @throws Error
+     */
     public function parseLiteral(Node $valueNode, ?array $variables = null): string
     {
         if ($valueNode instanceof StringValueNode || $valueNode instanceof IntValueNode) {
