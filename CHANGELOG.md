@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.22.3
+
+### Changed
+
+- Make class `Printer` fully static https://github.com/webonyx/graphql-php/pull/1749
+
 ## v15.22.2
 
 ### Fixed
