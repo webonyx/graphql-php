@@ -20,6 +20,7 @@ abstract class TestCaseBase extends TestCase
         $this->addToAssertionCount(1);
     }
 
+    /** @throws \JsonException */
     protected static function assertASTMatches(string $expected, ?Node $node): void
     {
         self::assertInstanceOf(Node::class, $node);
