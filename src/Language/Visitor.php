@@ -89,7 +89,7 @@ use GraphQL\Utils\Utils;
  *       ]
  *     ]);
  *
- * @phpstan-type NodeVisitor callable(Node): (VisitorOperation|null|false|void)
+ * @phpstan-type NodeVisitor callable(Node): (VisitorOperation|Node|null|false|void)
  * @phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
  *
  * @see \GraphQL\Tests\Language\VisitorTest
@@ -478,7 +478,7 @@ class Visitor
     /**
      * @phpstan-param VisitorArray $visitor
      *
-     * @return (callable(Node $node, string|int|null $key, Node|NodeList<Node>|null $parent, array<int, int|string> $path, array<int, Node|NodeList<Node>> $ancestors): (VisitorOperation|Node|null))|(callable(Node): (VisitorOperation|void|false|null))|null
+     * @return (callable(Node $node, string|int|null $key, Node|NodeList<Node>|null $parent, array<int, int|string> $path, array<int, Node|NodeList<Node>> $ancestors): (VisitorOperation|Node|null))|(callable(Node): (VisitorOperation|Node|void|false|null))|null
      */
     protected static function extractVisitFn(array $visitor, string $kind, bool $isLeaving): ?callable
     {
