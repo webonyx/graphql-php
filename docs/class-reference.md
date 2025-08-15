@@ -1250,6 +1250,10 @@ $ast = GraphQL\Language\Parser::parse($query);
 $printed = GraphQL\Language\Printer::doPrint($ast);
 ```
 
+@phpstan-type Options array{
+queryShortForm?: bool,
+}
+
 @see \GraphQL\Tests\Language\PrinterTest
 
 ### GraphQL\Language\Printer Methods
@@ -1260,11 +1264,15 @@ $printed = GraphQL\Language\Printer::doPrint($ast);
  *
  * Handles both executable definitions and schema definitions.
  *
+ * @param array<string, bool> $options
+ *
+ * @phpstan-param Options $options
+ *
  * @throws \JsonException
  *
  * @api
  */
-static function doPrint(GraphQL\Language\AST\Node $ast): string
+static function doPrint(GraphQL\Language\AST\Node $ast, array $options = []): string
 ```
 
 ## GraphQL\Language\Visitor
