@@ -316,4 +316,22 @@ GRAPHQL,
             Printer::doPrint($ast),
         );
     }
+
+    public function testDisableQueyrShortForm(): void
+    {
+        $ast = Parser::parse('query { id, name }');
+
+        self::assertSame(
+            <<<'GRAPHQL'
+      query {
+        id
+        name
+      }
+
+      GRAPHQL,
+            Printer::doPrint($ast, [
+                'queryShortForm' => false,
+            ])
+        );
+    }
 }

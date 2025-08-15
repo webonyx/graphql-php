@@ -60,6 +60,10 @@ use GraphQL\Language\AST\VariableNode;
  * $printed = GraphQL\Language\Printer::doPrint($ast);
  * ```
  *
+ * @phpstan-type Options array{
+ *    queryShortForm?: bool,
+ *  }
+ *
  * @see \GraphQL\Tests\Language\PrinterTest
  */
 class Printer
@@ -69,17 +73,27 @@ class Printer
      *
      * Handles both executable definitions and schema definitions.
      *
+     * @param array<string, bool> $options
+     *
+     * @phpstan-param Options $options
+     *
      * @throws \JsonException
      *
      * @api
      */
-    public static function doPrint(Node $ast): string
+    public static function doPrint(Node $ast, array $options = []): string
     {
-        return static::p($ast);
+        return static::p($ast, $options);
     }
 
-    /** @throws \JsonException */
-    protected static function p(?Node $node): string
+    /**
+     * @param array<string, bool> $options
+     *
+     * @phpstan-param Options $options
+     *
+     * @throws \JsonException
+     */
+    protected static function p(?Node $node, array $options): string
     {
         if ($node === null) {
             return '';
@@ -88,7 +102,7 @@ class Printer
         switch (true) {
             case $node instanceof ArgumentNode:
             case $node instanceof ObjectFieldNode:
-                return static::p($node->name) . ': ' . static::p($node->value);
+                return static::p($node->name, $options) . ': ' . static::p($node->value, $options);
 
             case $node instanceof BooleanValueNode:
                 return $node->value
@@ -98,7 +112,7 @@ class Printer
             case $node instanceof DirectiveDefinitionNode:
                 $argStrings = [];
                 foreach ($node->arguments as $arg) {
-                    $argStrings[] = static::p($arg);
+                    $argStrings[] = static::p($arg, $options);
                 }
 
                 $noIndent = true;
@@ -110,39 +124,39 @@ class Printer
                 }
 
                 return static::addDescription($node->description, 'directive @'
-                    . static::p($node->name)
+                    . static::p($node->name, $options)
                     . ($noIndent
                         ? static::wrap('(', static::join($argStrings, ', '), ')')
                         : static::wrap("(\n", static::indent(static::join($argStrings, "\n")), "\n"))
                     . ($node->repeatable
                         ? ' repeatable'
                         : '')
-                    . ' on ' . static::printList($node->locations, ' | '));
+                    . ' on ' . static::printList($node->locations, $options, ' | '), $options);
 
             case $node instanceof DirectiveNode:
-                return '@' . static::p($node->name) . static::wrap('(', static::printList($node->arguments, ', '), ')');
+                return '@' . static::p($node->name, $options) . static::wrap('(', static::printList($node->arguments, $options, ', '), ')');
 
             case $node instanceof DocumentNode:
-                return static::printList($node->definitions, "\n\n") . "\n";
+                return static::printList($node->definitions, $options, "\n\n") . "\n";
 
             case $node instanceof EnumTypeDefinitionNode:
                 return static::addDescription($node->description, static::join(
                     [
                         'enum',
-                        static::p($node->name),
-                        static::printList($node->directives, ' '),
-                        static::printListBlock($node->values),
+                        static::p($node->name, $options),
+                        static::printList($node->directives, $options, ' '),
+                        static::printListBlock($node->values, $options),
                     ],
                     ' '
-                ));
+                ), $options);
 
             case $node instanceof EnumTypeExtensionNode:
                 return static::join(
                     [
                         'extend enum',
-                        static::p($node->name),
-                        static::printList($node->directives, ' '),
-                        static::printListBlock($node->values),
+                        static::p($node->name, $options),
+                        static::printList($node->directives, $options, ' '),
+                        static::printListBlock($node->values, $options),
                     ],
                     ' '
                 );
@@ -150,7 +164,8 @@ class Printer
             case $node instanceof EnumValueDefinitionNode:
                 return static::addDescription(
                     $node->description,
-                    static::join([static::p($node->name), static::printList($node->directives, ' ')], ' ')
+                    static::join([static::p($node->name, $options), static::printList($node->directives, $options, ' ')], ' '),
+                    $options
                 );
 
             case $node instanceof EnumValueNode:
@@ -162,7 +177,7 @@ class Printer
             case $node instanceof FieldDefinitionNode:
                 $argStrings = [];
                 foreach ($node->arguments as $item) {
-                    $argStrings[] = static::p($item);
+                    $argStrings[] = static::p($item, $options);
                 }
 
                 $noIndent = true;
@@ -175,27 +190,28 @@ class Printer
 
                 return static::addDescription(
                     $node->description,
-                    static::p($node->name)
+                    static::p($node->name, $options)
                     . ($noIndent
                         ? static::wrap('(', static::join($argStrings, ', '), ')')
                         : static::wrap("(\n", static::indent(static::join($argStrings, "\n")), "\n)"))
-                    . ': ' . static::p($node->type)
-                    . static::wrap(' ', static::printList($node->directives, ' '))
+                    . ': ' . static::p($node->type, $options)
+                    . static::wrap(' ', static::printList($node->directives, $options, ' ')),
+                    $options
                 );
 
             case $node instanceof FieldNode:
-                $prefix = static::wrap('', $node->alias->value ?? null, ': ') . static::p($node->name);
+                $prefix = static::wrap('', $node->alias->value ?? null, ': ') . static::p($node->name, $options);
 
                 $argsLine = $prefix . static::wrap(
                     '(',
-                    static::printList($node->arguments, ', '),
+                    static::printList($node->arguments, $options, ', '),
                     ')'
                 );
                 if (strlen($argsLine) > 80) {
                     $argsLine = $prefix . static::wrap(
                         "(\n",
                         static::indent(
-                            static::printList($node->arguments, "\n")
+                            static::printList($node->arguments, $options, "\n")
                         ),
                         "\n)"
                     );
@@ -204,40 +220,40 @@ class Printer
                 return static::join(
                     [
                         $argsLine,
-                        static::printList($node->directives, ' '),
-                        static::p($node->selectionSet),
+                        static::printList($node->directives, $options, ' '),
+                        static::p($node->selectionSet, $options),
                     ],
                     ' '
                 );
 
             case $node instanceof FragmentDefinitionNode:
                 // Note: fragment variable definitions are experimental and may be changed or removed in the future.
-                return 'fragment ' . static::p($node->name)
+                return 'fragment ' . static::p($node->name, $options)
                     . static::wrap(
                         '(',
-                        static::printList($node->variableDefinitions ?? new NodeList([]), ', '),
+                        static::printList($node->variableDefinitions ?? new NodeList([]), $options, ', '),
                         ')'
                     )
-                    . ' on ' . static::p($node->typeCondition->name) . ' '
+                    . ' on ' . static::p($node->typeCondition->name, $options) . ' '
                     . static::wrap(
                         '',
-                        static::printList($node->directives, ' '),
+                        static::printList($node->directives, $options, ' '),
                         ' '
                     )
-                    . static::p($node->selectionSet);
+                    . static::p($node->selectionSet, $options);
 
             case $node instanceof FragmentSpreadNode:
                 return '...'
-                    . static::p($node->name)
-                    . static::wrap(' ', static::printList($node->directives, ' '));
+                    . static::p($node->name, $options)
+                    . static::wrap(' ', static::printList($node->directives, $options, ' '));
 
             case $node instanceof InlineFragmentNode:
                 return static::join(
                     [
                         '...',
-                        static::wrap('on ', static::p($node->typeCondition->name ?? null)),
-                        static::printList($node->directives, ' '),
-                        static::p($node->selectionSet),
+                        static::wrap('on ', static::p($node->typeCondition->name ?? null, $options)),
+                        static::printList($node->directives, $options, ' '),
+                        static::p($node->selectionSet, $options),
                     ],
                     ' '
                 );
@@ -246,20 +262,20 @@ class Printer
                 return static::addDescription($node->description, static::join(
                     [
                         'input',
-                        static::p($node->name),
-                        static::printList($node->directives, ' '),
-                        static::printListBlock($node->fields),
+                        static::p($node->name, $options),
+                        static::printList($node->directives, $options, ' '),
+                        static::printListBlock($node->fields, $options),
                     ],
                     ' '
-                ));
+                ), $options);
 
             case $node instanceof InputObjectTypeExtensionNode:
                 return static::join(
                     [
                         'extend input',
-                        static::p($node->name),
-                        static::printList($node->directives, ' '),
-                        static::printListBlock($node->fields),
+                        static::p($node->name, $options),
+                        static::printList($node->directives, $options, ' '),
+                        static::printListBlock($node->fields, $options),
                     ],
                     ' '
                 );
@@ -267,48 +283,48 @@ class Printer
             case $node instanceof InputValueDefinitionNode:
                 return static::addDescription($node->description, static::join(
                     [
-                        static::p($node->name) . ': ' . static::p($node->type),
-                        static::wrap('= ', static::p($node->defaultValue)),
-                        static::printList($node->directives, ' '),
+                        static::p($node->name, $options) . ': ' . static::p($node->type, $options),
+                        static::wrap('= ', static::p($node->defaultValue, $options)),
+                        static::printList($node->directives, $options, ' '),
                     ],
                     ' '
-                ));
+                ), $options);
 
             case $node instanceof InterfaceTypeDefinitionNode:
                 return static::addDescription($node->description, static::join(
                     [
                         'interface',
-                        static::p($node->name),
-                        static::wrap('implements ', static::printList($node->interfaces, ' & ')),
-                        static::printList($node->directives, ' '),
-                        static::printListBlock($node->fields),
+                        static::p($node->name, $options),
+                        static::wrap('implements ', static::printList($node->interfaces, $options, ' & ')),
+                        static::printList($node->directives, $options, ' '),
+                        static::printListBlock($node->fields, $options),
                     ],
                     ' '
-                ));
+                ), $options);
 
             case $node instanceof InterfaceTypeExtensionNode:
                 return static::join(
                     [
                         'extend interface',
-                        static::p($node->name),
-                        static::wrap('implements ', static::printList($node->interfaces, ' & ')),
-                        static::printList($node->directives, ' '),
-                        static::printListBlock($node->fields),
+                        static::p($node->name, $options),
+                        static::wrap('implements ', static::printList($node->interfaces, $options, ' & ')),
+                        static::printList($node->directives, $options, ' '),
+                        static::printListBlock($node->fields, $options),
                     ],
                     ' '
                 );
 
             case $node instanceof ListTypeNode:
-                return '[' . static::p($node->type) . ']';
+                return '[' . static::p($node->type, $options) . ']';
 
             case $node instanceof ListValueNode:
-                return '[' . static::printList($node->values, ', ') . ']';
+                return '[' . static::printList($node->values, $options, ', ') . ']';
 
             case $node instanceof NamedTypeNode:
-                return static::p($node->name);
+                return static::p($node->name, $options);
 
             case $node instanceof NonNullTypeNode:
-                return static::p($node->type) . '!';
+                return static::p($node->type, $options) . '!';
 
             case $node instanceof NullValueNode:
                 return 'null';
@@ -317,60 +333,60 @@ class Printer
                 return static::addDescription($node->description, static::join(
                     [
                         'type',
-                        static::p($node->name),
-                        static::wrap('implements ', static::printList($node->interfaces, ' & ')),
-                        static::printList($node->directives, ' '),
-                        static::printListBlock($node->fields),
+                        static::p($node->name, $options),
+                        static::wrap('implements ', static::printList($node->interfaces, $options, ' & ')),
+                        static::printList($node->directives, $options, ' '),
+                        static::printListBlock($node->fields, $options),
                     ],
                     ' '
-                ));
+                ), $options);
 
             case $node instanceof ObjectTypeExtensionNode:
                 return static::join(
                     [
                         'extend type',
-                        static::p($node->name),
-                        static::wrap('implements ', static::printList($node->interfaces, ' & ')),
-                        static::printList($node->directives, ' '),
-                        static::printListBlock($node->fields),
+                        static::p($node->name, $options),
+                        static::wrap('implements ', static::printList($node->interfaces, $options, ' & ')),
+                        static::printList($node->directives, $options, ' '),
+                        static::printListBlock($node->fields, $options),
                     ],
                     ' '
                 );
 
             case $node instanceof ObjectValueNode:
                 return '{ '
-                    . static::printList($node->fields, ', ')
+                    . static::printList($node->fields, $options, ', ')
                     . ' }';
 
             case $node instanceof OperationDefinitionNode:
                 $op = $node->operation;
-                $name = static::p($node->name);
-                $varDefs = static::wrap('(', static::printList($node->variableDefinitions, ', '), ')');
-                $directives = static::printList($node->directives, ' ');
-                $selectionSet = static::p($node->selectionSet);
+                $name = static::p($node->name, $options);
+                $varDefs = static::wrap('(', static::printList($node->variableDefinitions, $options, ', '), ')');
+                $directives = static::printList($node->directives, $options, ' ');
+                $selectionSet = static::p($node->selectionSet, $options);
 
                 // Anonymous queries with no directives or variable definitions can use
                 // the query short form.
-                return $name === '' && $directives === '' && $varDefs === '' && $op === 'query'
+                return $name === '' && $directives === '' && $varDefs === '' && $op === 'query' && (! isset($options['queryShortForm']) || $options['queryShortForm'] === true)
                     ? $selectionSet
                     : static::join([$op, static::join([$name, $varDefs]), $directives, $selectionSet], ' ');
 
             case $node instanceof OperationTypeDefinitionNode:
-                return $node->operation . ': ' . static::p($node->type);
+                return $node->operation . ': ' . static::p($node->type, $options);
 
             case $node instanceof ScalarTypeDefinitionNode:
                 return static::addDescription($node->description, static::join([
                     'scalar',
-                    static::p($node->name),
-                    static::printList($node->directives, ' '),
-                ], ' '));
+                    static::p($node->name, $options),
+                    static::printList($node->directives, $options, ' '),
+                ], ' '), $options);
 
             case $node instanceof ScalarTypeExtensionNode:
                 return static::join(
                     [
                         'extend scalar',
-                        static::p($node->name),
-                        static::printList($node->directives, ' '),
+                        static::p($node->name, $options),
+                        static::printList($node->directives, $options, ' '),
                     ],
                     ' '
                 );
@@ -379,8 +395,8 @@ class Printer
                 return static::join(
                     [
                         'schema',
-                        static::printList($node->directives, ' '),
-                        static::printListBlock($node->operationTypes),
+                        static::printList($node->directives, $options, ' '),
+                        static::printListBlock($node->operationTypes, $options),
                     ],
                     ' '
                 );
@@ -389,14 +405,14 @@ class Printer
                 return static::join(
                     [
                         'extend schema',
-                        static::printList($node->directives, ' '),
-                        static::printListBlock($node->operationTypes),
+                        static::printList($node->directives, $options, ' '),
+                        static::printListBlock($node->operationTypes, $options),
                     ],
                     ' '
                 );
 
             case $node instanceof SelectionSetNode:
-                return static::printListBlock($node->selections);
+                return static::printListBlock($node->selections, $options);
 
             case $node instanceof StringValueNode:
                 if ($node->block) {
@@ -406,28 +422,28 @@ class Printer
                 return json_encode($node->value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
 
             case $node instanceof UnionTypeDefinitionNode:
-                $typesStr = static::printList($node->types, ' | ');
+                $typesStr = static::printList($node->types, $options, ' | ');
 
                 return static::addDescription($node->description, static::join(
                     [
                         'union',
-                        static::p($node->name),
-                        static::printList($node->directives, ' '),
+                        static::p($node->name, $options),
+                        static::printList($node->directives, $options, ' '),
                         $typesStr !== ''
                             ? "= {$typesStr}"
                             : '',
                     ],
                     ' '
-                ));
+                ), $options);
 
             case $node instanceof UnionTypeExtensionNode:
-                $typesStr = static::printList($node->types, ' | ');
+                $typesStr = static::printList($node->types, $options, ' | ');
 
                 return static::join(
                     [
                         'extend union',
-                        static::p($node->name),
-                        static::printList($node->directives, ' '),
+                        static::p($node->name, $options),
+                        static::printList($node->directives, $options, ' '),
                         $typesStr !== ''
                             ? "= {$typesStr}"
                             : '',
@@ -436,14 +452,14 @@ class Printer
                 );
 
             case $node instanceof VariableDefinitionNode:
-                return '$' . static::p($node->variable->name)
+                return '$' . static::p($node->variable->name, $options)
                     . ': '
-                    . static::p($node->type)
-                    . static::wrap(' = ', static::p($node->defaultValue))
-                    . static::wrap(' ', static::printList($node->directives, ' '));
+                    . static::p($node->type, $options)
+                    . static::wrap(' = ', static::p($node->defaultValue, $options))
+                    . static::wrap(' ', static::printList($node->directives, $options, ' '));
 
             case $node instanceof VariableNode:
-                return '$' . static::p($node->name);
+                return '$' . static::p($node->name, $options);
         }
 
         return '';
@@ -453,14 +469,17 @@ class Printer
      * @template TNode of Node
      *
      * @param NodeList<TNode> $list
+     * @param array<string, bool> $options
+     *
+     * @phpstan-param Options $options
      *
      * @throws \JsonException
      */
-    protected static function printList(NodeList $list, string $separator = ''): string
+    protected static function printList(NodeList $list, array $options, string $separator = ''): string
     {
         $parts = [];
         foreach ($list as $item) {
-            $parts[] = static::p($item);
+            $parts[] = static::p($item, $options);
         }
 
         return static::join($parts, $separator);
@@ -472,10 +491,13 @@ class Printer
      * @template TNode of Node
      *
      * @param NodeList<TNode> $list
+     * @param array<string, bool> $options
+     *
+     * @phpstan-param Options $options
      *
      * @throws \JsonException
      */
-    protected static function printListBlock(NodeList $list): string
+    protected static function printListBlock(NodeList $list, array $options): string
     {
         if (count($list) === 0) {
             return '';
@@ -483,16 +505,22 @@ class Printer
 
         $parts = [];
         foreach ($list as $item) {
-            $parts[] = static::p($item);
+            $parts[] = static::p($item, $options);
         }
 
         return "{\n" . static::indent(static::join($parts, "\n")) . "\n}";
     }
 
-    /** @throws \JsonException */
-    protected static function addDescription(?StringValueNode $description, string $body): string
+    /**
+     * @param array<string, bool> $options
+     *
+     * @phpstan-param Options $options
+     * 
+     * @throws \JsonException
+     */
+    protected static function addDescription(?StringValueNode $description, string $body, $options): string
     {
-        return static::join([static::p($description), $body], "\n");
+        return static::join([static::p($description, $options), $body], "\n");
     }
 
     /**
