@@ -515,7 +515,7 @@ class Printer
      * @param array<string, bool> $options
      *
      * @phpstan-param Options $options
-     * 
+     *
      * @throws \JsonException
      */
     protected static function addDescription(?StringValueNode $description, string $body, $options): string
