@@ -131,7 +131,7 @@ class KnownDirectives extends ValidationRule
     }
 
     /**
-     * @param array<Node|NodeList> $ancestors
+     * @param array<Node|NodeList<Node>> $ancestors
      *
      * @throws \Exception
      */

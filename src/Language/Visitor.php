@@ -89,7 +89,7 @@ use GraphQL\Utils\Utils;
  *       ]
  *     ]);
  *
- * @phpstan-type NodeVisitor callable(Node): (VisitorOperation|Node|null|false|void)
+ * @phpstan-type NodeVisitor callable(Node): (VisitorOperation|Node|NodeList<Node>|null|false|void)
  * @phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
  *
  * @see \GraphQL\Tests\Language\VisitorTest
@@ -217,12 +217,23 @@ class Visitor
                             $node->splice($editKey, 1);
                             ++$editOffset;
                         } elseif ($node instanceof NodeList) {
-                            if (! $editValue instanceof Node) {
+                            if ($editValue instanceof NodeList) {
+                                // Replace a single node with multiple nodes from a NodeList
+                                // We need to splice the NodeList's contents into the parent
+                                $replacementNodes = [];
+                                foreach ($editValue as $replacementNode) {
+                                    $replacementNodes[] = $replacementNode;
+                                }
+                                // Remove the original node and insert all replacement nodes
+                                $node->splice($editKey, 1, $replacementNodes);
+                                // Adjust the offset for subsequent edits
+                                $editOffset -= count($replacementNodes) - 1;
+                            } elseif ($editValue instanceof Node) {
+                                $node[$editKey] = $editValue;
+                            } else {
                                 $notNode = Utils::printSafe($editValue);
-                                throw new \Exception("Can only add Node to NodeList, got: {$notNode}.");
+                                throw new \Exception("Can only add Node or NodeList to NodeList, got: {$notNode}.");
                             }
-
-                            $node[$editKey] = $editValue;
                         } else {
                             $node->{$editKey} = $editValue;
                         }
@@ -478,7 +489,7 @@ class Visitor
     /**
      * @phpstan-param VisitorArray $visitor
      *
-     * @return (callable(Node $node, string|int|null $key, Node|NodeList<Node>|null $parent, array<int, int|string> $path, array<int, Node|NodeList<Node>> $ancestors): (VisitorOperation|Node|null))|(callable(Node): (VisitorOperation|Node|void|false|null))|null
+     * @return (callable(Node $node, string|int|null $key, Node|NodeList<Node>|null $parent, array<int, int|string> $path, array<int, Node|NodeList<Node>> $ancestors): (VisitorOperation|Node|null))|(callable(Node): (VisitorOperation|Node|NodeList<Node>|void|false|null))|null
      */
     protected static function extractVisitFn(array $visitor, string $kind, bool $isLeaving): ?callable
     {

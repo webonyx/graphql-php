@@ -1732,4 +1732,70 @@ final class VisitorTest extends ValidatorTestCase
             ],
         ]);
     }
+
+    public function testAllowsReplacingNodeWithNodeList(): void
+    {
+        $ast = Parser::parse('
+            {
+                field1
+                ... on Type {
+                    field2
+                    field3
+                }
+                field4
+            }
+        ', ['noLocation' => true]);
+
+        $editedAst = Visitor::visit(
+            $ast,
+            [
+                NodeKind::INLINE_FRAGMENT => [
+                    'leave' => fn ($node) => $node->selectionSet->selections,
+                ],
+            ]
+        );
+
+        $expected = Parser::parse('
+            {
+                field1
+                field2
+                field3
+                field4
+            }
+        ', ['noLocation' => true]);
+
+        self::assertEquals($expected, $editedAst);
+    }
+
+    public function testAllowsReplacingNodeWithNodeListOnEnter(): void
+    {
+        $ast = Parser::parse('
+            {
+                field1
+                ... on Type {
+                    field2
+                    field3
+                }
+                field4
+            }
+        ', ['noLocation' => true]);
+
+        $editedAst = Visitor::visit(
+            $ast,
+            [
+                NodeKind::INLINE_FRAGMENT => fn ($node) => $node->selectionSet->selections,
+            ]
+        );
+
+        $expected = Parser::parse('
+            {
+                field1
+                field2
+                field3
+                field4
+            }
+        ', ['noLocation' => true]);
+
+        self::assertEquals($expected, $editedAst);
+    }
 }

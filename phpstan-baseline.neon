@@ -83,9 +83,3 @@ parameters:
 			identifier: property.dynamicName
 			count: 1
 			path: src/Utils/AST.php
-
-		-
-			message: '#^Method GraphQL\\Validator\\Rules\\KnownDirectives\:\:getDirectiveLocationForASTPath\(\) has parameter \$ancestors with generic class GraphQL\\Language\\AST\\NodeList but does not specify its types\: T$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Validator/Rules/KnownDirectives.php
