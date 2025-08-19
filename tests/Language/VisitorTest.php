@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Language;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\NameNode;
@@ -1750,7 +1751,7 @@ final class VisitorTest extends ValidatorTestCase
             $ast,
             [
                 NodeKind::INLINE_FRAGMENT => [
-                    'leave' => fn ($node) => $node->selectionSet->selections,
+                    'leave' => fn (InlineFragmentNode $node) => $node->selectionSet->selections,
                 ],
             ]
         );

@@ -218,21 +218,13 @@ class Visitor
                             ++$editOffset;
                         } elseif ($node instanceof NodeList) {
                             if ($editValue instanceof NodeList) {
-                                // Replace a single node with multiple nodes from a NodeList
-                                // We need to splice the NodeList's contents into the parent
-                                $replacementNodes = [];
-                                foreach ($editValue as $replacementNode) {
-                                    $replacementNodes[] = $replacementNode;
-                                }
-                                // Remove the original node and insert all replacement nodes
-                                $node->splice($editKey, 1, $replacementNodes);
-                                // Adjust the offset for subsequent edits
-                                $editOffset -= count($replacementNodes) - 1;
+                                $node->splice($editKey, 1, $editValue);
+                                $editOffset -= count($editValue) - 1;
                             } elseif ($editValue instanceof Node) {
                                 $node[$editKey] = $editValue;
                             } else {
-                                $notNode = Utils::printSafe($editValue);
-                                throw new \Exception("Can only add Node or NodeList to NodeList, got: {$notNode}.");
+                                $notNodeOrNodeList = Utils::printSafe($editValue);
+                                throw new \Exception("Can only add Node or NodeList to NodeList, got: {$notNodeOrNodeList}.");
                             }
                         } else {
                             $node->{$editKey} = $editValue;
