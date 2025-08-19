@@ -270,6 +270,8 @@ static function isInputType($type): bool
  *
  * @return (Type&NamedType)|null
  *
+ * @phpstan-return ($type is null ? null : Type&NamedType)
+ *
  * @api
  */
 static function getNamedType(?GraphQL\Type\Definition\Type $type): ?GraphQL\Type\Definition\Type

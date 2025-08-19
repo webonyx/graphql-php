@@ -835,7 +835,6 @@ class SchemaValidationContext
         }
 
         $namedType = Type::getNamedType($type);
-        assert($namedType !== null, 'because getNamedType() was called with non-null type');
         if ($namedType->isBuiltInType()) {
             return;
         }

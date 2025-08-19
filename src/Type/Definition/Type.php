@@ -192,6 +192,8 @@ abstract class Type implements \JsonSerializable
      *
      * @return (Type&NamedType)|null
      *
+     * @phpstan-return ($type is null ? null : Type&NamedType)
+     *
      * @api
      */
     public static function getNamedType(?Type $type): ?Type
