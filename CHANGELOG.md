@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.22.4
+
+### Fixed
+
+- Fix `NodeVisitor` return type by allowing `Node` https://github.com/webonyx/graphql-php/pull/1752
+
 ## v15.22.3
 
 ### Changed
