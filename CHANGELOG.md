@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.23.0
+
+### Added
+
+- Allow replacing a `Node` with a `NodeList` in `Visitor` https://github.com/webonyx/graphql-php/pull/1754
+
 ## v15.22.4
 
 ### Fixed
