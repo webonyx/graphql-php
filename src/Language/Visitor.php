@@ -66,10 +66,10 @@ use GraphQL\Utils\Utils;
  * 3. Generic visitors that trigger upon entering and leaving any node.
  *
  *     Visitor::visit($ast, [
- *       'enter' => function ($node) {
+ *       'enter' => function (Node $node) {
  *         // enter any node
  *       },
- *       'leave' => function ($node) {
+ *       'leave' => function (Node $node) {
  *         // leave any node
  *       }
  *     ]);
