@@ -45,6 +45,10 @@ parameters:
         - message: "~it's missing from the PHPDoc @throws tag~"
           path: benchmarks
 
+        # Simplifies tests
+        - message: "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node\\:\\:\\$.+~"
+          path: tests/Language/VisitorTest.php
+
 includes:
     - phpstan-baseline.neon
     - phpstan/include-by-php-version.php
