@@ -1751,7 +1751,7 @@ final class VisitorTest extends ValidatorTestCase
             $ast,
             [
                 NodeKind::INLINE_FRAGMENT => [
-                    'leave' => fn (InlineFragmentNode $node) => $node->selectionSet->selections,
+                    'leave' => fn (InlineFragmentNode $node): NodeList => $node->selectionSet->selections,
                 ],
             ]
         );
