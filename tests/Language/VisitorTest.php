@@ -1784,7 +1784,7 @@ final class VisitorTest extends ValidatorTestCase
         $editedAst = Visitor::visit(
             $ast,
             [
-                NodeKind::INLINE_FRAGMENT => fn ($node) => $node->selectionSet->selections,
+                NodeKind::INLINE_FRAGMENT => fn (InlineFragmentNode $node): NodeList => $node->selectionSet->selections,
             ]
         );
 
