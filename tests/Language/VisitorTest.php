@@ -1799,4 +1799,76 @@ final class VisitorTest extends ValidatorTestCase
 
         self::assertEquals($expected, $editedAst);
     }
+
+    public function testThrowsExceptionWhenAddingNonNodeToNodeList(): void
+    {
+        $ast = Parser::parse('
+            {
+                field1
+                ... on Type {
+                    field2
+                }
+            }
+        ', ['noLocation' => true]);
+
+        self::expectException(\Exception::class);
+        self::expectExceptionMessage('Can only add Node or NodeList to NodeList, got: "invalid string value"');
+
+        Visitor::visit(
+            $ast,
+            [
+                NodeKind::INLINE_FRAGMENT => [
+                    'leave' => fn (InlineFragmentNode $node) => 'invalid string value',
+                ],
+            ]
+        );
+    }
+
+    public function testThrowsExceptionWhenAddingArrayToNodeList(): void
+    {
+        $ast = Parser::parse('
+            {
+                field1
+                ... on Type {
+                    field2
+                }
+            }
+        ', ['noLocation' => true]);
+
+        self::expectException(\Exception::class);
+        self::expectExceptionMessage('Can only add Node or NodeList to NodeList, got:');
+
+        Visitor::visit(
+            $ast,
+            [
+                NodeKind::INLINE_FRAGMENT => [
+                    'leave' => fn (InlineFragmentNode $node) => ['invalid', 'array'],
+                ],
+            ]
+        );
+    }
+
+    public function testThrowsExceptionWhenAddingIntegerToNodeList(): void
+    {
+        $ast = Parser::parse('
+            {
+                field1
+                ... on Type {
+                    field2
+                }
+            }
+        ', ['noLocation' => true]);
+
+        self::expectException(\Exception::class);
+        self::expectExceptionMessage('Can only add Node or NodeList to NodeList, got: 42');
+
+        Visitor::visit(
+            $ast,
+            [
+                NodeKind::INLINE_FRAGMENT => [
+                    'leave' => fn (InlineFragmentNode $node) => 42,
+                ],
+            ]
+        );
+    }
 }
