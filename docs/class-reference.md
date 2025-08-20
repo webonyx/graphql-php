@@ -246,7 +246,7 @@ static function listOf($type): GraphQL\Type\Definition\ListOfType
 /**
  * Wraps the given type in a non-null type.
  *
- * @param (NullableType&Type)|callable():(NullableType&Type) $type
+ * @param NonNull|(NullableType&Type)|callable():(NullableType&Type) $type
  *
  * @api
  */

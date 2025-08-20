@@ -105,12 +105,16 @@ abstract class Type implements \JsonSerializable
     /**
      * Wraps the given type in a non-null type.
      *
-     * @param (NullableType&Type)|callable():(NullableType&Type) $type
+     * @param NonNull|(NullableType&Type)|callable():(NullableType&Type) $type
      *
      * @api
      */
     public static function nonNull($type): NonNull
     {
+        if ($type instanceof NonNull) {
+            return $type;
+        }
+
         return new NonNull($type);
     }
 
