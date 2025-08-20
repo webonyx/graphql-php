@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.24.0
+
+### Added
+
+- Allow passing `NonNull` to `Type::nonNull()` https://github.com/webonyx/graphql-php/pull/1757
+
 ## v15.23.1
 
 ### Changed
