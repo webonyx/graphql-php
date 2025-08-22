@@ -11,6 +11,7 @@
 /.gitignore export-ignore
 /CONTRIBUTING.md export-ignore
 /generate-class-reference.php export-ignore
+/Makefile export-ignore
 /mkdocs.yml export-ignore
 /phpbench.json export-ignore
 /.php-cs-fixer.php export-ignore
