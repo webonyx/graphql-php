@@ -3,6 +3,7 @@
 
 /.github export-ignore
 /benchmarks export-ignore
+/docs export-ignore
 /tests export-ignore
 /examples export-ignore
 /phpstan export-ignore
