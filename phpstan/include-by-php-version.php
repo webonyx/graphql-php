@@ -6,9 +6,6 @@ $phpversion = phpversion();
 if (version_compare($phpversion, '8.2', '>=')) {
     $includes[] = __DIR__ . '/php-at-least-8.2.neon';
 }
-if (version_compare($phpversion, '8.4', '<')) {
-    $includes[] = __DIR__ . '/php-below-8.4.neon';
-}
 if (version_compare($phpversion, '8.2', '<')) {
     $includes[] = __DIR__ . '/php-below-8.2.neon';
 }
