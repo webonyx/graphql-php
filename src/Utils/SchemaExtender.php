@@ -204,7 +204,7 @@ class SchemaExtender
     }
 
     /**
-     * @param Type&NamedType $type
+     * Tmp disable @param Type&NamedType $type https://github.com/phpstan/phpstan/issues/13534.
      *
      * @return array<TypeExtensionNode>|null
      */
