@@ -20,5 +20,5 @@ interface AbstractType
      *
      * @phpstan-return ResolveTypeReturn
      */
-    public function resolveType($objectValue, $context, ResolveInfo $info);
+    public function resolveType(&$objectValue, $context, ResolveInfo $info);
 }
