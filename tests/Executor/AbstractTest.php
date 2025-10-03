@@ -13,6 +13,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\Cat;
 use GraphQL\Tests\Executor\TestClasses\Dog;
 use GraphQL\Tests\Executor\TestClasses\Human;
+use GraphQL\Tests\Executor\TestClasses\PetEntity;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -771,6 +772,194 @@ final class AbstractTest extends TestCase
         self::assertStringContainsString(
             'Schema must contain unique named types but contains multiple types named "Test". Make sure that `resolveType` function of abstract type "Node" returns the same type instance as referenced anywhere else within the schema (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).',
             $error->getMessage()
+        );
+    }
+
+    public function testResolveValueAllowsModifyingObjectValueForInterfaceType(): void
+    {
+        $PetType = new InterfaceType([
+            'name' => 'Pet',
+            'resolveType' => static function (PetEntity $objectValue): string {
+                if ($objectValue->type === 'dog') {
+                    return 'Dog';
+                }
+
+                return 'Cat';
+            },
+            'resolveValue' => static function (PetEntity $objectValue) {
+                if ($objectValue->type === 'dog') {
+                    return new Dog($objectValue->name, $objectValue->vocalizes);
+                }
+
+                return new Cat($objectValue->name, $objectValue->vocalizes);
+            },
+            'fields' => [
+                'name' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $DogType = new ObjectType([
+            'name' => 'Dog',
+            'interfaces' => [$PetType],
+            'fields' => [
+                'name' => [
+                    'type' => Type::string(),
+                    'resolve' => fn (Dog $dog) => $dog->name,
+                ],
+                'woofs' => [
+                    'type' => Type::boolean(),
+                    'resolve' => fn (Dog $dog) => $dog->woofs,
+                ],
+            ],
+        ]);
+
+        $CatType = new ObjectType([
+            'name' => 'Cat',
+            'interfaces' => [$PetType],
+            'fields' => [
+                'name' => [
+                    'type' => Type::string(),
+                    'resolve' => fn (Cat $cat) => $cat->name,
+                ],
+                'meows' => [
+                    'type' => Type::boolean(),
+                    'resolve' => fn (Cat $cat) => $cat->meows,
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'pets' => [
+                        'type' => Type::listOf($PetType),
+                        'resolve' => static fn (): array => [
+                            new PetEntity('dog', 'Odie', true),
+                            new PetEntity('cat', 'Garfield', false),
+                        ],
+                    ],
+                ],
+            ]),
+            'types' => [$CatType, $DogType],
+        ]);
+
+        $query = '{
+          pets {
+            name
+            ... on Dog {
+              woofs
+            }
+            ... on Cat {
+              meows
+            }
+          }
+        }';
+
+        $result = GraphQL::executeQuery($schema, $query)->toArray();
+
+        self::assertEquals(
+            [
+                'data' => [
+                    'pets' => [
+                        ['name' => 'Odie', 'woofs' => true],
+                        ['name' => 'Garfield', 'meows' => false],
+                    ],
+                ],
+            ],
+            $result
+        );
+    }
+
+    public function testResolveValueAllowsModifyingObjectValueForUnionType(): void
+    {
+        $DogType = new ObjectType([
+            'name' => 'Dog',
+            'fields' => [
+                'name' => [
+                    'type' => Type::string(),
+                    'resolve' => fn (Dog $dog) => $dog->name,
+                ],
+                'woofs' => [
+                    'type' => Type::boolean(),
+                    'resolve' => fn (Dog $dog) => $dog->woofs,
+                ],
+            ],
+        ]);
+
+        $CatType = new ObjectType([
+            'name' => 'Cat',
+            'fields' => [
+                'name' => [
+                    'type' => Type::string(),
+                    'resolve' => fn (Cat $cat) => $cat->name,
+                ],
+                'meows' => [
+                    'type' => Type::boolean(),
+                    'resolve' => fn (Cat $cat) => $cat->meows,
+                ],
+            ],
+        ]);
+
+        $PetType = new UnionType([
+            'name' => 'Pet',
+            'types' => [$DogType, $CatType],
+            'resolveType' => static function (PetEntity $objectValue): string {
+                if ($objectValue->type === 'dog') {
+                    return 'Dog';
+                }
+
+                return 'Cat';
+            },
+            'resolveValue' => static function (PetEntity $objectValue) {
+                if ($objectValue->type === 'dog') {
+                    return new Dog($objectValue->name, $objectValue->vocalizes);
+                }
+
+                return new Cat($objectValue->name, $objectValue->vocalizes);
+            },
+        ]);
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'pets' => [
+                        'type' => Type::listOf($PetType),
+                        'resolve' => static fn (): array => [
+                            new PetEntity('dog', 'Odie', true),
+                            new PetEntity('cat', 'Garfield', false),
+                        ],
+                    ],
+                ],
+            ]),
+        ]);
+
+        $query = '{
+          pets {
+            ... on Dog {
+              name
+              woofs
+            }
+            ... on Cat {
+              name
+              meows
+            }
+          }
+        }';
+
+        $result = GraphQL::executeQuery($schema, $query)->toArray();
+
+        self::assertEquals(
+            [
+                'data' => [
+                    'pets' => [
+                        ['name' => 'Odie', 'woofs' => true],
+                        ['name' => 'Garfield', 'meows' => false],
+                    ],
+                ],
+            ],
+            $result
         );
     }
 }
