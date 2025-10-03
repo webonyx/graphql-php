@@ -1092,6 +1092,7 @@ class ReferenceExecutor implements ExecutorImplementation
         $contextValue
     ) {
         $typeCandidate = $returnType->resolveType($result, $contextValue, $info);
+        $result = $returnType->resolveValue($result, $contextValue, $info);
 
         if ($typeCandidate === null) {
             $runtimeType = static::defaultTypeResolver($result, $contextValue, $info, $returnType);
