@@ -67,7 +67,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         return $type;
     }
 
-    public function resolveType($objectValue, $context, ResolveInfo $info)
+    public function resolveType(&$objectValue, $context, ResolveInfo $info)
     {
         if (isset($this->config['resolveType'])) {
             return ($this->config['resolveType'])($objectValue, $context, $info);

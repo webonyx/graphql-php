@@ -11,7 +11,7 @@ final class SomeUnionClassType extends UnionType
 {
     public ObjectType $concrete;
 
-    public function resolveType($objectValue, $context, ResolveInfo $info): ObjectType
+    public function resolveType(&$objectValue, $context, ResolveInfo $info): ObjectType
     {
         return $this->concrete;
     }
