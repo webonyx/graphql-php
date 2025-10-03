@@ -2,6 +2,9 @@ parameters:
     # TODO increase to max
     level: 8
 
+    errorFormat: ticketswap
+    editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
+
     paths:
         - benchmarks
         - examples
