@@ -1,7 +1,7 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Unable to resolve the template type TCloneable in call to method static method GraphQL\\Language\\AST\\Node\:\:cloneValue\(\)$#'
+			message: '#^Unable to resolve the template type TCloneable in call to static method GraphQL\\Language\\AST\\Node\:\:cloneValue\(\)$#'
 			identifier: argument.templateType
 			count: 1
 			path: src/Language/AST/Node.php
@@ -31,7 +31,7 @@ parameters:
 			path: src/Type/Definition/InterfaceType.php
 
 		-
-			message: '#^Unable to resolve the template type T in call to method static method GraphQL\\Type\\Schema\:\:resolveType\(\)$#'
+			message: '#^Unable to resolve the template type T in call to static method GraphQL\\Type\\Schema\:\:resolveType\(\)$#'
 			identifier: argument.templateType
 			count: 1
 			path: src/Type/Definition/InterfaceType.php
@@ -43,7 +43,7 @@ parameters:
 			path: src/Type/Definition/ObjectType.php
 
 		-
-			message: '#^Unable to resolve the template type T in call to method static method GraphQL\\Type\\Schema\:\:resolveType\(\)$#'
+			message: '#^Unable to resolve the template type T in call to static method GraphQL\\Type\\Schema\:\:resolveType\(\)$#'
 			identifier: argument.templateType
 			count: 1
 			path: src/Type/Definition/ObjectType.php
@@ -61,7 +61,7 @@ parameters:
 			path: src/Type/Definition/UnionType.php
 
 		-
-			message: '#^Unable to resolve the template type T in call to method static method GraphQL\\Type\\Schema\:\:resolveType\(\)$#'
+			message: '#^Unable to resolve the template type T in call to static method GraphQL\\Type\\Schema\:\:resolveType\(\)$#'
 			identifier: argument.templateType
 			count: 1
 			path: src/Type/Definition/UnionType.php
