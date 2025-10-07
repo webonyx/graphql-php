@@ -158,6 +158,7 @@ class Visitor
     /**
      * Visit the AST (see class description for details).
      *
+     * @param NodeList<Node>|Node $root
      * @param VisitorArray $visitor
      * @param array<string, mixed>|null $keyMap
      *
@@ -167,7 +168,7 @@ class Visitor
      *
      * @api
      */
-    public static function visit(object $rootX, array $visitor, ?array $keyMap = null)
+    public static function visit(object $root, array $visitor, ?array $keyMap = null)
     {
         $visitorKeys = $keyMap ?? self::VISITOR_KEYS;
 
