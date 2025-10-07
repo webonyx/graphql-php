@@ -624,7 +624,7 @@ class Lexer
 
             // Skip whitespace
             // tab | space | comma | BOM
-            if ($code === 9 || $code === 32 || $code === 44 || $code === 0xFEFF) {
+            if (in_array($code, [9, 32, 44, 0xFEFF], true)) {
                 $this->moveStringCursor(1, $bytes);
             } elseif ($code === 10) { // new line
                 $this->moveStringCursor(1, $bytes);
