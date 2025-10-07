@@ -1363,7 +1363,6 @@ visitor API:
 /**
  * Visit the AST (see class description for details).
  *
- * @param NodeList<Node>|Node $root
  * @param VisitorArray $visitor
  * @param array<string, mixed>|null $keyMap
  *
@@ -1373,7 +1372,7 @@ visitor API:
  *
  * @api
  */
-static function visit(object $root, array $visitor, ?array $keyMap = null)
+static function visit(object $rootX, array $visitor, ?array $keyMap = null)
 ```
 
 ```php
