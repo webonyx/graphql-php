@@ -569,7 +569,7 @@ class SchemaExtender
                 Type::INT,
                 Type::FLOAT,
                 Type::BOOLEAN,
-                Type::ID
+                Type::ID,
             ], true);
     }
 
