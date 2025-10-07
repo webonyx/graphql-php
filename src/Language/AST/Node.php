@@ -72,7 +72,7 @@ abstract class Node implements \JsonSerializable
         if ($value instanceof self) {
             $cloned = clone $value;
             foreach (get_object_vars($cloned) as $prop => $propValue) {
-                $cloned->{$prop} = static::cloneValue($propValue);
+                $cloned->{$prop} = static::cloneValue($propValue); // @phpstan-ignore argument.templateType
             }
 
             return $cloned;
