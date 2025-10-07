@@ -1769,7 +1769,7 @@ GRAPHQL,
         $extendedDocumentNode = Parser::parse($extensionSdl);
         $extendedSchema = SchemaExtender::extend($schema, $extendedDocumentNode);
 
-        static::assertSame(
+        self::assertSame(
             <<<GRAPHQL
             type Query {
               defaultValue: String
