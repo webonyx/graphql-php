@@ -108,15 +108,6 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         return $this->types;
     }
 
-    public function resolveType($objectValue, $context, ResolveInfo $info)
-    {
-        if (isset($this->config['resolveType'])) {
-            return ($this->config['resolveType'])($objectValue, $context, $info);
-        }
-
-        return null;
-    }
-
     public function resolveValue($objectValue, $context, ResolveInfo $info)
     {
         if (isset($this->config['resolveValue'])) {
@@ -124,6 +115,15 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         }
 
         return $objectValue;
+    }
+
+    public function resolveType($objectValue, $context, ResolveInfo $info)
+    {
+        if (isset($this->config['resolveType'])) {
+            return ($this->config['resolveType'])($objectValue, $context, $info);
+        }
+
+        return null;
     }
 
     public function assertValid(): void

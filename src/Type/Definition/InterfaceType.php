@@ -69,15 +69,6 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         return $type;
     }
 
-    public function resolveType($objectValue, $context, ResolveInfo $info)
-    {
-        if (isset($this->config['resolveType'])) {
-            return ($this->config['resolveType'])($objectValue, $context, $info);
-        }
-
-        return null;
-    }
-
     public function resolveValue($objectValue, $context, ResolveInfo $info)
     {
         if (isset($this->config['resolveValue'])) {
@@ -85,6 +76,15 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         }
 
         return $objectValue;
+    }
+
+    public function resolveType($objectValue, $context, ResolveInfo $info)
+    {
+        if (isset($this->config['resolveType'])) {
+            return ($this->config['resolveType'])($objectValue, $context, $info);
+        }
+
+        return null;
     }
 
     /**
