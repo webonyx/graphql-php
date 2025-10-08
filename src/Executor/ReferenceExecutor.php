@@ -120,19 +120,10 @@ class ReferenceExecutor implements ExecutorImplementation
         );
 
         if (is_array($exeContext)) {
-            return new class($promiseAdapter->createFulfilled(new ExecutionResult(null, $exeContext))) implements ExecutorImplementation {
-                private Promise $result;
+            $executionResult = new ExecutionResult(null, $exeContext);
+            $fulfilledPromise = $promiseAdapter->createFulfilled($executionResult);
 
-                public function __construct(Promise $result)
-                {
-                    $this->result = $result;
-                }
-
-                public function doExecute(): Promise
-                {
-                    return $this->result;
-                }
-            };
+            return new PromiseExecutor($fulfilledPromise);
         }
 
         return new static($exeContext);
