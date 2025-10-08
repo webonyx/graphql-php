@@ -25,6 +25,7 @@ interface AbstractType
 
     /**
      * Receives the original resolved value and transforms it if necessary.
+     * This will be called before calling `resolveType`.
      *
      * @param mixed $objectValue The resolved value for the object type
      * @param mixed $context The context that was passed to GraphQL::execute()

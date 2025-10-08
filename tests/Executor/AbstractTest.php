@@ -792,19 +792,19 @@ final class AbstractTest extends TestCase
     {
         $PetType = new InterfaceType([
             'name' => 'Pet',
-            'resolveType' => static function (PetEntity $objectValue): string {
-                if ($objectValue->type === 'dog') {
-                    return 'Dog';
-                }
-
-                return 'Cat';
-            },
             'resolveValue' => static function (PetEntity $objectValue): object {
                 if ($objectValue->type === 'dog') {
                     return new Dog($objectValue->name, $objectValue->vocalizes);
                 }
 
                 return new Cat($objectValue->name, $objectValue->vocalizes);
+            },
+            'resolveType' => static function ($objectValue): string {
+                if ($objectValue instanceof Dog) {
+                    return 'Dog';
+                }
+
+                return 'Cat';
             },
             'fields' => [
                 'name' => Type::string(),
@@ -916,19 +916,19 @@ final class AbstractTest extends TestCase
         $PetType = new UnionType([
             'name' => 'Pet',
             'types' => [$DogType, $CatType],
-            'resolveType' => static function (PetEntity $objectValue): string {
-                if ($objectValue->type === 'dog') {
-                    return 'Dog';
-                }
-
-                return 'Cat';
-            },
             'resolveValue' => static function (PetEntity $objectValue): object {
                 if ($objectValue->type === 'dog') {
                     return new Dog($objectValue->name, $objectValue->vocalizes);
                 }
 
                 return new Cat($objectValue->name, $objectValue->vocalizes);
+            },
+            'resolveType' => static function ($objectValue): string {
+                if ($objectValue instanceof Dog) {
+                    return 'Dog';
+                }
+
+                return 'Cat';
             },
         ]);
 
