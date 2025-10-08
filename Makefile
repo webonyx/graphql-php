@@ -27,15 +27,19 @@ phpstan.neon:
 	printf "includes:\n  - phpstan.neon.dist" > phpstan.neon
 
 .PHONY: stan
-stan: ## Runs static analysis with phpstan
+stan: ## Runs static analysis with PHPStan
 	composer stan
 
+.PHONY: baseline
+baseline: ## Regenerate the PHPStan baseline
+	composer baseline
+
 .PHONY: test
-test: ## Runs tests with phpunit
+test: ## Runs tests with PHPUnit
 	composer test
 
 .PHONY: bench
-bench: ## Runs benchmarks with phpbench
+bench: ## Runs benchmarks with PHPBench
 	composer bench
 
 .PHONY: docs

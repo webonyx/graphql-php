@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Unable to resolve the template type TCloneable in call to method static method GraphQL\\Language\\AST\\Node\:\:cloneValue\(\)$#'
-			identifier: argument.templateType
-			count: 1
-			path: src/Language/AST/Node.php
-
-		-
 			message: '#^Variable property access on TCloneable of TNode of GraphQL\\Language\\AST\\Node\.$#'
 			identifier: property.dynamicName
 			count: 1
@@ -31,20 +25,8 @@ parameters:
 			path: src/Type/Definition/InterfaceType.php
 
 		-
-			message: '#^Unable to resolve the template type T in call to method static method GraphQL\\Type\\Schema\:\:resolveType\(\)$#'
-			identifier: argument.templateType
-			count: 1
-			path: src/Type/Definition/InterfaceType.php
-
-		-
 			message: '#^Property GraphQL\\Type\\Definition\\ObjectType\:\:\$interfaces \(array\<int, GraphQL\\Type\\Definition\\InterfaceType\>\) does not accept array\<int, GraphQL\\Type\\Definition\\Type\>\.$#'
 			identifier: assign.propertyType
-			count: 1
-			path: src/Type/Definition/ObjectType.php
-
-		-
-			message: '#^Unable to resolve the template type T in call to method static method GraphQL\\Type\\Schema\:\:resolveType\(\)$#'
-			identifier: argument.templateType
 			count: 1
 			path: src/Type/Definition/ObjectType.php
 
@@ -57,12 +39,6 @@ parameters:
 		-
 			message: '#^Property GraphQL\\Type\\Definition\\UnionType\:\:\$types \(array\<int, GraphQL\\Type\\Definition\\ObjectType\>\) does not accept array\<int, GraphQL\\Type\\Definition\\Type\>\.$#'
 			identifier: assign.propertyType
-			count: 1
-			path: src/Type/Definition/UnionType.php
-
-		-
-			message: '#^Unable to resolve the template type T in call to method static method GraphQL\\Type\\Schema\:\:resolveType\(\)$#'
-			identifier: argument.templateType
 			count: 1
 			path: src/Type/Definition/UnionType.php
 

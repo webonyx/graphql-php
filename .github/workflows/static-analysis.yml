@@ -37,4 +37,4 @@ jobs:
         uses: ramsey/composer-install@v2
 
       - name: Run a static analysis with phpstan/phpstan
-        run: vendor/bin/phpstan --error-format=checkstyle | cs2pr
+        run: vendor/bin/phpstan --error-format=github

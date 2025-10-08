@@ -769,7 +769,7 @@ class SchemaValidationContext
 
             // Ensure valid name.
             $this->validateName($enumValue);
-            if ($valueName === 'true' || $valueName === 'false' || $valueName === 'null') {
+            if (in_array($valueName, ['true', 'false', 'null'], true)) {
                 $this->reportError(
                     "Enum type {$enumType->name} cannot include value: {$valueName}.",
                     $enumValue->astNode
