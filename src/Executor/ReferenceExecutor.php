@@ -120,19 +120,10 @@ class ReferenceExecutor implements ExecutorImplementation
         );
 
         if (is_array($exeContext)) {
-            return new class($promiseAdapter->createFulfilled(new ExecutionResult(null, $exeContext))) implements ExecutorImplementation {
-                private Promise $result;
+            $executionResult = new ExecutionResult(null, $exeContext);
+            $fulfilledPromise = $promiseAdapter->createFulfilled($executionResult);
 
-                public function __construct(Promise $result)
-                {
-                    $this->result = $result;
-                }
-
-                public function doExecute(): Promise
-                {
-                    return $this->result;
-                }
-            };
+            return new PromiseExecutor($fulfilledPromise);
         }
 
         return new static($exeContext);
@@ -1073,7 +1064,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param list<string|int> $path
      * @param list<string|int> $unaliasedPath
-     * @param array<mixed> $result
+     * @param mixed $result
      * @param mixed $contextValue
      *
      * @throws \Exception
@@ -1092,6 +1083,7 @@ class ReferenceExecutor implements ExecutorImplementation
         $contextValue
     ) {
         $typeCandidate = $returnType->resolveType($result, $contextValue, $info);
+        $result = $returnType->resolveValue($result, $contextValue, $info);
 
         if ($typeCandidate === null) {
             $runtimeType = static::defaultTypeResolver($result, $contextValue, $info, $returnType);
@@ -1272,7 +1264,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
     /**
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param array<mixed> $result
+     * @param mixed $result
      */
     protected function invalidReturnTypeError(
         ObjectType $returnType,
@@ -1408,7 +1400,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param array<mixed>|mixed $results
      *
-     * @return array<mixed>|\stdClass|mixed
+     * @return non-empty-array<mixed>|\stdClass|mixed
      */
     protected static function fixResultsIfEmptyArray($results)
     {
