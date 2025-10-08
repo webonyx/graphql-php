@@ -1064,7 +1064,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param \ArrayObject<int, FieldNode> $fieldNodes
      * @param list<string|int> $path
      * @param list<string|int> $unaliasedPath
-     * @param array<mixed> $result
+     * @param mixed $result
      * @param mixed $contextValue
      *
      * @throws \Exception
@@ -1264,7 +1264,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
     /**
      * @param \ArrayObject<int, FieldNode> $fieldNodes
-     * @param array<mixed> $result
+     * @param mixed $result
      */
     protected function invalidReturnTypeError(
         ObjectType $returnType,
@@ -1400,7 +1400,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param array<mixed>|mixed $results
      *
-     * @return array<mixed>|\stdClass|mixed
+     * @return non-empty-array<mixed>|\stdClass|mixed
      */
     protected static function fixResultsIfEmptyArray($results)
     {
