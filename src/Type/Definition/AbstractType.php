@@ -24,12 +24,12 @@ interface AbstractType
     public function resolveType($objectValue, $context, ResolveInfo $info);
 
     /**
-     * Resolves/transforms the value after type resolution.
+     * Receives the original resolved value and transforms it if necessary.
      *
      * @param mixed $objectValue The resolved value for the object type
      * @param mixed $context The context that was passed to GraphQL::execute()
      *
-     * @return mixed The transformed value (or original if no transformation needed)
+     * @return mixed The possibly transformed value
      */
     public function resolveValue($objectValue, $context, ResolveInfo $info);
 }
