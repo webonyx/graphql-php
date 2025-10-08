@@ -188,7 +188,7 @@ final class AbstractTest extends TestCase
                 return null;
             },
             'fields' => [
-                'name' => ['type' => Type::string()],
+                'name' => Type::string(),
             ],
         ]);
 
@@ -273,23 +273,23 @@ final class AbstractTest extends TestCase
         $HumanType = new ObjectType([
             'name' => 'Human',
             'fields' => [
-                'name' => ['type' => Type::string()],
+                'name' => Type::string(),
             ],
         ]);
 
         $DogType = new ObjectType([
             'name' => 'Dog',
             'fields' => [
-                'name' => ['type' => Type::string()],
-                'woofs' => ['type' => Type::boolean()],
+                'name' => Type::string(),
+                'woofs' => Type::boolean(),
             ],
         ]);
 
         $CatType = new ObjectType([
             'name' => 'Cat',
             'fields' => [
-                'name' => ['type' => Type::string()],
-                'meows' => ['type' => Type::boolean()],
+                'name' => Type::string(),
+                'meows' => Type::boolean(),
             ],
         ]);
 
@@ -799,7 +799,7 @@ final class AbstractTest extends TestCase
 
                 return new Cat($objectValue->name, $objectValue->vocalizes);
             },
-            'resolveType' => static function ($objectValue): string {
+            'resolveType' => static function (object $objectValue): string {
                 if ($objectValue instanceof Dog) {
                     return 'Dog';
                 }
@@ -923,7 +923,7 @@ final class AbstractTest extends TestCase
 
                 return new Cat($objectValue->name, $objectValue->vocalizes);
             },
-            'resolveType' => static function ($objectValue): string {
+            'resolveType' => static function (object $objectValue): string {
                 if ($objectValue instanceof Dog) {
                     return 'Dog';
                 }
