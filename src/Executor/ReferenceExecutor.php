@@ -864,7 +864,7 @@ class ReferenceExecutor implements ExecutorImplementation
         ResolveInfo $info,
         array $path,
         array $unaliasedPath,
-        &$result,
+        $result,
         $contextValue
     ) {
         // If result is an Error, throw a located error.
@@ -1007,7 +1007,7 @@ class ReferenceExecutor implements ExecutorImplementation
         ResolveInfo $info,
         array $path,
         array $unaliasedPath,
-        iterable &$results,
+        iterable $results,
         $contextValue
     ) {
         $itemType = $returnType->getWrappedType();
@@ -1045,7 +1045,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @return mixed
      */
-    protected function completeLeafValue(LeafType $returnType, &$result)
+    protected function completeLeafValue(LeafType $returnType, $result)
     {
         try {
             return $returnType->serialize($result);
@@ -1079,7 +1079,7 @@ class ReferenceExecutor implements ExecutorImplementation
         ResolveInfo $info,
         array $path,
         array $unaliasedPath,
-        &$result,
+        $result,
         $contextValue
     ) {
         $typeCandidate = $returnType->resolveType($result, $contextValue, $info);
@@ -1213,7 +1213,7 @@ class ReferenceExecutor implements ExecutorImplementation
         ResolveInfo $info,
         array $path,
         array $unaliasedPath,
-        &$result,
+        $result,
         $contextValue
     ) {
         // If there is an isTypeOf predicate function, call it with the
@@ -1229,7 +1229,7 @@ class ReferenceExecutor implements ExecutorImplementation
                     $fieldNodes,
                     $path,
                     $unaliasedPath,
-                    &$result
+                    $result
                 ) {
                     if (! $isTypeOfResult) {
                         throw $this->invalidReturnTypeError($returnType, $result, $fieldNodes);
@@ -1296,7 +1296,7 @@ class ReferenceExecutor implements ExecutorImplementation
         \ArrayObject $fieldNodes,
         array $path,
         array $unaliasedPath,
-        &$result,
+        $result,
         $contextValue
     ) {
         $subFieldNodes = $this->collectSubFields($returnType, $fieldNodes);
@@ -1444,7 +1444,7 @@ class ReferenceExecutor implements ExecutorImplementation
         $runtimeTypeOrName,
         AbstractType $returnType,
         ResolveInfo $info,
-        &$result
+        $result
     ): ObjectType {
         $runtimeType = is_string($runtimeTypeOrName)
             ? $this->exeContext->schema->getType($runtimeTypeOrName)
