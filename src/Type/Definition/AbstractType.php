@@ -12,7 +12,21 @@ use GraphQL\Deferred;
 interface AbstractType
 {
     /**
+     * Receives the original resolved value and transforms it if necessary.
+     *
+     * This will be called before `resolveType`.
+     *
+     * @param mixed $objectValue The resolved value for the object type
+     * @param mixed $context The context that was passed to GraphQL::execute()
+     *
+     * @return mixed The possibly transformed value
+     */
+    public function resolveValue($objectValue, $context, ResolveInfo $info);
+
+    /**
      * Resolves the concrete ObjectType for the given value.
+     *
+     * This will be called after `resolveType`.
      *
      * @param mixed $objectValue The resolved value for the object type
      * @param mixed $context The context that was passed to GraphQL::execute()
@@ -22,15 +36,4 @@ interface AbstractType
      * @phpstan-return ResolveTypeReturn
      */
     public function resolveType($objectValue, $context, ResolveInfo $info);
-
-    /**
-     * Receives the original resolved value and transforms it if necessary.
-     * This will be called before calling `resolveType`.
-     *
-     * @param mixed $objectValue The resolved value for the object type
-     * @param mixed $context The context that was passed to GraphQL::execute()
-     *
-     * @return mixed The possibly transformed value
-     */
-    public function resolveValue($objectValue, $context, ResolveInfo $info);
 }
