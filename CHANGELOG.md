@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.25.0
+
+### Added
+
+- Introduce `resolveValue` method to Interface and Union types https://github.com/webonyx/graphql-php/pull/1776
+
 ## v15.24.0
 
 ### Added
