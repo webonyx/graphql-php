@@ -26,7 +26,7 @@ interface AbstractType
     /**
      * Resolves the concrete ObjectType for the given value.
      *
-     * This will be called after `resolveType`.
+     * This will be called after `resolveValue`.
      *
      * @param mixed $objectValue The resolved value for the object type
      * @param mixed $context The context that was passed to GraphQL::execute()
