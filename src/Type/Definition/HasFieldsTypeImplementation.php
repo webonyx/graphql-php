@@ -65,6 +65,7 @@ trait HasFieldsTypeImplementation
 
     /**
      * @throws InvariantViolation
+     *
      * @return array<string, FieldDefinition>
      */
     public function getFields(): array
