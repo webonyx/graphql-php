@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.25.2
+
+### Fixed
+
+- Add missing return types in `HasFieldsTypeImplementation` https://github.com/webonyx/graphql-php/pull/1783
+
 ## v15.25.1
 
 ### Changed
