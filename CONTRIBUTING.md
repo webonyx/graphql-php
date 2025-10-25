@@ -18,11 +18,13 @@ For smaller contributions use this workflow:
 ## Release a New Version
 
 Before you release a new version, make sure to familiarize yourself with:
+
 - [Keep a Changelog](https://keepachangelog.com/en/1.0.0)
 - [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - [Previous GitHub Releases](https://github.com/webonyx/graphql-php/releases)
 
 To create a new release, follow these steps:
+
 1. Consider the entries in the [`CHANGELOG unreleased section`](CHANGELOG.md#unreleased), add missing entries if needed
 2. Based on those entries and the previous version, define the next version number and add it to the [`CHANGELOG.md`](CHANGELOG.md)
 3. [Draft a new release](https://github.com/webonyx/graphql-php/releases/new)
