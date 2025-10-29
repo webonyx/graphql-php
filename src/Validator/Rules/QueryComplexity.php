@@ -18,6 +18,7 @@ use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Introspection;
 use GraphQL\Validator\QueryValidationContext;
 
 /**
@@ -117,6 +118,11 @@ class QueryComplexity extends QuerySecurityRule
     {
         switch (true) {
             case $node instanceof FieldNode:
+                // Exclude __schema field and all nested content from complexity calculation
+                if ($node->name->value === Introspection::SCHEMA_FIELD_NAME) {
+                    return 0;
+                }
+
                 if ($this->directiveExcludesField($node)) {
                     return 0;
                 }
