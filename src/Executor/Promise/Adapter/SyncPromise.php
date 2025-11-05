@@ -48,6 +48,8 @@ class SyncPromise
         while (! $q->isEmpty()) {
             $task = $q->dequeue();
             $task();
+            // Explicitly clear the task reference to help garbage collection
+            unset($task);
         }
     }
 
@@ -58,11 +60,16 @@ class SyncPromise
             return;
         }
 
-        self::getQueue()->enqueue(function () use ($executor): void {
+        self::getQueue()->enqueue(function () use (&$executor): void {
             try {
+                assert(is_callable($executor));
                 $this->resolve($executor());
             } catch (\Throwable $e) {
                 $this->reject($e);
+            } finally {
+                // Clear the executor reference to allow garbage collection
+                // of the closure and its captured context
+                $executor = null;
             }
         });
     }
@@ -143,26 +150,25 @@ class SyncPromise
             throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
         }
 
+        $state = $this->state;
+        $result = $this->result;
+
         foreach ($this->waiting as $descriptor) {
-            self::getQueue()->enqueue(function () use ($descriptor): void {
+            self::getQueue()->enqueue(static function () use ($descriptor, $state, $result): void {
                 [$promise, $onFulfilled, $onRejected] = $descriptor;
 
-                if ($this->state === self::FULFILLED) {
-                    try {
-                        $promise->resolve($onFulfilled === null ? $this->result : $onFulfilled($this->result));
-                    } catch (\Throwable $e) {
-                        $promise->reject($e);
-                    }
-                } elseif ($this->state === self::REJECTED) {
-                    try {
+                try {
+                    if ($state === self::FULFILLED) {
+                        $promise->resolve($onFulfilled === null ? $result : $onFulfilled($result));
+                    } elseif ($state === self::REJECTED) {
                         if ($onRejected === null) {
-                            $promise->reject($this->result);
+                            $promise->reject($result);
                         } else {
-                            $promise->resolve($onRejected($this->result));
+                            $promise->resolve($onRejected($result));
                         }
-                    } catch (\Throwable $e) {
-                        $promise->reject($e);
                     }
+                } catch (\Throwable $e) {
+                    $promise->reject($e);
                 }
             });
         }

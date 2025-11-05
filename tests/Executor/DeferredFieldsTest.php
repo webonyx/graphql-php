@@ -668,4 +668,103 @@ final class DeferredFieldsTest extends TestCase
             self::assertContains($expectedPath, $this->paths, 'Missing path: ' . json_encode($expectedPath, JSON_THROW_ON_ERROR));
         }
     }
+
+    public function testDeferredMemoryUsage(): void
+    {
+        // Generate test data similar to the issue reproduction
+        $authors = [];
+        for ($i = 0; $i <= 100; ++$i) {
+            $authors[$i] = ['name' => 'Name ' . $i];
+        }
+
+        $books = [];
+        for ($i = 0; $i <= 1000; ++$i) {
+            $books[$i] = ['title' => 'Title ' . $i, 'authorId' => random_int(0, 100)];
+        }
+
+        $authorType = new ObjectType([
+            'name' => 'Author',
+            'fields' => [
+                'name' => [
+                    'type' => Type::string(),
+                ],
+            ],
+        ]);
+
+        $bookType = new ObjectType([
+            'name' => 'Book',
+            'fields' => [
+                'title' => [
+                    'type' => Type::string(),
+                ],
+                'author' => [
+                    'type' => $authorType,
+                    'resolve' => static fn ($rootValue): Deferred => new Deferred(static fn (): array => $authors[$rootValue['authorId']]),
+                ],
+            ],
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'getBooks' => [
+                    'type' => Type::listOf($bookType),
+                    'resolve' => static fn (): array => $books,
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        $query = Parser::parse('
+            {
+                getBooks {
+                    title
+                    author {
+                        name
+                    }
+                }
+            }
+        ');
+
+        // Run the query multiple times to detect memory leaks
+        // If there's a leak, memory will grow with each iteration
+        $memoryMeasurements = [];
+
+        for ($iteration = 0; $iteration < 3; ++$iteration) {
+            gc_collect_cycles();
+            $memoryBefore = memory_get_usage();
+
+            $result = Executor::execute($schema, $query);
+
+            // Verify the query executed successfully
+            self::assertArrayNotHasKey('errors', $result->toArray());
+
+            $memoryAfter = memory_get_usage();
+            $memoryMeasurements[$iteration] = $memoryAfter - $memoryBefore;
+
+            // Clear result to prepare for next iteration
+            unset($result);
+        }
+
+        // With proper cleanup, memory usage should be stable across iterations
+        // Allow some variation (10%) but memory shouldn't grow significantly
+        $firstIteration = $memoryMeasurements[0];
+        $lastIteration = $memoryMeasurements[2];
+        $memoryGrowth = $lastIteration - $firstIteration;
+        $allowedGrowth = $firstIteration * 0.10; // 10% tolerance
+
+        self::assertLessThan(
+            $allowedGrowth,
+            $memoryGrowth,
+            sprintf(
+                'Memory leak detected: memory grew by %.2fMB across iterations (%.2fMB -> %.2fMB)',
+                $memoryGrowth / 1024 / 1024,
+                $firstIteration / 1024 / 1024,
+                $lastIteration / 1024 / 1024
+            )
+        );
+    }
 }
