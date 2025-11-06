@@ -102,7 +102,7 @@ final class SchemaExtenderTest extends TestCaseBase
     private function printASTSchema(Schema $schema): string
     {
         $astNode = $schema->astNode;
-        assert($astNode instanceof SchemaDefinitionNode);
+        self::assertInstanceOf(SchemaDefinitionNode::class, $astNode);
 
         return Printer::doPrint($astNode);
     }
@@ -442,7 +442,7 @@ GRAPHQL,
           GRAPHQL;
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
         $someScalar = $extendedSchema->getType('SomeScalar');
-        assert($someScalar instanceof ScalarType);
+        self::assertInstanceOf(ScalarType::class, $someScalar);
 
         self::assertEmpty($extendedSchema->validate());
         self::assertSame(
@@ -573,40 +573,40 @@ GRAPHQL,
         self::assertSchemaEquals($extendedInOneGoSchema, $extendedTwiceSchema);
 
         $query = $extendedTwiceSchema->getQueryType();
-        assert($query instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $query);
 
         $someScalar = $extendedTwiceSchema->getType('SomeScalar');
-        assert($someScalar instanceof ScalarType);
+        self::assertInstanceOf(ScalarType::class, $someScalar);
 
         $someEnum = $extendedTwiceSchema->getType('SomeEnum');
-        assert($someEnum instanceof EnumType);
+        self::assertInstanceOf(EnumType::class, $someEnum);
 
         $someUnion = $extendedTwiceSchema->getType('SomeUnion');
-        assert($someUnion instanceof UnionType);
+        self::assertInstanceOf(UnionType::class, $someUnion);
 
         $someInput = $extendedTwiceSchema->getType('SomeInput');
-        assert($someInput instanceof InputObjectType);
+        self::assertInstanceOf(InputObjectType::class, $someInput);
 
         $someInterface = $extendedTwiceSchema->getType('SomeInterface');
-        assert($someInterface instanceof InterfaceType);
+        self::assertInstanceOf(InterfaceType::class, $someInterface);
 
         $testInput = $extendedTwiceSchema->getType('TestInput');
-        assert($testInput instanceof InputObjectType);
+        self::assertInstanceOf(InputObjectType::class, $testInput);
 
         $testEnum = $extendedTwiceSchema->getType('TestEnum');
-        assert($testEnum instanceof EnumType);
+        self::assertInstanceOf(EnumType::class, $testEnum);
 
         $testUnion = $extendedTwiceSchema->getType('TestUnion');
-        assert($testUnion instanceof UnionType);
+        self::assertInstanceOf(UnionType::class, $testUnion);
 
         $testInterface = $extendedTwiceSchema->getType('TestInterface');
-        assert($testInterface instanceof InterfaceType);
+        self::assertInstanceOf(InterfaceType::class, $testInterface);
 
         $testType = $extendedTwiceSchema->getType('TestType');
-        assert($testType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $testType);
 
         $testDirective = $extendedTwiceSchema->getDirective('test');
-        assert($testDirective instanceof Directive);
+        self::assertInstanceOf(Directive::class, $testDirective);
 
         self::assertCount(2, $query->extensionASTNodes);
         self::assertCount(2, $someScalar->extensionASTNodes);
@@ -686,7 +686,7 @@ GRAPHQL,
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         $someType = $extendedSchema->getType('SomeObject');
-        assert($someType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $someType);
 
         $deprecatedFieldDef = $someType->getField('deprecatedField');
 
@@ -700,16 +700,16 @@ GRAPHQL,
         self::assertSame('unusable', $deprecatedArgument->deprecationReason);
 
         $someEnum = $extendedSchema->getType('SomeEnum');
-        assert($someEnum instanceof EnumType);
+        self::assertInstanceOf(EnumType::class, $someEnum);
 
         $deprecatedEnumDef = $someEnum->getValue('DEPRECATED_VALUE');
-        assert($deprecatedEnumDef instanceof EnumValueDefinition);
+        self::assertInstanceOf(EnumValueDefinition::class, $deprecatedEnumDef);
 
         self::assertTrue($deprecatedEnumDef->isDeprecated());
         self::assertSame('do not use', $deprecatedEnumDef->deprecationReason);
 
         $someInput = $extendedSchema->getType('SomeInputObject');
-        assert($someInput instanceof InputObjectType);
+        self::assertInstanceOf(InputObjectType::class, $someInput);
 
         $deprecatedInputField = $someInput->getField('deprecatedField');
 
@@ -729,7 +729,7 @@ GRAPHQL,
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         $someType = $extendedSchema->getType('SomeObject');
-        assert($someType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $someType);
 
         $deprecatedFieldDef = $someType->getField('deprecatedField');
 
@@ -749,10 +749,10 @@ GRAPHQL,
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         $someEnum = $extendedSchema->getType('SomeEnum');
-        assert($someEnum instanceof EnumType);
+        self::assertInstanceOf(EnumType::class, $someEnum);
 
         $deprecatedEnumDef = $someEnum->getValue('DEPRECATED_VALUE');
-        assert($deprecatedEnumDef instanceof EnumValueDefinition);
+        self::assertInstanceOf(EnumValueDefinition::class, $deprecatedEnumDef);
 
         self::assertTrue($deprecatedEnumDef->isDeprecated());
         self::assertSame('do not use', $deprecatedEnumDef->deprecationReason);
@@ -1531,7 +1531,7 @@ GRAPHQL,
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
         $queryType = $extendedSchema->getQueryType();
 
-        assert($queryType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $queryType);
         self::assertSame('Foo', $queryType->name);
         self::assertSame($extensionSDL, $this->printASTSchema($extendedSchema));
     }
@@ -1552,7 +1552,7 @@ GRAPHQL,
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
 
         $mutationType = $extendedSchema->getMutationType();
-        assert($mutationType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $mutationType);
         self::assertSame('MutationRoot', $mutationType->name);
         self::assertSame(
             $extensionSDL,
@@ -1596,11 +1596,11 @@ GRAPHQL,
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         $mutationType = $extendedSchema->getMutationType();
-        assert($mutationType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $mutationType);
         self::assertSame('Mutation', $mutationType->name);
 
         $subscriptionType = $extendedSchema->getSubscriptionType();
-        assert($subscriptionType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $subscriptionType);
         self::assertSame('Subscription', $subscriptionType->name);
     }
 
@@ -1622,11 +1622,11 @@ GRAPHQL,
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         $mutationType = $extendedSchema->getMutationType();
-        assert($mutationType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $mutationType);
         self::assertSame('Mutation', $mutationType->name);
 
         $subscriptionType = $extendedSchema->getSubscriptionType();
-        assert($subscriptionType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $subscriptionType);
         self::assertSame('Subscription', $subscriptionType->name);
     }
 
@@ -1698,7 +1698,7 @@ GRAPHQL,
 
         $extendedSchema = SchemaExtender::extend($schema, $documentNode);
         $extendedQueryType = $extendedSchema->getQueryType();
-        assert($extendedQueryType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $extendedQueryType);
 
         $helloResolveFn = $extendedQueryType->getField('hello')->resolveFn;
         self::assertIsCallable($helloResolveFn);
@@ -1734,7 +1734,7 @@ GRAPHQL,
 
         $extendedSchema = SchemaExtender::extend($schema, $documentNode);
         $extendedQueryType = $extendedSchema->getQueryType();
-        assert($extendedQueryType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $extendedQueryType);
 
         $queryResolveFieldFn = $extendedQueryType->resolveFieldFn;
         self::assertIsCallable($queryResolveFieldFn);
@@ -1796,14 +1796,14 @@ GRAPHQL,
         ');
 
         $directive = $schema->getDirective('test');
-        assert($directive instanceof Directive);
+        self::assertInstanceOf(Directive::class, $directive);
 
         self::assertTrue($directive->isRepeatable);
 
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse('scalar Foo'));
 
         $extendedDirective = $extendedSchema->getDirective('test');
-        assert($extendedDirective instanceof Directive);
+        self::assertInstanceOf(Directive::class, $extendedDirective);
 
         self::assertTrue($extendedDirective->isRepeatable);
     }
