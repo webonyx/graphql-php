@@ -715,12 +715,12 @@ final class DeferredFieldsTest extends TestCase
     /**
      * Helper method to measure memory usage for a given number of Deferred objects.
      *
-     * @return int Memory used in bytes
-     *
-     * @throws \Random\RandomException
      * @throws \GraphQL\Error\InvariantViolation
      * @throws \GraphQL\Error\SyntaxError
      * @throws \JsonException
+     * @throws \Random\RandomException
+     *
+     * @return int Memory used in bytes
      */
     private function measureDeferredMemoryUsage(int $bookCount): int
     {
