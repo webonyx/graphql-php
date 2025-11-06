@@ -266,8 +266,7 @@ final class SyncPromiseTest extends TestCaseBase
         }
 
         $nextPromise = $promise->then(
-            static function (): void {},
-            null
+            static function (): void {}
         );
         self::assertSame($promise, $nextPromise);
 

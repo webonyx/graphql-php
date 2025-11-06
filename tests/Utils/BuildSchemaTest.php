@@ -861,7 +861,7 @@ final class BuildSchemaTest extends TestCaseBase
         ");
 
         $someScalar = $schema->getType('SomeScalar');
-        assert($someScalar instanceof ScalarType);
+        self::assertInstanceOf(ScalarType::class, $someScalar);
 
         $expectedSomeScalarSDL = <<<'GRAPHQL'
             scalar SomeScalar
@@ -897,7 +897,7 @@ final class BuildSchemaTest extends TestCaseBase
         ");
 
         $someObject = $schema->getType('SomeObject');
-        assert($someObject instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $someObject);
 
         $expectedSomeObjectSDL = <<<'GRAPHQL'
             type SomeObject implements Foo & Bar & Baz {
@@ -932,7 +932,7 @@ final class BuildSchemaTest extends TestCaseBase
         $schema = BuildSchema::build($interfaceSDL);
 
         $someInterface = $schema->getType('SomeInterface');
-        assert($someInterface instanceof InterfaceType);
+        self::assertInstanceOf(InterfaceType::class, $someInterface);
 
         $expectedSomeInterfaceSDL = <<<'GRAPHQL'
             interface SomeInterface {
@@ -966,7 +966,7 @@ final class BuildSchemaTest extends TestCaseBase
         ");
 
         $someUnion = $schema->getType('SomeUnion');
-        assert($someUnion instanceof UnionType);
+        self::assertInstanceOf(UnionType::class, $someUnion);
 
         $expectedSomeUnionSDL = <<<'GRAPHQL'
             union SomeUnion = FirstType | SecondType | ThirdType
@@ -997,7 +997,7 @@ final class BuildSchemaTest extends TestCaseBase
         $schema = BuildSchema::build($enumSDL);
 
         $someEnum = $schema->getType('SomeEnum');
-        assert($someEnum instanceof EnumType);
+        self::assertInstanceOf(EnumType::class, $someEnum);
 
         $expectedSomeEnumSDL = <<<'GRAPHQL'
             enum SomeEnum {
@@ -1032,7 +1032,7 @@ final class BuildSchemaTest extends TestCaseBase
         $schema = BuildSchema::build($inputSDL);
 
         $someInput = $schema->getType('SomeInput');
-        assert($someInput instanceof InputObjectType);
+        self::assertInstanceOf(InputObjectType::class, $someInput);
 
         $expectedSomeInputSDL = <<<'GRAPHQL'
             input SomeInput {
@@ -1063,7 +1063,7 @@ final class BuildSchemaTest extends TestCaseBase
         $schema = BuildSchema::build($inputSDL);
 
         $someInput = $schema->getType('SomeInput');
-        assert($someInput instanceof InputObjectType);
+        self::assertInstanceOf(InputObjectType::class, $someInput);
 
         // Verify that the @oneOf directive from the extension is properly applied
         self::assertTrue($someInput->isOneOf());

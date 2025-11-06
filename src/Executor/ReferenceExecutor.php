@@ -328,7 +328,7 @@ class ReferenceExecutor implements ExecutorImplementation
         if ($error instanceof Error) {
             $this->exeContext->addError($error);
 
-            return $this->exeContext->promiseAdapter->createFulfilled(null);
+            return $this->exeContext->promiseAdapter->createFulfilled();
         }
 
         return null;

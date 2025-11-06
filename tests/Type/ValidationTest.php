@@ -2728,7 +2728,7 @@ final class ValidationTest extends TestCaseBase
         };
 
         $query = $typeLoader('Query');
-        assert($query instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $query);
 
         $schema = new Schema([
             'query' => $query,
