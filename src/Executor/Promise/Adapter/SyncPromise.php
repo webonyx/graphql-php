@@ -48,6 +48,8 @@ class SyncPromise
         while (! $q->isEmpty()) {
             $task = $q->dequeue();
             $task();
+            // Explicitly clear the task reference to help garbage collection
+            unset($task);
         }
     }
 
@@ -58,13 +60,24 @@ class SyncPromise
             return;
         }
 
-        self::getQueue()->enqueue(function () use ($executor): void {
+        $queue = self::getQueue();
+        $queue->enqueue(function () use (&$executor): void {
             try {
+                assert(is_callable($executor));
                 $this->resolve($executor());
             } catch (\Throwable $e) {
                 $this->reject($e);
+            } finally {
+                // Clear the executor reference to allow garbage collection
+                // of the closure and its captured context
+                $executor = null;
             }
         });
+
+        // Trigger incremental processing if queue grows too large
+        if ($queue->count() >= self::QUEUE_BATCH_SIZE) {
+            self::processBatch();
+        }
     }
 
     /**
@@ -143,32 +156,43 @@ class SyncPromise
             throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
         }
 
+        $state = $this->state;
+        $result = $this->result;
+        $queue = self::getQueue();
+
         foreach ($this->waiting as $descriptor) {
-            self::getQueue()->enqueue(function () use ($descriptor): void {
+            $queue->enqueue(static function () use ($descriptor, $state, $result): void {
                 [$promise, $onFulfilled, $onRejected] = $descriptor;
 
-                if ($this->state === self::FULFILLED) {
-                    try {
-                        $promise->resolve($onFulfilled === null ? $this->result : $onFulfilled($this->result));
-                    } catch (\Throwable $e) {
-                        $promise->reject($e);
-                    }
-                } elseif ($this->state === self::REJECTED) {
-                    try {
+                try {
+                    if ($state === self::FULFILLED) {
+                        $promise->resolve($onFulfilled === null ? $result : $onFulfilled($result));
+                    } elseif ($state === self::REJECTED) {
                         if ($onRejected === null) {
-                            $promise->reject($this->result);
+                            $promise->reject($result);
                         } else {
-                            $promise->resolve($onRejected($this->result));
+                            $promise->resolve($onRejected($result));
                         }
-                    } catch (\Throwable $e) {
-                        $promise->reject($e);
                     }
+                } catch (\Throwable $e) {
+                    $promise->reject($e);
                 }
             });
+
+            // Trigger incremental processing if queue grows too large
+            if ($queue->count() >= self::QUEUE_BATCH_SIZE) {
+                self::processBatch();
+            }
         }
 
         $this->waiting = [];
     }
+
+    /**
+     * Maximum queue size before triggering incremental processing.
+     * Helps reduce peak memory usage with large numbers of Deferred objects.
+     */
+    private const QUEUE_BATCH_SIZE = 500;
 
     /** @return \SplQueue<callable(): void> */
     public static function getQueue(): \SplQueue
@@ -176,6 +200,26 @@ class SyncPromise
         static $queue;
 
         return $queue ??= new \SplQueue();
+    }
+
+    /**
+     * Process a batch of queued tasks to reduce memory usage.
+     * Called automatically when queue exceeds threshold.
+     */
+    private static function processBatch(): void
+    {
+        $q = self::getQueue();
+        $batchSize = min(self::QUEUE_BATCH_SIZE, $q->count());
+
+        for ($i = 0; $i < $batchSize; ++$i) {
+            if ($q->isEmpty()) {
+                break;
+            }
+
+            $task = $q->dequeue();
+            $task();
+            unset($task);
+        }
     }
 
     /**

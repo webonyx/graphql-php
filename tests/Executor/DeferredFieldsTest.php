@@ -668,4 +668,86 @@ final class DeferredFieldsTest extends TestCase
             self::assertContains($expectedPath, $this->paths, 'Missing path: ' . json_encode($expectedPath, JSON_THROW_ON_ERROR));
         }
     }
+
+    /**
+     * Test that Deferred with large datasets uses reasonable memory.
+     *
+     * With incremental queue processing, peak memory should remain reasonable
+     * even with thousands of Deferred objects. Without the optimization,
+     * 4000 Deferred objects would consume ~54MB peak. With optimization: ~16MB.
+     *
+     * @see https://github.com/webonyx/graphql-php/issues/972
+     */
+    public function testDeferredMemoryEfficiency(): void
+    {
+        $authors = [];
+        for ($i = 0; $i <= 100; ++$i) {
+            $authors[$i] = ['name' => "Name {$i}"];
+        }
+
+        $books = [];
+        for ($i = 0; $i <= 4000; ++$i) {
+            $books[$i] = ['title' => "Title {$i}", 'authorId' => random_int(0, 100)];
+        }
+
+        $authorType = new ObjectType([
+            'name' => 'Author',
+            'fields' => [
+                'name' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $bookType = new ObjectType([
+            'name' => 'Book',
+            'fields' => [
+                'title' => ['type' => Type::string()],
+                'author' => [
+                    'type' => $authorType,
+                    'resolve' => static function (array $rootValue) use ($authors): Deferred {
+                        return new Deferred(static function () use ($authors, $rootValue): array {
+                            return $authors[$rootValue['authorId']];
+                        });
+                    },
+                ],
+            ],
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'books' => [
+                    'type' => Type::listOf($bookType),
+                    'resolve' => static function () use ($books): array {
+                        return $books;
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $queryType]);
+        $query = Parser::parse('{ books { title author { name } } }');
+
+        gc_collect_cycles();
+        $memoryBefore = memory_get_usage(true);
+
+        $result = Executor::execute($schema, $query);
+        self::assertArrayNotHasKey('errors', $result->toArray());
+
+        $memoryAfter = memory_get_usage(true);
+        $memoryUsed = $memoryAfter - $memoryBefore;
+
+        // With incremental processing, memory should stay under 25MB
+        // Without it, this would use ~54MB
+        $maxAcceptableMemory = 25 * 1024 * 1024;
+
+        self::assertLessThan(
+            $maxAcceptableMemory,
+            $memoryUsed,
+            sprintf(
+                'Deferred memory usage too high: %.2fMB. Expected less than 25MB. '
+                . 'This likely means incremental queue processing is not working.',
+                $memoryUsed / 1024 / 1024
+            )
+        );
+    }
 }
