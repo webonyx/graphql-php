@@ -60,7 +60,7 @@ class Lexer
     /** @phpstan-param ParserOptions $options */
     public function __construct(Source $source, array $options = [])
     {
-        $startOfFileToken = new Token(Token::SOF, 0, 0, 0, 0, null);
+        $startOfFileToken = new Token(Token::SOF, 0, 0, 0, 0);
 
         $this->source = $source;
         $this->options = $options;
@@ -408,10 +408,7 @@ class Lexer
         $chunk = '';
         $value = '';
 
-        while (
-            $code !== null
-            && $code !== 10 && $code !== 13 // not LineTerminator
-        ) {
+        while (! in_array($code, [null, 10, 13], true)) { // not LineTerminator
             if ($code === 34) { // Closing Quote (")
                 $value .= $chunk;
 
