@@ -719,6 +719,7 @@ final class DeferredFieldsTest extends TestCase
      * @throws \GraphQL\Error\InvariantViolation
      * @throws \GraphQL\Error\SyntaxError
      * @throws \JsonException
+     * @throws \Random\RandomException
      *
      * @return int Memory used in bytes
      */
