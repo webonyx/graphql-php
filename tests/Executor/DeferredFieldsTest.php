@@ -703,11 +703,7 @@ final class DeferredFieldsTest extends TestCase
                 'title' => ['type' => Type::string()],
                 'author' => [
                     'type' => $authorType,
-                    'resolve' => static function (array $rootValue) use ($authors): Deferred {
-                        return new Deferred(static function () use ($authors, $rootValue): array {
-                            return $authors[$rootValue['authorId']];
-                        });
-                    },
+                    'resolve' => static fn (array $rootValue): Deferred => new Deferred(static fn (): array => $authors[$rootValue['authorId']]),
                 ],
             ],
         ]);
@@ -717,9 +713,7 @@ final class DeferredFieldsTest extends TestCase
             'fields' => [
                 'books' => [
                     'type' => Type::listOf($bookType),
-                    'resolve' => static function () use ($books): array {
-                        return $books;
-                    },
+                    'resolve' => static fn (): array => $books,
                 ],
             ],
         ]);
