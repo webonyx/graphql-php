@@ -215,7 +215,7 @@ final class VisitorTest extends ValidatorTestCase
 
         $expected = $ast->cloneDeep();
         $operationNode = $expected->definitions[0];
-        assert($operationNode instanceof OperationDefinitionNode);
+        self::assertInstanceOf(OperationDefinitionNode::class, $operationNode);
         $operationNode->directives = new NodeList([$directive1, $directive2]);
 
         self::assertEquals($expected, $editedAst);

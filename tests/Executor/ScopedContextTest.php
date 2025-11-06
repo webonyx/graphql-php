@@ -209,9 +209,7 @@ final class ScopedContextTest extends TestCase
             Parser::parse($doc),
             'rootValue',
             $context,
-            [],
-            null,
-            null
+            []
         );
 
         $result = $this->promiseAdapter->wait($result);
@@ -275,9 +273,7 @@ final class ScopedContextTest extends TestCase
             Parser::parse($doc),
             'rootValue',
             $context,
-            [],
-            null,
-            null
+            []
         );
 
         $result = $this->promiseAdapter->wait($result);
@@ -341,9 +337,7 @@ final class ScopedContextTest extends TestCase
             Parser::parse($doc),
             'rootValue',
             $context,
-            [],
-            null,
-            null
+            []
         );
 
         $result = $this->promiseAdapter->wait($result);
