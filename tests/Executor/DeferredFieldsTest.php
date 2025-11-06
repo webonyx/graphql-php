@@ -715,7 +715,6 @@ final class DeferredFieldsTest extends TestCase
     /**
      * Helper method to measure memory usage for a given number of Deferred objects.
      *
-     * @throws \Exception
      * @throws \GraphQL\Error\InvariantViolation
      * @throws \GraphQL\Error\SyntaxError
      * @throws \JsonException
