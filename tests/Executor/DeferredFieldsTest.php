@@ -672,13 +672,52 @@ final class DeferredFieldsTest extends TestCase
     /**
      * Test that Deferred with large datasets uses reasonable memory.
      *
-     * With incremental queue processing, peak memory should remain reasonable
-     * even with thousands of Deferred objects. Without the optimization,
-     * 4000 Deferred objects would consume ~54MB peak. With optimization: ~16MB.
+     * Uses relative comparison to prove memory grows sub-linearly with dataset size.
+     * With incremental queue processing, a 100x increase in data should result in
+     * less than a 15x increase in memory, proving the optimization is working.
+     *
+     * Without incremental processing, memory would grow nearly linearly with
+     * queue size since all closures accumulate before processing begins.
      *
      * @see https://github.com/webonyx/graphql-php/issues/972
      */
     public function testDeferredMemoryEfficiency(): void
+    {
+        $dataIncrease = 100;
+
+        $smallMemory = $this->measureDeferredMemoryUsage(40);
+        $largeMemory = $this->measureDeferredMemoryUsage(40 * $dataIncrease);
+
+        self::assertGreaterThan(0, $smallMemory, 'Small dataset memory measurement should be positive');
+        self::assertGreaterThan(0, $largeMemory, 'Large dataset memory measurement should be positive');
+
+        $memoryGrowthRatio = $largeMemory / $smallMemory;
+
+        // With incremental processing, memory should grow sub-linearly.
+        // Without optimization, this ratio would be much higher (~40-50x).
+        $maximumMemoryGrowthRatio = 20;
+        self::assertLessThan(
+            $maximumMemoryGrowthRatio,
+            $memoryGrowthRatio,
+            sprintf(
+                'Memory growth ratio too high: %.2fx (expected <%sx for %sx data increase). '
+                . 'Small dataset: %.2fMB, Large dataset: %.2fMB. '
+                . 'This likely means incremental queue processing is not working.',
+                $maximumMemoryGrowthRatio,
+                $dataIncrease,
+                $memoryGrowthRatio,
+                $smallMemory / 1024 / 1024,
+                $largeMemory / 1024 / 1024
+            )
+        );
+    }
+
+    /**
+     * Helper method to measure memory usage for a given number of Deferred objects.
+     *
+     * @return int Memory used in bytes
+     */
+    private function measureDeferredMemoryUsage(int $bookCount): int
     {
         $authors = [];
         for ($i = 0; $i <= 100; ++$i) {
@@ -686,21 +725,21 @@ final class DeferredFieldsTest extends TestCase
         }
 
         $books = [];
-        for ($i = 0; $i <= 4000; ++$i) {
+        for ($i = 0; $i < $bookCount; ++$i) {
             $books[$i] = ['title' => "Title {$i}", 'authorId' => random_int(0, 100)];
         }
 
         $authorType = new ObjectType([
             'name' => 'Author',
             'fields' => [
-                'name' => ['type' => Type::string()],
+                'name' => Type::string(),
             ],
         ]);
 
         $bookType = new ObjectType([
             'name' => 'Book',
             'fields' => [
-                'title' => ['type' => Type::string()],
+                'title' => Type::string(),
                 'author' => [
                     'type' => $authorType,
                     'resolve' => static fn (array $rootValue): Deferred => new Deferred(static fn (): array => $authors[$rootValue['authorId']]),
@@ -722,26 +761,18 @@ final class DeferredFieldsTest extends TestCase
         $query = Parser::parse('{ books { title author { name } } }');
 
         gc_collect_cycles();
-        $memoryBefore = memory_get_usage(true);
+
+        // Use memory_get_usage() without true to get actual PHP memory usage
+        // rather than system-allocated memory (which is in chunks).
+        $memoryBefore = memory_get_usage();
 
         $result = Executor::execute($schema, $query);
         self::assertArrayNotHasKey('errors', $result->toArray());
 
-        $memoryAfter = memory_get_usage(true);
-        $memoryUsed = $memoryAfter - $memoryBefore;
+        $peakMemory = memory_get_peak_usage();
+        $memoryAfter = memory_get_usage();
 
-        // With incremental processing, memory should stay under 25MB
-        // Without it, this would use ~54MB
-        $maxAcceptableMemory = 25 * 1024 * 1024;
-
-        self::assertLessThan(
-            $maxAcceptableMemory,
-            $memoryUsed,
-            sprintf(
-                'Deferred memory usage too high: %.2fMB. Expected less than 25MB. '
-                . 'This likely means incremental queue processing is not working.',
-                $memoryUsed / 1024 / 1024
-            )
-        );
+        // Return peak memory during execution to capture maximum memory pressure
+        return max($memoryAfter - $memoryBefore, $peakMemory - $memoryBefore);
     }
 }

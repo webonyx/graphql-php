@@ -156,11 +156,15 @@ class SyncPromise
             throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
         }
 
+        // Capture state and result in local variables to avoid capturing $this in the closures below.
+        // This reduces memory usage since closures won't hold references to the entire promise object.
         $state = $this->state;
         $result = $this->result;
         $queue = self::getQueue();
 
         foreach ($this->waiting as $descriptor) {
+            // Use static closure to avoid capturing $this.
+            // We only capture the minimal required data instead of the entire promise instance, reducing memory footprint.
             $queue->enqueue(static function () use ($descriptor, $state, $result): void {
                 [$promise, $onFulfilled, $onRejected] = $descriptor;
 
@@ -190,9 +194,24 @@ class SyncPromise
 
     /**
      * Maximum queue size before triggering incremental processing.
-     * Helps reduce peak memory usage with large numbers of Deferred objects.
+     *
+     * This threshold balances memory usage against throughput:
+     * - Lower values (100-250): Reduced peak memory, more frequent processing overhead
+     * - Higher values (1000-2000): Better throughput, higher peak memory usage
+     *
+     * Testing with 4000 Deferred objects showed that 500 provides optimal balance:
+     * - Peak memory: ~16MB (vs ~54MB without incremental processing)
+     * - Memory reduction: ~70%
+     * - Minimal throughput impact
+     *
+     * We may offer an option to adjust this value in the future.
+     *
+     * @see https://github.com/webonyx/graphql-php/issues/972
      */
     private const QUEUE_BATCH_SIZE = 500;
+
+    /** Flag to prevent reentrant batch processing. */
+    private static bool $isProcessingBatch = false;
 
     /** @return \SplQueue<callable(): void> */
     public static function getQueue(): \SplQueue
@@ -204,21 +223,34 @@ class SyncPromise
 
     /**
      * Process a batch of queued tasks to reduce memory usage.
-     * Called automatically when queue exceeds threshold.
+     * Called automatically when the queue exceeds the threshold.
+     *
+     * Prevents reentrancy: if already processing a batch, returns immediately to avoid stack overflow.
+     * Tasks queued during processing will be handled by further batch processing or the main runQueue() call.
      */
     private static function processBatch(): void
     {
-        $q = self::getQueue();
-        $batchSize = min(self::QUEUE_BATCH_SIZE, $q->count());
+        // Prevent reentrancy - if already processing, let the current batch finish first
+        if (self::$isProcessingBatch) {
+            return;
+        }
 
-        for ($i = 0; $i < $batchSize; ++$i) {
-            if ($q->isEmpty()) {
-                break;
+        self::$isProcessingBatch = true;
+        try {
+            $queue = self::getQueue();
+            $batchSize = min(self::QUEUE_BATCH_SIZE, $queue->count());
+
+            foreach (range(1, $batchSize) as $_) {
+                if ($queue->isEmpty()) {
+                    break;
+                }
+
+                $task = $queue->dequeue();
+                $task();
+                unset($task);
             }
-
-            $task = $q->dequeue();
-            $task();
-            unset($task);
+        } finally {
+            self::$isProcessingBatch = false;
         }
     }
 
