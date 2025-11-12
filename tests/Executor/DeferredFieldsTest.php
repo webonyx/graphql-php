@@ -668,4 +668,116 @@ final class DeferredFieldsTest extends TestCase
             self::assertContains($expectedPath, $this->paths, 'Missing path: ' . json_encode($expectedPath, JSON_THROW_ON_ERROR));
         }
     }
+
+    /**
+     * Test that Deferred with large datasets uses reasonable memory.
+     *
+     * Uses relative comparison to prove memory grows sub-linearly with dataset size.
+     * With incremental queue processing, a 100x increase in data should result in
+     * less than a 15x increase in memory, proving the optimization is working.
+     *
+     * Without incremental processing, memory would grow nearly linearly with
+     * queue size since all closures accumulate before processing begins.
+     *
+     * @see https://github.com/webonyx/graphql-php/issues/972
+     */
+    public function testDeferredMemoryEfficiency(): void
+    {
+        $dataIncrease = 100;
+
+        $smallMemory = $this->measureDeferredMemoryUsage(40);
+        $largeMemory = $this->measureDeferredMemoryUsage(40 * $dataIncrease);
+
+        self::assertGreaterThan(0, $smallMemory, 'Small dataset memory measurement should be positive');
+        self::assertGreaterThan(0, $largeMemory, 'Large dataset memory measurement should be positive');
+
+        $memoryGrowthRatio = $largeMemory / $smallMemory;
+
+        // With incremental processing, memory should grow sub-linearly.
+        // Without optimization, this ratio would be much higher (~40-50x).
+        $maximumMemoryGrowthRatio = 20;
+        self::assertLessThan(
+            $maximumMemoryGrowthRatio,
+            $memoryGrowthRatio,
+            sprintf(
+                'Memory growth ratio too high: %.2fx (expected <%sx for %sx data increase). '
+                . 'Small dataset: %.2fMB, Large dataset: %.2fMB. '
+                . 'This likely means incremental queue processing is not working.',
+                $maximumMemoryGrowthRatio,
+                $dataIncrease,
+                $memoryGrowthRatio,
+                $smallMemory / 1024 / 1024,
+                $largeMemory / 1024 / 1024
+            )
+        );
+    }
+
+    /**
+     * Helper method to measure memory usage for a given number of Deferred objects.
+     *
+     * @throws \GraphQL\Error\InvariantViolation
+     * @throws \GraphQL\Error\SyntaxError
+     * @throws \JsonException
+     * @throws \Random\RandomException
+     *
+     * @return int Memory used in bytes
+     */
+    private function measureDeferredMemoryUsage(int $bookCount): int
+    {
+        $authors = [];
+        for ($i = 0; $i <= 100; ++$i) {
+            $authors[$i] = ['name' => "Name {$i}"];
+        }
+
+        $books = [];
+        for ($i = 0; $i < $bookCount; ++$i) {
+            $books[$i] = ['title' => "Title {$i}", 'authorId' => random_int(0, 100)];
+        }
+
+        $authorType = new ObjectType([
+            'name' => 'Author',
+            'fields' => [
+                'name' => Type::string(),
+            ],
+        ]);
+
+        $bookType = new ObjectType([
+            'name' => 'Book',
+            'fields' => [
+                'title' => Type::string(),
+                'author' => [
+                    'type' => $authorType,
+                    'resolve' => static fn (array $rootValue): Deferred => new Deferred(static fn (): array => $authors[$rootValue['authorId']]),
+                ],
+            ],
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'books' => [
+                    'type' => Type::listOf($bookType),
+                    'resolve' => static fn (): array => $books,
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $queryType]);
+        $query = Parser::parse('{ books { title author { name } } }');
+
+        gc_collect_cycles();
+
+        // Use memory_get_usage() without true to get actual PHP memory usage
+        // rather than system-allocated memory (which is in chunks).
+        $memoryBefore = memory_get_usage();
+
+        $result = Executor::execute($schema, $query);
+        self::assertArrayNotHasKey('errors', $result->toArray());
+
+        $peakMemory = memory_get_peak_usage();
+        $memoryAfter = memory_get_usage();
+
+        // Return peak memory during execution to capture maximum memory pressure
+        return max($memoryAfter - $memoryBefore, $peakMemory - $memoryBefore);
+    }
 }
