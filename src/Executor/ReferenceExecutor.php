@@ -884,9 +884,9 @@ class ReferenceExecutor implements ExecutorImplementation
                 $result,
                 $contextValue
             );
-            if ($completed === null) {
-                throw new InvariantViolation("Cannot return null for non-nullable field \"{$info->parentType}.{$info->fieldName}\".");
-            }
+        //     if ($completed === null) {
+                // throw new InvariantViolation("Cannot return null for non-nullable field \"{$info->parentType}.{$info->fieldName}\".");
+            // }
 
             return $completed;
         }
@@ -897,11 +897,11 @@ class ReferenceExecutor implements ExecutorImplementation
 
         // If field type is List, complete each item in the list with the inner type
         if ($returnType instanceof ListOfType) {
-            if (! is_iterable($result)) {
-                $resultType = gettype($result);
+        //     if (! is_iterable($result)) {
+                // $resultType = gettype($result);
 
-                throw new InvariantViolation("Expected field {$info->parentType}.{$info->fieldName} to return iterable, but got: {$resultType}.");
-            }
+                // throw new InvariantViolation("Expected field {$info->parentType}.{$info->fieldName} to return iterable, but got: {$resultType}.");
+            // }
 
             return $this->completeListValue($returnType, $fieldNodes, $info, $path, $unaliasedPath, $result, $contextValue);
         }
