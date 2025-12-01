@@ -22,7 +22,7 @@ use GraphQL\Language\SourceLocation;
  *
  * @see \GraphQL\Tests\Error\ErrorTest
  */
-class Error extends \Exception implements \JsonSerializable, ClientAware, ProvidesExtensions
+class Error extends \Exception implements \Stringable, \JsonSerializable, ClientAware, ProvidesExtensions
 {
     /**
      * Lazily initialized.
