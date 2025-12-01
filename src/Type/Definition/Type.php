@@ -9,7 +9,7 @@ use GraphQL\Utils\Utils;
 /**
  * Registry of standard GraphQL types and base class for all other types.
  */
-abstract class Type implements \JsonSerializable
+abstract class Type implements \Stringable, \JsonSerializable
 {
     public const INT = 'Int';
     public const FLOAT = 'Float';
