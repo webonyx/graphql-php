@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.27.0
+
+### Added
+
+- Optimize `Deferred` memory usage with incremental queue processing https://github.com/webonyx/graphql-php/pull/1790
+
 ## v15.26.0
 
 ### Changed
