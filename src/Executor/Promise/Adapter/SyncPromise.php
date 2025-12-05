@@ -48,8 +48,6 @@ class SyncPromise
         while (! $q->isEmpty()) {
             $task = $q->dequeue();
             $task();
-            // Explicitly clear the task reference to help garbage collection
-            unset($task);
         }
     }
 
@@ -60,24 +58,13 @@ class SyncPromise
             return;
         }
 
-        $queue = self::getQueue();
-        $queue->enqueue(function () use (&$executor): void {
+        self::getQueue()->enqueue(function () use ($executor): void {
             try {
-                assert(is_callable($executor));
                 $this->resolve($executor());
             } catch (\Throwable $e) {
                 $this->reject($e);
-            } finally {
-                // Clear the executor reference to allow garbage collection
-                // of the closure and its captured context
-                $executor = null;
             }
         });
-
-        // Trigger incremental processing if queue grows too large
-        if ($queue->count() >= self::QUEUE_BATCH_SIZE) {
-            self::processBatch();
-        }
     }
 
     /**
@@ -156,62 +143,32 @@ class SyncPromise
             throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
         }
 
-        // Capture state and result in local variables to avoid capturing $this in the closures below.
-        // This reduces memory usage since closures won't hold references to the entire promise object.
-        $state = $this->state;
-        $result = $this->result;
-        $queue = self::getQueue();
-
         foreach ($this->waiting as $descriptor) {
-            // Use static closure to avoid capturing $this.
-            // We only capture the minimal required data instead of the entire promise instance, reducing memory footprint.
-            $queue->enqueue(static function () use ($descriptor, $state, $result): void {
+            self::getQueue()->enqueue(function () use ($descriptor): void {
                 [$promise, $onFulfilled, $onRejected] = $descriptor;
 
-                try {
-                    if ($state === self::FULFILLED) {
-                        $promise->resolve($onFulfilled === null ? $result : $onFulfilled($result));
-                    } elseif ($state === self::REJECTED) {
-                        if ($onRejected === null) {
-                            $promise->reject($result);
-                        } else {
-                            $promise->resolve($onRejected($result));
-                        }
+                if ($this->state === self::FULFILLED) {
+                    try {
+                        $promise->resolve($onFulfilled === null ? $this->result : $onFulfilled($this->result));
+                    } catch (\Throwable $e) {
+                        $promise->reject($e);
                     }
-                } catch (\Throwable $e) {
-                    $promise->reject($e);
+                } elseif ($this->state === self::REJECTED) {
+                    try {
+                        if ($onRejected === null) {
+                            $promise->reject($this->result);
+                        } else {
+                            $promise->resolve($onRejected($this->result));
+                        }
+                    } catch (\Throwable $e) {
+                        $promise->reject($e);
+                    }
                 }
             });
-
-            // Trigger incremental processing if queue grows too large
-            if ($queue->count() >= self::QUEUE_BATCH_SIZE) {
-                self::processBatch();
-            }
         }
 
         $this->waiting = [];
     }
-
-    /**
-     * Maximum queue size before triggering incremental processing.
-     *
-     * This threshold balances memory usage against throughput:
-     * - Lower values (100-250): Reduced peak memory, more frequent processing overhead
-     * - Higher values (1000-2000): Better throughput, higher peak memory usage
-     *
-     * Testing with 4000 Deferred objects showed that 500 provides optimal balance:
-     * - Peak memory: ~16MB (vs ~54MB without incremental processing)
-     * - Memory reduction: ~70%
-     * - Minimal throughput impact
-     *
-     * We may offer an option to adjust this value in the future.
-     *
-     * @see https://github.com/webonyx/graphql-php/issues/972
-     */
-    private const QUEUE_BATCH_SIZE = 500;
-
-    /** Flag to prevent reentrant batch processing. */
-    private static bool $isProcessingBatch = false;
 
     /** @return \SplQueue<callable(): void> */
     public static function getQueue(): \SplQueue
@@ -219,39 +176,6 @@ class SyncPromise
         static $queue;
 
         return $queue ??= new \SplQueue();
-    }
-
-    /**
-     * Process a batch of queued tasks to reduce memory usage.
-     * Called automatically when the queue exceeds the threshold.
-     *
-     * Prevents reentrancy: if already processing a batch, returns immediately to avoid stack overflow.
-     * Tasks queued during processing will be handled by further batch processing or the main runQueue() call.
-     */
-    private static function processBatch(): void
-    {
-        // Prevent reentrancy - if already processing, let the current batch finish first
-        if (self::$isProcessingBatch) {
-            return;
-        }
-
-        self::$isProcessingBatch = true;
-        try {
-            $queue = self::getQueue();
-            $batchSize = min(self::QUEUE_BATCH_SIZE, $queue->count());
-
-            foreach (range(1, $batchSize) as $_) {
-                if ($queue->isEmpty()) {
-                    break;
-                }
-
-                $task = $queue->dequeue();
-                $task();
-                unset($task);
-            }
-        } finally {
-            self::$isProcessingBatch = false;
-        }
     }
 
     /**
