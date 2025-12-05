@@ -781,8 +781,8 @@ final class DeferredFieldsTest extends TestCase
         self::assertSame(
             0,
             $nullAuthorCount,
-            "Expected 0 null authors, but found {$nullAuthorCount}. " .
-            'This indicates that batch loading was triggered before all IDs were collected.'
+            "Expected 0 null authors, but found {$nullAuthorCount}. "
+            . 'This indicates that batch loading was triggered before all IDs were collected.'
         );
 
         // Verify batch loading happened only once (DataLoader pattern)
@@ -790,8 +790,8 @@ final class DeferredFieldsTest extends TestCase
         self::assertSame(
             1,
             $batchLoadCount,
-            "Expected exactly 1 batch load, but got {$batchLoadCount}. " .
-            'Multiple batch loads indicate that the queue was processed before all Deferred objects were created.'
+            "Expected exactly 1 batch load, but got {$batchLoadCount}. "
+            . 'Multiple batch loads indicate that the queue was processed before all Deferred objects were created.'
         );
     }
 
@@ -824,7 +824,7 @@ final class DeferredFieldsTest extends TestCase
                 $eventDays[$dayId] = [
                     'id' => $dayId,
                     'eventId' => $eventId,
-                    'date' => "2025-01-" . str_pad((string) $day, 2, '0', STR_PAD_LEFT),
+                    'date' => '2025-01-' . str_pad((string) $day, 2, '0', STR_PAD_LEFT),
                 ];
                 ++$dayId;
             }
@@ -895,16 +895,14 @@ final class DeferredFieldsTest extends TestCase
 
         $eventType = new ObjectType([
             'name' => 'Event',
-            'fields' => function () use ($eventDayType, $loadEventDays): array {
-                return [
-                    'id' => Type::int(),
-                    'name' => Type::string(),
-                    'eventDays' => [
-                        'type' => Type::nonNull(Type::listOf(Type::nonNull($eventDayType))),
-                        'resolve' => static fn (array $event) => $loadEventDays($event['id']),
-                    ],
-                ];
-            },
+            'fields' => fn (): array => [
+                'id' => Type::int(),
+                'name' => Type::string(),
+                'eventDays' => [
+                    'type' => Type::nonNull(Type::listOf(Type::nonNull($eventDayType))),
+                    'resolve' => static fn (array $event) => $loadEventDays($event['id']),
+                ],
+            ],
         ]);
 
         $queryType = new ObjectType([
@@ -961,15 +959,15 @@ final class DeferredFieldsTest extends TestCase
         self::assertSame(
             0,
             $nullEventCount,
-            "Expected 0 null events, but found {$nullEventCount}. " .
-            'This indicates premature batch processing broke DataLoader batching.'
+            "Expected 0 null events, but found {$nullEventCount}. "
+            . 'This indicates premature batch processing broke DataLoader batching.'
         );
 
         self::assertSame(
             0,
             $nullNestedDaysCount,
-            "Expected 0 null nested eventDays, but found {$nullNestedDaysCount}. " .
-            'This indicates premature batch processing broke nested DataLoader batching.'
+            "Expected 0 null nested eventDays, but found {$nullNestedDaysCount}. "
+            . 'This indicates premature batch processing broke nested DataLoader batching.'
         );
     }
 }
