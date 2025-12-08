@@ -75,7 +75,7 @@
       "@rector",
       "@php-cs-fixer"
     ],
-    "php-cs-fixer": "php-cs-fixer fix",
+    "php-cs-fixer": "make php-cs-fixer",
     "rector": "rector process",
     "stan": "phpstan --verbose",
     "test": "php -d zend.exception_ignore_args=Off -d zend.assertions=On -d assert.active=On -d assert.exception=On vendor/bin/phpunit"
