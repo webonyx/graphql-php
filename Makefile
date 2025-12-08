@@ -19,6 +19,7 @@ rector: vendor ## Automatic code fixes with Rector
 php-cs-fixer: ## Fix code style
 	docker build --quiet --tag=graphql-php-cs-fixer --file=.php-cs-fixer.dockerfile .
 	docker run --rm --volume="$(PWD):/app" --volume=/app/vendor graphql-php-cs-fixer sh -c "composer update --quiet && vendor/bin/php-cs-fixer fix"
+	vendor/bin/php-cs-fixer fix
 
 .PHONY: prettier
 prettier: ## Format code with prettier
