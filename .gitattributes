@@ -16,6 +16,7 @@
 /Makefile export-ignore
 /mkdocs.yml export-ignore
 /phpbench.json export-ignore
+/.php-cs-fixer.dockerfile export-ignore
 /.php-cs-fixer.php export-ignore
 /phpstan.neon.dist export-ignore
 /phpstan-baseline.neon export-ignore
