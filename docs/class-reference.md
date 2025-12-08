@@ -67,10 +67,10 @@ static function executeQuery(
     $source,
     $rootValue = null,
     $contextValue = null,
-    array $variableValues = null,
-    string $operationName = null,
-    callable $fieldResolver = null,
-    array $validationRules = null
+    ?array $variableValues = null,
+    ?string $operationName = null,
+    ?callable $fieldResolver = null,
+    ?array $validationRules = null
 ): GraphQL\Executor\ExecutionResult
 ```
 
@@ -95,10 +95,10 @@ static function promiseToExecute(
     $source,
     $rootValue = null,
     $context = null,
-    array $variableValues = null,
-    string $operationName = null,
-    callable $fieldResolver = null,
-    array $validationRules = null
+    ?array $variableValues = null,
+    ?string $operationName = null,
+    ?callable $fieldResolver = null,
+    ?array $validationRules = null
 ): GraphQL\Executor\Promise\Promise
 ```
 
@@ -274,7 +274,7 @@ static function isInputType($type): bool
  *
  * @api
  */
-static function getNamedType(GraphQL\Type\Definition\Type $type): GraphQL\Type\Definition\Type
+static function getNamedType(?GraphQL\Type\Definition\Type $type): ?GraphQL\Type\Definition\Type
 ```
 
 ```php
@@ -825,7 +825,7 @@ function setTypes($types): self
  *
  * @api
  */
-function getDirectives(): array
+function getDirectives(): ?array
 ```
 
 ```php
@@ -834,7 +834,7 @@ function getDirectives(): array
  *
  * @api
  */
-function setDirectives(array $directives): self
+function setDirectives(?array $directives): self
 ```
 
 ```php
@@ -845,7 +845,7 @@ function setDirectives(array $directives): self
  *
  * @api
  */
-function getTypeLoader(): callable
+function getTypeLoader(): ?callable
 ```
 
 ```php
@@ -854,7 +854,7 @@ function getTypeLoader(): callable
  *
  * @api
  */
-function setTypeLoader(callable $typeLoader): self
+function setTypeLoader(?callable $typeLoader): self
 ```
 
 ## GraphQL\Type\Schema
@@ -932,7 +932,7 @@ function getDirectives(): array
  *
  * @api
  */
-function getQueryType(): GraphQL\Type\Definition\ObjectType
+function getQueryType(): ?GraphQL\Type\Definition\ObjectType
 ```
 
 ```php
@@ -941,7 +941,7 @@ function getQueryType(): GraphQL\Type\Definition\ObjectType
  *
  * @api
  */
-function getMutationType(): GraphQL\Type\Definition\ObjectType
+function getMutationType(): ?GraphQL\Type\Definition\ObjectType
 ```
 
 ```php
@@ -950,7 +950,7 @@ function getMutationType(): GraphQL\Type\Definition\ObjectType
  *
  * @api
  */
-function getSubscriptionType(): GraphQL\Type\Definition\ObjectType
+function getSubscriptionType(): ?GraphQL\Type\Definition\ObjectType
 ```
 
 ```php
@@ -963,7 +963,7 @@ function getSubscriptionType(): GraphQL\Type\Definition\ObjectType
  *
  * @api
  */
-function getType(string $name): GraphQL\Type\Definition\Type
+function getType(string $name): ?GraphQL\Type\Definition\Type
 ```
 
 ```php
@@ -1022,7 +1022,7 @@ function isSubType(
  *
  * @throws InvariantViolation
  */
-function getDirective(string $name): GraphQL\Type\Definition\Directive
+function getDirective(string $name): ?GraphQL\Type\Definition\Directive
 ```
 
 ```php
@@ -1373,7 +1373,7 @@ visitor API:
  *
  * @api
  */
-static function visit(object $root, array $visitor, array $keyMap = null)
+static function visit(object $root, array $visitor, ?array $keyMap = null)
 ```
 
 ```php
@@ -1533,9 +1533,9 @@ static function execute(
     GraphQL\Language\AST\DocumentNode $documentNode,
     $rootValue = null,
     $contextValue = null,
-    array $variableValues = null,
-    string $operationName = null,
-    callable $fieldResolver = null
+    ?array $variableValues = null,
+    ?string $operationName = null,
+    ?callable $fieldResolver = null
 ): GraphQL\Executor\ExecutionResult
 ```
 
@@ -1561,10 +1561,10 @@ static function promiseToExecute(
     GraphQL\Language\AST\DocumentNode $documentNode,
     $rootValue = null,
     $contextValue = null,
-    array $variableValues = null,
-    string $operationName = null,
-    callable $fieldResolver = null,
-    callable $argsMapper = null
+    ?array $variableValues = null,
+    ?string $operationName = null,
+    ?callable $fieldResolver = null,
+    ?callable $argsMapper = null
 ): GraphQL\Executor\Promise\Promise
 ```
 
@@ -1654,7 +1654,7 @@ public $extensions;
  *
  * @api
  */
-function setErrorFormatter(callable $errorFormatter): self
+function setErrorFormatter(?callable $errorFormatter): self
 ```
 
 ```php
@@ -1671,7 +1671,7 @@ function setErrorFormatter(callable $errorFormatter): self
  *
  * @api
  */
-function setErrorsHandler(callable $errorsHandler): self
+function setErrorsHandler(?callable $errorsHandler): self
 ```
 
 ```php
@@ -1728,8 +1728,8 @@ function convertThenable($thenable): GraphQL\Executor\Promise\Promise
  */
 function then(
     GraphQL\Executor\Promise\Promise $promise,
-    callable $onFulfilled = null,
-    callable $onRejected = null
+    ?callable $onFulfilled = null,
+    ?callable $onRejected = null
 ): GraphQL\Executor\Promise\Promise
 ```
 
@@ -1814,8 +1814,8 @@ will be created from the provided schema.
 static function validate(
     GraphQL\Type\Schema $schema,
     GraphQL\Language\AST\DocumentNode $ast,
-    array $rules = null,
-    GraphQL\Utils\TypeInfo $typeInfo = null
+    ?array $rules = null,
+    ?GraphQL\Utils\TypeInfo $typeInfo = null
 ): array
 ```
 
@@ -1844,7 +1844,7 @@ static function allRules(): array
  *
  * @throws \InvalidArgumentException
  */
-static function getRule(string $name): GraphQL\Validator\Rules\ValidationRule
+static function getRule(string $name): ?GraphQL\Validator\Rules\ValidationRule
 ```
 
 ```php
@@ -1912,7 +1912,7 @@ function getLocations(): array
  *
  * @api
  */
-function getPath(): array
+function getPath(): ?array
 ```
 
 ```php
@@ -1924,7 +1924,7 @@ function getPath(): array
  *
  * @api
  */
-function getUnaliasedPath(): array
+function getUnaliasedPath(): ?array
 ```
 
 ## GraphQL\Error\Warning
@@ -1959,7 +1959,7 @@ const ALL = 63;
  *
  * @api
  */
-static function setWarningHandler(callable $warningHandler = null): void
+static function setWarningHandler(?callable $warningHandler = null): void
 ```
 
 ```php
@@ -2067,7 +2067,7 @@ static function setInternalErrorMessage(string $msg): void
 static function createFromException(
     Throwable $exception,
     int $debugFlag = 'GraphQL\\Error\\DebugFlag::NONE',
-    string $internalErrorMessage = null
+    ?string $internalErrorMessage = null
 ): array
 ```
 
@@ -2310,7 +2310,7 @@ function setValidationRules($validationRules): self
  *
  * @api
  */
-function setPersistedQueryLoader(callable $persistedQueryLoader): self
+function setPersistedQueryLoader(?callable $persistedQueryLoader): self
 ```
 
 ```php
@@ -2363,7 +2363,7 @@ Contains functionality that could be re-used by various server implementations.
  *
  * @api
  */
-function parseHttpRequest(callable $readRawBodyFn = null)
+function parseHttpRequest(?callable $readRawBodyFn = null)
 ```
 
 ```php
@@ -2619,9 +2619,9 @@ assumeValidSDL?: bool
  */
 static function build(
     $source,
-    callable $typeConfigDecorator = null,
+    ?callable $typeConfigDecorator = null,
     array $options = [],
-    callable $fieldConfigDecorator = null
+    ?callable $fieldConfigDecorator = null
 ): GraphQL\Type\Schema
 ```
 
@@ -2649,9 +2649,9 @@ static function build(
  */
 static function buildAST(
     GraphQL\Language\AST\DocumentNode $ast,
-    callable $typeConfigDecorator = null,
+    ?callable $typeConfigDecorator = null,
     array $options = [],
-    callable $fieldConfigDecorator = null
+    ?callable $fieldConfigDecorator = null
 ): GraphQL\Type\Schema
 ```
 
@@ -2734,7 +2734,7 @@ static function toArray(GraphQL\Language\AST\Node $node): array
  *
  * @api
  */
-static function astFromValue($value, GraphQL\Type\Definition\InputType $type): GraphQL\Language\AST\ValueNode
+static function astFromValue($value, GraphQL\Type\Definition\InputType $type): ?GraphQL\Language\AST\ValueNode
 ```
 
 ```php
@@ -2767,9 +2767,9 @@ static function astFromValue($value, GraphQL\Type\Definition\InputType $type): G
  * @api
  */
 static function valueFromAST(
-    GraphQL\Language\AST\ValueNode $valueNode,
+    ?GraphQL\Language\AST\ValueNode $valueNode,
     GraphQL\Type\Definition\Type $type,
-    array $variables = null
+    ?array $variables = null
 )
 ```
 
@@ -2798,7 +2798,7 @@ static function valueFromAST(
  *
  * @api
  */
-static function valueFromASTUntyped(GraphQL\Language\AST\Node $valueNode, array $variables = null)
+static function valueFromASTUntyped(GraphQL\Language\AST\Node $valueNode, ?array $variables = null)
 ```
 
 ```php
@@ -2812,7 +2812,7 @@ static function valueFromASTUntyped(GraphQL\Language\AST\Node $valueNode, array 
  *
  * @api
  */
-static function typeFromAST(callable $typeLoader, GraphQL\Language\AST\Node $inputTypeNode): GraphQL\Type\Definition\Type
+static function typeFromAST(callable $typeLoader, GraphQL\Language\AST\Node $inputTypeNode): ?GraphQL\Type\Definition\Type
 ```
 
 ```php
@@ -2823,7 +2823,7 @@ static function typeFromAST(callable $typeLoader, GraphQL\Language\AST\Node $inp
  *
  * @api
  */
-static function getOperationAST(GraphQL\Language\AST\DocumentNode $document, string $operationName = null): GraphQL\Language\AST\OperationDefinitionNode
+static function getOperationAST(GraphQL\Language\AST\DocumentNode $document, ?string $operationName = null): ?GraphQL\Language\AST\OperationDefinitionNode
 ```
 
 ```php
