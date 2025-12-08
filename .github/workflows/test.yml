@@ -37,8 +37,8 @@ jobs:
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "${{ matrix.php-version }}"
           coverage: pcov
+          php-version: "${{ matrix.php-version }}"
 
       - name: Install dependencies with Composer
         uses: ramsey/composer-install@v2
@@ -92,9 +92,8 @@ jobs:
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          # Run on the lowest supported version to ensure compatibility
-          php-version: 7.4
           coverage: none
+          php-version: "7.4"
 
       - name: Install dependencies with Composer
         uses: ramsey/composer-install@v2
