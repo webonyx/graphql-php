@@ -31,7 +31,7 @@ use GraphQL\Utils\Utils;
  *
  * @see \GraphQL\Tests\Language\AST\NodeTest
  */
-abstract class Node implements \Stringable, \JsonSerializable
+abstract class Node implements \JsonSerializable
 {
     public ?Location $loc = null;
 

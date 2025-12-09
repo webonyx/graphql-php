@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.27.2
+
+### Fixed
+
+- Fix PHP 7.4 compatibility broken by `\Stringable` interface https://github.com/webonyx/graphql-php/pull/1810
+
 ## v15.27.1
 
 ### Fixed
