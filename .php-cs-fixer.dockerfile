@@ -7,7 +7,7 @@ RUN apt-get update \
     unzip \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.9 /usr/bin/composer /usr/bin/composer
 
 COPY composer.json /deps/
 RUN composer update --working-dir=/deps --no-interaction --quiet
