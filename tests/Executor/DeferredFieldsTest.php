@@ -789,7 +789,7 @@ final class DeferredFieldsTest extends TestCase
     /**
      * Test nested Deferred fields with DataLoader pattern.
      *
-     * Reproduces the bug from issue #1803 where nested lists returned null
+     * Reproduces the bug from https://github.com/webonyx/graphql-php/issues/1803 where nested lists returned null
      * when using DataLoader-style batching with many items.
      *
      * The scenario: eventDays -> event -> eventDays
