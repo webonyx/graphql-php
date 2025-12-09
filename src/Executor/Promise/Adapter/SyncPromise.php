@@ -57,21 +57,19 @@ class SyncPromise
             $task = $q->dequeue();
 
             if ($task instanceof self) {
-                // Execute promise's stored executor
                 $executor = $task->executor;
-                $task->executor = null; // Clear reference before execution for GC
+                // Clear reference before execution to allow GC to free memory during long-running queues
+                $task->executor = null;
                 assert(is_callable($executor));
                 try {
                     $task->resolve($executor());
                 } catch (\Throwable $e) {
-                    $task->reject($e); // @phpstan-ignore missingType.checkedException (invariant violation - won't happen in normal operation)
+                    $task->reject($e); // @phpstan-ignore missingType.checkedException
                 }
             } elseif (is_array($task)) {
-                // Handle waiting promise callbacks (from enqueueWaitingPromises)
                 /** @var array{self, (callable(mixed): mixed)|null, (callable(\Throwable): mixed)|null, string, mixed} $task */
                 self::processWaitingTask($task);
             } else {
-                // Backward compatibility: execute as callable
                 $task();
             }
 
@@ -86,9 +84,7 @@ class SyncPromise
             return;
         }
 
-        // Store executor on the promise instead of in a closure to reduce memory usage
         $this->executor = $executor;
-        // Queue the promise reference (smaller than a closure)
         self::getQueue()->enqueue($this);
     }
 
@@ -168,14 +164,13 @@ class SyncPromise
             throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
         }
 
-        // Capture state and result as values (not $this reference) to reduce memory footprint
+        // Capture state and result as values rather than $this reference to reduce memory per queued item
         $state = $this->state;
         $result = $this->result;
         $queue = self::getQueue();
 
         foreach ($this->waiting as $descriptor) {
             [$promise, $onFulfilled, $onRejected] = $descriptor;
-            // Queue an array instead of a closure - smaller memory footprint
             $queue->enqueue([$promise, $onFulfilled, $onRejected, $state, $result]);
         }
 
@@ -202,7 +197,7 @@ class SyncPromise
                 }
             }
         } catch (\Throwable $e) {
-            $promise->reject($e); // @phpstan-ignore missingType.checkedException (invariant violation - won't happen in normal operation)
+            $promise->reject($e); // @phpstan-ignore missingType.checkedException
         }
     }
 

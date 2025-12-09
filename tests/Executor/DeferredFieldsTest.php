@@ -690,7 +690,6 @@ final class DeferredFieldsTest extends TestCase
     {
         $itemCount = 600;
 
-        // Simulate a data source (like a database)
         $authorData = [];
         for ($i = 1; $i <= 100; ++$i) {
             $authorData[$i] = ['id' => $i, 'name' => "Author {$i}"];
@@ -705,7 +704,6 @@ final class DeferredFieldsTest extends TestCase
             ];
         }
 
-        // DataLoader simulation - buffers IDs and loads in batch
         $authorBuffer = [];
         $loadedAuthors = [];
         $batchLoadCount = 0;
@@ -714,14 +712,12 @@ final class DeferredFieldsTest extends TestCase
             $authorBuffer[] = $authorId;
 
             return new Deferred(static function () use ($authorId, &$authorBuffer, &$loadedAuthors, &$batchLoadCount, $authorData): ?array {
-                // On first execution, batch load all buffered IDs
                 if ($authorBuffer !== []) {
                     ++$batchLoadCount;
-                    // Simulate batch database query: load all buffered authors at once
                     foreach ($authorBuffer as $id) {
                         $loadedAuthors[$id] = $authorData[$id] ?? null;
                     }
-                    $authorBuffer = []; // Clear buffer after batch load
+                    $authorBuffer = [];
                 }
 
                 return $loadedAuthors[$authorId] ?? null;
@@ -764,14 +760,10 @@ final class DeferredFieldsTest extends TestCase
         $result = Executor::execute($schema, $query);
         $resultArray = $result->toArray();
 
-        // Verify no errors
         self::assertArrayNotHasKey('errors', $resultArray, 'Query should not produce errors');
         self::assertArrayHasKey('data', $resultArray);
-
-        // Verify all books are returned
         self::assertCount($itemCount, $resultArray['data']['books']);
 
-        // Verify no null authors (this was the bug in issue #1803)
         $nullAuthorCount = 0;
         foreach ($resultArray['data']['books'] as $book) {
             if ($book['author'] === null) {
@@ -786,8 +778,6 @@ final class DeferredFieldsTest extends TestCase
             . 'This indicates that batch loading was triggered before all IDs were collected.'
         );
 
-        // Verify batch loading happened only once (DataLoader pattern)
-        // With proper batching, all 600 author loads should be batched into ONE query
         self::assertSame(
             1,
             $batchLoadCount,
@@ -810,9 +800,8 @@ final class DeferredFieldsTest extends TestCase
     public function testNestedDataLoaderPattern(): void
     {
         $eventCount = 50;
-        $daysPerEvent = 15; // Total: 50 * 15 = 750 items
+        $daysPerEvent = 15;
 
-        // Data sources
         $events = [];
         for ($i = 1; $i <= $eventCount; ++$i) {
             $events[$i] = ['id' => $i, 'name' => "Event {$i}"];
@@ -831,7 +820,6 @@ final class DeferredFieldsTest extends TestCase
             }
         }
 
-        // DataLoader for events
         $eventBuffer = [];
         $loadedEvents = [];
         $eventBatchCount = 0;
@@ -852,7 +840,6 @@ final class DeferredFieldsTest extends TestCase
             });
         };
 
-        // DataLoader for event days by event ID
         $eventDaysBuffer = [];
         $loadedEventDays = [];
         $eventDaysBatchCount = 0;
@@ -863,7 +850,6 @@ final class DeferredFieldsTest extends TestCase
             return new Deferred(static function () use ($eventId, &$eventDaysBuffer, &$loadedEventDays, &$eventDaysBatchCount, $eventDays): array {
                 if ($eventDaysBuffer !== []) {
                     ++$eventDaysBatchCount;
-                    // Batch load: group event days by event ID
                     foreach ($eventDaysBuffer as $eId) {
                         $loadedEventDays[$eId] = array_values(array_filter(
                             $eventDays,
@@ -877,7 +863,6 @@ final class DeferredFieldsTest extends TestCase
             });
         };
 
-        // Use by-reference to handle circular type dependencies
         $eventType = null;
 
         $eventDayType = new ObjectType([
@@ -917,8 +902,6 @@ final class DeferredFieldsTest extends TestCase
         ]);
 
         $schema = new Schema(['query' => $queryType]);
-
-        // Query that mirrors the bug report: eventDays -> event -> eventDays
         $query = Parser::parse('
             {
                 eventDays {
@@ -939,14 +922,10 @@ final class DeferredFieldsTest extends TestCase
         $result = Executor::execute($schema, $query);
         $resultArray = $result->toArray();
 
-        // Verify no errors
         self::assertArrayNotHasKey('errors', $resultArray, 'Query should not produce errors');
         self::assertArrayHasKey('data', $resultArray);
+        self::assertCount($eventCount * $daysPerEvent, $resultArray['data']['eventDays']);
 
-        $totalDays = $eventCount * $daysPerEvent;
-        self::assertCount($totalDays, $resultArray['data']['eventDays']);
-
-        // Check for null events (the bug from issue #1803)
         $nullEventCount = 0;
         $nullNestedDaysCount = 0;
 
