@@ -1,4 +1,4 @@
-ARG PHP_VERSION=7.4
+ARG PHP_VERSION
 FROM php:${PHP_VERSION}-cli
 
 RUN apt-get update \
