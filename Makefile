@@ -17,11 +17,11 @@ rector: vendor ## Automatic code fixes with Rector
 
 .PHONY: php-cs-fixer
 php-cs-fixer: ## Fix code style
-	docker build --quiet --tag=graphql-php-cs-fixer-74 --file=.php-cs-fixer.php74.dockerfile .
+	docker build --quiet --tag=graphql-php-cs-fixer-74 --build-arg=PHP_VERSION=7.4 --file=.php-cs-fixer.dockerfile .
 	docker run --rm --volume="$(PWD):/app" --volume=/app/vendor graphql-php-cs-fixer-74 sh -c "composer update --quiet && vendor/bin/php-cs-fixer fix"
-	docker build --quiet --tag=graphql-php-cs-fixer-80 --file=.php-cs-fixer.php80.dockerfile .
+	docker build --quiet --tag=graphql-php-cs-fixer-80 --build-arg=PHP_VERSION=8.0 --file=.php-cs-fixer.dockerfile .
 	docker run --rm --volume="$(PWD):/app" --volume=/app/vendor graphql-php-cs-fixer-80 sh -c "composer update --quiet && vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --path-mode=intersection src/Type/Definition/Deprecated.php src/Type/Definition/Description.php"
-	docker build --quiet --tag=graphql-php-cs-fixer-81 --file=.php-cs-fixer.php81.dockerfile .
+	docker build --quiet --tag=graphql-php-cs-fixer-81 --build-arg=PHP_VERSION=8.1 --file=.php-cs-fixer.dockerfile .
 	docker run --rm --volume="$(PWD):/app" --volume=/app/vendor graphql-php-cs-fixer-81 sh -c "composer update --quiet && vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --path-mode=intersection src/Type/Definition/PhpEnumType.php tests/Type/PhpEnumType"
 
 .PHONY: prettier

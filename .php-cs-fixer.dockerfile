@@ -1,4 +1,5 @@
-FROM php:8.0-cli
+ARG PHP_VERSION=7.4
+FROM php:${PHP_VERSION}-cli
 
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends \
