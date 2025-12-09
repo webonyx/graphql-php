@@ -773,7 +773,7 @@ final class DeferredFieldsTest extends TestCase
 
         // Verify no null authors (this was the bug in issue #1803)
         $nullAuthorCount = 0;
-        foreach ($resultArray['data']['books'] as $index => $book) {
+        foreach ($resultArray['data']['books'] as $book) {
             if ($book['author'] === null) {
                 ++$nullAuthorCount;
             }
