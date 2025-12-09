@@ -159,7 +159,7 @@ abstract class ValidatorTestCase extends TestCase
             'name' => 'Human',
             'interfaces' => [$Being, $Intelligent],
             'fields' => static function () use (&$Human, $Pet): array {
-                assert($Human instanceof ObjectType);
+                self::assertInstanceOf(ObjectType::class, $Human);
 
                 return [
                     'name' => [

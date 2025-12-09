@@ -42,7 +42,7 @@ final class UnionInterfaceTest extends TestCase
         $LifeType = new InterfaceType([
             'name' => 'Life',
             'fields' => static function () use (&$LifeType): array {
-                assert($LifeType instanceof InterfaceType);
+                self::assertInstanceOf(InterfaceType::class, $LifeType);
 
                 return [
                     'progeny' => ['type' => Type::listOf($LifeType)],
@@ -54,7 +54,7 @@ final class UnionInterfaceTest extends TestCase
             'name' => 'Mammal',
             'interfaces' => [$LifeType],
             'fields' => static function () use (&$MammalType): array {
-                assert($MammalType instanceof InterfaceType);
+                self::assertInstanceOf(InterfaceType::class, $MammalType);
 
                 return [
                     'progeny' => ['type' => Type::listOf($MammalType)],
@@ -68,7 +68,7 @@ final class UnionInterfaceTest extends TestCase
             'name' => 'Dog',
             'interfaces' => [$MammalType, $LifeType, $NamedType],
             'fields' => static function () use (&$DogType): array {
-                assert($DogType instanceof ObjectType);
+                self::assertInstanceOf(ObjectType::class, $DogType);
 
                 return [
                     'name' => ['type' => Type::string()],
@@ -85,7 +85,7 @@ final class UnionInterfaceTest extends TestCase
             'name' => 'Cat',
             'interfaces' => [$MammalType, $LifeType, $NamedType],
             'fields' => static function () use (&$CatType): array {
-                assert($CatType instanceof ObjectType);
+                self::assertInstanceOf(ObjectType::class, $CatType);
 
                 return [
                     'name' => ['type' => Type::string()],
@@ -118,7 +118,7 @@ final class UnionInterfaceTest extends TestCase
             'name' => 'Person',
             'interfaces' => [$NamedType, $MammalType, $LifeType],
             'fields' => static function () use (&$PetType, &$NamedType, &$PersonType): array {
-                assert($PersonType instanceof ObjectType);
+                self::assertInstanceOf(ObjectType::class, $PersonType);
 
                 return [
                     'name' => ['type' => Type::string()],

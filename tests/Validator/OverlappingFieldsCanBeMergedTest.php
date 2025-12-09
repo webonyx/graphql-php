@@ -664,7 +664,7 @@ final class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
             'name' => 'StringBox',
             'interfaces' => [$SomeBox],
             'fields' => static function () use (&$StringBox, &$IntBox): array {
-                assert($StringBox instanceof ObjectType);
+                self::assertInstanceOf(ObjectType::class, $StringBox);
 
                 return [
                     'scalar' => ['type' => Type::string()],
