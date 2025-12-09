@@ -68,7 +68,7 @@ $server = new GraphQL\Server\StandardServer();
 
 ## v0.13.x > v14.x.x
 
-### BREAKING: Strict coercion of scalar types (#278)
+### BREAKING: Strict coercion of scalar types (https://github.com/webonyx/graphql-php/issues/278)
 
 **Impact: Major**
 
