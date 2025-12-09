@@ -766,6 +766,7 @@ final class DeferredFieldsTest extends TestCase
 
         // Verify no errors
         self::assertArrayNotHasKey('errors', $resultArray, 'Query should not produce errors');
+        self::assertArrayHasKey('data', $resultArray);
 
         // Verify all books are returned
         self::assertCount($itemCount, $resultArray['data']['books']);
@@ -940,6 +941,7 @@ final class DeferredFieldsTest extends TestCase
 
         // Verify no errors
         self::assertArrayNotHasKey('errors', $resultArray, 'Query should not produce errors');
+        self::assertArrayHasKey('data', $resultArray);
 
         $totalDays = $eventCount * $daysPerEvent;
         self::assertCount($totalDays, $resultArray['data']['eventDays']);
