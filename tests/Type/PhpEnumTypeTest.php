@@ -152,7 +152,7 @@ GRAPHQL, SchemaPrinter::printType($enumType));
                         ],
                         'resolve' => static function ($_, array $args): PhpEnum {
                             $bar = $args['bar'];
-                            assert($bar === PhpEnum::A);
+                            self::assertSame(PhpEnum::A, $bar);
 
                             return $bar;
                         },
@@ -208,9 +208,9 @@ GRAPHQL, SchemaPrinter::printType($enumType));
                         ],
                         'resolve' => static function (bool $executeAgain, array $args, $context, ResolveInfo $resolveInfo) use (&$schema): PhpEnum {
                             $bar = $args['bar'];
-                            assert($bar === PhpEnum::A);
+                            self::assertSame(PhpEnum::A, $bar);
 
-                            assert($schema instanceof Schema);
+                            self::assertInstanceOf(Schema::class, $schema);
 
                             if ($executeAgain) {
                                 $executionResult = GraphQL::executeQuery(
