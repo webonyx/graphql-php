@@ -11,6 +11,6 @@ COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
 
 COPY composer.json /deps/
 RUN composer update --working-dir=/deps --no-interaction --quiet
-ENTRYPOINT ["php", "/deps/vendor/bin/php-cs-fixer", "fix", "--config=/app/.php-cs-fixer.php"]
+ENTRYPOINT ["/deps/vendor/bin/php-cs-fixer", "fix", "--config=/app/.php-cs-fixer.php"]
 
 WORKDIR /app
