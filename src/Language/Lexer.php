@@ -269,21 +269,10 @@ class Lexer
      */
     private function readName(int $line, int $col, Token $prev): Token
     {
-        $value = '';
         $start = $this->position;
-        [$char, $code] = $this->readChar();
-
-        while (
-            $code !== null && (
-                $code === 95 // _
-                || ($code >= 48 && $code <= 57) // 0-9
-                || ($code >= 65 && $code <= 90) // A-Z
-                || ($code >= 97 && $code <= 122) // a-z
-            )
-        ) {
-            $value .= $char;
-            [$char, $code] = $this->moveStringCursor(1, 1)->readChar();
-        }
+        $length = strspn($this->source->body, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_', $this->byteStreamPosition);
+        $value = substr($this->source->body, $this->byteStreamPosition, $length);
+        $this->moveStringCursor($length, $length);
 
         return new Token(
             Token::NAME,
