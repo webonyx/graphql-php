@@ -270,8 +270,9 @@ class Lexer
     private function readName(int $line, int $col, Token $prev): Token
     {
         $start = $this->position;
-        $length = strspn($this->source->body, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_', $this->byteStreamPosition);
-        $value = substr($this->source->body, $this->byteStreamPosition, $length);
+        $body = $this->source->body;
+        $length = strspn($body, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_', $this->byteStreamPosition);
+        $value = substr($body, $this->byteStreamPosition, $length);
         $this->moveStringCursor($length, $length);
 
         return new Token(
