@@ -52,7 +52,7 @@ jobs:
           composer test -- --coverage-clover=coverage.xml
 
       - name: Upload coverage file
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: phpunit-${{ matrix.dependencies }}-${{ matrix.php-version }}.coverage
           path: coverage.xml
@@ -70,7 +70,7 @@ jobs:
           fetch-depth: 2
 
       - name: Download coverage files
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: reports
 
