@@ -25,20 +25,21 @@ class SyncPromise
 
     public string $state = self::PENDING;
 
+    /**
+     * Stored executor for deferred execution.
+     * Storing on the promise instead of in a closure reduces memory usage.
+     *
+     * @var (callable(): mixed)|null
+     */
+    private $executor;
+
     /** @var mixed */
     public $result;
 
     /**
      * Promises created in `then` method of this promise and awaiting resolution of this promise.
      *
-     * @var array<
-     *     int,
-     *     array{
-     *         self,
-     *         (callable(mixed): mixed)|null,
-     *         (callable(\Throwable): mixed)|null
-     *     }
-     * >
+     * @var array<int, \SplFixedArray<mixed>>
      */
     protected array $waiting = [];
 
@@ -47,7 +48,24 @@ class SyncPromise
         $q = self::getQueue();
         while (! $q->isEmpty()) {
             $task = $q->dequeue();
-            $task();
+
+            if ($task instanceof self) {
+                $executor = $task->executor;
+                // Clear reference before execution to allow GC to free memory during long-running queues
+                $task->executor = null;
+                assert(is_callable($executor));
+                try {
+                    $task->resolve($executor());
+                } catch (\Throwable $e) {
+                    $task->reject($e); // @phpstan-ignore missingType.checkedException
+                }
+            } elseif ($task instanceof \SplFixedArray) {
+                self::processWaitingTask($task);
+            } else {
+                $task();
+            }
+
+            unset($task);
         }
     }
 
@@ -58,13 +76,8 @@ class SyncPromise
             return;
         }
 
-        self::getQueue()->enqueue(function () use ($executor): void {
-            try {
-                $this->resolve($executor());
-            } catch (\Throwable $e) {
-                $this->reject($e);
-            }
-        });
+        $this->executor = $executor;
+        self::getQueue()->enqueue($this);
     }
 
     /**
@@ -143,34 +156,45 @@ class SyncPromise
             throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
         }
 
-        foreach ($this->waiting as $descriptor) {
-            self::getQueue()->enqueue(function () use ($descriptor): void {
-                [$promise, $onFulfilled, $onRejected] = $descriptor;
+        // Capture state and result as values rather than $this reference to reduce memory per queued item
+        $state = $this->state;
+        $result = $this->result;
+        $queue = self::getQueue();
 
-                if ($this->state === self::FULFILLED) {
-                    try {
-                        $promise->resolve($onFulfilled === null ? $this->result : $onFulfilled($this->result));
-                    } catch (\Throwable $e) {
-                        $promise->reject($e);
-                    }
-                } elseif ($this->state === self::REJECTED) {
-                    try {
-                        if ($onRejected === null) {
-                            $promise->reject($this->result);
-                        } else {
-                            $promise->resolve($onRejected($this->result));
-                        }
-                    } catch (\Throwable $e) {
-                        $promise->reject($e);
-                    }
-                }
-            });
+        foreach ($this->waiting as $descriptor) {
+            $descriptor[3] = $state;
+            $descriptor[4] = $result;
+            $queue->enqueue($descriptor);
         }
 
         $this->waiting = [];
     }
 
-    /** @return \SplQueue<callable(): void> */
+    /**
+     * Process a waiting promise task from the queue.
+     *
+     * @param \SplFixedArray<mixed> $task
+     */
+    private static function processWaitingTask(\SplFixedArray $task): void
+    {
+        [$promise, $onFulfilled, $onRejected, $state, $result] = $task;
+
+        try {
+            if ($state === self::FULFILLED) {
+                $promise->resolve($onFulfilled === null ? $result : $onFulfilled($result));
+            } elseif ($state === self::REJECTED) {
+                if ($onRejected === null) {
+                    $promise->reject($result);
+                } else {
+                    $promise->resolve($onRejected($result));
+                }
+            }
+        } catch (\Throwable $e) {
+            $promise->reject($e);
+        }
+    }
+
+    /** @return \SplQueue<self|\SplFixedArray<mixed>|callable(): void> */
     public static function getQueue(): \SplQueue
     {
         static $queue;
@@ -195,7 +219,7 @@ class SyncPromise
         }
 
         $tmp = new self();
-        $this->waiting[] = [$tmp, $onFulfilled, $onRejected];
+        $this->waiting[] = \SplFixedArray::fromArray([$tmp, $onFulfilled, $onRejected, null, null]);
 
         if ($this->state !== self::PENDING) {
             $this->enqueueWaitingPromises();
