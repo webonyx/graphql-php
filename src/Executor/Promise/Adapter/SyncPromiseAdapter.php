@@ -47,7 +47,7 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function create(callable $resolver): Promise
     {
-        $promise = new SyncPromise();
+        $promise = new ChildSyncPromise();
 
         try {
             $resolver(
@@ -67,7 +67,7 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function createFulfilled($value = null): Promise
     {
-        $promise = new SyncPromise();
+        $promise = new ChildSyncPromise();
 
         return new Promise($promise->resolve($value), $this);
     }
@@ -78,7 +78,7 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function createRejected(\Throwable $reason): Promise
     {
-        $promise = new SyncPromise();
+        $promise = new ChildSyncPromise();
 
         return new Promise($promise->reject($reason), $this);
     }
@@ -89,7 +89,7 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function all(iterable $promisesOrValues): Promise
     {
-        $all = new SyncPromise();
+        $all = new ChildSyncPromise();
 
         $total = is_array($promisesOrValues)
             ? count($promisesOrValues)

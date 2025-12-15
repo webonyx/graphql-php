@@ -5,19 +5,14 @@ namespace GraphQL\Executor\Promise\Adapter;
 use GraphQL\Error\InvariantViolation;
 
 /**
- * Simplistic (yet full-featured) implementation of Promises A+ spec for regular PHP `sync` mode
- * (using queue to defer promises execution).
+ * Base class for synchronous promises implementing Promises A+ spec.
  *
- * Library users are not supposed to use SyncPromise class in their resolvers.
- * Instead, they should use @see \GraphQL\Deferred which enforces `$executor` callback in the constructor.
+ * Library users should use @see \GraphQL\Deferred to create promises.
  *
- * Root SyncPromise without explicit `$executor` will never resolve (actually throw while trying).
- * The whole point of Deferred is to ensure it never happens and that any resolver creates
- * at least one $executor to start the promise chain.
- *
- * @phpstan-type Executor callable(): mixed
+ * @see RootSyncPromise for promises created with an executor
+ * @see ChildSyncPromise for promises created via then() chaining
  */
-class SyncPromise
+abstract class SyncPromise
 {
     public const PENDING = 'pending';
     public const FULFILLED = 'fulfilled';
@@ -34,54 +29,14 @@ class SyncPromise
     public $result;
 
     /**
-     * Promises waiting for this promise to resolve.
+     * Child promises waiting for this promise to resolve.
      *
-     * @var array<int, self>
+     * @var array<int, ChildSyncPromise>
      */
     protected array $waiting = [];
 
-    /**
-     * Executor for deferred execution (root promises only).
-     *
-     * @var (callable(): mixed)|null
-     */
-    protected $executor;
-
-    /**
-     * Callback when parent fulfills (child promises only).
-     *
-     * @var (callable(mixed): mixed)|null
-     */
-    protected $waitingOnFulfilled;
-
-    /**
-     * Callback when parent rejects (child promises only).
-     *
-     * @var (callable(\Throwable): mixed)|null
-     */
-    protected $waitingOnRejected;
-
-    /** Parent promise state when this child was enqueued. */
-    protected ?string $waitingState = null;
-
-    /**
-     * Parent promise result when this child was enqueued.
-     *
-     * @var mixed
-     */
-    protected $waitingResult;
-
-    /** @param Executor|null $executor */
-    public function __construct(?callable $executor = null)
-    {
-        if ($executor === null) {
-            return;
-        }
-
-        $this->executor = $executor;
-
-        SyncPromiseQueue::getInstance()->enqueue($this);
-    }
+    /** Execute the queued task for this promise. */
+    abstract public function runQueuedTask(): void;
 
     /**
      * @param mixed $value
@@ -160,53 +115,28 @@ class SyncPromise
      */
     public function then(?callable $onFulfilled = null, ?callable $onRejected = null): self
     {
-        if ($this->state === self::REJECTED && $onRejected === null) {
+        if ($this->state === self::REJECTED
+            && $onRejected === null
+        ) {
             return $this;
         }
 
-        if ($this->state === self::FULFILLED && $onFulfilled === null) {
+        if ($this->state === self::FULFILLED
+            && $onFulfilled === null
+        ) {
             return $this;
         }
 
-        $tmp = new self();
-        $tmp->waitingOnFulfilled = $onFulfilled;
-        $tmp->waitingOnRejected = $onRejected;
-        $this->waiting[] = $tmp;
+        $child = new ChildSyncPromise();
+        $child->onFulfilled = $onFulfilled;
+        $child->onRejected = $onRejected;
+        $this->waiting[] = $child;
 
         if ($this->state !== self::PENDING) {
             $this->enqueueWaitingPromises();
         }
 
-        return $tmp;
-    }
-
-    /**
-     * @param callable(\Throwable): mixed $onRejected
-     *
-     * @throws InvariantViolation
-     *
-     * @deprecated TODO remove in next major version, use ->then(null, $onRejected) instead
-     */
-    public function catch(callable $onRejected): self
-    {
-        return $this->then(null, $onRejected);
-    }
-
-    /** Handles both root promises (with executor) and child promises (waiting on parent). */
-    public function runQueuedTask(): void
-    {
-        $executor = $this->executor;
-
-        if ($executor !== null) {
-            $this->executor = null;
-            try {
-                $this->resolve($executor());
-            } catch (\Throwable $e) {
-                $this->reject($e); // @phpstan-ignore missingType.checkedException
-            }
-        } elseif ($this->waitingState !== null) {
-            $this->processWaitingTask(); // @phpstan-ignore missingType.checkedException
-        }
+        return $child;
     }
 
     /** @throws InvariantViolation */
@@ -220,46 +150,12 @@ class SyncPromise
         $result = $this->result;
         $queue = SyncPromiseQueue::getInstance();
 
-        foreach ($this->waiting as $promise) {
-            $promise->waitingState = $state;
-            $promise->waitingResult = $result;
-            $queue->enqueue($promise);
+        foreach ($this->waiting as $child) {
+            $child->parentState = $state;
+            $child->parentResult = $result;
+            $queue->enqueue($child);
         }
 
         $this->waiting = [];
-    }
-
-    /**
-     * Process this promise as a waiting task (child promise awaiting parent resolution).
-     *
-     * @throws \Exception
-     */
-    protected function processWaitingTask(): void
-    {
-        $onFulfilled = $this->waitingOnFulfilled;
-        $onRejected = $this->waitingOnRejected;
-        $state = $this->waitingState;
-        $result = $this->waitingResult;
-
-        $this->waitingOnFulfilled = null;
-        $this->waitingOnRejected = null;
-        $this->waitingState = null;
-        $this->waitingResult = null;
-
-        try {
-            if ($state === self::FULFILLED) {
-                $this->resolve($onFulfilled !== null
-                    ? $onFulfilled($result)
-                    : $result);
-            } elseif ($state === self::REJECTED) {
-                if ($onRejected === null) {
-                    $this->reject($result);
-                } else {
-                    $this->resolve($onRejected($result));
-                }
-            }
-        } catch (\Throwable $e) {
-            $this->reject($e);
-        }
     }
 }

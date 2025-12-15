@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Executor\Promise;
 
 use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Executor\Promise\Adapter\ChildSyncPromise;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseQueue;
@@ -128,8 +129,8 @@ final class SyncPromiseAdapterTest extends TestCase
         $promise = $this->promises->all(['1']);
         self::assertValidPromise($promise, null, ['1'], SyncPromise::FULFILLED);
 
-        $promise1 = new SyncPromise();
-        $promise2 = new SyncPromise();
+        $promise1 = new ChildSyncPromise();
+        $promise2 = new ChildSyncPromise();
         $promise3 = $promise2->then(static fn ($value): string => $value . '-value3');
 
         $data = [
