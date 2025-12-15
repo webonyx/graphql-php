@@ -67,29 +67,6 @@ class SyncPromise
      */
     private $waitingResult;
 
-    public static function runQueue(): void
-    {
-        $queue = self::getQueue();
-        while (! $queue->isEmpty()) {
-            $task = $queue->dequeue();
-
-            $executor = $task->executor;
-            if ($executor !== null) {
-                // Allow garbage collection to free memory during long-running queues
-                $task->executor = null;
-                try {
-                    $task->resolve($executor());
-                } catch (\Throwable $e) {
-                    $task->reject($e); // @phpstan-ignore missingType.checkedException
-                }
-            } elseif ($task->waitingState !== null) {
-                self::processWaitingTask($task); // @phpstan-ignore missingType.checkedException
-            }
-
-            unset($task);
-        }
-    }
-
     /** @param Executor|null $executor */
     public function __construct(?callable $executor = null)
     {
@@ -99,8 +76,30 @@ class SyncPromise
 
         $this->executor = $executor;
 
-        $queue = self::getQueue();
+        $queue = SyncPromiseQueue::getInstance();
         $queue->enqueue($this);
+    }
+
+    /**
+     * Execute the queued task for this promise.
+     *
+     * Handles both root promises (with executor) and child promises (waiting on parent).
+     */
+    public function runQueuedTask(): void
+    {
+        $executor = $this->executor;
+
+        if ($executor !== null) {
+            // Allow garbage collection to free memory during long-running queues
+            $this->executor = null;
+            try {
+                $this->resolve($executor());
+            } catch (\Throwable $e) {
+                $this->reject($e); // @phpstan-ignore missingType.checkedException
+            }
+        } elseif ($this->waitingState !== null) {
+            $this->processWaitingTask(); // @phpstan-ignore missingType.checkedException
+        }
     }
 
     /**
@@ -179,10 +178,9 @@ class SyncPromise
             throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
         }
 
-        // Capture state and result as values rather than $this reference to reduce memory per queued item
         $state = $this->state;
         $result = $this->result;
-        $queue = self::getQueue();
+        $queue = SyncPromiseQueue::getInstance();
 
         foreach ($this->waiting as $promise) {
             $promise->waitingState = $state;
@@ -194,46 +192,38 @@ class SyncPromise
     }
 
     /**
-     * Process a waiting promise task from the queue.
+     * Process this promise as a waiting task (child promise awaiting parent resolution).
      *
      * @throws \Exception
      */
-    private static function processWaitingTask(self $task): void
+    private function processWaitingTask(): void
     {
         // Unpack and clear references to allow garbage collection
-        $onFulfilled = $task->waitingOnFulfilled;
-        $onRejected = $task->waitingOnRejected;
-        $state = $task->waitingState;
-        $result = $task->waitingResult;
+        $onFulfilled = $this->waitingOnFulfilled;
+        $onRejected = $this->waitingOnRejected;
+        $state = $this->waitingState;
+        $result = $this->waitingResult;
 
-        $task->waitingOnFulfilled = null;
-        $task->waitingOnRejected = null;
-        $task->waitingState = null;
-        $task->waitingResult = null;
+        $this->waitingOnFulfilled = null;
+        $this->waitingOnRejected = null;
+        $this->waitingState = null;
+        $this->waitingResult = null;
 
         try {
             if ($state === self::FULFILLED) {
-                $task->resolve($onFulfilled !== null
+                $this->resolve($onFulfilled !== null
                     ? $onFulfilled($result)
                     : $result);
             } elseif ($state === self::REJECTED) {
                 if ($onRejected === null) {
-                    $task->reject($result);
+                    $this->reject($result);
                 } else {
-                    $task->resolve($onRejected($result));
+                    $this->resolve($onRejected($result));
                 }
             }
         } catch (\Throwable $e) {
-            $task->reject($e);
+            $this->reject($e);
         }
-    }
-
-    /** @return \SplQueue<self> */
-    public static function getQueue(): \SplQueue
-    {
-        static $queue;
-
-        return $queue ??= new \SplQueue();
     }
 
     /**

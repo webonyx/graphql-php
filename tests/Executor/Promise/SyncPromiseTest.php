@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Executor\Promise;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
+use GraphQL\Executor\Promise\Adapter\SyncPromiseQueue;
 use GraphQL\Tests\TestCaseBase;
 
 final class SyncPromiseTest extends TestCaseBase
@@ -125,7 +126,7 @@ final class SyncPromiseTest extends TestCaseBase
             self::assertNotSame($nextPromise, $nextPromise2);
         }
 
-        SyncPromise::runQueue();
+        SyncPromiseQueue::getInstance()->run();
 
         self::assertValidPromise($nextPromise2, $expectedNextValue, $expectedNextReason, $expectedNextState);
         self::assertValidPromise($nextPromise3, $expectedNextValue, $expectedNextReason, $expectedNextState);
@@ -161,7 +162,7 @@ final class SyncPromiseTest extends TestCaseBase
         self::assertFalse($onFulfilledCalled);
         self::assertFalse($onRejectedCalled);
 
-        SyncPromise::runQueue();
+        SyncPromiseQueue::getInstance()->run();
 
         if ($expectedNextReason === null) {
             self::assertTrue($onFulfilledCalled); // @phpstan-ignore-line value is mutable
@@ -296,7 +297,7 @@ final class SyncPromiseTest extends TestCaseBase
             self::assertNotSame($nextPromise, $nextPromise2);
         }
 
-        SyncPromise::runQueue();
+        SyncPromiseQueue::getInstance()->run();
 
         self::assertValidPromise($nextPromise2, $expectedNextValue, $expectedNextReason, $expectedNextState);
         self::assertValidPromise($nextPromise3, $expectedNextValue, $expectedNextReason, $expectedNextState);
@@ -390,12 +391,12 @@ final class SyncPromiseTest extends TestCaseBase
         $nextPromise3 = $promise->then($onFulfilled, $onRejected);
         $nextPromise4 = $promise->then($onFulfilled, $onRejected);
 
-        self::assertCount(0, SyncPromise::getQueue());
+        self::assertSame(0, SyncPromiseQueue::getInstance()->count());
         self::assertSame(0, $onFulfilledCount);
         self::assertSame(0, $onRejectedCount);
         $promise->resolve(1);
 
-        self::assertCount(4, SyncPromise::getQueue());
+        self::assertSame(4, SyncPromiseQueue::getInstance()->count());
         self::assertSame(0, $onFulfilledCount); // @phpstan-ignore-line side-effects
         self::assertSame(0, $onRejectedCount); // @phpstan-ignore-line side-effects
         self::assertSame(SyncPromise::PENDING, $nextPromise->state);
@@ -403,8 +404,8 @@ final class SyncPromiseTest extends TestCaseBase
         self::assertSame(SyncPromise::PENDING, $nextPromise3->state);
         self::assertSame(SyncPromise::PENDING, $nextPromise4->state);
 
-        SyncPromise::runQueue();
-        self::assertCount(0, SyncPromise::getQueue());
+        SyncPromiseQueue::getInstance()->run();
+        self::assertSame(0, SyncPromiseQueue::getInstance()->count());
         self::assertSame(3, $onFulfilledCount); // @phpstan-ignore-line side-effects
         self::assertSame(0, $onRejectedCount); // @phpstan-ignore-line side-effects
         self::assertValidPromise($nextPromise, 1, null, SyncPromise::FULFILLED);
@@ -415,7 +416,7 @@ final class SyncPromiseTest extends TestCaseBase
 
     public function testRunEmptyQueue(): void
     {
-        SyncPromise::runQueue();
+        SyncPromiseQueue::getInstance()->run();
         $this->assertDidNotCrash();
     }
 }
