@@ -39,9 +39,33 @@ class SyncPromise
     /**
      * Promises created in `then` method of this promise and awaiting resolution of this promise.
      *
-     * @var array<int, \SplFixedArray<mixed>>
+     * @var array<int, self>
      */
     protected array $waiting = [];
+
+    /**
+     * Callback to execute when parent promise fulfills (for waiting promises).
+     *
+     * @var (callable(mixed): mixed)|null
+     */
+    private $waitingOnFulfilled;
+
+    /**
+     * Callback to execute when parent promise rejects (for waiting promises).
+     *
+     * @var (callable(\Throwable): mixed)|null
+     */
+    private $waitingOnRejected;
+
+    /** State of the parent promise when this waiting promise was enqueued. */
+    private ?string $waitingState = null;
+
+    /**
+     * Result of the parent promise when this waiting promise was enqueued.
+     *
+     * @var mixed
+     */
+    private $waitingResult;
 
     public static function runQueue(): void
     {
@@ -49,18 +73,17 @@ class SyncPromise
         while (! $queue->isEmpty()) {
             $task = $queue->dequeue();
 
-            if ($task instanceof self) {
+            if ($task->executor !== null) {
                 $executor = $task->executor;
                 // Clear reference before execution to allow GC to free memory during long-running queues
                 $task->executor = null;
-                assert(is_callable($executor));
                 try {
                     $task->resolve($executor());
                 } catch (\Throwable $e) {
                     $task->reject($e); // @phpstan-ignore missingType.checkedException
                 }
-            } else {
-                self::processWaitingTask($task);
+            } elseif ($task->waitingState !== null) {
+                self::processWaitingTask($task); // @phpstan-ignore missingType.checkedException
             }
 
             unset($task);
@@ -161,10 +184,10 @@ class SyncPromise
         $result = $this->result;
         $queue = self::getQueue();
 
-        foreach ($this->waiting as $descriptor) {
-            $descriptor[3] = $state;
-            $descriptor[4] = $result;
-            $queue->enqueue($descriptor);
+        foreach ($this->waiting as $promise) {
+            $promise->waitingState = $state;
+            $promise->waitingResult = $result;
+            $queue->enqueue($promise);
         }
 
         $this->waiting = [];
@@ -173,28 +196,37 @@ class SyncPromise
     /**
      * Process a waiting promise task from the queue.
      *
-     * @param \SplFixedArray<mixed> $task
+     * @throws \Exception
      */
-    private static function processWaitingTask(\SplFixedArray $task): void
+    private static function processWaitingTask(self $task): void
     {
-        [$promise, $onFulfilled, $onRejected, $state, $result] = $task;
+        $onFulfilled = $task->waitingOnFulfilled;
+        $onRejected = $task->waitingOnRejected;
+        $state = $task->waitingState;
+        $result = $task->waitingResult;
+
+        // Clear references to allow GC
+        $task->waitingOnFulfilled = null;
+        $task->waitingOnRejected = null;
+        $task->waitingState = null;
+        $task->waitingResult = null;
 
         try {
             if ($state === self::FULFILLED) {
-                $promise->resolve($onFulfilled === null ? $result : $onFulfilled($result));
+                $task->resolve($onFulfilled === null ? $result : $onFulfilled($result));
             } elseif ($state === self::REJECTED) {
                 if ($onRejected === null) {
-                    $promise->reject($result);
+                    $task->reject($result);
                 } else {
-                    $promise->resolve($onRejected($result));
+                    $task->resolve($onRejected($result));
                 }
             }
         } catch (\Throwable $e) {
-            $promise->reject($e);
+            $task->reject($e);
         }
     }
 
-    /** @return \SplQueue<self|\SplFixedArray<mixed>> */
+    /** @return \SplQueue<self> */
     public static function getQueue(): \SplQueue
     {
         static $queue;
@@ -219,7 +251,9 @@ class SyncPromise
         }
 
         $tmp = new self();
-        $this->waiting[] = \SplFixedArray::fromArray([$tmp, $onFulfilled, $onRejected, null, null]);
+        $tmp->waitingOnFulfilled = $onFulfilled;
+        $tmp->waitingOnRejected = $onRejected;
+        $this->waiting[] = $tmp;
 
         if ($this->state !== self::PENDING) {
             $this->enqueueWaitingPromises();
