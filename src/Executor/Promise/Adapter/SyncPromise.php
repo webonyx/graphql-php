@@ -26,25 +26,49 @@ class SyncPromise
     /** Current promise state: PENDING, FULFILLED, or REJECTED. */
     public string $state = self::PENDING;
 
-    /** @var mixed Resolved value or rejection reason. */
+    /**
+     * Resolved value or rejection reason.
+     *
+     * @var mixed
+     */
     public $result;
 
-    /** @var array<int, self> Promises waiting for this promise to resolve. */
+    /**
+     * Promises waiting for this promise to resolve.
+     *
+     * @var array<int, self>
+     */
     protected array $waiting = [];
 
-    /** @var (callable(): mixed)|null Executor for deferred execution (root promises only). */
+    /**
+     * Executor for deferred execution (root promises only).
+     *
+     * @var (callable(): mixed)|null
+     */
     protected $executor;
 
-    /** @var (callable(mixed): mixed)|null Callback when parent fulfills (child promises only). */
+    /**
+     * Callback when parent fulfills (child promises only).
+     *
+     * @var (callable(mixed): mixed)|null
+     */
     protected $waitingOnFulfilled;
 
-    /** @var (callable(\Throwable): mixed)|null Callback when parent rejects (child promises only). */
+    /**
+     * Callback when parent rejects (child promises only).
+     *
+     * @var (callable(\Throwable): mixed)|null
+     */
     protected $waitingOnRejected;
 
     /** Parent promise state when this child was enqueued. */
     protected ?string $waitingState = null;
 
-    /** @var mixed Parent promise result when this child was enqueued. */
+    /**
+     * Parent promise result when this child was enqueued.
+     *
+     * @var mixed
+     */
     protected $waitingResult;
 
     /** @param Executor|null $executor */
