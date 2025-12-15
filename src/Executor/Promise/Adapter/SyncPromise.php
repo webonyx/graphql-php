@@ -200,12 +200,12 @@ class SyncPromise
      */
     private static function processWaitingTask(self $task): void
     {
+        // Unpack and clear references to allow garbage collection
         $onFulfilled = $task->waitingOnFulfilled;
         $onRejected = $task->waitingOnRejected;
         $state = $task->waitingState;
         $result = $task->waitingResult;
 
-        // Clear references to allow GC
         $task->waitingOnFulfilled = null;
         $task->waitingOnRejected = null;
         $task->waitingState = null;
@@ -213,7 +213,9 @@ class SyncPromise
 
         try {
             if ($state === self::FULFILLED) {
-                $task->resolve($onFulfilled === null ? $result : $onFulfilled($result));
+                $task->resolve($onFulfilled !== null
+                    ? $onFulfilled($result)
+                    : $result);
             } elseif ($state === self::REJECTED) {
                 if ($onRejected === null) {
                     $task->reject($result);
