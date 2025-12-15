@@ -73,9 +73,9 @@ class SyncPromise
         while (! $queue->isEmpty()) {
             $task = $queue->dequeue();
 
-            if ($task->executor !== null) {
-                $executor = $task->executor;
-                // Clear reference before execution to allow GC to free memory during long-running queues
+            $executor = $task->executor;
+            if ($executor !== null) {
+                // Allow garbage collection to free memory during long-running queues
                 $task->executor = null;
                 try {
                     $task->resolve($executor());
