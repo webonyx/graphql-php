@@ -56,30 +56,7 @@ class SyncPromise
 
         $this->executor = $executor;
 
-        $queue = SyncPromiseQueue::getInstance();
-        $queue->enqueue($this);
-    }
-
-    /**
-     * Execute the queued task for this promise.
-     *
-     * Handles both root promises (with executor) and child promises (waiting on parent).
-     */
-    public function runQueuedTask(): void
-    {
-        $executor = $this->executor;
-
-        if ($executor !== null) {
-            // Allow garbage collection to free memory during long-running queues
-            $this->executor = null;
-            try {
-                $this->resolve($executor());
-            } catch (\Throwable $e) {
-                $this->reject($e); // @phpstan-ignore missingType.checkedException
-            }
-        } elseif ($this->waitingState !== null) {
-            $this->processWaitingTask(); // @phpstan-ignore missingType.checkedException
-        }
+        SyncPromiseQueue::getInstance()->enqueue($this);
     }
 
     /**
@@ -151,61 +128,6 @@ class SyncPromise
         return $this;
     }
 
-    /** @throws InvariantViolation */
-    protected function enqueueWaitingPromises(): void
-    {
-        if ($this->state === self::PENDING) {
-            throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
-        }
-
-        $state = $this->state;
-        $result = $this->result;
-        $queue = SyncPromiseQueue::getInstance();
-
-        foreach ($this->waiting as $promise) {
-            $promise->waitingState = $state;
-            $promise->waitingResult = $result;
-            $queue->enqueue($promise);
-        }
-
-        $this->waiting = [];
-    }
-
-    /**
-     * Process this promise as a waiting task (child promise awaiting parent resolution).
-     *
-     * @throws \Exception
-     */
-    protected function processWaitingTask(): void
-    {
-        // Unpack and clear references to allow garbage collection
-        $onFulfilled = $this->waitingOnFulfilled;
-        $onRejected = $this->waitingOnRejected;
-        $state = $this->waitingState;
-        $result = $this->waitingResult;
-
-        $this->waitingOnFulfilled = null;
-        $this->waitingOnRejected = null;
-        $this->waitingState = null;
-        $this->waitingResult = null;
-
-        try {
-            if ($state === self::FULFILLED) {
-                $this->resolve($onFulfilled !== null
-                    ? $onFulfilled($result)
-                    : $result);
-            } elseif ($state === self::REJECTED) {
-                if ($onRejected === null) {
-                    $this->reject($result);
-                } else {
-                    $this->resolve($onRejected($result));
-                }
-            }
-        } catch (\Throwable $e) {
-            $this->reject($e);
-        }
-    }
-
     /**
      * @param (callable(mixed): mixed)|null $onFulfilled
      * @param (callable(\Throwable): mixed)|null $onRejected
@@ -238,9 +160,82 @@ class SyncPromise
      * @param callable(\Throwable): mixed $onRejected
      *
      * @throws InvariantViolation
+     *
+     * @deprecated TODO remove in next major version, use ->then(null, $onRejected) instead
      */
     public function catch(callable $onRejected): self
     {
         return $this->then(null, $onRejected);
+    }
+
+    /** Handles both root promises (with executor) and child promises (waiting on parent). */
+    public function runQueuedTask(): void
+    {
+        $executor = $this->executor;
+
+        if ($executor !== null) {
+            $this->executor = null;
+            try {
+                $this->resolve($executor());
+            } catch (\Throwable $e) {
+                $this->reject($e); // @phpstan-ignore missingType.checkedException
+            }
+        } elseif ($this->waitingState !== null) {
+            $this->processWaitingTask(); // @phpstan-ignore missingType.checkedException
+        }
+    }
+
+    /** @throws InvariantViolation */
+    protected function enqueueWaitingPromises(): void
+    {
+        if ($this->state === self::PENDING) {
+            throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
+        }
+
+        $state = $this->state;
+        $result = $this->result;
+        $queue = SyncPromiseQueue::getInstance();
+
+        foreach ($this->waiting as $promise) {
+            $promise->waitingState = $state;
+            $promise->waitingResult = $result;
+            $queue->enqueue($promise);
+        }
+
+        $this->waiting = [];
+    }
+
+    /**
+     * Process this promise as a waiting task (child promise awaiting parent resolution).
+     *
+     * @throws \Exception
+     */
+    protected function processWaitingTask(): void
+    {
+        $onFulfilled = $this->waitingOnFulfilled;
+        $onRejected = $this->waitingOnRejected;
+        $state = $this->waitingState;
+        $result = $this->waitingResult;
+
+        $this->waitingOnFulfilled = null;
+        $this->waitingOnRejected = null;
+        $this->waitingState = null;
+        $this->waitingResult = null;
+
+        try {
+            if ($state === self::FULFILLED) {
+                $this->resolve($onFulfilled !== null
+                    ? $onFulfilled($result)
+                    : $result);
+            } elseif ($state === self::REJECTED) {
+                if ($onRejected === null) {
+                    $this->reject($result);
+                } else {
+                    $this->resolve($onRejected($result));
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->reject($e);
+        }
     }
 }
