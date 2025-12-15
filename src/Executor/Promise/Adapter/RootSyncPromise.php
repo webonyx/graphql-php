@@ -28,10 +28,13 @@ class RootSyncPromise extends SyncPromise
     /** @throws \Exception */
     public function runQueuedTask(): void
     {
+        // Clear reference to allow immediate garbage collection of the closure
+        // and any variables it captures. Without this, closures stay alive until
+        // the promise object is freed, causing significant memory accumulation
+        // when many deferred operations are queued.
         $executor = $this->executor;
         $this->executor = null;
-
-        assert($executor !== null);
+        assert($executor !== null, 'see __construct');
 
         try {
             $this->resolve($executor());
