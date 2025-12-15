@@ -36,26 +36,16 @@ class ChildSyncPromise extends SyncPromise
     /** @throws \Exception */
     public function runQueuedTask(): void
     {
-        $onFulfilled = $this->onFulfilled;
-        $onRejected = $this->onRejected;
-        $state = $this->parentState;
-        $result = $this->parentResult;
-
-        $this->onFulfilled = null;
-        $this->onRejected = null;
-        $this->parentState = null;
-        $this->parentResult = null;
-
         try {
-            if ($state === self::FULFILLED) {
-                $this->resolve($onFulfilled !== null
-                    ? $onFulfilled($result)
-                    : $result);
-            } elseif ($state === self::REJECTED) {
-                if ($onRejected === null) {
-                    $this->reject($result);
+            if ($this->parentState === self::FULFILLED) {
+                $this->resolve($this->onFulfilled !== null
+                    ? ($this->onFulfilled)($this->parentResult)
+                    : $this->parentResult);
+            } elseif ($this->parentState === self::REJECTED) {
+                if ($this->onRejected === null) {
+                    $this->reject($this->parentResult);
                 } else {
-                    $this->resolve($onRejected($result));
+                    $this->resolve(($this->onRejected)($this->parentResult));
                 }
             }
         } catch (\Throwable $e) {
