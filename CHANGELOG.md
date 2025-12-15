@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.28.0
+
+### Changed
+
+- Optimize `Lexer` name tokenization https://github.com/webonyx/graphql-php/pull/1813
+
 ## v15.27.2
 
 ### Fixed
