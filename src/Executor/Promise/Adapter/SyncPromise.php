@@ -59,10 +59,8 @@ class SyncPromise
                 } catch (\Throwable $e) {
                     $task->reject($e); // @phpstan-ignore missingType.checkedException
                 }
-            } elseif ($task instanceof \SplFixedArray) {
-                self::processWaitingTask($task);
             } else {
-                $task();
+                self::processWaitingTask($task);
             }
 
             unset($task);
@@ -196,7 +194,7 @@ class SyncPromise
         }
     }
 
-    /** @return \SplQueue<self|\SplFixedArray<mixed>|callable(): void> */
+    /** @return \SplQueue<self|\SplFixedArray<mixed>> */
     public static function getQueue(): \SplQueue
     {
         static $queue;
