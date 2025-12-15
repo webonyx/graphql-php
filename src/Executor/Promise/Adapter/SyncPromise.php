@@ -23,49 +23,29 @@ class SyncPromise
     public const FULFILLED = 'fulfilled';
     public const REJECTED = 'rejected';
 
+    /** Current promise state: PENDING, FULFILLED, or REJECTED. */
     public string $state = self::PENDING;
 
-    /**
-     * Stored executor for deferred execution.
-     * Storing on the promise instead of in a closure reduces memory usage.
-     *
-     * @var (callable(): mixed)|null
-     */
-    private $executor;
-
-    /** @var mixed */
+    /** @var mixed Resolved value or rejection reason. */
     public $result;
 
-    /**
-     * Promises created in `then` method of this promise and awaiting resolution of this promise.
-     *
-     * @var array<int, self>
-     */
+    /** @var array<int, self> Promises waiting for this promise to resolve. */
     protected array $waiting = [];
 
-    /**
-     * Callback to execute when parent promise fulfills (for waiting promises).
-     *
-     * @var (callable(mixed): mixed)|null
-     */
-    private $waitingOnFulfilled;
+    /** @var (callable(): mixed)|null Executor for deferred execution (root promises only). */
+    protected $executor;
 
-    /**
-     * Callback to execute when parent promise rejects (for waiting promises).
-     *
-     * @var (callable(\Throwable): mixed)|null
-     */
-    private $waitingOnRejected;
+    /** @var (callable(mixed): mixed)|null Callback when parent fulfills (child promises only). */
+    protected $waitingOnFulfilled;
 
-    /** State of the parent promise when this waiting promise was enqueued. */
-    private ?string $waitingState = null;
+    /** @var (callable(\Throwable): mixed)|null Callback when parent rejects (child promises only). */
+    protected $waitingOnRejected;
 
-    /**
-     * Result of the parent promise when this waiting promise was enqueued.
-     *
-     * @var mixed
-     */
-    private $waitingResult;
+    /** Parent promise state when this child was enqueued. */
+    protected ?string $waitingState = null;
+
+    /** @var mixed Parent promise result when this child was enqueued. */
+    protected $waitingResult;
 
     /** @param Executor|null $executor */
     public function __construct(?callable $executor = null)
@@ -172,7 +152,7 @@ class SyncPromise
     }
 
     /** @throws InvariantViolation */
-    private function enqueueWaitingPromises(): void
+    protected function enqueueWaitingPromises(): void
     {
         if ($this->state === self::PENDING) {
             throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
@@ -196,7 +176,7 @@ class SyncPromise
      *
      * @throws \Exception
      */
-    private function processWaitingTask(): void
+    protected function processWaitingTask(): void
     {
         // Unpack and clear references to allow garbage collection
         $onFulfilled = $this->waitingOnFulfilled;
