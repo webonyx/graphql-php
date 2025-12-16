@@ -139,10 +139,7 @@ class SyncPromiseAdapter implements PromiseAdapter
         $syncPromise = $promise->adoptedPromise;
         assert($syncPromise instanceof SyncPromise);
 
-        while (
-            $syncPromise->state === SyncPromise::PENDING
-            && ! SyncPromiseQueue::isEmpty()
-        ) {
+        while ($syncPromise->state === SyncPromise::PENDING) {
             SyncPromiseQueue::run();
             $this->onWait($promise);
         }
