@@ -177,6 +177,7 @@ class SyncPromise
 
         return $this;
     }
+
     /**
      * @param (callable(mixed): mixed)|null $onFulfilled
      * @param (callable(\Throwable): mixed)|null $onRejected
