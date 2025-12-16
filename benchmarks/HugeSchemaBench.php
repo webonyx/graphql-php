@@ -50,9 +50,7 @@ class HugeSchemaBench
             ->getTypeMap();
     }
 
-    /**
-     * @Revs(1000)
-     */
+    /** @Revs(1000) */
     public function benchSchemaLazy(): void
     {
         $this->createLazySchema();
