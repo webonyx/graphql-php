@@ -9,15 +9,6 @@ namespace GraphQL\Executor\Promise\Adapter;
  */
 class SyncPromiseQueue
 {
-    /** @return \SplQueue<callable(): void> */
-    private static function queue(): \SplQueue
-    {
-        /** @var \SplQueue<callable(): void>|null $queue */
-        static $queue;
-
-        return $queue ??= new \SplQueue();
-    }
-
     /** @param callable(): void $task */
     public static function enqueue(callable $task): void
     {
@@ -42,5 +33,14 @@ class SyncPromiseQueue
     public static function count(): int
     {
         return self::queue()->count();
+    }
+
+    /** @return \SplQueue<callable(): void> */
+    private static function queue(): \SplQueue
+    {
+        /** @var \SplQueue<callable(): void>|null $queue */
+        static $queue;
+
+        return $queue ??= new \SplQueue();
     }
 }
