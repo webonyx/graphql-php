@@ -61,8 +61,8 @@ class SyncPromise
      *     array{
      *         self,
      *         (callable(mixed): mixed)|null,
-     *         (callable(\Throwable): mixed)|null
-     *     }
+     *         (callable(\Throwable): mixed)|null,
+     *     },
      * >
      */
     protected array $waiting = [];
