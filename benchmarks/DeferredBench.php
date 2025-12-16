@@ -8,11 +8,11 @@ use GraphQL\Executor\Promise\Adapter\SyncPromiseQueue;
 /**
  * @OutputTimeUnit("microseconds", precision=3)
  *
- * @Warmup(2)
+ * @Warmup(5)
  *
- * @Revs(100)
+ * @Revs(200)
  *
- * @Iterations(5)
+ * @Iterations(10)
  */
 class DeferredBench
 {

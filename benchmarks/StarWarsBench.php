@@ -11,11 +11,11 @@ use GraphQL\Type\Introspection;
  *
  * @OutputTimeUnit("milliseconds", precision=3)
  *
- * @Warmup(2)
+ * @Warmup(5)
  *
- * @Revs(50)
+ * @Revs(100)
  *
- * @Iterations(5)
+ * @Iterations(10)
  */
 class StarWarsBench
 {
