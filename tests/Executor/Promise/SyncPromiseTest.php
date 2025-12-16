@@ -283,6 +283,7 @@ final class SyncPromiseTest extends TestCaseBase
             self::assertNotSame($promise, $nextPromise);
             self::assertSame(SyncPromise::PENDING, $nextPromise->state);
         } else {
+            /** @phpstan-ignore argument.unresolvableType (false positive?)  */
             self::assertSame(SyncPromise::REJECTED, $nextPromise->state);
         }
 
