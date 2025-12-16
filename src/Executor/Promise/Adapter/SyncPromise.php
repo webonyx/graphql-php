@@ -74,10 +74,8 @@ class SyncPromise
         }
 
         $this->executor = $executor;
-        $promise = $this;
-        // Lightweight closure - only captures promise reference
-        SyncPromiseQueue::enqueue(static function () use ($promise): void {
-            $promise->runExecutor();
+        SyncPromiseQueue::enqueue(function (): void {
+            $this->runExecutor();
         });
     }
 
