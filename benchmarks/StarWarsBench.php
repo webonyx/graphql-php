@@ -13,9 +13,9 @@ use GraphQL\Type\Introspection;
  *
  * @Warmup(2)
  *
- * @Revs(10)
+ * @Revs(50)
  *
- * @Iterations(2)
+ * @Iterations(5)
  */
 class StarWarsBench
 {
