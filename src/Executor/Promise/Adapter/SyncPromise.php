@@ -67,6 +67,16 @@ class SyncPromise
      */
     protected array $waiting = [];
 
+    /**
+     * Process all queued promises until the queue is empty.
+     *
+     * TODO remove before merging, not part of public API
+     */
+    public static function runQueue(): void
+    {
+        SyncPromiseQueue::run();
+    }
+
     /** @param Executor|null $executor */
     public function __construct(?callable $executor = null)
     {
