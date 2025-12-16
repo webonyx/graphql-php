@@ -3,7 +3,6 @@
 namespace GraphQL\Tests\Executor\Promise;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Executor\Promise\Adapter\ChildSyncPromise;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseQueue;
 use GraphQL\Tests\TestCaseBase;
@@ -46,7 +45,7 @@ final class SyncPromiseTest extends TestCaseBase
         ?string $expectedNextReason,
         ?string $expectedNextState
     ): void {
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);
 
         $promise->resolve($resolvedValue);
@@ -65,7 +64,7 @@ final class SyncPromiseTest extends TestCaseBase
         ?string $expectedNextReason,
         ?string $expectedNextState
     ): void {
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);
 
         $promise->resolve($resolvedValue);
@@ -88,7 +87,7 @@ final class SyncPromiseTest extends TestCaseBase
         ?string $expectedNextReason,
         ?string $expectedNextState
     ): void {
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);
 
         $promise->resolve($resolvedValue);
@@ -127,7 +126,7 @@ final class SyncPromiseTest extends TestCaseBase
             self::assertNotSame($nextPromise, $nextPromise2);
         }
 
-        SyncPromiseQueue::getInstance()->run();
+        SyncPromiseQueue::run();
 
         self::assertValidPromise($nextPromise2, $expectedNextValue, $expectedNextReason, $expectedNextState);
         self::assertValidPromise($nextPromise3, $expectedNextValue, $expectedNextReason, $expectedNextState);
@@ -163,7 +162,7 @@ final class SyncPromiseTest extends TestCaseBase
         self::assertFalse($onFulfilledCalled);
         self::assertFalse($onRejectedCalled);
 
-        SyncPromiseQueue::getInstance()->run();
+        SyncPromiseQueue::run();
 
         if ($expectedNextReason === null) {
             self::assertTrue($onFulfilledCalled); // @phpstan-ignore-line value is mutable
@@ -209,7 +208,7 @@ final class SyncPromiseTest extends TestCaseBase
         ?string $expectedNextReason,
         string $expectedNextState
     ): void {
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);
 
         $promise->reject($rejectedReason);
@@ -228,7 +227,7 @@ final class SyncPromiseTest extends TestCaseBase
         ?string $expectedNextReason,
         string $expectedNextState
     ): void {
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);
 
         $promise->reject($rejectedReason);
@@ -247,7 +246,7 @@ final class SyncPromiseTest extends TestCaseBase
         ?string $expectedNextReason,
         string $expectedNextState
     ): void {
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);
 
         $promise->reject($rejectedReason);
@@ -297,7 +296,7 @@ final class SyncPromiseTest extends TestCaseBase
             self::assertNotSame($nextPromise, $nextPromise2);
         }
 
-        SyncPromiseQueue::getInstance()->run();
+        SyncPromiseQueue::run();
 
         self::assertValidPromise($nextPromise2, $expectedNextValue, $expectedNextReason, $expectedNextState);
         self::assertValidPromise($nextPromise3, $expectedNextValue, $expectedNextReason, $expectedNextState);
@@ -305,7 +304,7 @@ final class SyncPromiseTest extends TestCaseBase
 
     public function testPendingPromise(): void
     {
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);
 
         try {
@@ -317,7 +316,7 @@ final class SyncPromiseTest extends TestCaseBase
         }
 
         // Try to resolve with other promise (must resolve when other promise resolves)
-        $otherPromise = new ChildSyncPromise();
+        $otherPromise = new SyncPromise();
         $promise->resolve($otherPromise);
 
         self::assertSame(SyncPromise::PENDING, $promise->state);
@@ -328,13 +327,13 @@ final class SyncPromiseTest extends TestCaseBase
         self::assertSame(SyncPromise::PENDING, $promise->state);
         self::assertValidPromise($promise, 'the value', null, SyncPromise::FULFILLED);
 
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
         $promise->resolve('resolved!');
 
         self::assertValidPromise($promise, 'resolved!', null, SyncPromise::FULFILLED);
 
         // Test rejections
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);
 
         try {
@@ -348,7 +347,7 @@ final class SyncPromiseTest extends TestCaseBase
         $promise->reject(new \Exception('Rejected Reason'));
         self::assertValidPromise($promise, null, 'Rejected Reason', SyncPromise::REJECTED);
 
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
         $promise2 = $promise->then(
             null,
             static fn (): string => 'value'
@@ -356,7 +355,7 @@ final class SyncPromiseTest extends TestCaseBase
         $promise->reject(new \Exception('Rejected Again'));
         self::assertValidPromise($promise2, 'value', null, SyncPromise::FULFILLED);
 
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
         $promise2 = $promise->then();
         $promise->reject(new \Exception('Rejected Once Again'));
         self::assertValidPromise($promise2, null, 'Rejected Once Again', SyncPromise::REJECTED);
@@ -364,7 +363,7 @@ final class SyncPromiseTest extends TestCaseBase
 
     public function testPendingPromiseThen(): void
     {
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
         self::assertSame(SyncPromise::PENDING, $promise->state);
 
         $nextPromise = $promise->then();
@@ -391,12 +390,12 @@ final class SyncPromiseTest extends TestCaseBase
         $nextPromise3 = $promise->then($onFulfilled, $onRejected);
         $nextPromise4 = $promise->then($onFulfilled, $onRejected);
 
-        self::assertSame(0, SyncPromiseQueue::getInstance()->count());
+        self::assertSame(0, SyncPromiseQueue::count());
         self::assertSame(0, $onFulfilledCount);
         self::assertSame(0, $onRejectedCount);
         $promise->resolve(1);
 
-        self::assertSame(4, SyncPromiseQueue::getInstance()->count());
+        self::assertSame(4, SyncPromiseQueue::count());
         self::assertSame(0, $onFulfilledCount); // @phpstan-ignore-line side-effects
         self::assertSame(0, $onRejectedCount); // @phpstan-ignore-line side-effects
         self::assertSame(SyncPromise::PENDING, $nextPromise->state);
@@ -404,8 +403,8 @@ final class SyncPromiseTest extends TestCaseBase
         self::assertSame(SyncPromise::PENDING, $nextPromise3->state);
         self::assertSame(SyncPromise::PENDING, $nextPromise4->state);
 
-        SyncPromiseQueue::getInstance()->run();
-        self::assertSame(0, SyncPromiseQueue::getInstance()->count());
+        SyncPromiseQueue::run();
+        self::assertSame(0, SyncPromiseQueue::count());
         self::assertSame(3, $onFulfilledCount); // @phpstan-ignore-line side-effects
         self::assertSame(0, $onRejectedCount); // @phpstan-ignore-line side-effects
         self::assertValidPromise($nextPromise, 1, null, SyncPromise::FULFILLED);
@@ -416,7 +415,7 @@ final class SyncPromiseTest extends TestCaseBase
 
     public function testRunEmptyQueue(): void
     {
-        SyncPromiseQueue::getInstance()->run();
+        SyncPromiseQueue::run();
         $this->assertDidNotCrash();
     }
 }

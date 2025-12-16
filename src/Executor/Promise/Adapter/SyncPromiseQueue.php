@@ -2,46 +2,45 @@
 
 namespace GraphQL\Executor\Promise\Adapter;
 
-/** Queue for deferred execution of SyncPromise tasks. */
+/**
+ * Queue for deferred execution of SyncPromise tasks.
+ *
+ * Owns the shared queue and provides the run loop for processing promises.
+ */
 class SyncPromiseQueue
 {
-    protected static ?self $instance = null;
-
-    /** @var \SplQueue<SyncPromise> */
-    protected \SplQueue $queue;
-
-    public function __construct()
+    /** @return \SplQueue<callable(): void> */
+    private static function queue(): \SplQueue
     {
-        $this->queue = new \SplQueue();
+        /** @var \SplQueue<callable(): void>|null $queue */
+        static $queue;
+
+        return $queue ??= new \SplQueue();
     }
 
-    public static function getInstance(): self
+    /** @param callable(): void $task */
+    public static function enqueue(callable $task): void
     {
-        return self::$instance ??= new self();
-    }
-
-    public function enqueue(SyncPromise $promise): void
-    {
-        $this->queue->enqueue($promise);
-    }
-
-    public function isEmpty(): bool
-    {
-        return $this->queue->isEmpty();
-    }
-
-    public function count(): int
-    {
-        return $this->queue->count();
+        self::queue()->enqueue($task);
     }
 
     /** Process all queued promises until the queue is empty. */
-    public function run(): void
+    public static function run(): void
     {
-        while (! $this->queue->isEmpty()) {
-            $task = $this->queue->dequeue();
-            $task->runQueuedTask();
-            unset($task);
+        $queue = self::queue();
+        while (! $queue->isEmpty()) {
+            $task = $queue->dequeue();
+            $task();
         }
+    }
+
+    public static function isEmpty(): bool
+    {
+        return self::queue()->isEmpty();
+    }
+
+    public static function count(): int
+    {
+        return self::queue()->count();
     }
 }

@@ -2,14 +2,14 @@
 
 namespace GraphQL;
 
-use GraphQL\Executor\Promise\Adapter\RootSyncPromise;
+use GraphQL\Executor\Promise\Adapter\SyncPromise;
 
 /**
  * User-facing promise class for deferred field resolution.
  *
  * @phpstan-type Executor callable(): mixed
  */
-class Deferred extends RootSyncPromise
+class Deferred extends SyncPromise
 {
     /** @param Executor $executor */
     public static function create(callable $executor): self

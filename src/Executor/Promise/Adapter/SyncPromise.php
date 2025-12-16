@@ -5,20 +5,27 @@ namespace GraphQL\Executor\Promise\Adapter;
 use GraphQL\Error\InvariantViolation;
 
 /**
- * Base class for synchronous promises implementing Promises A+ spec.
+ * Synchronous promise implementation following Promises A+ spec.
+ *
+ * Uses a hybrid approach for optimal memory and performance:
+ * - Lightweight closures in queue (fast execution)
+ * - Heavy payload (callbacks) stored on promise objects and cleared after use
  *
  * Library users should use @see \GraphQL\Deferred to create promises.
  *
- * @see RootSyncPromise for promises created with an executor
- * @see ChildSyncPromise for promises created via then() chaining
+ * @phpstan-type Executor callable(): mixed
  */
-abstract class SyncPromise
+class SyncPromise
 {
     public const PENDING = 'pending';
     public const FULFILLED = 'fulfilled';
     public const REJECTED = 'rejected';
 
-    /** Current promise state: PENDING, FULFILLED, or REJECTED. */
+    /**
+     * Current promise state: PENDING, FULFILLED, or REJECTED.
+     *
+     * @var 'pending'|'fulfilled'|'rejected'
+     */
     public string $state = self::PENDING;
 
     /**
@@ -29,14 +36,100 @@ abstract class SyncPromise
     public $result;
 
     /**
-     * Child promises waiting for this promise to resolve.
+     * Executor for deferred promises.
      *
-     * @var array<int, ChildSyncPromise>
+     * @var (callable(): mixed)|null
+     */
+    protected $executor;
+
+    /**
+     * Callback handlers for child promises (set when parent resolves).
+     *
+     * @var array{
+     *     (callable(mixed): mixed)|null,
+     *     (callable(\Throwable): mixed)|null,
+     *     mixed
+     * }|null
+     */
+    protected ?array $pendingCallback = null;
+
+    /**
+     * Promises created in `then` method awaiting resolution.
+     *
+     * @var array<
+     *     int,
+     *     array{
+     *         self,
+     *         (callable(mixed): mixed)|null,
+     *         (callable(\Throwable): mixed)|null
+     *     }
+     * >
      */
     protected array $waiting = [];
 
-    /** Execute the queued task for this promise. */
-    abstract public function runQueuedTask(): void;
+    /** @param Executor|null $executor */
+    public function __construct(?callable $executor = null)
+    {
+        if ($executor === null) {
+            return;
+        }
+
+        $this->executor = $executor;
+        $promise = $this;
+        // Lightweight closure - only captures promise reference
+        SyncPromiseQueue::enqueue(static function () use ($promise): void {
+            $promise->runExecutor();
+        });
+    }
+
+    /** Execute the deferred callback and clear it for garbage collection. */
+    protected function runExecutor(): void
+    {
+        $executor = $this->executor;
+        $this->executor = null; // Clear for garbage collection
+
+        if ($executor === null) {
+            return;
+        }
+
+        try {
+            $this->resolve($executor());
+        } catch (\Throwable $e) {
+            $this->reject($e);
+        }
+    }
+
+    /** Execute the pending callback and clear it for garbage collection. */
+    protected function runPendingCallback(): void
+    {
+        $callback = $this->pendingCallback;
+        $this->pendingCallback = null; // Clear for garbage collection
+
+        if ($callback === null) {
+            return;
+        }
+
+        [$onFulfilled, $onRejected, $parentResult] = $callback;
+
+        // Determine parent state from result type
+        $parentRejected = $parentResult instanceof \Throwable;
+
+        try {
+            if (! $parentRejected) {
+                $this->resolve(
+                    $onFulfilled === null ? $parentResult : $onFulfilled($parentResult)
+                );
+            } else {
+                if ($onRejected === null) {
+                    $this->reject($parentResult);
+                } else {
+                    $this->resolve($onRejected($parentResult));
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->reject($e);
+        }
+    }
 
     /**
      * @param mixed $value
@@ -56,7 +149,7 @@ abstract class SyncPromise
                         function ($resolvedValue): void {
                             $this->resolve($resolvedValue);
                         },
-                        function ($reason): void {
+                        function (\Throwable $reason): void {
                             $this->reject($reason);
                         }
                     );
@@ -107,6 +200,28 @@ abstract class SyncPromise
         return $this;
     }
 
+    /** @throws InvariantViolation */
+    private function enqueueWaitingPromises(): void
+    {
+        if ($this->state === self::PENDING) {
+            throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
+        }
+
+        $result = $this->result;
+
+        foreach ($this->waiting as [$childPromise, $onFulfilled, $onRejected]) {
+            // Store callback data on child promise to allow garbage collection after execution
+            $childPromise->pendingCallback = [$onFulfilled, $onRejected, $result];
+
+            // Only capture child promise reference
+            SyncPromiseQueue::enqueue(static function () use ($childPromise): void {
+                $childPromise->runPendingCallback();
+            });
+        }
+
+        $this->waiting = [];
+    }
+
     /**
      * @param (callable(mixed): mixed)|null $onFulfilled
      * @param (callable(\Throwable): mixed)|null $onRejected
@@ -115,22 +230,16 @@ abstract class SyncPromise
      */
     public function then(?callable $onFulfilled = null, ?callable $onRejected = null): self
     {
-        if ($this->state === self::REJECTED
-            && $onRejected === null
-        ) {
+        if ($this->state === self::REJECTED && $onRejected === null) {
             return $this;
         }
 
-        if ($this->state === self::FULFILLED
-            && $onFulfilled === null
-        ) {
+        if ($this->state === self::FULFILLED && $onFulfilled === null) {
             return $this;
         }
 
-        $child = new ChildSyncPromise();
-        $child->onFulfilled = $onFulfilled;
-        $child->onRejected = $onRejected;
-        $this->waiting[] = $child;
+        $child = new self();
+        $this->waiting[] = [$child, $onFulfilled, $onRejected];
 
         if ($this->state !== self::PENDING) {
             $this->enqueueWaitingPromises();
@@ -139,23 +248,13 @@ abstract class SyncPromise
         return $child;
     }
 
-    /** @throws InvariantViolation */
-    protected function enqueueWaitingPromises(): void
+    /**
+     * @param callable(\Throwable): mixed $onRejected
+     *
+     * @throws InvariantViolation
+     */
+    public function catch(callable $onRejected): self
     {
-        if ($this->state === self::PENDING) {
-            throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
-        }
-
-        $state = $this->state;
-        $result = $this->result;
-        $queue = SyncPromiseQueue::getInstance();
-
-        foreach ($this->waiting as $child) {
-            $child->parentState = $state;
-            $child->parentResult = $result;
-            $queue->enqueue($child);
-        }
-
-        $this->waiting = [];
+        return $this->then(null, $onRejected);
     }
 }

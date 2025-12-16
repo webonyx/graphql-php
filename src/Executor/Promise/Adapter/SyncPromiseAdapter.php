@@ -47,7 +47,7 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function create(callable $resolver): Promise
     {
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
 
         try {
             $resolver(
@@ -67,7 +67,7 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function createFulfilled($value = null): Promise
     {
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
 
         return new Promise($promise->resolve($value), $this);
     }
@@ -78,7 +78,7 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function createRejected(\Throwable $reason): Promise
     {
-        $promise = new ChildSyncPromise();
+        $promise = new SyncPromise();
 
         return new Promise($promise->reject($reason), $this);
     }
@@ -89,7 +89,7 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function all(iterable $promisesOrValues): Promise
     {
-        $all = new ChildSyncPromise();
+        $all = new SyncPromise();
 
         $total = is_array($promisesOrValues)
             ? count($promisesOrValues)
@@ -135,16 +135,15 @@ class SyncPromiseAdapter implements PromiseAdapter
     public function wait(Promise $promise)
     {
         $this->beforeWait($promise);
-        $queue = SyncPromiseQueue::getInstance();
 
         $syncPromise = $promise->adoptedPromise;
         assert($syncPromise instanceof SyncPromise);
 
         while (
             $syncPromise->state === SyncPromise::PENDING
-            && ! $queue->isEmpty()
+            && ! SyncPromiseQueue::isEmpty()
         ) {
-            $queue->run();
+            SyncPromiseQueue::run();
             $this->onWait($promise);
         }
 
