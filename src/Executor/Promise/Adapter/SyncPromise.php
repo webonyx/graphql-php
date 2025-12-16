@@ -109,38 +109,6 @@ class SyncPromise
         }
     }
 
-    /** Execute the pending callback and clear it for garbage collection. */
-    protected function runPendingCallback(): void
-    {
-        $callback = $this->pendingCallback;
-        $this->pendingCallback = null; // Clear for garbage collection
-
-        if ($callback === null) {
-            return;
-        }
-
-        [$onFulfilled, $onRejected, $parentResult] = $callback;
-
-        // Determine parent state from result type
-        $parentRejected = $parentResult instanceof \Throwable;
-
-        try {
-            if (! $parentRejected) {
-                $this->resolve(
-                    $onFulfilled === null ? $parentResult : $onFulfilled($parentResult)
-                );
-            } else {
-                if ($onRejected === null) {
-                    $this->reject($parentResult);
-                } else {
-                    $this->resolve($onRejected($parentResult));
-                }
-            }
-        } catch (\Throwable $e) {
-            $this->reject($e);
-        }
-    }
-
     /**
      * @param mixed $value
      *
@@ -209,29 +177,6 @@ class SyncPromise
 
         return $this;
     }
-
-    /** @throws InvariantViolation */
-    private function enqueueWaitingPromises(): void
-    {
-        if ($this->state === self::PENDING) {
-            throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
-        }
-
-        $result = $this->result;
-
-        foreach ($this->waiting as [$childPromise, $onFulfilled, $onRejected]) {
-            // Store callback data on child promise to allow garbage collection after execution
-            $childPromise->pendingCallback = [$onFulfilled, $onRejected, $result];
-
-            // Only capture child promise reference
-            SyncPromiseQueue::enqueue(static function () use ($childPromise): void {
-                $childPromise->runPendingCallback();
-            });
-        }
-
-        $this->waiting = [];
-    }
-
     /**
      * @param (callable(mixed): mixed)|null $onFulfilled
      * @param (callable(\Throwable): mixed)|null $onRejected
@@ -266,5 +211,59 @@ class SyncPromise
     public function catch(callable $onRejected): self
     {
         return $this->then(null, $onRejected);
+    }
+
+    /** @throws InvariantViolation */
+    private function enqueueWaitingPromises(): void
+    {
+        if ($this->state === self::PENDING) {
+            throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
+        }
+
+        $result = $this->result;
+
+        foreach ($this->waiting as [$childPromise, $onFulfilled, $onRejected]) {
+            // Store callback data on child promise to allow garbage collection after execution
+            $childPromise->pendingCallback = [$onFulfilled, $onRejected, $result];
+
+            // Only capture child promise reference
+            SyncPromiseQueue::enqueue(static function () use ($childPromise): void {
+                $childPromise->runPendingCallback();
+            });
+        }
+
+        $this->waiting = [];
+    }
+
+    /** Execute the pending callback and clear it for garbage collection. */
+    protected function runPendingCallback(): void
+    {
+        $callback = $this->pendingCallback;
+        $this->pendingCallback = null; // Clear for garbage collection
+
+        if ($callback === null) {
+            return;
+        }
+
+        [$onFulfilled, $onRejected, $parentResult] = $callback;
+
+        // Determine parent state from result type
+        $parentRejected = $parentResult instanceof \Throwable;
+
+        try {
+            if (! $parentRejected) {
+                $this->resolve(
+                    $onFulfilled === null ? $parentResult : $onFulfilled($parentResult)
+                );
+            } else {
+                if ($onRejected === null) {
+                    $this->reject($parentResult);
+                } else {
+                    $this->resolve($onRejected($parentResult));
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->reject($e);
+        }
     }
 }
