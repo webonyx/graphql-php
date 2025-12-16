@@ -64,7 +64,7 @@
   },
   "scripts": {
     "baseline": "phpstan --generate-baseline",
-    "bench": "phpbench run",
+    "bench": "phpbench run --report=default",
     "check": [
       "@fix",
       "@stan",
