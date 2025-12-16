@@ -43,17 +43,6 @@ class SyncPromise
     protected $executor;
 
     /**
-     * Callback handlers for child promises (set when parent resolves).
-     *
-     * @var array{
-     *     (callable(mixed): mixed)|null,
-     *     (callable(\Throwable): mixed)|null,
-     *     mixed
-     * }|null
-     */
-    protected ?array $pendingCallback = null;
-
-    /**
      * Promises created in `then` method awaiting resolution.
      *
      * @var array<
@@ -200,16 +189,6 @@ class SyncPromise
         return $child;
     }
 
-    /**
-     * @param callable(\Throwable): mixed $onRejected
-     *
-     * @throws InvariantViolation
-     */
-    public function catch(callable $onRejected): self
-    {
-        return $this->then(null, $onRejected);
-    }
-
     /** @throws InvariantViolation */
     private function enqueueWaitingPromises(): void
     {
@@ -219,44 +198,42 @@ class SyncPromise
 
         $result = $this->result;
 
-        foreach ($this->waiting as [$childPromise, $onFulfilled, $onRejected]) {
-            // Store callback data on child promise to allow garbage collection after execution
-            $childPromise->pendingCallback = [$onFulfilled, $onRejected, $result];
+        foreach ($this->waiting as $entry) {
+            SyncPromiseQueue::enqueue(static function () use ($entry, $result): void {
+                [$child, $onFulfilled, $onRejected] = $entry;
 
-            // Only capture child promise reference
-            SyncPromiseQueue::enqueue(static function () use ($childPromise): void {
-                $childPromise->runPendingCallback();
+                try {
+                    if ($result instanceof \Throwable) {
+                        if ($onRejected === null) {
+                            $child->reject($result);
+                        } else {
+                            $child->resolve($onRejected($result));
+                        }
+                    } else {
+                        $child->resolve(
+                            $onFulfilled === null
+                                ? $result
+                                : $onFulfilled($result)
+                        );
+                    }
+                } catch (\Throwable $e) {
+                    $child->reject($e);
+                }
             });
         }
 
         $this->waiting = [];
     }
 
-    /** Execute the pending callback and clear it for garbage collection. */
-    protected function runPendingCallback(): void
+    /**
+     * @param callable(\Throwable): mixed $onRejected
+     *
+     * @throws InvariantViolation
+     *
+     * @deprecated TODO remove in next major version, use ->then(null, $onRejected) instead
+     */
+    public function catch(callable $onRejected): self
     {
-        $callback = $this->pendingCallback;
-        $this->pendingCallback = null; // Clear for garbage collection
-
-        [$onFulfilled, $onRejected, $parentResult] = $callback;
-
-        // Determine parent state from result type
-        $parentRejected = $parentResult instanceof \Throwable;
-
-        try {
-            if (! $parentRejected) {
-                $this->resolve(
-                    $onFulfilled === null ? $parentResult : $onFulfilled($parentResult)
-                );
-            } else {
-                if ($onRejected === null) {
-                    $this->reject($parentResult);
-                } else {
-                    $this->resolve($onRejected($parentResult));
-                }
-            }
-        } catch (\Throwable $e) {
-            $this->reject($e);
-        }
+        return $this->then(null, $onRejected);
     }
 }
