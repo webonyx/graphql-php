@@ -98,10 +98,6 @@ class SyncPromise
         $executor = $this->executor;
         $this->executor = null; // Clear for garbage collection
 
-        if ($executor === null) {
-            return;
-        }
-
         try {
             $this->resolve($executor());
         } catch (\Throwable $e) {
@@ -241,10 +237,6 @@ class SyncPromise
     {
         $callback = $this->pendingCallback;
         $this->pendingCallback = null; // Clear for garbage collection
-
-        if ($callback === null) {
-            return;
-        }
 
         [$onFulfilled, $onRejected, $parentResult] = $callback;
 
