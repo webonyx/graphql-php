@@ -64,7 +64,7 @@
   },
   "scripts": {
     "baseline": "phpstan --generate-baseline",
-    "bench": "phpbench run --report=default",
+    "bench": "php -d zend.assertions=-1 vendor/bin/phpbench run --report=default",
     "check": [
       "@fix",
       "@stan",
@@ -78,6 +78,6 @@
     "php-cs-fixer": "make php-cs-fixer",
     "rector": "rector process",
     "stan": "phpstan --verbose",
-    "test": "php -d zend.exception_ignore_args=Off -d zend.assertions=On -d assert.active=On -d assert.exception=On vendor/bin/phpunit"
+    "test": "php -d zend.exception_ignore_args=0 -d zend.assertions=1 -d assert.active=1 -d assert.exception=1 vendor/bin/phpunit"
   }
 }
