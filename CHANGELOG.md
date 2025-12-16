@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Changed
+
+- Optimize `Deferred` execution https://github.com/webonyx/graphql-php/pull/1805
+
 ## v15.28.0
 
 ### Changed
