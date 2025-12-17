@@ -166,12 +166,17 @@ class SyncPromise
             throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending.');
         }
 
+        $waiting = $this->waiting;
+        if ($waiting === []) {
+            return;
+        }
+
+        $this->waiting = [];
+
         $result = $this->result;
 
-        foreach ($this->waiting as $entry) {
-            SyncPromiseQueue::enqueue(static function () use ($entry, $result): void {
-                [$child, $onFulfilled, $onRejected] = $entry;
-
+        SyncPromiseQueue::enqueue(static function () use ($waiting, $result): void {
+            foreach ($waiting as [$child, $onFulfilled, $onRejected]) {
                 try {
                     if ($result instanceof \Throwable) {
                         if ($onRejected === null) {
@@ -189,10 +194,8 @@ class SyncPromise
                 } catch (\Throwable $e) {
                     $child->reject($e);
                 }
-            });
-        }
-
-        $this->waiting = [];
+            }
+        });
     }
 
     /**

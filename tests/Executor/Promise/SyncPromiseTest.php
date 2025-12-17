@@ -384,7 +384,7 @@ final class SyncPromiseTest extends TestCaseBase
         self::assertSame(0, $onRejectedCount);
         $promise->resolve(1);
 
-        self::assertSame(4, SyncPromiseQueue::count());
+        self::assertSame(1, SyncPromiseQueue::count());
         self::assertSame(0, $onFulfilledCount); // @phpstan-ignore-line side-effects
         self::assertSame(0, $onRejectedCount); // @phpstan-ignore-line side-effects
         self::assertSame(SyncPromise::PENDING, $nextPromise->state);
