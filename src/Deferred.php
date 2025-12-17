@@ -16,4 +16,16 @@ class Deferred extends SyncPromise
     {
         return new self($executor);
     }
+
+    /**
+     * Create a new Deferred promise and enqueue its execution.
+     *
+     * @api
+     *
+     * @param Executor $executor
+     */
+    public function __construct(callable $executor)
+    {
+        parent::__construct($executor);
+    }
 }
