@@ -1778,6 +1778,25 @@ function createRejected(Throwable $reason): GraphQL\Executor\Promise\Promise
 function all(iterable $promisesOrValues): GraphQL\Executor\Promise\Promise
 ```
 
+## GraphQL\Deferred
+
+User-facing promise class for deferred field resolution.
+
+@phpstan-type Executor callable(): mixed
+
+### GraphQL\Deferred Methods
+
+```php
+/**
+ * Create a new Deferred promise and enqueue its execution.
+ *
+ * @api
+ *
+ * @param Executor $executor
+ */
+function __construct(callable $executor)
+```
+
 ## GraphQL\Validator\DocumentValidator
 
 Implements the "Validation" section of the spec.
