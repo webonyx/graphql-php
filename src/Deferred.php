@@ -3,6 +3,7 @@
 namespace GraphQL;
 
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
+use GraphQL\Executor\Promise\Adapter\SyncPromiseQueue;
 
 /**
  * User-facing promise class for deferred field resolution.
@@ -11,11 +12,12 @@ use GraphQL\Executor\Promise\Adapter\SyncPromise;
  */
 class Deferred extends SyncPromise
 {
-    /** @param Executor $executor */
-    public static function create(callable $executor): self
-    {
-        return new self($executor);
-    }
+    /**
+     * Executor for deferred promises.
+     *
+     * @var callable(): mixed
+     */
+    protected $executor;
 
     /**
      * Create a new Deferred promise and enqueue its execution.
@@ -26,6 +28,29 @@ class Deferred extends SyncPromise
      */
     public function __construct(callable $executor)
     {
-        parent::__construct($executor);
+        $this->executor = $executor;
+
+        SyncPromiseQueue::enqueue(function (): void {
+            $executor = $this->executor;
+            unset($this->executor);
+
+            try {
+                $this->resolve($executor());
+            } catch (\Throwable $e) {
+                $this->reject($e);
+            }
+        });
+    }
+
+    /**
+     * Alias for __construct.
+     *
+     * @param Executor $executor
+     *
+     * @deprecated TODO remove in next major version, use new Deferred() instead
+     */
+    public static function create(callable $executor): self
+    {
+        return new self($executor);
     }
 }

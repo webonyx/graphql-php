@@ -36,13 +36,6 @@ class SyncPromise
     public $result;
 
     /**
-     * Executor for deferred promises.
-     *
-     * @var (callable(): mixed)|null
-     */
-    protected $executor;
-
-    /**
      * Promises created in `then` method awaiting resolution.
      *
      * @var array<
@@ -64,26 +57,6 @@ class SyncPromise
     public static function runQueue(): void
     {
         SyncPromiseQueue::run();
-    }
-
-    /** @param Executor|null $executor */
-    public function __construct(?callable $executor = null)
-    {
-        if ($executor === null) {
-            return;
-        }
-
-        $this->executor = $executor;
-        SyncPromiseQueue::enqueue(function (): void {
-            $executor = $this->executor;
-            $this->executor = null; // Clear for garbage collection
-
-            try {
-                $this->resolve($executor());
-            } catch (\Throwable $e) {
-                $this->reject($e);
-            }
-        });
     }
 
     /**
