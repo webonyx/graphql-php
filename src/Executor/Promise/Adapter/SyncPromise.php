@@ -75,21 +75,15 @@ class SyncPromise
 
         $this->executor = $executor;
         SyncPromiseQueue::enqueue(function (): void {
-            $this->runExecutor();
+            $executor = $this->executor;
+            $this->executor = null; // Clear for garbage collection
+
+            try {
+                $this->resolve($executor());
+            } catch (\Throwable $e) {
+                $this->reject($e);
+            }
         });
-    }
-
-    /** Execute the deferred callback and clear it for garbage collection. */
-    protected function runExecutor(): void
-    {
-        $executor = $this->executor;
-        $this->executor = null; // Clear for garbage collection
-
-        try {
-            $this->resolve($executor());
-        } catch (\Throwable $e) {
-            $this->reject($e);
-        }
     }
 
     /**
