@@ -17,16 +17,16 @@ use GraphQL\Error\InvariantViolation;
  */
 class SyncPromise
 {
-    public const PENDING = 'pending';
-    public const FULFILLED = 'fulfilled';
-    public const REJECTED = 'rejected';
+    public const PENDING = 0;
+    public const FULFILLED = 1;
+    public const REJECTED = 2;
 
     /**
-     * Current promise state: PENDING, FULFILLED, or REJECTED.
+     * Current promise state.
      *
-     * @var 'pending'|'fulfilled'|'rejected'
+     * @var 0|1|2
      */
-    public string $state = self::PENDING;
+    public int $state = self::PENDING;
 
     /**
      * Resolved value or rejection reason.
@@ -69,7 +69,7 @@ class SyncPromise
         switch ($this->state) {
             case self::PENDING:
                 if ($value === $this) {
-                    throw new \Exception('Cannot resolve promise with self');
+                    throw new \Exception('Cannot resolve promise with self.');
                 }
 
                 if (is_object($value) && method_exists($value, 'then')) {
@@ -91,12 +91,12 @@ class SyncPromise
                 break;
             case self::FULFILLED:
                 if ($this->result !== $value) {
-                    throw new \Exception('Cannot change value of fulfilled promise');
+                    throw new \Exception('Cannot change value of fulfilled promise.');
                 }
 
                 break;
             case self::REJECTED:
-                throw new \Exception('Cannot resolve rejected promise');
+                throw new \Exception('Cannot resolve rejected promise.');
         }
 
         return $this;
@@ -117,12 +117,12 @@ class SyncPromise
                 break;
             case self::REJECTED:
                 if ($reason !== $this->result) {
-                    throw new \Exception('Cannot change rejection reason');
+                    throw new \Exception('Cannot change rejection reason.');
                 }
 
                 break;
             case self::FULFILLED:
-                throw new \Exception('Cannot reject fulfilled promise');
+                throw new \Exception('Cannot reject fulfilled promise.');
         }
 
         return $this;
@@ -136,15 +136,20 @@ class SyncPromise
      */
     public function then(?callable $onFulfilled = null, ?callable $onRejected = null): self
     {
-        if ($this->state === self::REJECTED && $onRejected === null) {
+        if ($this->state === self::REJECTED
+            && $onRejected === null
+        ) {
             return $this;
         }
 
-        if ($this->state === self::FULFILLED && $onFulfilled === null) {
+        if ($this->state === self::FULFILLED
+            && $onFulfilled === null
+        ) {
             return $this;
         }
 
         $child = new self();
+
         $this->waiting[] = [$child, $onFulfilled, $onRejected];
 
         if ($this->state !== self::PENDING) {
@@ -158,7 +163,7 @@ class SyncPromise
     private function enqueueWaitingPromises(): void
     {
         if ($this->state === self::PENDING) {
-            throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending');
+            throw new InvariantViolation('Cannot enqueue derived promises when parent is still pending.');
         }
 
         $result = $this->result;
