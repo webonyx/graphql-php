@@ -3,7 +3,7 @@
 namespace GraphQL\Benchmarks;
 
 use GraphQL\Deferred;
-use GraphQL\Executor\Promise\Adapter\SyncPromise;
+use GraphQL\Executor\Promise\Adapter\SyncPromiseQueue;
 
 /**
  * @OutputTimeUnit("microseconds", precision=3)
@@ -19,13 +19,13 @@ class DeferredBench
     public function benchSingleDeferred(): void
     {
         new Deferred(static fn () => 'value');
-        SyncPromise::runQueue();
+        SyncPromiseQueue::run();
     }
 
     public function benchNestedDeferred(): void
     {
         new Deferred(static fn () => new Deferred(static fn () => null));
-        SyncPromise::runQueue();
+        SyncPromiseQueue::run();
     }
 
     public function benchChain5(): void
@@ -36,7 +36,7 @@ class DeferredBench
             ->then(static fn ($v) => $v)
             ->then(static fn ($v) => $v)
             ->then(static fn ($v) => $v);
-        SyncPromise::runQueue();
+        SyncPromiseQueue::run();
     }
 
     public function benchChain100(): void
@@ -46,7 +46,7 @@ class DeferredBench
         for ($i = 0; $i < 100; ++$i) {
             $promise = $promise->then(static fn ($v) => $v);
         }
-        SyncPromise::runQueue();
+        SyncPromiseQueue::run();
     }
 
     public function benchManyDeferreds(): void
@@ -55,7 +55,7 @@ class DeferredBench
         for ($i = 0; $i < 1000; ++$i) {
             new Deferred($fn);
         }
-        SyncPromise::runQueue();
+        SyncPromiseQueue::run();
     }
 
     public function benchManyNestedDeferreds(): void
@@ -63,7 +63,7 @@ class DeferredBench
         for ($i = 0; $i < 5000; ++$i) {
             new Deferred(static fn () => new Deferred(static fn () => null));
         }
-        SyncPromise::runQueue();
+        SyncPromiseQueue::run();
     }
 
     public function bench1000Chains(): void
@@ -75,6 +75,6 @@ class DeferredBench
                 ->then(static fn ($v) => $v)
                 ->then(static fn ($v) => $v);
         }
-        SyncPromise::runQueue();
+        SyncPromiseQueue::run();
     }
 }

@@ -187,16 +187,4 @@ class SyncPromise
             }
         });
     }
-
-    /**
-     * @param callable(\Throwable): mixed $onRejected
-     *
-     * @throws InvariantViolation
-     *
-     * @deprecated TODO remove in next major version, use ->then(null, $onRejected) instead
-     */
-    public function catch(callable $onRejected): self
-    {
-        return $this->then(null, $onRejected);
-    }
 }
