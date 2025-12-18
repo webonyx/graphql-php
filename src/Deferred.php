@@ -32,7 +32,7 @@ class Deferred extends SyncPromise
 
         SyncPromiseQueue::enqueue(function (): void {
             $executor = $this->executor;
-            unset($this->executor);
+            unset($this->executor); // @phpstan-ignore-line no subclasses are expected and not other uses of this property exist
 
             try {
                 $this->resolve($executor());
