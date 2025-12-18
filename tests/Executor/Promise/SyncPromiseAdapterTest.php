@@ -6,6 +6,7 @@ use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
+use GraphQL\Executor\Promise\Adapter\SyncPromiseQueue;
 use GraphQL\Executor\Promise\Promise;
 use PHPUnit\Framework\TestCase;
 
@@ -67,7 +68,7 @@ final class SyncPromiseAdapterTest extends TestCase
     }
 
     /** @param mixed $expectedNextValue */
-    private static function assertValidPromise(Promise $promise, ?string $expectedNextReason, $expectedNextValue, string $expectedNextState): void
+    private static function assertValidPromise(Promise $promise, ?string $expectedNextReason, $expectedNextValue, int $expectedNextState): void
     {
         self::assertInstanceOf(SyncPromise::class, $promise->adoptedPromise);
 
@@ -90,7 +91,7 @@ final class SyncPromiseAdapterTest extends TestCase
         self::assertFalse($onFulfilledCalled);
         self::assertFalse($onRejectedCalled);
 
-        SyncPromise::runQueue();
+        SyncPromiseQueue::run();
 
         if ($expectedNextState !== SyncPromise::PENDING) {
             if ($expectedNextReason === null) {

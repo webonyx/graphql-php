@@ -9,6 +9,16 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.29.0
+
+### Changed
+
+- Optimize `Deferred` execution https://github.com/webonyx/graphql-php/pull/1805
+
+### Deprecated
+
+- Deprecate `GraphQL\Deferred::create()` in favor of constructor https://github.com/webonyx/graphql-php/pull/1805
+
 ## v15.28.0
 
 ### Changed

@@ -41,10 +41,9 @@ class AmpPromiseAdapter implements PromiseAdapter
             }
         };
 
-        $adoptedPromise = $promise->adoptedPromise;
-        assert($adoptedPromise instanceof AmpPromise);
-
-        $adoptedPromise->onResolve($onResolve);
+        $ampPromise = $promise->adoptedPromise;
+        assert($ampPromise instanceof AmpPromise);
+        $ampPromise->onResolve($onResolve);
 
         return new Promise($deferred->promise(), $this);
     }

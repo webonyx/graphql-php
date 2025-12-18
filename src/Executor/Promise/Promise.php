@@ -25,7 +25,8 @@ class Promise
     public function __construct($adoptedPromise, PromiseAdapter $adapter)
     {
         if ($adoptedPromise instanceof self) {
-            throw new InvariantViolation('Expecting promise from adapted system, got ' . self::class);
+            $selfClass = self::class;
+            throw new InvariantViolation("Expected promise from adapted system, got {$selfClass}.");
         }
 
         $this->adoptedPromise = $adoptedPromise;
