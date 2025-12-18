@@ -15,7 +15,7 @@ class Deferred extends SyncPromise
     /**
      * Executor for deferred promises.
      *
-     * @var callable(): mixed
+     * @var (callable(): mixed)|null
      */
     protected $executor;
 
@@ -32,7 +32,8 @@ class Deferred extends SyncPromise
 
         SyncPromiseQueue::enqueue(function (): void {
             $executor = $this->executor;
-            unset($this->executor); // @phpstan-ignore-line no subclasses are expected and not other uses of this property exist
+            assert($executor !== null, 'Always set in constructor, this callback runs only once.');
+            $this->executor = null;
 
             try {
                 $this->resolve($executor());
