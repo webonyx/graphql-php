@@ -13,7 +13,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ### Fixed
 
-- Restore `SyncPromise` backwards compatibility
+- Restore `SyncPromise` backwards compatibility https://github.com/webonyx/graphql-php/pull/1823
 
 ## v15.29.0
 
