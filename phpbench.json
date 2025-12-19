@@ -3,11 +3,5 @@
   "runner.path": "benchmarks",
   "runner.file_pattern": "*Bench.php",
   "runner.retry_threshold": 5,
-  "runner.time_unit": "milliseconds",
-  "runner.progress": "plain",
-  "report.generators": {
-    "default": {
-      "extends": "aggregate"
-    }
-  }
+  "runner.time_unit": "milliseconds"
 }

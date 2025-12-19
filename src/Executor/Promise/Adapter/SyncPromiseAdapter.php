@@ -23,10 +23,10 @@ class SyncPromiseAdapter implements PromiseAdapter
     public function convertThenable($thenable): Promise
     {
         if (! $thenable instanceof SyncPromise) {
-            // End-users should always use Deferred, not SyncPromise directly
-            $deferredClass = Deferred::class;
+            // End-users should always use Deferred (and don't use SyncPromise directly)
+            $deferred = Deferred::class;
             $safeThenable = Utils::printSafe($thenable);
-            throw new InvariantViolation("Expected instance of {$deferredClass}, got {$safeThenable}.");
+            throw new InvariantViolation("Expected instance of {$deferred}, got {$safeThenable}");
         }
 
         return new Promise($thenable, $this);
@@ -35,10 +35,10 @@ class SyncPromiseAdapter implements PromiseAdapter
     /** @throws InvariantViolation */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
-        $syncPromise = $promise->adoptedPromise;
-        assert($syncPromise instanceof SyncPromise);
+        $adoptedPromise = $promise->adoptedPromise;
+        assert($adoptedPromise instanceof SyncPromise);
 
-        return new Promise($syncPromise->then($onFulfilled, $onRejected), $this);
+        return new Promise($adoptedPromise->then($onFulfilled, $onRejected), $this);
     }
 
     /**
@@ -47,18 +47,18 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function create(callable $resolver): Promise
     {
-        $syncPromise = new SyncPromise();
+        $promise = new SyncPromise();
 
         try {
             $resolver(
-                [$syncPromise, 'resolve'],
-                [$syncPromise, 'reject']
+                [$promise, 'resolve'],
+                [$promise, 'reject']
             );
         } catch (\Throwable $e) {
-            $syncPromise->reject($e);
+            $promise->reject($e);
         }
 
-        return new Promise($syncPromise, $this);
+        return new Promise($promise, $this);
     }
 
     /**
@@ -67,9 +67,9 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function createFulfilled($value = null): Promise
     {
-        $syncPromise = new SyncPromise();
+        $promise = new SyncPromise();
 
-        return new Promise($syncPromise->resolve($value), $this);
+        return new Promise($promise->resolve($value), $this);
     }
 
     /**
@@ -78,9 +78,9 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function createRejected(\Throwable $reason): Promise
     {
-        $syncPromise = new SyncPromise();
+        $promise = new SyncPromise();
 
-        return new Promise($syncPromise->reject($reason), $this);
+        return new Promise($promise->reject($reason), $this);
     }
 
     /**
@@ -114,11 +114,10 @@ class SyncPromiseAdapter implements PromiseAdapter
                     },
                     [$all, 'reject']
                 );
-                continue;
+            } else {
+                $result[$index] = $promiseOrValue;
+                ++$count;
             }
-
-            $result[$index] = $promiseOrValue;
-            ++$count;
         }
 
         $resolveAllWhenFinished();
@@ -136,12 +135,16 @@ class SyncPromiseAdapter implements PromiseAdapter
     public function wait(Promise $promise)
     {
         $this->beforeWait($promise);
+        $taskQueue = SyncPromise::getQueue();
 
         $syncPromise = $promise->adoptedPromise;
         assert($syncPromise instanceof SyncPromise);
 
-        while ($syncPromise->state === SyncPromise::PENDING) {
-            SyncPromiseQueue::run();
+        while (
+            $syncPromise->state === SyncPromise::PENDING
+            && ! $taskQueue->isEmpty()
+        ) {
+            SyncPromise::runQueue();
             $this->onWait($promise);
         }
 
@@ -153,7 +156,7 @@ class SyncPromiseAdapter implements PromiseAdapter
             throw $syncPromise->result;
         }
 
-        throw new InvariantViolation('Could not resolve promise.');
+        throw new InvariantViolation('Could not resolve promise');
     }
 
     /** Execute just before starting to run promise completion. */

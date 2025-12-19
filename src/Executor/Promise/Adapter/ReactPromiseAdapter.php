@@ -28,34 +28,34 @@ class ReactPromiseAdapter implements PromiseAdapter
     /** @throws InvariantViolation */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
-        $reactPromise = $promise->adoptedPromise;
-        assert($reactPromise instanceof ReactPromiseInterface);
+        $adoptedPromise = $promise->adoptedPromise;
+        assert($adoptedPromise instanceof ReactPromiseInterface);
 
-        return new Promise($reactPromise->then($onFulfilled, $onRejected), $this);
+        return new Promise($adoptedPromise->then($onFulfilled, $onRejected), $this);
     }
 
     /** @throws InvariantViolation */
     public function create(callable $resolver): Promise
     {
-        $reactPromise = new ReactPromise($resolver);
+        $promise = new ReactPromise($resolver);
 
-        return new Promise($reactPromise, $this);
+        return new Promise($promise, $this);
     }
 
     /** @throws InvariantViolation */
     public function createFulfilled($value = null): Promise
     {
-        $reactPromise = resolve($value);
+        $promise = resolve($value);
 
-        return new Promise($reactPromise, $this);
+        return new Promise($promise, $this);
     }
 
     /** @throws InvariantViolation */
     public function createRejected(\Throwable $reason): Promise
     {
-        $reactPromise = reject($reason);
+        $promise = reject($reason);
 
-        return new Promise($reactPromise, $this);
+        return new Promise($promise, $this);
     }
 
     /** @throws InvariantViolation */
@@ -70,11 +70,11 @@ class ReactPromiseAdapter implements PromiseAdapter
         $promisesOrValuesArray = is_array($promisesOrValues)
             ? $promisesOrValues
             : iterator_to_array($promisesOrValues);
-        $reactPromise = all($promisesOrValuesArray)->then(static fn (array $values): array => array_map(
+        $promise = all($promisesOrValuesArray)->then(static fn ($values): array => array_map(
             static fn ($key) => $values[$key],
             array_keys($promisesOrValuesArray),
         ));
 
-        return new Promise($reactPromise, $this);
+        return new Promise($promise, $this);
     }
 }
