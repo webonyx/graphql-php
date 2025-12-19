@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.29.1
+
+### Fixed
+
+- Restore `SyncPromise` backwards compatibility
+
 ## v15.29.0
 
 ### Changed

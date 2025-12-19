@@ -17,6 +17,28 @@ use GraphQL\Error\InvariantViolation;
  */
 class SyncPromise
 {
+    /**
+     * TODO remove in next major version.
+     *
+     * @deprecated Use SyncPromiseQueue::run() instead
+     */
+    public static function runQueue(): void
+    {
+        SyncPromiseQueue::run();
+    }
+
+    /**
+     * TODO remove in next major version.
+     *
+     * @deprecated Use SyncPromiseQueue methods instead
+     *
+     * @return \SplQueue<callable(): void>
+     */
+    public static function getQueue(): \SplQueue
+    {
+        return SyncPromiseQueue::queue();
+    }
+
     public const PENDING = 0;
     public const FULFILLED = 1;
     public const REJECTED = 2;

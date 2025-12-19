@@ -24,6 +24,7 @@ const ENTRIES = [
     GraphQL\Executor\ExecutionResult::class => [],
     GraphQL\Executor\Promise\PromiseAdapter::class => [],
     GraphQL\Deferred::class => [],
+    GraphQL\Executor\Promise\Adapter\SyncPromiseQueue::class => [],
     GraphQL\Validator\DocumentValidator::class => [],
     GraphQL\Error\Error::class => ['constants' => true],
     GraphQL\Error\Warning::class => ['constants' => true],
