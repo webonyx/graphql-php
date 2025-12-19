@@ -1797,6 +1797,56 @@ User-facing promise class for deferred field resolution.
 function __construct(callable $executor)
 ```
 
+## GraphQL\Executor\Promise\Adapter\SyncPromiseQueue
+
+Queue for deferred execution of SyncPromise tasks.
+
+Owns the shared queue and provides the run loop for processing promises.
+
+@api
+
+@phpstan-type Task callable(): void
+
+### GraphQL\Executor\Promise\Adapter\SyncPromiseQueue Methods
+
+```php
+/**
+ * Adds a task to the queue.
+ *
+ * @param Task $task
+ *
+ * @api
+ */
+static function enqueue(callable $task): void
+```
+
+```php
+/**
+ * Process all queued promises until the queue is empty.
+ *
+ * @api
+ */
+static function run(): void
+```
+
+```php
+/**
+ * Check if the queue is empty.
+ *
+ * @api
+ */
+static function isEmpty(): bool
+```
+
+```php
+/**
+ * Return the number of tasks in the queue.
+ *
+ * @api
+ */
+static function count(): int
+```
+
 ## GraphQL\Validator\DocumentValidator
 
 Implements the "Validation" section of the spec.
