@@ -22,6 +22,9 @@ return static function (Rector\Config\RectorConfig $rectorConfig): void {
         Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector::class, // Sometimes necessary to prove runtime behavior matches defined types
         Rector\DeadCode\Rector\If_\RemoveDeadInstanceOfRector::class, // Sometimes necessary to prove runtime behavior matches defined types
         Rector\DeadCode\Rector\Node\RemoveNonExistingVarAnnotationRector::class, // Sometimes false-positive
+        Rector\DeadCode\Rector\ClassMethod\RemoveParentDelegatingConstructorRector::class => [
+            __DIR__ . '/src/Type/Definition/CustomScalarType.php', // Refines PHPDoc types
+        ],
         Rector\DeadCode\Rector\Property\RemoveUnusedPrivatePropertyRector::class, // TODO reintroduce when https://github.com/rectorphp/rector-src/pull/4491 is released
         Rector\PHPUnit\CodeQuality\Rector\Class_\NarrowUnusedSetUpDefinedPropertyRector::class, // Sometimes nicer for symmetry
         Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector::class, // Prefer self::
