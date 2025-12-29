@@ -102,10 +102,10 @@ class DocumentValidator
         ?TypeInfo $typeInfo = null,
         ?ValidationCache $cache = null
     ): array {
-        if (isset($cache)) {
-            if ($cache->isValidated($schema, $ast, $rules)) {
-                return [];
-            }
+        if (isset($cache)
+            && $cache->isValidated($schema, $ast, $rules)
+        ) {
+            return [];
         }
 
         $finalRules = $rules ?? static::allRules();
