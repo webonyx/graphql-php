@@ -257,6 +257,8 @@ Here are some tips:
 - Use a stable hash function like `md5()` or `sha256()` to generate the key from the schema, AST, and rules.
 - Improve performance even further by hashing inputs known before deploying such as the schema or the installed package version.
   You may store the hash in an environment variable or a constant to avoid recalculating it on every request.
+- If you have access to the original query string before parsing, hashing it directly (`hash('sha256', $queryString)`) is more efficient than `serialize($ast)`.
+- Frameworks may pass pre-computed schema and query hashes to the cache implementation via the constructor to avoid redundant computation.
 
 ### Sample Implementation
 
@@ -342,3 +344,16 @@ Then use the environment variable in your key generation:
         return "graphql_validation_{$keyPrefix}_{$astHash}_{$rulesHash}";
     }
 ```
+
+### Special Considerations for QueryComplexity
+
+The `QueryComplexity` validation rule requires access to variable values, unlike most validation rules that depend only on the schema and query string.
+This means **caching results for `QueryComplexity` is unsafe** — different variable values can produce different complexity scores and different validation outcomes.
+
+If you use `QueryComplexity` with validation caching, consider one of these approaches:
+
+1. **Exclude from caching**: Run `QueryComplexity` separately without caching, then cache all other rules.
+2. **Two-phase validation**: First validate and cache "cacheable" rules (everything except `QueryComplexity`), then always run `QueryComplexity` separately.
+3. **Skip caching entirely for affected queries**: If the query uses `QueryComplexity`, don't use the cache for that request.
+
+Frameworks like [Lighthouse](https://lighthouse-php.com) implement two-phase validation automatically.
