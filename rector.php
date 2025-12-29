@@ -25,8 +25,9 @@ return static function (Rector\Config\RectorConfig $rectorConfig): void {
         Rector\DeadCode\Rector\Property\RemoveUnusedPrivatePropertyRector::class, // TODO reintroduce when https://github.com/rectorphp/rector-src/pull/4491 is released
         Rector\PHPUnit\CodeQuality\Rector\Class_\NarrowUnusedSetUpDefinedPropertyRector::class, // Sometimes nicer for symmetry
         Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector::class, // Prefer self::
-        Rector\PHPUnit\CodeQuality\Rector\Class_\RemoveDataProviderParamKeysRector::class, // Less clear
-        Rector\PHPUnit\CodeQuality\Rector\MethodCall\AssertPropertyExistsRector::class, // Uses deprecated PHPUnit methods
+        Rector\PHPUnit\CodeQuality\Rector\FuncCall\AssertFuncCallToPHPUnitAssertRector::class => [
+            __DIR__ . '/src',
+        ],
         Rector\PHPUnit\CodeQuality\Rector\MethodCall\AssertIssetToSpecificMethodRector::class => [
             __DIR__ . '/tests/Utils/MixedStoreTest.php', // Uses keys that are not string or int
         ],

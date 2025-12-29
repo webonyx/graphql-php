@@ -105,7 +105,6 @@ final class AstFromValueUntypedTest extends TestCase
         );
         self::assertTestCase(
             '$testVariable',
-            null,
             null
         );
     }

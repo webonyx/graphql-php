@@ -12,19 +12,19 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: shivammathur/setup-php@v2
         with:
           coverage: none
           extensions: mbstring
-          php-version: 8.3
+          php-version: "8.3"
 
       - uses: ramsey/composer-install@v2
 
       - run: composer normalize
 
-      - run: vendor/bin/php-cs-fixer fix
+      - run: make php-cs-fixer
 
       - run: composer docs
 

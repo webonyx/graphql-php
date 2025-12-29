@@ -190,6 +190,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     }
 
     /**
+     * @throws \JsonException
      * @throws Error
      * @throws InvariantViolation
      */

@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Validator;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Parser;
+use GraphQL\Type\Introspection;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\Rules\QueryComplexity;
@@ -164,7 +165,16 @@ final class QueryComplexityTest extends QuerySecurityTestCase
 
     public function testComplexityIntrospectionQuery(): void
     {
-        $this->assertIntrospectionQuery(188);
+        $query = Introspection::getIntrospectionQuery();
+
+        $this->assertDocumentValidator($query, 0);
+    }
+
+    public function testMixedIntrospectionAndRegularFields(): void
+    {
+        $query = 'query MyQuery { __schema { queryType { name } } human { firstName } }';
+
+        $this->assertDocumentValidators($query, 2, 3);
     }
 
     public function testIntrospectionTypeMetaFieldQuery(): void

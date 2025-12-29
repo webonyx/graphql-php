@@ -10,6 +10,7 @@ use GraphQL\Utils\Utils;
 
 /**
  * @phpstan-import-type ResolveType from AbstractType
+ * @phpstan-import-type ResolveValue from AbstractType
  *
  * @phpstan-type ObjectTypeReference ObjectType|callable(): ObjectType
  * @phpstan-type UnionConfig array{
@@ -17,6 +18,7 @@ use GraphQL\Utils\Utils;
  *   description?: string|null,
  *   types: iterable<ObjectTypeReference>|callable(): iterable<ObjectTypeReference>,
  *   resolveType?: ResolveType|null,
+ *   resolveValue?: ResolveValue|null,
  *   astNode?: UnionTypeDefinitionNode|null,
  *   extensionASTNodes?: array<UnionTypeExtensionNode>|null
  * }
@@ -99,11 +101,20 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
             }
 
             foreach ($types as $type) {
-                $this->types[] = Schema::resolveType($type);
+                $this->types[] = Schema::resolveType($type); // @phpstan-ignore argument.templateType
             }
         }
 
         return $this->types;
+    }
+
+    public function resolveValue($objectValue, $context, ResolveInfo $info)
+    {
+        if (isset($this->config['resolveValue'])) {
+            return ($this->config['resolveValue'])($objectValue, $context, $info);
+        }
+
+        return $objectValue;
     }
 
     public function resolveType($objectValue, $context, ResolveInfo $info)

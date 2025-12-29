@@ -30,14 +30,18 @@ use GraphQL\Utils\Utils;
  * @phpstan-type IntrospectionOptions array{
  *     descriptions?: bool,
  *     directiveIsRepeatable?: bool,
+ *     typeIsOneOf?: bool,
  * }
  *
  * Available options:
  * - descriptions
- *   Whether to include descriptions in the introspection result.
+ *   Include descriptions in the introspection result?
  *   Default: true
  * - directiveIsRepeatable
- *   Whether to include `isRepeatable` flag on directives.
+ *   Include field `isRepeatable` for directives?
+ *   Default: false
+ * - typeIsOneOf
+ *   Include field `isOneOf` for types?
  *   Default: false
  *
  * @see \GraphQL\Tests\Type\IntrospectionTest
@@ -81,6 +85,7 @@ class Introspection
         $optionsWithDefaults = array_merge([
             'descriptions' => true,
             'directiveIsRepeatable' => false,
+            'typeIsOneOf' => false,
         ], $options);
 
         $descriptions = $optionsWithDefaults['descriptions']
@@ -88,6 +93,9 @@ class Introspection
             : '';
         $directiveIsRepeatable = $optionsWithDefaults['directiveIsRepeatable']
             ? 'isRepeatable'
+            : '';
+        $typeIsOneOf = $optionsWithDefaults['typeIsOneOf']
+            ? 'isOneOf'
             : '';
 
         return <<<GRAPHQL
@@ -102,7 +110,7 @@ class Introspection
       directives {
         name
         {$descriptions}
-        args {
+        args(includeDeprecated: true) {
           ...InputValue
         }
         {$directiveIsRepeatable}
@@ -115,7 +123,7 @@ class Introspection
     kind
     name
     {$descriptions}
-    isOneOf
+    {$typeIsOneOf}
     fields(includeDeprecated: true) {
       name
       {$descriptions}
@@ -210,7 +218,10 @@ GRAPHQL;
      */
     public static function fromSchema(Schema $schema, array $options = []): array
     {
-        $optionsWithDefaults = array_merge(['directiveIsRepeatable' => true], $options);
+        $optionsWithDefaults = array_merge([
+            'directiveIsRepeatable' => true,
+            'typeIsOneOf' => true,
+        ], $options);
 
         $result = GraphQL::executeQuery(
             $schema,
@@ -343,7 +354,7 @@ GRAPHQL;
                     'type' => Type::listOf(Type::nonNull(self::_field())),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => Type::nonNull(Type::boolean()),
                             'defaultValue' => false,
                         ],
                     ],
@@ -351,7 +362,7 @@ GRAPHQL;
                         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
                             $fields = $type->getVisibleFields();
 
-                            if (! ($args['includeDeprecated'] ?? false)) {
+                            if (! $args['includeDeprecated']) {
                                 return array_filter(
                                     $fields,
                                     static fn (FieldDefinition $field): bool => ! $field->isDeprecated()
@@ -380,7 +391,7 @@ GRAPHQL;
                     'type' => Type::listOf(Type::nonNull(self::_enumValue())),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => Type::nonNull(Type::boolean()),
                             'defaultValue' => false,
                         ],
                     ],
@@ -388,7 +399,7 @@ GRAPHQL;
                         if ($type instanceof EnumType) {
                             $values = $type->getValues();
 
-                            if (! ($args['includeDeprecated'] ?? false)) {
+                            if (! $args['includeDeprecated']) {
                                 return array_filter(
                                     $values,
                                     static fn (EnumValueDefinition $value): bool => ! $value->isDeprecated()
@@ -405,7 +416,7 @@ GRAPHQL;
                     'type' => Type::listOf(Type::nonNull(self::_inputValue())),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => Type::nonNull(Type::boolean()),
                             'defaultValue' => false,
                         ],
                     ],
@@ -413,7 +424,7 @@ GRAPHQL;
                         if ($type instanceof InputObjectType) {
                             $fields = $type->getFields();
 
-                            if (! ($args['includeDeprecated'] ?? false)) {
+                            if (! $args['includeDeprecated']) {
                                 return array_filter(
                                     $fields,
                                     static fn (InputObjectField $field): bool => ! $field->isDeprecated(),
@@ -505,14 +516,14 @@ GRAPHQL;
                     'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => Type::nonNull(Type::boolean()),
                             'defaultValue' => false,
                         ],
                     ],
                     'resolve' => static function (FieldDefinition $field, $args): array {
                         $values = $field->args;
 
-                        if (! ($args['includeDeprecated'] ?? false)) {
+                        if (! $args['includeDeprecated']) {
                             return array_filter(
                                 $values,
                                 static fn (Argument $value): bool => ! $value->isDeprecated(),
@@ -656,7 +667,24 @@ GRAPHQL;
                 ],
                 'args' => [
                     'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                    'resolve' => static fn (Directive $directive): array => $directive->args,
+                    'args' => [
+                        'includeDeprecated' => [
+                            'type' => Type::nonNull(Type::boolean()),
+                            'defaultValue' => false,
+                        ],
+                    ],
+                    'resolve' => static function (Directive $directive, $args): array {
+                        $values = $directive->args;
+
+                        if (! $args['includeDeprecated']) {
+                            return array_filter(
+                                $values,
+                                static fn (Argument $value): bool => ! $value->isDeprecated(),
+                            );
+                        }
+
+                        return $values;
+                    },
                 ],
             ],
         ]);

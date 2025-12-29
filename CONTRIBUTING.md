@@ -1,19 +1,36 @@
 # Contributing to graphql-php
 
-## Workflow
+## Open a Pull Request
 
 If your contribution requires significant or breaking changes, or if you plan to propose a major new feature,
 we recommend you to [create an issue](https://github.com/webonyx/graphql-php/issues/new)
 with a brief proposal and discuss it with us first.
 
-For smaller contributions just use this workflow:
+For smaller contributions use this workflow:
 
-- Fork the project.
-- Add your features and or bug fixes.
-- Add tests to ensure your changes work and will continue working.
-- Check your changes using `composer check`.
-- Add an entry to the [Changelog's Unreleased section](CHANGELOG.md#unreleased).
-- Send a pull request.
+1. Fork the project.
+2. Add your features and or bug fixes.
+3. Add tests to ensure your changes work and will continue working.
+4. Check your changes using `composer check`.
+5. Add an entry to the [Changelog's Unreleased section](CHANGELOG.md#unreleased).
+6. Send a pull request.
+
+## Release a New Version
+
+Before you release a new version, make sure to familiarize yourself with:
+
+- [Keep a Changelog](https://keepachangelog.com/en/1.0.0)
+- [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+- [Previous GitHub Releases](https://github.com/webonyx/graphql-php/releases)
+
+To create a new release, follow these steps:
+
+1. Consider the entries in the [`CHANGELOG unreleased section`](CHANGELOG.md#unreleased), add missing entries if needed
+2. Based on those entries and the previous version, define the next version number and add it to the [`CHANGELOG.md`](CHANGELOG.md)
+3. [Draft a new release](https://github.com/webonyx/graphql-php/releases/new)
+4. Add the version number as both tag and title
+5. Add the changelog entries as the description
+6. Publish the release
 
 ## Setup
 

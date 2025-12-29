@@ -116,10 +116,7 @@ class Utils
             return pack('N', $ord);
         }
 
-        $converted = mb_convert_encoding(self::chr($ord, 'UCS-4BE'), $encoding, 'UCS-4BE');
-        assert(is_string($converted), 'format string is statically known to be correct');
-
-        return $converted;
+        return mb_convert_encoding(self::chr($ord, 'UCS-4BE'), $encoding, 'UCS-4BE');
     }
 
     /** UTF-8 compatible ord(). */

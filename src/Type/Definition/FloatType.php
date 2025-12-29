@@ -49,6 +49,10 @@ values as specified by
         return $float;
     }
 
+    /**
+     * @throws \JsonException
+     * @throws Error
+     */
     public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof FloatValueNode || $valueNode instanceof IntValueNode) {

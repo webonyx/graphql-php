@@ -1049,7 +1049,7 @@ final class SchemaPrinterTest extends TestCase
 
       "Marks an element of a GraphQL schema as no longer supported."
       directive @deprecated(
-        "Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https:\/\/commonmark.org\/)."
+        "Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/)."
         reason: String = "No longer supported"
       ) on FIELD_DEFINITION | ENUM_VALUE | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
@@ -1083,11 +1083,11 @@ final class SchemaPrinterTest extends TestCase
         kind: __TypeKind!
         name: String
         description: String
-        fields(includeDeprecated: Boolean = false): [__Field!]
+        fields(includeDeprecated: Boolean! = false): [__Field!]
         interfaces: [__Type!]
         possibleTypes: [__Type!]
-        enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
-        inputFields(includeDeprecated: Boolean = false): [__InputValue!]
+        enumValues(includeDeprecated: Boolean! = false): [__EnumValue!]
+        inputFields(includeDeprecated: Boolean! = false): [__InputValue!]
         ofType: __Type
         isOneOf: Boolean
       }
@@ -1123,7 +1123,7 @@ final class SchemaPrinterTest extends TestCase
       type __Field {
         name: String!
         description: String
-        args(includeDeprecated: Boolean = false): [__InputValue!]!
+        args(includeDeprecated: Boolean! = false): [__InputValue!]!
         type: __Type!
         isDeprecated: Boolean!
         deprecationReason: String
@@ -1160,7 +1160,7 @@ final class SchemaPrinterTest extends TestCase
         description: String
         isRepeatable: Boolean!
         locations: [__DirectiveLocation!]!
-        args: [__InputValue!]!
+        args(includeDeprecated: Boolean! = false): [__InputValue!]!
       }
 
       "A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies."

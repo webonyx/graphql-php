@@ -66,10 +66,10 @@ use GraphQL\Utils\Utils;
  * 3. Generic visitors that trigger upon entering and leaving any node.
  *
  *     Visitor::visit($ast, [
- *       'enter' => function ($node) {
+ *       'enter' => function (Node $node) {
  *         // enter any node
  *       },
- *       'leave' => function ($node) {
+ *       'leave' => function (Node $node) {
  *         // leave any node
  *       }
  *     ]);
@@ -89,7 +89,7 @@ use GraphQL\Utils\Utils;
  *       ]
  *     ]);
  *
- * @phpstan-type NodeVisitor callable(Node): (VisitorOperation|null|false|void)
+ * @phpstan-type NodeVisitor callable(Node): (VisitorOperation|Node|NodeList<Node>|null|false|void)
  * @phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
  *
  * @see \GraphQL\Tests\Language\VisitorTest
@@ -217,12 +217,15 @@ class Visitor
                             $node->splice($editKey, 1);
                             ++$editOffset;
                         } elseif ($node instanceof NodeList) {
-                            if (! $editValue instanceof Node) {
-                                $notNode = Utils::printSafe($editValue);
-                                throw new \Exception("Can only add Node to NodeList, got: {$notNode}.");
+                            if ($editValue instanceof NodeList) {
+                                $node->splice($editKey, 1, $editValue);
+                                $editOffset -= count($editValue) - 1;
+                            } elseif ($editValue instanceof Node) {
+                                $node[$editKey] = $editValue;
+                            } else {
+                                $notNodeOrNodeList = Utils::printSafe($editValue);
+                                throw new \Exception("Can only add Node or NodeList to NodeList, got: {$notNodeOrNodeList}.");
                             }
-
-                            $node[$editKey] = $editValue;
                         } else {
                             $node->{$editKey} = $editValue;
                         }
@@ -478,7 +481,7 @@ class Visitor
     /**
      * @phpstan-param VisitorArray $visitor
      *
-     * @return (callable(Node $node, string|int|null $key, Node|NodeList<Node>|null $parent, array<int, int|string> $path, array<int, Node|NodeList<Node>> $ancestors): (VisitorOperation|Node|null))|(callable(Node): (VisitorOperation|void|false|null))|null
+     * @return (callable(Node $node, string|int|null $key, Node|NodeList<Node>|null $parent, array<int, int|string> $path, array<int, Node|NodeList<Node>> $ancestors): (VisitorOperation|Node|null))|(callable(Node): (VisitorOperation|Node|NodeList<Node>|void|false|null))|null
      */
     protected static function extractVisitFn(array $visitor, string $kind, bool $isLeaving): ?callable
     {

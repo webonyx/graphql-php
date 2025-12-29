@@ -9,11 +9,145 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.29.3
+
+### Changed
+
+- Remove pass-by-reference for `$result` in `ReferenceExecutor` https://github.com/webonyx/graphql-php/pull/1780
+
+## v15.29.2
+
+### Fixed
+
+- Do not escape forward slashes in `Printer::printDescription` https://github.com/webonyx/graphql-php/pull/1824
+
+## v15.29.1
+
+### Fixed
+
+- Restore `SyncPromise` backwards compatibility https://github.com/webonyx/graphql-php/pull/1823
+
+## v15.29.0
+
+### Changed
+
+- Optimize `Deferred` execution https://github.com/webonyx/graphql-php/pull/1805
+
+### Deprecated
+
+- Deprecate `GraphQL\Deferred::create()` in favor of constructor https://github.com/webonyx/graphql-php/pull/1805
+
+## v15.28.0
+
+### Changed
+
+- Optimize `Lexer` name tokenization https://github.com/webonyx/graphql-php/pull/1813
+
+## v15.27.2
+
+### Fixed
+
+- Fix PHP 7.4 compatibility broken by `\Stringable` interface https://github.com/webonyx/graphql-php/pull/1810
+
+## v15.27.1
+
+### Fixed
+
+- Revert `Deferred` memory usage optimization https://github.com/webonyx/graphql-php/pull/1790
+
+## v15.27.0
+
+### Added
+
+- Optimize `Deferred` memory usage with incremental queue processing https://github.com/webonyx/graphql-php/pull/1790
+
+## v15.26.0
+
+### Changed
+
+- Ignore Introspection queries in QueryComplexity rule https://github.com/webonyx/graphql-php/pull/1788
+
+## v15.25.2
+
+### Fixed
+
+- Add missing return types in `HasFieldsTypeImplementation` https://github.com/webonyx/graphql-php/pull/1783
+
+## v15.25.1
+
+### Changed
+
+- Call `AbstractType::resolveValue` before `AbstractType::resolveType` https://github.com/webonyx/graphql-php/pull/1781
+
+## v15.25.0
+
+### Added
+
+- Introduce `resolveValue` method to Interface and Union types https://github.com/webonyx/graphql-php/pull/1776
+
+## v15.24.0
+
+### Added
+
+- Allow passing `NonNull` to `Type::nonNull()` https://github.com/webonyx/graphql-php/pull/1757
+
+## v15.23.1
+
+### Changed
+
+- Improve `Type::getNamedType()` return type https://github.com/webonyx/graphql-php/pull/1756
+
+## v15.23.0
+
+### Added
+
+- Allow replacing a `Node` with a `NodeList` in `Visitor` https://github.com/webonyx/graphql-php/pull/1754
+
+## v15.22.4
+
+### Fixed
+
+- Fix `NodeVisitor` return type by allowing `Node` https://github.com/webonyx/graphql-php/pull/1752
+
+## v15.22.3
+
+### Changed
+
+- Make class `Printer` fully static https://github.com/webonyx/graphql-php/pull/1749
+
+## v15.22.2
+
+### Fixed
+
+- Do not escape forward slashes in `Printer::doPrint` https://github.com/webonyx/graphql-php/pull/1748
+
+## v15.22.1
+
+### Fixed
+
+- Keep `isOneOf` directive when extending input objects with `SchemaExtender` https://github.com/webonyx/graphql-php/pull/1745
+
+## v15.22.0
+
+### Added
+
+- Add argument `includeDeprecated` to introspection field `__Directive.args` https://github.com/webonyx/graphql-php/pull/1738/commits/0dd03675dc7c971abfad86cafaf2da353778529f
+
+### Changed
+
+- Make all `includeDeprecated` arguments in introspection fields non-nullable with default value `false` https://github.com/webonyx/graphql-php/pull/1738/commits/851ddb55d722035904191705b6d62ba56950680c
+
+## v15.21.3
+
+### Fixed
+
+- Make querying `isOneOf` optional in introspection query https://github.com/webonyx/graphql-php/pull/1737
+
 ## v15.21.2
 
 ### Fixed
 
-- Add missing `isOneOf` to Introspection query https://github.com/webonyx/graphql-php/pull/1729
+- Add missing `isOneOf` to introspection query https://github.com/webonyx/graphql-php/pull/1729
 
 ## v15.21.1
 
@@ -387,7 +521,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Throw if `Introspection::fromSchema()` returns no data
 - Reorganize abstract class `ASTValidationContext` to interface `ValidationContext`
 - Reorganize AST interfaces related to schema and type extensions
-- Align `Utils::suggestionList()` with the reference implementation (#1075)
+- Align `Utils::suggestionList()` with the reference implementation (https://github.com/webonyx/graphql-php/issues/1075)
 - Order schema topologically and according to the user-defined order, affects introspection and printing
 - `GraphQL\Utils\AST::typeFromAST()` now needs a type loader callable instead of the Schema
 - Do not change HTTP status code in `StandardServer`
@@ -411,13 +545,13 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Add `AST::concatAST()` utility
 - Allow lazy input object fields
 - Add validation rule `UniqueEnumValueNames`
-- Add SDL validation rule `UniqueOperationTypes` (#995)
+- Add SDL validation rule `UniqueOperationTypes` (https://github.com/webonyx/graphql-php/issues/995)
 - Add ability to remove custom validation rules after adding them via `DocumentValidator::removeRule()`
 - Allow lazy enum values
 - Make `Node` implement `JsonSerializable`
-- Add SDL validation rule `UniqueTypeNames` (#998)
-- Add support for SDL validation to `KnownTypeNames` rule (#999)
-- Add SDL validation rule `UniqueArgumentDefinitionNames` (#1136)
+- Add SDL validation rule `UniqueTypeNames` (https://github.com/webonyx/graphql-php/issues/998)
+- Add support for SDL validation to `KnownTypeNames` rule (https://github.com/webonyx/graphql-php/issues/999)
+- Add SDL validation rule `UniqueArgumentDefinitionNames` (https://github.com/webonyx/graphql-php/issues/1136)
 - Add `parseValue` config option to InputObjectType to parse input value to custom value object
 - Add option `sortTypes` to have `SchemaPrinter` order types alphabetically
 - Allow constructing `EnumType` from PHP enum
@@ -439,9 +573,9 @@ You can find and compare releases at the [GitHub release page](https://github.co
 - Handle `null` parent of list in `ValuesOfCorrectType::getVisitor`
 - Allow sending both `query` and `queryId`, ignore `queryId` in that case
 - Preserve extended methods from class-based types in `SchemaExtender::extend()`
-- Fix printing of empty types (#940)
+- Fix printing of empty types (https://github.com/webonyx/graphql-php/issues/940)
 - Clone `NodeList` in `Node::cloneDeep()`
-- Calling `Schema::getType()` on a schema built from SDL returns `null` for unknown types (#1068)
+- Calling `Schema::getType()` on a schema built from SDL returns `null` for unknown types (https://github.com/webonyx/graphql-php/issues/1068)
 - Avoid crash on typeless inline fragment when using `QueryComplexity` rule
 - Avoid calling `FormattedError::addDebugEntries()` twice when using default error formatting
 - Avoid calling defined functions named like lazily loaded types
@@ -528,7 +662,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ### Fixed
 
-- Fix `extend()` to preserve `repeatable` (#931)
+- Fix `extend()` to preserve `repeatable` (https://github.com/webonyx/graphql-php/issues/931)
 
 ## v14.11.4
 
@@ -623,13 +757,13 @@ Refactoring:
 
 ### Fixed
 
-- Fix Input Object field shortcut definition with callable (#773)
+- Fix Input Object field shortcut definition with callable (https://github.com/webonyx/graphql-php/issues/773)
 
 ## v14.5.0
 
 ### Added
 
-- Implement support for interfaces implementing interfaces (#740), huge kudos to @Kingdutch
+- Implement support for interfaces implementing interfaces (https://github.com/webonyx/graphql-php/issues/740), huge kudos to @Kingdutch
 
 Deprecates:
 
@@ -643,22 +777,22 @@ Deprecates:
 
 Refactoring:
 
-- Reify AST node types and remove unneeded nullability (#751)
+- Reify AST node types and remove unneeded nullability (https://github.com/webonyx/graphql-php/issues/751)
 
 ## v14.4.1
 
 ### Fixed
 
-- Allow pushing nodes to `NodeList` via `[]=` (#767)
-- Fix signature of `Error\FormattedError::prepareFormatter()` to address PHP8 deprecation (#742)
-- Do not add errors key to result when errors discarded by custom error handler (#766)
+- Allow pushing nodes to `NodeList` via `[]=` (https://github.com/webonyx/graphql-php/issues/767)
+- Fix signature of `Error\FormattedError::prepareFormatter()` to address PHP8 deprecation (https://github.com/webonyx/graphql-php/issues/742)
+- Do not add errors key to result when errors discarded by custom error handler (https://github.com/webonyx/graphql-php/issues/766)
 
 ## v14.4.0
 
 ### Fixed
 
 - Fixed `SchemaPrinter` so that it uses late static bindings when extended
-- Parse `DirectiveDefinitionNode->locations` as `NodeList<NamedNode>` (fixes AST::fromArray conversion) (#723)
+- Parse `DirectiveDefinitionNode->locations` as `NodeList<NamedNode>` (fixes AST::fromArray conversion) (https://github.com/webonyx/graphql-php/issues/723)
 - Parse `Parser::implementsInterfaces` as `NodeList<NamedTypeNode>` (fixes AST::fromArray conversion)
 - Fix signature of `Parser::unionMemberTypes` to match actual `NodeList<NamedTypeNode>`
 
@@ -666,22 +800,22 @@ Refactoring:
 
 ### Added
 
-- Allow `typeLoader` to return a type thunk (#687)
+- Allow `typeLoader` to return a type thunk (https://github.com/webonyx/graphql-php/issues/687)
 
 ### Fixed
 
-- Read getParsedBody() instead of getBody() when Request is ServerRequest (#715)
-- Fix default get/set behavior on InputObjectField and FieldDefinition (#716)
+- Read getParsedBody() instead of getBody() when Request is ServerRequest (https://github.com/webonyx/graphql-php/issues/715)
+- Fix default get/set behavior on InputObjectField and FieldDefinition (https://github.com/webonyx/graphql-php/issues/716)
 
 ## v14.2.0
 
 Deprecates:
 
-- Public access to `FieldDefinition::$type` property (#702)
+- Public access to `FieldDefinition::$type` property (https://github.com/webonyx/graphql-php/issues/702)
 
 Fixes:
 
-- Fix validation for input field definition directives (#714)
+- Fix validation for input field definition directives (https://github.com/webonyx/graphql-php/issues/714)
 
 ## v14.1.1
 
@@ -689,51 +823,51 @@ Fixes:
 
 ### Fixed
 
-- Handle nullable `DirectiveNode#astNode` in `SchemaValidationContext` (#708)
+- Handle nullable `DirectiveNode#astNode` in `SchemaValidationContext` (https://github.com/webonyx/graphql-php/issues/708)
 
 ## v14.1.0
 
 ### Added
 
-- Add partial parse functions for const variants (#693)
+- Add partial parse functions for const variants (https://github.com/webonyx/graphql-php/issues/693)
 
 ### Fixed
 
-- Differentiate between client-safe and non-client-safe errors in scalar validation (#706)
-- Proper type hints for `IntValueNode` (#691)
-- Fix "only booleans are allowed" errors (#659)
-- Ensure NamedTypeNode::$name is always a NameNode (#695)
+- Differentiate between client-safe and non-client-safe errors in scalar validation (https://github.com/webonyx/graphql-php/issues/706)
+- Proper type hints for `IntValueNode` (https://github.com/webonyx/graphql-php/issues/691)
+- Fix "only booleans are allowed" errors (https://github.com/webonyx/graphql-php/issues/659)
+- Ensure NamedTypeNode::$name is always a NameNode (https://github.com/webonyx/graphql-php/issues/695)
 
 ### Optimized
 
-- Visitor: simplify getVisitFn (#694)
-- Replace function calls with type casts (#692)
+- Visitor: simplify getVisitFn (https://github.com/webonyx/graphql-php/issues/694)
+- Replace function calls with type casts (https://github.com/webonyx/graphql-php/issues/692)
 
 ## v14.0.2
 
 ### Optimized
 
-- Optimize lazy types (#684)
+- Optimize lazy types (https://github.com/webonyx/graphql-php/issues/684)
 
 ## v14.0.1
 
 ### Fixed
 
-- Fix for: Argument defaults with integer/float values crashes introspection query (#679)
-- Fix for "Invalid AST Node: false" error (#685)
-- Fix double Error wrapping when parsing variables (#688)
+- Fix for: Argument defaults with integer/float values crashes introspection query (https://github.com/webonyx/graphql-php/issues/679)
+- Fix for "Invalid AST Node: false" error (https://github.com/webonyx/graphql-php/issues/685)
+- Fix double Error wrapping when parsing variables (https://github.com/webonyx/graphql-php/issues/688)
 
 ### Optimized
 
-- Do not use call_user_func or call_user_func_array (#676)
-- Codestyle and static analysis improvements (#648, #690)
+- Do not use call_user_func or call_user_func_array (https://github.com/webonyx/graphql-php/issues/676)
+- Codestyle and static analysis improvements (https://github.com/webonyx/graphql-php/issues/648, https://github.com/webonyx/graphql-php/issues/690)
 
 ## v14.0.0
 
 This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.md) document for details.
 
-- **BREAKING/BUGFIX:** Strict coercion of scalar types (#278)
-- **BREAKING/BUGFIX:** Spec-compliance: Fixed ambiguity with null variable values and default values (#274)
+- **BREAKING/BUGFIX:** Strict coercion of scalar types (https://github.com/webonyx/graphql-php/issues/278)
+- **BREAKING/BUGFIX:** Spec-compliance: Fixed ambiguity with null variable values and default values (https://github.com/webonyx/graphql-php/issues/274)
 - **BREAKING:** Removed deprecated directive introspection fields (onOperation, onFragment, onField)
 - **BREAKING:** `GraphQL\Deferred` now extends `GraphQL\Executor\Promise\Adapter\SyncPromise`
 - **BREAKING:** renamed several types of dangerous/breaking changes (returned by `BreakingChangesFinder`)
@@ -743,13 +877,13 @@ This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.
 
 ### Added
 
-- Support repeatable directives (#643)
-- Support SDL Validation and other schema validation improvements (e.g. #492)
-- Added promise adapter for [Amp](https://amphp.org/) (#551)
-- Query plan utility improvements (#513, #632)
-- Allow retrieving query complexity once query has been completed (#316)
-- Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535)
-- Support UTF-16 surrogate pairs within string literals (#554, #556)
+- Support repeatable directives (https://github.com/webonyx/graphql-php/issues/643)
+- Support SDL Validation and other schema validation improvements (e.g. https://github.com/webonyx/graphql-php/issues/492)
+- Added promise adapter for [Amp](https://amphp.org/) (https://github.com/webonyx/graphql-php/issues/551)
+- Query plan utility improvements (https://github.com/webonyx/graphql-php/issues/513, https://github.com/webonyx/graphql-php/issues/632)
+- Allow retrieving query complexity once query has been completed (https://github.com/webonyx/graphql-php/issues/316)
+- Allow input types to be passed in from variables using \stdClass instead of associative arrays (https://github.com/webonyx/graphql-php/issues/535)
+- Support UTF-16 surrogate pairs within string literals (https://github.com/webonyx/graphql-php/issues/554, https://github.com/webonyx/graphql-php/issues/556)
 
 ### Changed
 
@@ -758,12 +892,12 @@ This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.
 
 ### Optimized
 
-- Perf: support lazy type definitions (#557)
-- Simplified Deferred implementation (now allows chaining like promises, #573)
+- Perf: support lazy type definitions (https://github.com/webonyx/graphql-php/issues/557)
+- Simplified Deferred implementation (now allows chaining like promises, https://github.com/webonyx/graphql-php/issues/573)
 
 ### Deprecated
 
-- Deprecated Experimental executor (#397)
+- Deprecated Experimental executor (https://github.com/webonyx/graphql-php/issues/397)
 
 ### Fixed
 
@@ -774,39 +908,39 @@ Special thanks to @simPod, @spawnia and @shmax for their major contributions!
 
 ## v0.13.9
 
-- Fix double Error wrapping when parsing variables (#689)
+- Fix double Error wrapping when parsing variables (https://github.com/webonyx/graphql-php/issues/689)
 
 ## v0.13.8
 
-- Don't call global field resolver on introspection fields (#481)
+- Don't call global field resolver on introspection fields (https://github.com/webonyx/graphql-php/issues/481)
 
 ## v0.13.7
 
-- Added retrieving query complexity once query has been completed (#316)
-- Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535)
+- Added retrieving query complexity once query has been completed (https://github.com/webonyx/graphql-php/issues/316)
+- Allow input types to be passed in from variables using \stdClass instead of associative arrays (https://github.com/webonyx/graphql-php/issues/535)
 
 ## v0.13.6
 
-- QueryPlan can now be used on interfaces not only objects. (#495)
-- Array in variables in place of object shouldn't cause fatal error (fixes #467)
-- Scalar type ResolverInfo::getFieldSelection support (#529)
+- QueryPlan can now be used on interfaces not only objects. (https://github.com/webonyx/graphql-php/issues/495)
+- Array in variables in place of object shouldn't cause fatal error (fixes https://github.com/webonyx/graphql-php/issues/467)
+- Scalar type ResolverInfo::getFieldSelection support (https://github.com/webonyx/graphql-php/issues/529)
 
 ## v0.13.5
 
-- Fix coroutine executor when using with promise (#486)
+- Fix coroutine executor when using with promise (https://github.com/webonyx/graphql-php/issues/486)
 
 ## v0.13.4
 
-- Force int when setting max query depth (#477)
+- Force int when setting max query depth (https://github.com/webonyx/graphql-php/issues/477)
 
 ## v0.13.3
 
-- Reverted minor possible breaking change (#476)
+- Reverted minor possible breaking change (https://github.com/webonyx/graphql-php/issues/476)
 
 ## v0.13.2
 
-- Added QueryPlan support (#436)
-- Fixed an issue with NodeList iteration over missing keys (#475)
+- Added QueryPlan support (https://github.com/webonyx/graphql-php/issues/436)
+- Fixed an issue with NodeList iteration over missing keys (https://github.com/webonyx/graphql-php/issues/475)
 
 ## v0.13.1
 
@@ -821,24 +955,24 @@ This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.
 New features and notable changes:
 
 - PHP version required: 7.1+
-- Spec compliance: error `category` and extensions are displayed under `extensions` key when using default formatting (#389)
-- New experimental executor with improved performance (#314).<br>
+- Spec compliance: error `category` and extensions are displayed under `extensions` key when using default formatting (https://github.com/webonyx/graphql-php/issues/389)
+- New experimental executor with improved performance (https://github.com/webonyx/graphql-php/issues/314).<br>
   It is a one-line switch: `GraphQL::useExperimentalExecutor()`.<br>
   <br>
   **Please try it and post your feedback at https://github.com/webonyx/graphql-php/issues/397**
   (as it may become the default one in future)
   <br>
   <br>
-- Ported `extendSchema` from the reference implementation under `GraphQL\Utils\SchemaExtender` (#362)
-- Added ability to override standard types via `GraphQL::overrideStandardTypes(array $types)` (#401)
-- Added flag `Debug::RETHROW_UNSAFE_EXCEPTIONS` which would only rethrow app-specific exceptions (#337)
+- Ported `extendSchema` from the reference implementation under `GraphQL\Utils\SchemaExtender` (https://github.com/webonyx/graphql-php/issues/362)
+- Added ability to override standard types via `GraphQL::overrideStandardTypes(array $types)` (https://github.com/webonyx/graphql-php/issues/401)
+- Added flag `Debug::RETHROW_UNSAFE_EXCEPTIONS` which would only rethrow app-specific exceptions (https://github.com/webonyx/graphql-php/issues/337)
 - Several classes were renamed (see [UPGRADE.md](UPGRADE.md))
 - Schema Validation improvements
 
 ## v0.12.6
 
-- Bugfix: Call to a member function getLocation() on null (#336)
-- Fixed several errors discovered by static analysis (#329)
+- Bugfix: Call to a member function getLocation() on null (https://github.com/webonyx/graphql-php/issues/336)
+- Fixed several errors discovered by static analysis (https://github.com/webonyx/graphql-php/issues/329)
 
 ## v0.12.5
 
@@ -846,21 +980,21 @@ New features and notable changes:
 
 ## v0.12.4
 
-- Allow stringeable objects to be serialized by StringType (#303)
+- Allow stringeable objects to be serialized by StringType (https://github.com/webonyx/graphql-php/issues/303)
 
 ## v0.12.3
 
-- StandardServer: add support for the multipart/form-data content type (#300)
+- StandardServer: add support for the multipart/form-data content type (https://github.com/webonyx/graphql-php/issues/300)
 
 ## v0.12.2
 
-- SchemaPrinter: Use multi-line block for trailing quote (#294)
+- SchemaPrinter: Use multi-line block for trailing quote (https://github.com/webonyx/graphql-php/issues/294)
 
 ## v0.12.1
 
-- Fixed bug in validation rule OverlappingFieldsCanBeMerged (#292)
-- Added one more breaking change note in UPGRADE.md (#291)
-- Spec compliance: remove `data` entry from response on top-level error (#281)
+- Fixed bug in validation rule OverlappingFieldsCanBeMerged (https://github.com/webonyx/graphql-php/issues/292)
+- Added one more breaking change note in UPGRADE.md (https://github.com/webonyx/graphql-php/issues/291)
+- Spec compliance: remove `data` entry from response on top-level error (https://github.com/webonyx/graphql-php/issues/281)
 
 ## v0.12.0
 
@@ -881,19 +1015,19 @@ Improvements:
 
 ## v0.11.4
 
-- findBreakingChanges utility (see #199)
+- findBreakingChanges utility (see https://github.com/webonyx/graphql-php/issues/199)
 
 ## v0.11.3
 
-- StandardServer: Support non pre-parsed PSR-7 request body (see #202)
+- StandardServer: Support non pre-parsed PSR-7 request body (see https://github.com/webonyx/graphql-php/issues/202)
 
 ## v0.11.2
 
-- Bugfix: provide descriptions to custom scalars (see #181)
+- Bugfix: provide descriptions to custom scalars (see https://github.com/webonyx/graphql-php/issues/181)
 
 ## v0.11.1
 
-- Ability to override internal types via `types` option of the schema (see #174).
+- Ability to override internal types via `types` option of the schema (see https://github.com/webonyx/graphql-php/issues/174).
 
 ## v0.11.0
 
@@ -908,17 +1042,17 @@ This release brings little changes but there are two reasons why it is released 
 
 Improvements:
 
-- Stricter input coercion (see #171)
+- Stricter input coercion (see https://github.com/webonyx/graphql-php/issues/171)
 - Types built with `BuildSchema` now have reference to AST node with corresponding AST definition (in $astNode property)
 - Account for query offset for error locations (e.g. when query is stored in `.graphql` file)
 
 ## v0.10.2
 
-- StandardServer improvement: do not raise an error when variables are passed as empty string (see #156)
+- StandardServer improvement: do not raise an error when variables are passed as empty string (see https://github.com/webonyx/graphql-php/issues/156)
 
 ## v0.10.1
 
-- Fixed infinite loop in the server (see #153)
+- Fixed infinite loop in the server (see https://github.com/webonyx/graphql-php/issues/153)
 
 ## v0.10.0
 
@@ -927,7 +1061,7 @@ This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.
 New features and notable changes:
 
 - Changed minimum PHP version from 5.4 to 5.5
-- Lazy loading of types without separate build step (see #69, see [docs](https://webonyx.github.io/graphql-php/type-system/schema/#lazy-loading-of-types))
+- Lazy loading of types without separate build step (see https://github.com/webonyx/graphql-php/issues/69, see [docs](https://webonyx.github.io/graphql-php/type-system/schema/#lazy-loading-of-types))
 - PSR-7 compliant Standard Server (see [docs](https://webonyx.github.io/graphql-php/executing-queries/#using-server))
 - New default error formatting, which does not expose sensitive data (see [docs](https://webonyx.github.io/graphql-php/error-handling/))
 - Ability to define custom error handler to filter/log/re-throw exceptions after execution (see [docs](https://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting))
@@ -939,45 +1073,45 @@ New features and notable changes:
 
 Improvements:
 
-- Significantly improved parser performance (see #137 and #128)
-- Support for PHP7 exceptions everywhere (see #127)
+- Significantly improved parser performance (see https://github.com/webonyx/graphql-php/issues/137 and https://github.com/webonyx/graphql-php/issues/128)
+- Support for PHP7 exceptions everywhere (see https://github.com/webonyx/graphql-php/issues/127)
 - Improved [documentation](https://webonyx.github.io/graphql-php/) and docblock comments
 
 Deprecations and breaking changes - see [UPGRADE](UPGRADE.md) document.
 
 ## v0.9.14
 
-- Minor change to assist DataLoader project in fixing #150
+- Minor change to assist DataLoader project in fixing https://github.com/webonyx/graphql-php/issues/150
 
 ## v0.9.13
 
-- Fixed PHP notice and invalid conversion when non-scalar value is passed as ID or String type (see #121)
+- Fixed PHP notice and invalid conversion when non-scalar value is passed as ID or String type (see https://github.com/webonyx/graphql-php/issues/121)
 
 ## v0.9.12
 
-- Fixed bug occurring when enum `value` is bool, null or float (see #141)
+- Fixed bug occurring when enum `value` is bool, null or float (see https://github.com/webonyx/graphql-php/issues/141)
 
 ## v0.9.11
 
-- Ability to disable introspection (see #131)
+- Ability to disable introspection (see https://github.com/webonyx/graphql-php/issues/131)
 
 ## v0.9.10
 
-- Fixed issue with query complexity throwing on invalid queries (see #125)
-- Fixed "Out of memory" error when `resolveType` returns unexpected result (see #119)
+- Fixed issue with query complexity throwing on invalid queries (see https://github.com/webonyx/graphql-php/issues/125)
+- Fixed "Out of memory" error when `resolveType` returns unexpected result (see https://github.com/webonyx/graphql-php/issues/119)
 
 ## v0.9.9
 
-- Bugfix: throw UserError vs InvariantViolationError for errors caused by client (see #123)
+- Bugfix: throw UserError vs InvariantViolationError for errors caused by client (see https://github.com/webonyx/graphql-php/issues/123)
 
 ## v0.9.8
 
-- Bugfix: use directives when calculating query complexity (see #113)
+- Bugfix: use directives when calculating query complexity (see https://github.com/webonyx/graphql-php/issues/113)
 - Bugfix: `AST\Node::__toString()` will convert node to array recursively to encode to json without errors
 
 ## v0.9.7
 
-- Bugfix: `ResolveInfo::getFieldSelection()` now correctly merges fragment selections (see #98)
+- Bugfix: `ResolveInfo::getFieldSelection()` now correctly merges fragment selections (see https://github.com/webonyx/graphql-php/issues/98)
 
 ## v0.9.6
 
@@ -985,20 +1119,20 @@ Deprecations and breaking changes - see [UPGRADE](UPGRADE.md) document.
 
 ## v0.9.5
 
-- Fixed SyncPromiseAdapter::all() to not change the order of arrays (see #92)
+- Fixed SyncPromiseAdapter::all() to not change the order of arrays (see https://github.com/webonyx/graphql-php/issues/92)
 
 ## v0.9.4
 
 - Tools to help building schema out of Schema definition language as well as printing existing
-  schema in Schema definition language (see #91)
+  schema in Schema definition language (see https://github.com/webonyx/graphql-php/issues/91)
 
 ## v0.9.3
 
-- Fixed Utils::assign() bug related to detecting missing required keys (see #89)
+- Fixed Utils::assign() bug related to detecting missing required keys (see https://github.com/webonyx/graphql-php/issues/89)
 
 ## v0.9.2
 
-- Schema Definition Language: element descriptions can be set through comments (see #88)
+- Schema Definition Language: element descriptions can be set through comments (see https://github.com/webonyx/graphql-php/issues/88)
 
 ## v0.9.1
 
@@ -1006,9 +1140,9 @@ Deprecations and breaking changes - see [UPGRADE](UPGRADE.md) document.
 
 ## v0.9.0
 
-- Deferred resolvers (see #66, see [docs](docs/data-fetching.md#solving-n1-problem))
-- New Facade class with fluid interface: `GraphQL\Server` (see #82)
-- Experimental: ability to load types in Schema lazily via custom `TypeResolutionStrategy` (see #69)
+- Deferred resolvers (see https://github.com/webonyx/graphql-php/issues/66, see [docs](docs/data-fetching.md#solving-n1-problem))
+- New Facade class with fluid interface: `GraphQL\Server` (see https://github.com/webonyx/graphql-php/issues/82)
+- Experimental: ability to load types in Schema lazily via custom `TypeResolutionStrategy` (see https://github.com/webonyx/graphql-php/issues/69)
 
 ## v0.8.0
 
@@ -1017,7 +1151,7 @@ This release brings several minor breaking changes. Please refer to [UPGRADE](UP
 New features:
 
 - Support for `null` value (as required by latest GraphQL spec)
-- Shorthand definitions for field and argument types (see #47)
+- Shorthand definitions for field and argument types (see https://github.com/webonyx/graphql-php/issues/47)
 - `path` entry in errors produced by resolvers for better debugging
 - `resolveType` for interface/union is now allowed to return string name of type
 - Ability to omit name when extending type class (vs defining inline)

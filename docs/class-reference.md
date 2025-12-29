@@ -248,7 +248,7 @@ static function listOf($type): GraphQL\Type\Definition\ListOfType
 /**
  * Wraps the given type in a non-null type.
  *
- * @param (NullableType&Type)|callable():(NullableType&Type) $type
+ * @param NonNull|(NullableType&Type)|callable():(NullableType&Type) $type
  *
  * @api
  */
@@ -271,6 +271,8 @@ static function isInputType($type): bool
  * Returns the underlying named type of the given type.
  *
  * @return (Type&NamedType)|null
+ *
+ * @phpstan-return ($type is null ? null : Type&NamedType)
  *
  * @api
  */
@@ -1262,6 +1264,8 @@ $printed = GraphQL\Language\Printer::doPrint($ast);
  *
  * Handles both executable definitions and schema definitions.
  *
+ * @throws \JsonException
+ *
  * @api
  */
 static function doPrint(GraphQL\Language\AST\Node $ast): string
@@ -1327,10 +1331,10 @@ visitor API:
 3. Generic visitors that trigger upon entering and leaving any node.
 
    Visitor::visit($ast, [
-      'enter' => function ($node) {
+   'enter' => function (Node $node) {
    // enter any node
    },
-   'leave' => function ($node) {
+   'leave' => function (Node $node) {
    // leave any node
    }
    ]);
@@ -1350,7 +1354,7 @@ visitor API:
    ]
    ]);
 
-@phpstan-type NodeVisitor callable(Node): (VisitorOperation|null|false|void)
+@phpstan-type NodeVisitor callable(Node): (VisitorOperation|Node|NodeList<Node>|null|false|void)
 @phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
 
 @see \GraphQL\Tests\Language\VisitorTest
@@ -1774,6 +1778,75 @@ function createRejected(Throwable $reason): GraphQL\Executor\Promise\Promise
  * @api
  */
 function all(iterable $promisesOrValues): GraphQL\Executor\Promise\Promise
+```
+
+## GraphQL\Deferred
+
+User-facing promise class for deferred field resolution.
+
+@phpstan-type Executor callable(): mixed
+
+### GraphQL\Deferred Methods
+
+```php
+/**
+ * Create a new Deferred promise and enqueue its execution.
+ *
+ * @api
+ *
+ * @param Executor $executor
+ */
+function __construct(callable $executor)
+```
+
+## GraphQL\Executor\Promise\Adapter\SyncPromiseQueue
+
+Queue for deferred execution of SyncPromise tasks.
+
+Owns the shared queue and provides the run loop for processing promises.
+
+@api
+
+@phpstan-type Task callable(): void
+
+### GraphQL\Executor\Promise\Adapter\SyncPromiseQueue Methods
+
+```php
+/**
+ * Adds a task to the queue.
+ *
+ * @param Task $task
+ *
+ * @api
+ */
+static function enqueue(callable $task): void
+```
+
+```php
+/**
+ * Process all queued promises until the queue is empty.
+ *
+ * @api
+ */
+static function run(): void
+```
+
+```php
+/**
+ * Check if the queue is empty.
+ *
+ * @api
+ */
+static function isEmpty(): bool
+```
+
+```php
+/**
+ * Return the number of tasks in the queue.
+ *
+ * @api
+ */
+static function count(): int
 ```
 
 ## GraphQL\Validator\DocumentValidator

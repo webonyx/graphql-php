@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make:*)",
+      "Bash(vendor/bin/phpunit:*)",
+      "Bash(vendor/bin/phpstan:*)",
+      "Bash(vendor/bin/phpbench:*)",
+      "Bash(php -d zend.assertions=-1 vendor/bin/phpbench:*)",
+      "Bash(composer install:*)",
+      "Bash(composer update:*)",
+      "Bash(composer stan)",
+      "Bash(composer php-cs-fixer:*)",
+      "Bash(composer bench:*)",
+      "Bash(php generate-class-reference.php:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

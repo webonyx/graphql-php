@@ -10,6 +10,7 @@ use GraphQL\Utils\Utils;
 
 /**
  * @phpstan-import-type ResolveType from AbstractType
+ * @phpstan-import-type ResolveValue from AbstractType
  * @phpstan-import-type FieldsConfig from FieldDefinition
  *
  * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
@@ -19,6 +20,7 @@ use GraphQL\Utils\Utils;
  *   fields: FieldsConfig,
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
  *   resolveType?: ResolveType|null,
+ *   resolveValue?: ResolveValue|null,
  *   astNode?: InterfaceTypeDefinitionNode|null,
  *   extensionASTNodes?: array<InterfaceTypeExtensionNode>|null
  * }
@@ -65,6 +67,15 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         }
 
         return $type;
+    }
+
+    public function resolveValue($objectValue, $context, ResolveInfo $info)
+    {
+        if (isset($this->config['resolveValue'])) {
+            return ($this->config['resolveValue'])($objectValue, $context, $info);
+        }
+
+        return $objectValue;
     }
 
     public function resolveType($objectValue, $context, ResolveInfo $info)

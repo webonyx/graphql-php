@@ -13,6 +13,6 @@ final class Author extends Model
      */
     public static function find(int $id): array
     {
-        return static::get("author/{$id}");
+        return self::get("author/{$id}");
     }
 }

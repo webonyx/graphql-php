@@ -30,15 +30,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "${{ matrix.php-version }}"
           coverage: pcov
+          php-version: "${{ matrix.php-version }}"
 
       - name: Install dependencies with Composer
         uses: ramsey/composer-install@v2
@@ -52,7 +52,7 @@ jobs:
           composer test -- --coverage-clover=coverage.xml
 
       - name: Upload coverage file
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: phpunit-${{ matrix.dependencies }}-${{ matrix.php-version }}.coverage
           path: coverage.xml
@@ -65,12 +65,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
       - name: Download coverage files
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: reports
 
@@ -87,14 +87,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          # Run on the lowest supported version to ensure compatibility
-          php-version: 7.4
           coverage: none
+          php-version: "7.4"
 
       - name: Install dependencies with Composer
         uses: ramsey/composer-install@v2

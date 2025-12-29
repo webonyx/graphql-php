@@ -431,6 +431,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     /**
      * @param NodeList<ArgumentNode> $arguments1 keep
      * @param NodeList<ArgumentNode> $arguments2 keep
+     *
+     * @throws \JsonException
      */
     protected function sameArguments(NodeList $arguments1, NodeList $arguments2): bool
     {
@@ -459,6 +461,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         return true;
     }
 
+    /** @throws \JsonException */
     protected function sameValue(Node $value1, Node $value2): bool
     {
         return Printer::doPrint($value1) === Printer::doPrint($value2);

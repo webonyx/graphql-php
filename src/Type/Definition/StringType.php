@@ -44,6 +44,10 @@ represent free-form human-readable text.';
         return $value;
     }
 
+    /**
+     * @throws \JsonException
+     * @throws Error
+     */
     public function parseLiteral(Node $valueNode, ?array $variables = null): string
     {
         if ($valueNode instanceof StringValueNode) {

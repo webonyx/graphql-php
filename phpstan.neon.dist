@@ -2,6 +2,9 @@ parameters:
     # TODO increase to max
     level: 8
 
+    errorFormat: ticketswap
+    editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
+
     paths:
         - benchmarks
         - examples
@@ -35,7 +38,7 @@ parameters:
           path: tests
 
         # Cannot satisfy input covariance
-        - '~(expects|should return) array<string, array<string, callable\(GraphQL\\Language\\AST\\Node\): \(GraphQL\\Language\\VisitorOperation\|void\|false\|null\)>\|\(callable\(GraphQL\\Language\\AST\\Node\): \(GraphQL\\Language\\VisitorOperation\|void\|false\|null\)\)>(,| but returns)?~'
+        - '~(expects|should return) array\<string, array\<string, callable\(GraphQL\\Language\\AST\\Node\)\: \(GraphQL\\Language\\AST\\Node\|GraphQL\\Language\\AST\\NodeList<GraphQL\\Language\\AST\\Node>\|GraphQL\\Language\\VisitorOperation\|void\|false\|null\)\>\|\(callable\(GraphQL\\Language\\AST\\Node\)\: \(GraphQL\\Language\\AST\\Node\|GraphQL\\Language\\AST\\NodeList<GraphQL\\Language\\AST\\Node>\|GraphQL\\Language\\VisitorOperation\|void\|false\|null\)\)\>(,| but returns)?~'
 
         # No need to have @throws in methods that are never called
         ## PHPUnit
@@ -44,6 +47,10 @@ parameters:
         ## PHPBench
         - message: "~it's missing from the PHPDoc @throws tag~"
           path: benchmarks
+
+        # Simplifies tests
+        - message: "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node\\:\\:\\$.+~"
+          path: tests/Language/VisitorTest.php
 
 includes:
     - phpstan-baseline.neon

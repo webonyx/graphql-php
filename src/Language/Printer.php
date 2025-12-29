@@ -69,30 +69,17 @@ class Printer
      *
      * Handles both executable definitions and schema definitions.
      *
+     * @throws \JsonException
+     *
      * @api
      */
     public static function doPrint(Node $ast): string
     {
-        static $instance;
-        $instance ??= new static();
-
-        return $instance->printAST($ast);
-    }
-
-    protected function __construct() {}
-
-    /**
-     * Recursively traverse an AST depth-first and produce a pretty string.
-     *
-     * @throws \JsonException
-     */
-    public function printAST(Node $node): string
-    {
-        return $this->p($node);
+        return static::p($ast);
     }
 
     /** @throws \JsonException */
-    protected function p(?Node $node): string
+    protected static function p(?Node $node): string
     {
         if ($node === null) {
             return '';
@@ -101,7 +88,7 @@ class Printer
         switch (true) {
             case $node instanceof ArgumentNode:
             case $node instanceof ObjectFieldNode:
-                return $this->p($node->name) . ': ' . $this->p($node->value);
+                return static::p($node->name) . ': ' . static::p($node->value);
 
             case $node instanceof BooleanValueNode:
                 return $node->value
@@ -111,7 +98,7 @@ class Printer
             case $node instanceof DirectiveDefinitionNode:
                 $argStrings = [];
                 foreach ($node->arguments as $arg) {
-                    $argStrings[] = $this->p($arg);
+                    $argStrings[] = static::p($arg);
                 }
 
                 $noIndent = true;
@@ -122,48 +109,48 @@ class Printer
                     }
                 }
 
-                return $this->addDescription($node->description, 'directive @'
-                    . $this->p($node->name)
+                return static::addDescription($node->description, 'directive @'
+                    . static::p($node->name)
                     . ($noIndent
-                        ? $this->wrap('(', $this->join($argStrings, ', '), ')')
-                        : $this->wrap("(\n", $this->indent($this->join($argStrings, "\n")), "\n"))
+                        ? static::wrap('(', static::join($argStrings, ', '), ')')
+                        : static::wrap("(\n", static::indent(static::join($argStrings, "\n")), "\n"))
                     . ($node->repeatable
                         ? ' repeatable'
                         : '')
-                    . ' on ' . $this->printList($node->locations, ' | '));
+                    . ' on ' . static::printList($node->locations, ' | '));
 
             case $node instanceof DirectiveNode:
-                return '@' . $this->p($node->name) . $this->wrap('(', $this->printList($node->arguments, ', '), ')');
+                return '@' . static::p($node->name) . static::wrap('(', static::printList($node->arguments, ', '), ')');
 
             case $node instanceof DocumentNode:
-                return $this->printList($node->definitions, "\n\n") . "\n";
+                return static::printList($node->definitions, "\n\n") . "\n";
 
             case $node instanceof EnumTypeDefinitionNode:
-                return $this->addDescription($node->description, $this->join(
+                return static::addDescription($node->description, static::join(
                     [
                         'enum',
-                        $this->p($node->name),
-                        $this->printList($node->directives, ' '),
-                        $this->printListBlock($node->values),
+                        static::p($node->name),
+                        static::printList($node->directives, ' '),
+                        static::printListBlock($node->values),
                     ],
                     ' '
                 ));
 
             case $node instanceof EnumTypeExtensionNode:
-                return $this->join(
+                return static::join(
                     [
                         'extend enum',
-                        $this->p($node->name),
-                        $this->printList($node->directives, ' '),
-                        $this->printListBlock($node->values),
+                        static::p($node->name),
+                        static::printList($node->directives, ' '),
+                        static::printListBlock($node->values),
                     ],
                     ' '
                 );
 
             case $node instanceof EnumValueDefinitionNode:
-                return $this->addDescription(
+                return static::addDescription(
                     $node->description,
-                    $this->join([$this->p($node->name), $this->printList($node->directives, ' ')], ' ')
+                    static::join([static::p($node->name), static::printList($node->directives, ' ')], ' ')
                 );
 
             case $node instanceof EnumValueNode:
@@ -175,7 +162,7 @@ class Printer
             case $node instanceof FieldDefinitionNode:
                 $argStrings = [];
                 foreach ($node->arguments as $item) {
-                    $argStrings[] = $this->p($item);
+                    $argStrings[] = static::p($item);
                 }
 
                 $noIndent = true;
@@ -186,244 +173,246 @@ class Printer
                     }
                 }
 
-                return $this->addDescription(
+                return static::addDescription(
                     $node->description,
-                    $this->p($node->name)
+                    static::p($node->name)
                     . ($noIndent
-                        ? $this->wrap('(', $this->join($argStrings, ', '), ')')
-                        : $this->wrap("(\n", $this->indent($this->join($argStrings, "\n")), "\n)"))
-                    . ': ' . $this->p($node->type)
-                    . $this->wrap(' ', $this->printList($node->directives, ' '))
+                        ? static::wrap('(', static::join($argStrings, ', '), ')')
+                        : static::wrap("(\n", static::indent(static::join($argStrings, "\n")), "\n)"))
+                    . ': ' . static::p($node->type)
+                    . static::wrap(' ', static::printList($node->directives, ' '))
                 );
 
             case $node instanceof FieldNode:
-                $prefix = $this->wrap('', $node->alias->value ?? null, ': ') . $this->p($node->name);
+                $prefix = static::wrap('', $node->alias->value ?? null, ': ') . static::p($node->name);
 
-                $argsLine = $prefix . $this->wrap(
+                $argsLine = $prefix . static::wrap(
                     '(',
-                    $this->printList($node->arguments, ', '),
+                    static::printList($node->arguments, ', '),
                     ')'
                 );
                 if (strlen($argsLine) > 80) {
-                    $argsLine = $prefix . $this->wrap(
+                    $argsLine = $prefix . static::wrap(
                         "(\n",
-                        $this->indent(
-                            $this->printList($node->arguments, "\n")
+                        static::indent(
+                            static::printList($node->arguments, "\n")
                         ),
                         "\n)"
                     );
                 }
 
-                return $this->join(
+                return static::join(
                     [
                         $argsLine,
-                        $this->printList($node->directives, ' '),
-                        $this->p($node->selectionSet),
+                        static::printList($node->directives, ' '),
+                        static::p($node->selectionSet),
                     ],
                     ' '
                 );
 
             case $node instanceof FragmentDefinitionNode:
                 // Note: fragment variable definitions are experimental and may be changed or removed in the future.
-                return 'fragment ' . $this->p($node->name)
-                    . $this->wrap(
+                return 'fragment ' . static::p($node->name)
+                    . static::wrap(
                         '(',
-                        $this->printList($node->variableDefinitions ?? new NodeList([]), ', '),
+                        static::printList($node->variableDefinitions ?? new NodeList([]), ', '),
                         ')'
                     )
-                    . ' on ' . $this->p($node->typeCondition->name) . ' '
-                    . $this->wrap(
+                    . ' on ' . static::p($node->typeCondition->name) . ' '
+                    . static::wrap(
                         '',
-                        $this->printList($node->directives, ' '),
+                        static::printList($node->directives, ' '),
                         ' '
                     )
-                    . $this->p($node->selectionSet);
+                    . static::p($node->selectionSet);
 
             case $node instanceof FragmentSpreadNode:
                 return '...'
-                    . $this->p($node->name)
-                    . $this->wrap(' ', $this->printList($node->directives, ' '));
+                    . static::p($node->name)
+                    . static::wrap(' ', static::printList($node->directives, ' '));
 
             case $node instanceof InlineFragmentNode:
-                return $this->join(
+                return static::join(
                     [
                         '...',
-                        $this->wrap('on ', $this->p($node->typeCondition->name ?? null)),
-                        $this->printList($node->directives, ' '),
-                        $this->p($node->selectionSet),
+                        static::wrap('on ', static::p($node->typeCondition->name ?? null)),
+                        static::printList($node->directives, ' '),
+                        static::p($node->selectionSet),
                     ],
                     ' '
                 );
 
             case $node instanceof InputObjectTypeDefinitionNode:
-                return $this->addDescription($node->description, $this->join(
+                return static::addDescription($node->description, static::join(
                     [
                         'input',
-                        $this->p($node->name),
-                        $this->printList($node->directives, ' '),
-                        $this->printListBlock($node->fields),
+                        static::p($node->name),
+                        static::printList($node->directives, ' '),
+                        static::printListBlock($node->fields),
                     ],
                     ' '
                 ));
 
             case $node instanceof InputObjectTypeExtensionNode:
-                return $this->join(
+                return static::join(
                     [
                         'extend input',
-                        $this->p($node->name),
-                        $this->printList($node->directives, ' '),
-                        $this->printListBlock($node->fields),
+                        static::p($node->name),
+                        static::printList($node->directives, ' '),
+                        static::printListBlock($node->fields),
                     ],
                     ' '
                 );
 
             case $node instanceof InputValueDefinitionNode:
-                return $this->addDescription($node->description, $this->join(
+                return static::addDescription($node->description, static::join(
                     [
-                        $this->p($node->name) . ': ' . $this->p($node->type),
-                        $this->wrap('= ', $this->p($node->defaultValue)),
-                        $this->printList($node->directives, ' '),
+                        static::p($node->name) . ': ' . static::p($node->type),
+                        static::wrap('= ', static::p($node->defaultValue)),
+                        static::printList($node->directives, ' '),
                     ],
                     ' '
                 ));
 
             case $node instanceof InterfaceTypeDefinitionNode:
-                return $this->addDescription($node->description, $this->join(
+                return static::addDescription($node->description, static::join(
                     [
                         'interface',
-                        $this->p($node->name),
-                        $this->wrap('implements ', $this->printList($node->interfaces, ' & ')),
-                        $this->printList($node->directives, ' '),
-                        $this->printListBlock($node->fields),
+                        static::p($node->name),
+                        static::wrap('implements ', static::printList($node->interfaces, ' & ')),
+                        static::printList($node->directives, ' '),
+                        static::printListBlock($node->fields),
                     ],
                     ' '
                 ));
 
             case $node instanceof InterfaceTypeExtensionNode:
-                return $this->join(
+                return static::join(
                     [
                         'extend interface',
-                        $this->p($node->name),
-                        $this->wrap('implements ', $this->printList($node->interfaces, ' & ')),
-                        $this->printList($node->directives, ' '),
-                        $this->printListBlock($node->fields),
+                        static::p($node->name),
+                        static::wrap('implements ', static::printList($node->interfaces, ' & ')),
+                        static::printList($node->directives, ' '),
+                        static::printListBlock($node->fields),
                     ],
                     ' '
                 );
 
             case $node instanceof ListTypeNode:
-                return '[' . $this->p($node->type) . ']';
+                return '[' . static::p($node->type) . ']';
 
             case $node instanceof ListValueNode:
-                return '[' . $this->printList($node->values, ', ') . ']';
+                return '[' . static::printList($node->values, ', ') . ']';
 
             case $node instanceof NamedTypeNode:
-                return $this->p($node->name);
+                return static::p($node->name);
 
             case $node instanceof NonNullTypeNode:
-                return $this->p($node->type) . '!';
+                return static::p($node->type) . '!';
 
             case $node instanceof NullValueNode:
                 return 'null';
 
             case $node instanceof ObjectTypeDefinitionNode:
-                return $this->addDescription($node->description, $this->join(
+                return static::addDescription($node->description, static::join(
                     [
                         'type',
-                        $this->p($node->name),
-                        $this->wrap('implements ', $this->printList($node->interfaces, ' & ')),
-                        $this->printList($node->directives, ' '),
-                        $this->printListBlock($node->fields),
+                        static::p($node->name),
+                        static::wrap('implements ', static::printList($node->interfaces, ' & ')),
+                        static::printList($node->directives, ' '),
+                        static::printListBlock($node->fields),
                     ],
                     ' '
                 ));
 
             case $node instanceof ObjectTypeExtensionNode:
-                return $this->join(
+                return static::join(
                     [
                         'extend type',
-                        $this->p($node->name),
-                        $this->wrap('implements ', $this->printList($node->interfaces, ' & ')),
-                        $this->printList($node->directives, ' '),
-                        $this->printListBlock($node->fields),
+                        static::p($node->name),
+                        static::wrap('implements ', static::printList($node->interfaces, ' & ')),
+                        static::printList($node->directives, ' '),
+                        static::printListBlock($node->fields),
                     ],
                     ' '
                 );
 
             case $node instanceof ObjectValueNode:
-                return "{ {$this->printList($node->fields, ', ')} }";
+                return '{ '
+                    . static::printList($node->fields, ', ')
+                    . ' }';
 
             case $node instanceof OperationDefinitionNode:
                 $op = $node->operation;
-                $name = $this->p($node->name);
-                $varDefs = $this->wrap('(', $this->printList($node->variableDefinitions, ', '), ')');
-                $directives = $this->printList($node->directives, ' ');
-                $selectionSet = $this->p($node->selectionSet);
+                $name = static::p($node->name);
+                $varDefs = static::wrap('(', static::printList($node->variableDefinitions, ', '), ')');
+                $directives = static::printList($node->directives, ' ');
+                $selectionSet = static::p($node->selectionSet);
 
                 // Anonymous queries with no directives or variable definitions can use
                 // the query short form.
                 return $name === '' && $directives === '' && $varDefs === '' && $op === 'query'
                     ? $selectionSet
-                    : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
+                    : static::join([$op, static::join([$name, $varDefs]), $directives, $selectionSet], ' ');
 
             case $node instanceof OperationTypeDefinitionNode:
-                return $node->operation . ': ' . $this->p($node->type);
+                return $node->operation . ': ' . static::p($node->type);
 
             case $node instanceof ScalarTypeDefinitionNode:
-                return $this->addDescription($node->description, $this->join([
+                return static::addDescription($node->description, static::join([
                     'scalar',
-                    $this->p($node->name),
-                    $this->printList($node->directives, ' '),
+                    static::p($node->name),
+                    static::printList($node->directives, ' '),
                 ], ' '));
 
             case $node instanceof ScalarTypeExtensionNode:
-                return $this->join(
+                return static::join(
                     [
                         'extend scalar',
-                        $this->p($node->name),
-                        $this->printList($node->directives, ' '),
+                        static::p($node->name),
+                        static::printList($node->directives, ' '),
                     ],
                     ' '
                 );
 
             case $node instanceof SchemaDefinitionNode:
-                return $this->join(
+                return static::join(
                     [
                         'schema',
-                        $this->printList($node->directives, ' '),
-                        $this->printListBlock($node->operationTypes),
+                        static::printList($node->directives, ' '),
+                        static::printListBlock($node->operationTypes),
                     ],
                     ' '
                 );
 
             case $node instanceof SchemaExtensionNode:
-                return $this->join(
+                return static::join(
                     [
                         'extend schema',
-                        $this->printList($node->directives, ' '),
-                        $this->printListBlock($node->operationTypes),
+                        static::printList($node->directives, ' '),
+                        static::printListBlock($node->operationTypes),
                     ],
                     ' '
                 );
 
             case $node instanceof SelectionSetNode:
-                return $this->printListBlock($node->selections);
+                return static::printListBlock($node->selections);
 
             case $node instanceof StringValueNode:
                 if ($node->block) {
                     return BlockString::print($node->value);
                 }
 
-                return json_encode($node->value, JSON_THROW_ON_ERROR);
+                return json_encode($node->value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
 
             case $node instanceof UnionTypeDefinitionNode:
-                $typesStr = $this->printList($node->types, ' | ');
+                $typesStr = static::printList($node->types, ' | ');
 
-                return $this->addDescription($node->description, $this->join(
+                return static::addDescription($node->description, static::join(
                     [
                         'union',
-                        $this->p($node->name),
-                        $this->printList($node->directives, ' '),
+                        static::p($node->name),
+                        static::printList($node->directives, ' '),
                         $typesStr !== ''
                             ? "= {$typesStr}"
                             : '',
@@ -432,13 +421,13 @@ class Printer
                 ));
 
             case $node instanceof UnionTypeExtensionNode:
-                $typesStr = $this->printList($node->types, ' | ');
+                $typesStr = static::printList($node->types, ' | ');
 
-                return $this->join(
+                return static::join(
                     [
                         'extend union',
-                        $this->p($node->name),
-                        $this->printList($node->directives, ' '),
+                        static::p($node->name),
+                        static::printList($node->directives, ' '),
                         $typesStr !== ''
                             ? "= {$typesStr}"
                             : '',
@@ -447,14 +436,14 @@ class Printer
                 );
 
             case $node instanceof VariableDefinitionNode:
-                return '$' . $this->p($node->variable->name)
+                return '$' . static::p($node->variable->name)
                     . ': '
-                    . $this->p($node->type)
-                    . $this->wrap(' = ', $this->p($node->defaultValue))
-                    . $this->wrap(' ', $this->printList($node->directives, ' '));
+                    . static::p($node->type)
+                    . static::wrap(' = ', static::p($node->defaultValue))
+                    . static::wrap(' ', static::printList($node->directives, ' '));
 
             case $node instanceof VariableNode:
-                return '$' . $this->p($node->name);
+                return '$' . static::p($node->name);
         }
 
         return '';
@@ -467,14 +456,14 @@ class Printer
      *
      * @throws \JsonException
      */
-    protected function printList(NodeList $list, string $separator = ''): string
+    protected static function printList(NodeList $list, string $separator = ''): string
     {
         $parts = [];
         foreach ($list as $item) {
-            $parts[] = $this->p($item);
+            $parts[] = static::p($item);
         }
 
-        return $this->join($parts, $separator);
+        return static::join($parts, $separator);
     }
 
     /**
@@ -486,7 +475,7 @@ class Printer
      *
      * @throws \JsonException
      */
-    protected function printListBlock(NodeList $list): string
+    protected static function printListBlock(NodeList $list): string
     {
         if (count($list) === 0) {
             return '';
@@ -494,23 +483,23 @@ class Printer
 
         $parts = [];
         foreach ($list as $item) {
-            $parts[] = $this->p($item);
+            $parts[] = static::p($item);
         }
 
-        return "{\n" . $this->indent($this->join($parts, "\n")) . "\n}";
+        return "{\n" . static::indent(static::join($parts, "\n")) . "\n}";
     }
 
     /** @throws \JsonException */
-    protected function addDescription(?StringValueNode $description, string $body): string
+    protected static function addDescription(?StringValueNode $description, string $body): string
     {
-        return $this->join([$this->p($description), $body], "\n");
+        return static::join([static::p($description), $body], "\n");
     }
 
     /**
      * If maybeString is not null or empty, then wrap with start and end, otherwise
      * print an empty string.
      */
-    protected function wrap(string $start, ?string $maybeString, string $end = ''): string
+    protected static function wrap(string $start, ?string $maybeString, string $end = ''): string
     {
         if ($maybeString === null || $maybeString === '') {
             return '';
@@ -519,7 +508,7 @@ class Printer
         return $start . $maybeString . $end;
     }
 
-    protected function indent(string $string): string
+    protected static function indent(string $string): string
     {
         if ($string === '') {
             return '';
@@ -529,7 +518,7 @@ class Printer
     }
 
     /** @param array<string|null> $parts */
-    protected function join(array $parts, string $separator = ''): string
+    protected static function join(array $parts, string $separator = ''): string
     {
         return implode($separator, array_filter($parts, static fn (?string $part) => $part !== '' && $part !== null));
     }
