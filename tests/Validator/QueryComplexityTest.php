@@ -72,8 +72,8 @@ final class QueryComplexityTest extends QuerySecurityTestCase
     public function fragmentQueriesOnRootProvider(): array
     {
         return [
-            ['fragment humanFragment on QueryRoot { human { dogs { name } } } query { ...humanFragment }'], // success example
-            ['query { ...humanFragment } fragment humanFragment on QueryRoot { human { dogs { name } } }'], // failing example, changed order see https://github.com/webonyx/graphql-php/issues/785
+            ['fragment humanFragment on QueryRoot { human { dogs { name } } } query { ...humanFragment }'],
+            ['query { ...humanFragment } fragment humanFragment on QueryRoot { human { dogs { name } } }'],
         ];
     }
 

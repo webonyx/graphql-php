@@ -5,6 +5,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Values;
+use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
@@ -71,8 +72,8 @@ class QueryComplexity extends QuerySecurityRule
 
                     return Visitor::skipNode();
                 },
-                NodeKind::OPERATION_DEFINITION => [
-                    'leave' => function (OperationDefinitionNode $operationDefinition) use ($context): void {
+                NodeKind::DOCUMENT => [
+                    'leave' => function (DocumentNode $document) use ($context): void {
                         $errors = $context->getErrors();
 
                         if ($errors !== []) {
@@ -83,18 +84,23 @@ class QueryComplexity extends QuerySecurityRule
                             return;
                         }
 
-                        $this->queryComplexity = $this->fieldComplexity($operationDefinition->selectionSet);
+                        foreach ($document->definitions as $definition) {
+                            if (! $definition instanceof OperationDefinitionNode) {
+                                continue;
+                            }
 
-                        if ($this->queryComplexity <= $this->maxQueryComplexity) {
-                            return;
+                            $this->queryComplexity = $this->fieldComplexity($definition->selectionSet);
+
+                            if ($this->queryComplexity > $this->maxQueryComplexity) {
+                                $context->reportError(
+                                    new Error(static::maxQueryComplexityErrorMessage(
+                                        $this->maxQueryComplexity,
+                                        $this->queryComplexity
+                                    ))
+                                );
+                                return;
+                            }
                         }
-
-                        $context->reportError(
-                            new Error(static::maxQueryComplexityErrorMessage(
-                                $this->maxQueryComplexity,
-                                $this->queryComplexity
-                            ))
-                        );
                     },
                 ],
             ]
