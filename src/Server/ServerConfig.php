@@ -124,7 +124,7 @@ class ServerConfig
     private bool $queryBatching = false;
 
     /**
-     * @var array<ValidationRule>|callable|null
+     * @var array|callable|null
      *
      * @phpstan-var ValidationRulesOption
      */
@@ -315,7 +315,7 @@ class ServerConfig
     }
 
     /**
-     * @return array<ValidationRule>|callable|null
+     * @return array|callable|null
      *
      * @phpstan-return ValidationRulesOption
      */
