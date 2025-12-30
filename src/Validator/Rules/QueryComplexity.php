@@ -269,6 +269,10 @@ class QueryComplexity extends QuerySecurityRule
         return $this->maxQueryComplexity;
     }
 
+    /**
+     * Complexity of the first operation exceeding the defined limit, or, in case no operation
+     * exceeds the limit, complexity of the last defined operation.
+     */
     public function getQueryComplexity(): int
     {
         return $this->queryComplexity;

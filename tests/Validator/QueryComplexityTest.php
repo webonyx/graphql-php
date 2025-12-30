@@ -228,6 +228,34 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         self::assertSame($reportedError, $errors[0]);
     }
 
+    public function testMultipleOperations(): void
+    {
+        $query = <<<GRAPHQL
+        query A { # complexity 2
+          human { firstName }
+        }
+        query B { # complexity 12
+          human { dogs { name } }
+        }
+        query C { # complexity 13
+          human { firstName dogs { name } }
+        }
+        GRAPHQL;
+
+        $schema = QuerySecuritySchema::buildSchema();
+        $ast = Parser::parse($query);
+
+        // When no operation exceeds the limit, `getQueryComplexity` returns complexity of
+        // the last operation.
+        DocumentValidator::validate($schema, $ast, [$this->getRule(100)]);
+        self::assertSame(13, self::$rule->getQueryComplexity());
+
+        // When any operation exceeds the limit, `getQueryComplexity` returns the complexity
+        // of the first operation exceeding the limit.
+        DocumentValidator::validate($schema, $ast, [$this->getRule(2)]);
+        self::assertSame(12, self::$rule->getQueryComplexity());
+    }
+
     protected static function getErrorMessage(int $max, int $count): string
     {
         return QueryComplexity::maxQueryComplexityErrorMessage($max, $count);
