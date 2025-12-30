@@ -98,6 +98,7 @@ class QueryComplexity extends QuerySecurityRule
                                         $this->queryComplexity
                                     ))
                                 );
+
                                 return;
                             }
                         }

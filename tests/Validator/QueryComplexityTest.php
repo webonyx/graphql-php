@@ -60,9 +60,7 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 2, 3);
     }
 
-    /**
-     * @dataProvider fragmentQueriesOnRootProvider
-     */
+    /** @dataProvider fragmentQueriesOnRootProvider */
     public function testFragmentQueriesOnRoot(string $query): void
     {
         $this->assertDocumentValidators($query, 12, 13);
