@@ -9,6 +9,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.29.4
+
 ### Fixed
 
 - Fix query complexity for fragments defined after operations https://github.com/webonyx/graphql-php/pull/1826
