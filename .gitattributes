@@ -1,6 +1,7 @@
 # Set the default behavior, in case people don't have core.autocrlf set.
 * text eol=lf
 
+/.claude export-ignore
 /.github export-ignore
 /benchmarks export-ignore
 /docs export-ignore
