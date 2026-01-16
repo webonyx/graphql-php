@@ -56,4 +56,17 @@ class UtilsTest extends TestCase
             ],
         ];
     }
+
+    public function testPrintSafeForSpecialFloats() : void
+    {
+        $nan = acos(8);
+        $inf = log(0);
+
+        self::assertEquals('NAN', Utils::printSafe($nan));
+        self::assertEquals('-INF', Utils::printSafe($inf));
+
+        self::assertEquals('NAN', Utils::printSafeJson($nan));
+        self::assertEquals('-INF', Utils::printSafeJson($inf));
+    }
 }
+

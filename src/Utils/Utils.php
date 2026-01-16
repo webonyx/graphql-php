@@ -381,6 +381,15 @@ class Utils
         if (is_string($var)) {
             return sprintf('"%s"', $var);
         }
+        if (is_float($var)) {
+            if (is_nan($var)) {
+                return 'NAN';
+            }
+
+            if (is_infinite($var)) {
+                return $var > 0 ? 'INF' : '-INF';
+            }
+        }
         if (is_scalar($var)) {
             return (string) $var;
         }
@@ -422,6 +431,15 @@ class Utils
         }
         if (is_string($var)) {
             return $var;
+        }
+        if (is_float($var)) {
+            if (is_nan($var)) {
+                return 'NAN';
+            }
+
+            if (is_infinite($var)) {
+                return $var > 0 ? 'INF' : '-INF';
+            }
         }
         if (is_scalar($var)) {
             return (string) $var;

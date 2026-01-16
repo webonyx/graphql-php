@@ -940,14 +940,15 @@ class SchemaValidationContext
         $includedTypeNames = [];
 
         foreach ($memberTypes as $memberType) {
-            if (isset($includedTypeNames[$memberType->name])) {
+            $memberName = $memberType->name ?? '';
+            if (isset($includedTypeNames[$memberName])) {
                 $this->reportError(
-                    sprintf('Union type %s can only include type %s once.', $union->name, $memberType->name),
-                    $this->getUnionMemberTypeNodes($union, $memberType->name)
+                    sprintf('Union type %s can only include type %s once.', $union->name, $memberName),
+                    $this->getUnionMemberTypeNodes($union, $memberName)
                 );
                 continue;
             }
-            $includedTypeNames[$memberType->name] = true;
+            $includedTypeNames[$memberName] = true;
             if ($memberType instanceof ObjectType) {
                 continue;
             }
@@ -958,7 +959,7 @@ class SchemaValidationContext
                     $union->name,
                     Utils::printSafe($memberType)
                 ),
-                $this->getUnionMemberTypeNodes($union, Utils::printSafe($memberType))
+                $this->getUnionMemberTypeNodes($union, $memberName)
             );
         }
     }
@@ -975,7 +976,7 @@ class SchemaValidationContext
         });
 
         return Utils::filter($subNodes, static function ($typeNode) use ($typeName) : bool {
-            return $typeNode->name->value === $typeName;
+            return isset($typeNode->name) && $typeNode->name->value === $typeName;
         });
     }
 
@@ -1035,7 +1036,7 @@ class SchemaValidationContext
         });
 
         return Utils::filter($subNodes, static function ($valueNode) use ($valueName) : bool {
-            return $valueNode->name->value === $valueName;
+            return isset($valueNode->name) && $valueNode->name->value === $valueName;
         });
     }
 

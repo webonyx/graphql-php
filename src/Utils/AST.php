@@ -258,8 +258,8 @@ class AST
                 return new IntValueNode(['value' => (string) $serialized]);
             }
             if (is_float($serialized)) {
-                // int cast with == used for performance reasons
-                if ((int) $serialized == $serialized) {
+                // Avoid casting floats that cannot be represented as ints (or are NaN/INF).
+                if (!is_nan($serialized) && !is_infinite($serialized) && floor($serialized) == $serialized && abs($serialized) <= PHP_INT_MAX) {
                     return new IntValueNode(['value' => (string) $serialized]);
                 }
 
