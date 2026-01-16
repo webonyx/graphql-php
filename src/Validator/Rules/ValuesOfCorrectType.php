@@ -74,11 +74,11 @@ class ValuesOfCorrectType extends ValidationRule
                 // parent input type to check if it is a list.
                 $parentInputType = $context->getParentInputType();
 
-                // In some circumstances the TypeInfo may not have a parent input
-                // type available (e.g. schema type info missing or a previously
-                // encountered validation problem). Calling getNullableType() with
-                // null resulted in a TypeError in older versions. In those cases
-                // fall back to scalar validation and skip traversing the node.
+                /**
+                 * In some circumstances the TypeInfo may not have a parent input type available (e.g. schema type info missing 
+                 * or a previously encountered validation problem). Calling getNullableType() with null resulted in a TypeError in older versions.
+                 * In those cases fall back to scalar validation and skip traversing the node.
+                 */
                 if ($parentInputType === null) {
                     $this->isValidScalar($context, $node, $fieldName);
 
