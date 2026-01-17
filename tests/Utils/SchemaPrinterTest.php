@@ -493,6 +493,26 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
+    /** @see it('Prints schema with description') */
+    public function testPrintsSchemaWithDescription(): void
+    {
+        $schema = new Schema([
+            'description' => 'Schema description.',
+            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
+        ]);
+
+        $expected = <<<'GRAPHQL'
+            "Schema description."
+            schema {
+              query: Query
+            }
+
+            type Query
+
+            GRAPHQL;
+        self::assertPrintedSchemaEquals($expected, $schema);
+    }
+
     /** @see it('Prints custom query root types') */
     public function testPrintsCustomQueryRootTypes(): void
     {
@@ -1058,6 +1078,8 @@ final class SchemaPrinterTest extends TestCase
 
       "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations."
       type __Schema {
+        description: String
+
         "A list of all types supported by this server."
         types: [__Type!]!
 

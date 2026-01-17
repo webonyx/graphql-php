@@ -70,6 +70,7 @@ final class BuildClientSchemaTest extends TestCase
     public function testBuildsASimpleSchema(): void
     {
         self::assertCycleIntrospection('
+        """Simple schema"""
         schema {
           query: Simple
         }

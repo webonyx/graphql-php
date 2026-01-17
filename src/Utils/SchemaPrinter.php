@@ -161,7 +161,10 @@ class SchemaPrinter
         return implode("\n\n", array_filter($elements)) . "\n";
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws \JsonException
+     * @throws InvariantViolation
+     */
     protected static function printSchemaDefinition(Schema $schema): ?string
     {
         $queryType = $schema->getQueryType();
@@ -174,11 +177,10 @@ class SchemaPrinter
             return null;
         }
 
-        // TODO add condition for schema.description
         // Only print a schema definition if there is a description or if it should
         // not be omitted because of having default type names.
-        if (! static::hasDefaultRootOperationTypes($schema)) {
-            return "schema {\n"
+        if ($schema->description !== null || ! static::hasDefaultRootOperationTypes($schema)) {
+            return static::printDescription([], $schema) . "schema {\n"
                 . ($queryType !== null ? "  query: {$queryType->name}\n" : '')
                 . ($mutationType !== null ? "  mutation: {$mutationType->name}\n" : '')
                 . ($subscriptionType !== null ? "  subscription: {$subscriptionType->name}\n" : '')
@@ -238,7 +240,7 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
-     * @param (Type&NamedType)|Directive|EnumValueDefinition|Argument|FieldDefinition|InputObjectField $def
+     * @param (Type&NamedType)|Directive|EnumValueDefinition|Argument|FieldDefinition|InputObjectField|Schema $def
      *
      * @throws \JsonException
      */

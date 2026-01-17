@@ -189,6 +189,7 @@ class SchemaExtender
         }
 
         $schemaConfig = (new SchemaConfig())
+            ->setDescription($schemaDef->description->value ?? $schema->description ?? null)
             // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors
             ->setQuery($operationTypes['query'])
             // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors

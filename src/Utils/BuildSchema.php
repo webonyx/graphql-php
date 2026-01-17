@@ -244,6 +244,7 @@ class BuildSchema
         // validation with validateSchema() will produce more actionable results.
         return new Schema(
             (new SchemaConfig())
+                ->setDescription($schemaDef->description->value ?? null)
             // @phpstan-ignore-next-line
                 ->setQuery(isset($operationTypes['query'])
                     ? $definitionBuilder->maybeBuildType($operationTypes['query'])
