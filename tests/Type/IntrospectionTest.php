@@ -35,6 +35,7 @@ final class IntrospectionTest extends TestCase
         someField: String
       }
 
+      "Sample schema"
       schema {
         query: SomeObject
       }
@@ -101,6 +102,17 @@ final class IntrospectionTest extends TestCase
                             'isOneOf' => null,
                             'fields' => [
                                 0 => [
+                                    'name' => 'description',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
+                                ],
+                                1 => [
                                     'name' => 'types',
                                     'args' => [],
                                     'type' => [
@@ -123,7 +135,7 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                1 => [
+                                2 => [
                                     'name' => 'queryType',
                                     'args' => [],
                                     'type' => [
@@ -1700,6 +1712,10 @@ final class IntrospectionTest extends TestCase
                         . 'points for query, mutation, and subscription operations.',
                     'fields' => [
                         [
+                            'name' => 'description',
+                            'description' => null,
+                        ],
+                        [
                             'name' => 'types',
                             'description' => 'A list of all types supported by this server.',
                         ],
@@ -1987,5 +2003,21 @@ final class IntrospectionTest extends TestCase
 
         $result = GraphQL::executeQuery($schema, $request)->toArray();
         self::assertSame($expected, $result['data']['__schema']['directives'] ?? null);
+    }
+
+    /** @see it('include "description" field on schema') */
+    public function testIncludeDescriptionFieldOnSchema(): void
+    {
+        preg_match_all('/\bdescription\b/', Introspection::getIntrospectionQuery(), $matches);
+        self::assertCount(5, $matches[0]);
+
+        preg_match_all('/\bdescription\b/', Introspection::getIntrospectionQuery(['schemaDescription' => false]), $matches);
+        self::assertCount(5, $matches[0]);
+
+        preg_match_all('/\bdescription\b/', Introspection::getIntrospectionQuery(['schemaDescription' => true]), $matches);
+        self::assertCount(6, $matches[0]);
+
+        preg_match_all('/\bdescription\b/', Introspection::getIntrospectionQuery(['descriptions' => false, 'schemaDescription' => true]), $matches);
+        self::assertCount(0, $matches[0]);
     }
 }

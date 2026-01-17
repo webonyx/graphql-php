@@ -131,7 +131,7 @@ class Visitor
         NodeKind::LIST_TYPE => ['type'],
         NodeKind::NON_NULL_TYPE => ['type'],
 
-        NodeKind::SCHEMA_DEFINITION => ['directives', 'operationTypes'],
+        NodeKind::SCHEMA_DEFINITION => ['description', 'directives', 'operationTypes'],
         NodeKind::OPERATION_TYPE_DEFINITION => ['type'],
         NodeKind::SCALAR_TYPE_DEFINITION => ['description', 'name', 'directives'],
         NodeKind::OBJECT_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'],

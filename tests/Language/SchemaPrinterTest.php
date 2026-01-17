@@ -49,6 +49,7 @@ final class SchemaPrinterTest extends TestCase
 
         self::assertSame(
             <<<'GRAPHQL'
+"""This is a description of the schema as a whole."""
 schema {
   query: QueryType
   mutation: MutationType

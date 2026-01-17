@@ -1223,6 +1223,7 @@ class Parser
     private function parseSchemaDefinition(): SchemaDefinitionNode
     {
         $start = $this->lexer->token;
+        $description = $this->parseDescription();
         $this->expectKeyword('schema');
         $directives = $this->parseDirectives(true);
 
@@ -1236,6 +1237,7 @@ class Parser
             'directives' => $directives,
             'operationTypes' => $operationTypes,
             'loc' => $this->loc($start),
+            'description' => $description,
         ]);
     }
 

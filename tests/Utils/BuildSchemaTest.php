@@ -221,13 +221,12 @@ final class BuildSchemaTest extends TestCaseBase
     /** @see it('Supports descriptions') */
     public function testSupportsDescriptions(): void
     {
-        /* TODO add schema description - see https://github.com/webonyx/graphql-php/issues/1027
-            """Do you agree that this is the most creative schema ever?"""
+        $sdl = <<<GRAPHQL
+            "Do you agree that this is the most creative schema ever?"
             schema {
               query: Query
             }
-        */
-        $sdl = <<<GRAPHQL
+            
             "This is a directive"
             directive @foo(
               "It has an argument"
