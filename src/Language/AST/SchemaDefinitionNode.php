@@ -11,4 +11,6 @@ class SchemaDefinitionNode extends Node implements TypeSystemDefinitionNode
 
     /** @var NodeList<OperationTypeDefinitionNode> */
     public NodeList $operationTypes;
+
+    public ?StringValueNode $description = null;
 }

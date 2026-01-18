@@ -2039,4 +2039,28 @@ GRAPHQL,
             ],
         ], $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS));
     }
+
+    public function testKeepSchemaDescription(): void
+    {
+        $schema = BuildSchema::build(<<<GraphQL
+"Sample schema"
+schema {
+    query: Query
+}
+type Query {
+    foo: Foo
+}
+type Foo {
+  foo: String
+}
+GraphQL);
+        $documentNode = Parser::parse(<<<GraphQL
+extend type Foo {
+  bar: String
+}
+GraphQL);
+
+        $extendedSchema = SchemaExtender::extend($schema, $documentNode);
+        self::assertSame('Sample schema', $extendedSchema->description);
+    }
 }

@@ -151,6 +151,7 @@ class BuildClientSchema
 
         return new Schema(
             (new SchemaConfig())
+                ->setDescription($schemaIntrospection['description'])
                 ->setQuery($queryType)
                 ->setMutation($mutationType)
                 ->setSubscription($subscriptionType)
