@@ -66,13 +66,11 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 12, 13);
     }
 
-    /** @return array<int, array<string>> */
-    public function fragmentQueriesOnRootProvider(): array
+    /** @return iterable<array<string>> */
+    public function fragmentQueriesOnRootProvider(): iterable
     {
-        return [
-            ['fragment humanFragment on QueryRoot { human { dogs { name } } } query { ...humanFragment }'],
-            ['query { ...humanFragment } fragment humanFragment on QueryRoot { human { dogs { name } } }'],
-        ];
+        yield ['fragment humanFragment on QueryRoot { human { dogs { name } } } query { ...humanFragment }'];
+        yield ['query { ...humanFragment } fragment humanFragment on QueryRoot { human { dogs { name } } }'];
     }
 
     public function testAliasesQueries(): void

@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.30.0
+
+### Added
+
 - Add support for adding description to schema https://github.com/webonyx/graphql-php/pull/1834
 
 ## v15.29.4
