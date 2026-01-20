@@ -30,6 +30,7 @@ use GraphQL\Utils\Utils;
  * @phpstan-type IntrospectionOptions array{
  *     descriptions?: bool,
  *     directiveIsRepeatable?: bool,
+ *     schemaDescription?: bool,
  *     typeIsOneOf?: bool,
  * }
  *
@@ -85,6 +86,7 @@ class Introspection
         $optionsWithDefaults = array_merge([
             'descriptions' => true,
             'directiveIsRepeatable' => false,
+            'schemaDescription' => false,
             'typeIsOneOf' => false,
         ], $options);
 
@@ -94,6 +96,9 @@ class Introspection
         $directiveIsRepeatable = $optionsWithDefaults['directiveIsRepeatable']
             ? 'isRepeatable'
             : '';
+        $schemaDescription = $optionsWithDefaults['schemaDescription']
+            ? $descriptions
+            : '';
         $typeIsOneOf = $optionsWithDefaults['typeIsOneOf']
             ? 'isOneOf'
             : '';
@@ -101,6 +106,7 @@ class Introspection
         return <<<GRAPHQL
   query IntrospectionQuery {
     __schema {
+      {$schemaDescription}
       queryType { name }
       mutationType { name }
       subscriptionType { name }
@@ -220,6 +226,7 @@ GRAPHQL;
     {
         $optionsWithDefaults = array_merge([
             'directiveIsRepeatable' => true,
+            'schemaDescription' => true,
             'typeIsOneOf' => true,
         ], $options);
 
@@ -268,6 +275,10 @@ GRAPHQL;
                 . 'the server, as well as the entry points for query, mutation, and '
                 . 'subscription operations.',
             'fields' => [
+                'description' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (Schema $schema): ?string => $schema->description,
+                ],
                 'types' => [
                     'description' => 'A list of all types supported by this server.',
                     'type' => new NonNull(new ListOfType(new NonNull(self::_type()))),

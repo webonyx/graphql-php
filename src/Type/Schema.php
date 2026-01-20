@@ -69,6 +69,8 @@ class Schema
     /** @var array<int, Error> */
     private array $validationErrors;
 
+    public ?string $description;
+
     public ?SchemaDefinitionNode $astNode;
 
     /** @var array<SchemaExtensionNode> */
@@ -95,6 +97,7 @@ class Schema
             $this->validationErrors = [];
         }
 
+        $this->description = $config->description;
         $this->astNode = $config->astNode;
         $this->extensionASTNodes = $config->extensionASTNodes;
 

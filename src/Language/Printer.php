@@ -376,14 +376,14 @@ class Printer
                 );
 
             case $node instanceof SchemaDefinitionNode:
-                return static::join(
+                return static::addDescription($node->description, static::join(
                     [
                         'schema',
                         static::printList($node->directives, ' '),
                         static::printListBlock($node->operationTypes),
                     ],
                     ' '
-                );
+                ));
 
             case $node instanceof SchemaExtensionNode:
                 return static::join(

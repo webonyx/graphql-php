@@ -30,6 +30,7 @@ use GraphQL\Type\Definition\Type;
  * @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
  * @phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)|iterable<(callable(): Type&NamedType)>|(callable(): iterable<(callable(): Type&NamedType)>)
  * @phpstan-type SchemaConfigOptions array{
+ *   description?: string|null,
  *   query?: MaybeLazyObjectType,
  *   mutation?: MaybeLazyObjectType,
  *   subscription?: MaybeLazyObjectType,
@@ -43,6 +44,8 @@ use GraphQL\Type\Definition\Type;
  */
 class SchemaConfig
 {
+    public ?string $description = null;
+
     /** @var MaybeLazyObjectType */
     public $query;
 
@@ -91,6 +94,9 @@ class SchemaConfig
         $config = new static();
 
         if ($options !== []) {
+            if (isset($options['description'])) {
+                $config->setDescription($options['description']);
+            }
             if (isset($options['query'])) {
                 $config->setQuery($options['query']);
             }
@@ -129,6 +135,20 @@ class SchemaConfig
         }
 
         return $config;
+    }
+
+    /** @api */
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    /** @api */
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
     }
 
     /**

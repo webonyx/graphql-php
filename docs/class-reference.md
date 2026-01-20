@@ -710,6 +710,7 @@ Usage example:
 @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
 @phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)|iterable<(callable(): Type&NamedType)>|(callable(): iterable<(callable(): Type&NamedType)>)
 @phpstan-type SchemaConfigOptions array{
+description?: string|null,
 query?: MaybeLazyObjectType,
 mutation?: MaybeLazyObjectType,
 subscription?: MaybeLazyObjectType,

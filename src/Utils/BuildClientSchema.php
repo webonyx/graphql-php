@@ -130,6 +130,10 @@ class BuildClientSchema
                 ?? $this->buildType($typeIntrospection);
         }
 
+        $description = isset($schemaIntrospection['description'])
+            ? $schemaIntrospection['description']
+            : null;
+
         $queryType = isset($schemaIntrospection['queryType'])
             ? $this->getObjectType($schemaIntrospection['queryType'])
             : null;
@@ -151,6 +155,7 @@ class BuildClientSchema
 
         return new Schema(
             (new SchemaConfig())
+                ->setDescription($description)
                 ->setQuery($queryType)
                 ->setMutation($mutationType)
                 ->setSubscription($subscriptionType)
