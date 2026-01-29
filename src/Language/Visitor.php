@@ -255,7 +255,7 @@ class Visitor
 
             $result = null;
             if (! $node instanceof NodeList) {
-                if (! ($node instanceof Node)) {
+                if (! $node instanceof Node) {
                     $notNode = Utils::printSafe($node);
                     throw new \Exception("Invalid AST Node: {$notNode}.");
                 }
@@ -283,7 +283,7 @@ class Visitor
 
                         $edits[] = [$key, $editValue];
                         if (! $isLeaving) {
-                            if (! ($editValue instanceof Node)) {
+                            if (! $editValue instanceof Node) {
                                 array_pop($path);
                                 continue;
                             }
@@ -392,13 +392,14 @@ class Visitor
 
                     $result = $fn(...func_get_args());
 
+                    if ($result === null) {
+                        continue;
+                    }
                     if ($result instanceof VisitorSkipNode) {
                         $skipping[$i] = $node;
                     } elseif ($result instanceof VisitorStop) {
                         $skipping[$i] = $result;
-                    } elseif ($result instanceof VisitorRemoveNode) {
-                        return $result;
-                    } elseif ($result !== null) {
+                    } else {
                         return $result;
                     }
                 }
@@ -417,11 +418,14 @@ class Visitor
                         if ($fn !== null) {
                             $result = $fn(...func_get_args());
 
+                            if ($result === null) {
+                                continue;
+                            }
                             if ($result instanceof VisitorStop) {
                                 $skipping[$i] = $result;
                             } elseif ($result instanceof VisitorRemoveNode) {
                                 return $result;
-                            } elseif ($result !== null) {
+                            } else {
                                 return $result;
                             }
                         }
@@ -487,21 +491,23 @@ class Visitor
     {
         $kindVisitor = $visitor[$kind] ?? null;
 
-        if (is_array($kindVisitor)) {
-            return $isLeaving
-                ? $kindVisitor['leave'] ?? null
-                : $kindVisitor['enter'] ?? null;
-        }
+        if ($kindVisitor !== null) {
+            if (is_array($kindVisitor)) {
+                return $isLeaving
+                    ? $kindVisitor['leave'] ?? null
+                    : $kindVisitor['enter'] ?? null;
+            }
 
-        if ($kindVisitor !== null && ! $isLeaving) {
-            return $kindVisitor;
+            if (! $isLeaving) {
+                return $kindVisitor;
+            }
         }
 
         $specificVisitor = $isLeaving
             ? $visitor['leave'] ?? null
             : $visitor['enter'] ?? null;
 
-        if (is_array($specificVisitor)) {
+        if ($specificVisitor !== null && is_array($specificVisitor)) {
             return $specificVisitor[$kind] ?? null;
         }
 
