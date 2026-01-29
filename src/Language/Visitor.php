@@ -255,7 +255,7 @@ class Visitor
 
             $result = null;
             if (! $node instanceof NodeList) {
-                if (! ($node instanceof Node)) {
+                if (! $node instanceof Node) {
                     $notNode = Utils::printSafe($node);
                     throw new \Exception("Invalid AST Node: {$notNode}.");
                 }
@@ -283,7 +283,7 @@ class Visitor
 
                         $edits[] = [$key, $editValue];
                         if (! $isLeaving) {
-                            if (! ($editValue instanceof Node)) {
+                            if (! $editValue instanceof Node) {
                                 array_pop($path);
                                 continue;
                             }
@@ -392,13 +392,13 @@ class Visitor
 
                     $result = $fn(...func_get_args());
 
-                    if ($result instanceof VisitorSkipNode) {
+                    if ($result === null) {
+                        continue;
+                    } elseif ($result instanceof VisitorSkipNode) {
                         $skipping[$i] = $node;
                     } elseif ($result instanceof VisitorStop) {
                         $skipping[$i] = $result;
-                    } elseif ($result instanceof VisitorRemoveNode) {
-                        return $result;
-                    } elseif ($result !== null) {
+                    } else {
                         return $result;
                     }
                 }
@@ -417,11 +417,13 @@ class Visitor
                         if ($fn !== null) {
                             $result = $fn(...func_get_args());
 
-                            if ($result instanceof VisitorStop) {
+                            if ($result === null) {
+                                continue;
+                            } elseif ($result instanceof VisitorStop) {
                                 $skipping[$i] = $result;
                             } elseif ($result instanceof VisitorRemoveNode) {
                                 return $result;
-                            } elseif ($result !== null) {
+                            } else {
                                 return $result;
                             }
                         }
