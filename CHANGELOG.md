@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.30.1
+
+### Changed
+
+- Improve performance 6% by lessening `is_array` and `instanceof` checks https://github.com/webonyx/graphql-php/pull/1845
+
 ## v15.30.0
 
 ### Added
