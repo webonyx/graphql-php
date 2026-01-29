@@ -487,21 +487,23 @@ class Visitor
     {
         $kindVisitor = $visitor[$kind] ?? null;
 
-        if (is_array($kindVisitor)) {
-            return $isLeaving
-                ? $kindVisitor['leave'] ?? null
-                : $kindVisitor['enter'] ?? null;
-        }
+        if ($kindVisitor !== null) {
+            if (is_array($kindVisitor)) {
+                return $isLeaving
+                    ? $kindVisitor['leave'] ?? null
+                    : $kindVisitor['enter'] ?? null;
+            }
 
-        if ($kindVisitor !== null && ! $isLeaving) {
-            return $kindVisitor;
+            if (! $isLeaving) {
+                return $kindVisitor;
+            }
         }
 
         $specificVisitor = $isLeaving
             ? $visitor['leave'] ?? null
             : $visitor['enter'] ?? null;
 
-        if (is_array($specificVisitor)) {
+        if ($specificVisitor !== null && is_array($specificVisitor)) {
             return $specificVisitor[$kind] ?? null;
         }
 
