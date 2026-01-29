@@ -61,7 +61,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      */
     public static function assertInterfaceType($type): self
     {
-        if (! ($type instanceof self)) {
+        if (! $type instanceof self) {
             $notInterfaceType = Utils::printSafe($type);
             throw new InvariantViolation("Expected {$notInterfaceType} to be a GraphQL Interface type.");
         }

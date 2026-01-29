@@ -394,7 +394,8 @@ class Visitor
 
                     if ($result === null) {
                         continue;
-                    } elseif ($result instanceof VisitorSkipNode) {
+                    }
+                    if ($result instanceof VisitorSkipNode) {
                         $skipping[$i] = $node;
                     } elseif ($result instanceof VisitorStop) {
                         $skipping[$i] = $result;
@@ -419,7 +420,8 @@ class Visitor
 
                             if ($result === null) {
                                 continue;
-                            } elseif ($result instanceof VisitorStop) {
+                            }
+                            if ($result instanceof VisitorStop) {
                                 $skipping[$i] = $result;
                             } elseif ($result instanceof VisitorRemoveNode) {
                                 return $result;
