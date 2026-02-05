@@ -7,7 +7,8 @@ class Description
 {
     public string $description;
 
-    public function __construct(string $description) {
+    public function __construct(string $description)
+    {
         $this->description = $description;
     }
 }
