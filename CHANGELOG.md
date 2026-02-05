@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.30.2
+
+### Fixed
+
+- Use PHP 7.4 compatible syntax in attribute classes https://github.com/webonyx/graphql-php/pull/1847
+
 ## v15.30.1
 
 ### Changed
