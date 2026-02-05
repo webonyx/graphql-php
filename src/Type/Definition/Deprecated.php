@@ -7,9 +7,8 @@ class Deprecated
 {
     public string $reason;
 
-    public function __construct(
-        string $reason = Directive::DEFAULT_DEPRECATION_REASON,
-    ) {
+    public function __construct(string $reason = Directive::DEFAULT_DEPRECATION_REASON)
+    {
         $this->reason = $reason;
     }
 }
