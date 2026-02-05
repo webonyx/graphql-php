@@ -5,7 +5,10 @@ namespace GraphQL\Type\Definition;
 #[\Attribute(\Attribute::TARGET_ALL)]
 class Deprecated
 {
-    public function __construct(
-        public string $reason = Directive::DEFAULT_DEPRECATION_REASON,
-    ) {}
+    public string $reason;
+
+    public function __construct(string $reason = Directive::DEFAULT_DEPRECATION_REASON)
+    {
+        $this->reason = $reason;
+    }
 }
