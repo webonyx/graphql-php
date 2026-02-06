@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Changed
+
+- Allow omitting deprecated introspection arguments/fields for legacy servers
+
 ## v15.30.2
 
 ### Fixed

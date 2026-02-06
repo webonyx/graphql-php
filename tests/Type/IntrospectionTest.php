@@ -2020,4 +2020,27 @@ final class IntrospectionTest extends TestCase
         preg_match_all('/\bdescription\b/', Introspection::getIntrospectionQuery(['descriptions' => false, 'schemaDescription' => true]), $matches);
         self::assertCount(0, $matches[0]);
     }
+
+    /** @see it('excludes deprecated fields and indicators when disabled') */
+    public function testExcludeDeprecatedFieldsAndIndicatorsWhenDisabled(): void
+    {
+        $source = Introspection::getIntrospectionQuery(['includeDeprecated' => false]);
+
+        self::assertStringNotContainsString('includeDeprecated: true', $source);
+        self::assertStringNotContainsString('includeDeprecated: false', $source);
+        self::assertStringContainsString('args {', $source);
+        self::assertStringContainsString('fields {', $source);
+        self::assertStringContainsString('inputFields {', $source);
+        self::assertStringContainsString('enumValues {', $source);
+        self::assertStringNotContainsString('isDeprecated', $source);
+        self::assertStringNotContainsString('deprecationReason', $source);
+    }
+
+    /** @see it('keeps deprecated args enabled by default') */
+    public function testIncludeDeprecatedArgumentsByDefault(): void
+    {
+        $source = Introspection::getIntrospectionQuery();
+
+        self::assertStringContainsString('(includeDeprecated: true)', $source);
+    }
 }
