@@ -166,7 +166,6 @@ SDL;
         );
     }
 
-    /** @see it('builds a schema from introspection without deprecated fields') */
     public function testBuildsSchemaFromIntrospectionWithoutDeprecatedFields(): void
     {
         $sdl = '

@@ -11,7 +11,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ### Changed
 
-- Allow omitting deprecated introspection arguments/fields for legacy servers
+- Allow omitting deprecated introspection arguments/fields for legacy servers https://github.com/webonyx/graphql-php/pull/1849
 
 ## v15.30.2
 

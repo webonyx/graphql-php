@@ -2021,7 +2021,6 @@ final class IntrospectionTest extends TestCase
         self::assertCount(0, $matches[0]);
     }
 
-    /** @see it('excludes deprecated fields and indicators when disabled') */
     public function testExcludeDeprecatedFieldsAndIndicatorsWhenDisabled(): void
     {
         $source = Introspection::getIntrospectionQuery(['includeDeprecated' => false]);
