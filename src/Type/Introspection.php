@@ -789,6 +789,7 @@ GRAPHQL;
         ]);
     }
 
+    /** @throws InvariantViolation */
     public static function schemaMetaFieldDef(): FieldDefinition
     {
         return self::$cachedInstances[self::SCHEMA_FIELD_NAME] ??= new FieldDefinition([
@@ -800,6 +801,7 @@ GRAPHQL;
         ]);
     }
 
+    /** @throws InvariantViolation */
     public static function typeMetaFieldDef(): FieldDefinition
     {
         return self::$cachedInstances[self::TYPE_FIELD_NAME] ??= new FieldDefinition([
@@ -816,6 +818,7 @@ GRAPHQL;
         ]);
     }
 
+    /** @throws InvariantViolation */
     public static function typeNameMetaFieldDef(): FieldDefinition
     {
         return self::$cachedInstances[self::TYPE_NAME_FIELD_NAME] ??= new FieldDefinition([

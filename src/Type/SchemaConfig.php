@@ -3,12 +3,14 @@
 namespace GraphQL\Type;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils\AppliedDirectives;
 
 /**
  * Configuration options for schema construction.
@@ -36,6 +38,7 @@ use GraphQL\Type\Definition\Type;
  *   subscription?: MaybeLazyObjectType,
  *   types?: Types|null,
  *   directives?: array<Directive>|null,
+ *   schemaDirectives?: iterable<DirectiveNode>|null,
  *   typeLoader?: TypeLoader|null,
  *   assumeValid?: bool|null,
  *   astNode?: SchemaDefinitionNode|null,
@@ -64,6 +67,9 @@ class SchemaConfig
 
     /** @var array<Directive>|null */
     public ?array $directives = null;
+
+    /** @var array<DirectiveNode> */
+    public array $schemaDirectives = [];
 
     /**
      * @var callable|null
@@ -115,6 +121,10 @@ class SchemaConfig
 
             if (isset($options['directives'])) {
                 $config->setDirectives($options['directives']);
+            }
+
+            if (isset($options['schemaDirectives'])) {
+                $config->setSchemaDirectives($options['schemaDirectives']);
             }
 
             if (isset($options['typeLoader'])) {
@@ -270,6 +280,30 @@ class SchemaConfig
     public function setDirectives(?array $directives): self
     {
         $this->directives = $directives;
+
+        return $this;
+    }
+
+    /**
+     * @return array<DirectiveNode>
+     *
+     * @api
+     */
+    public function getSchemaDirectives(): array
+    {
+        return $this->schemaDirectives;
+    }
+
+    /**
+     * @param iterable<DirectiveNode>|null $directives
+     *
+     * @throws InvariantViolation
+     *
+     * @api
+     */
+    public function setSchemaDirectives(?iterable $directives): self
+    {
+        $this->schemaDirectives = AppliedDirectives::normalize($directives);
 
         return $this;
     }

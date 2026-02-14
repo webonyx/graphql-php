@@ -4,8 +4,10 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Executor;
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\AppliedDirectives;
 use GraphQL\Utils\Utils;
 
 /**
@@ -27,6 +29,7 @@ use GraphQL\Utils\Utils;
  *     description?: string|null,
  *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
+ *     directives?: iterable<DirectiveNode>|null,
  *     astNode?: FieldDefinitionNode|null,
  *     complexity?: ComplexityFn|null
  * }
@@ -38,6 +41,7 @@ use GraphQL\Utils\Utils;
  *     description?: string|null,
  *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
+ *     directives?: iterable<DirectiveNode>|null,
  *     astNode?: FieldDefinitionNode|null,
  *     complexity?: ComplexityFn|null
  * }
@@ -90,6 +94,9 @@ class FieldDefinition
 
     public ?FieldDefinitionNode $astNode;
 
+    /** @var array<DirectiveNode> */
+    public array $directives;
+
     /**
      * @var callable|null
      *
@@ -107,7 +114,11 @@ class FieldDefinition
     /** @var Type&OutputType */
     private Type $type;
 
-    /** @param FieldDefinitionConfig $config */
+    /**
+     * @param FieldDefinitionConfig $config
+     *
+     * @throws InvariantViolation
+     */
     public function __construct(array $config)
     {
         $this->name = $config['name'];
@@ -120,6 +131,7 @@ class FieldDefinition
         $this->visible = $config['visible'] ?? true;
         $this->deprecationReason = $config['deprecationReason'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
+        $this->directives = AppliedDirectives::normalize($config['directives'] ?? null);
         $this->complexityFn = $config['complexity'] ?? null;
 
         $this->config = $config;

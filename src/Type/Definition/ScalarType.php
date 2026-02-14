@@ -3,8 +3,10 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
+use GraphQL\Utils\AppliedDirectives;
 use GraphQL\Utils\Utils;
 
 /**
@@ -28,6 +30,7 @@ use GraphQL\Utils\Utils;
  * @phpstan-type ScalarConfig array{
  *   name?: string|null,
  *   description?: string|null,
+ *   directives?: iterable<DirectiveNode>|null,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }
@@ -40,6 +43,9 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
 
     /** @var array<ScalarTypeExtensionNode> */
     public array $extensionASTNodes;
+
+    /** @var array<DirectiveNode> */
+    public array $directives;
 
     /** @phpstan-var ScalarConfig */
     public array $config;
@@ -55,6 +61,7 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
         $this->description = $config['description'] ?? $this->description ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
+        $this->directives = AppliedDirectives::normalize($config['directives'] ?? null);
 
         $this->config = $config;
     }

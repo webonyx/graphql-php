@@ -4,8 +4,10 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
+use GraphQL\Utils\AppliedDirectives;
 use GraphQL\Utils\Utils;
 
 /**
@@ -21,6 +23,7 @@ use GraphQL\Utils\Utils;
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
  *   resolveType?: ResolveType|null,
  *   resolveValue?: ResolveValue|null,
+ *   directives?: iterable<DirectiveNode>|null,
  *   astNode?: InterfaceTypeDefinitionNode|null,
  *   extensionASTNodes?: array<InterfaceTypeExtensionNode>|null
  * }
@@ -36,6 +39,9 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     /** @var array<InterfaceTypeExtensionNode> */
     public array $extensionASTNodes;
 
+    /** @var array<DirectiveNode> */
+    public array $directives;
+
     /** @phpstan-var InterfaceConfig */
     public array $config;
 
@@ -50,6 +56,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         $this->description = $config['description'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
+        $this->directives = AppliedDirectives::normalize($config['directives'] ?? null);
 
         $this->config = $config;
     }
