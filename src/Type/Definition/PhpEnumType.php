@@ -8,7 +8,9 @@ use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\Utils;
 
-/** @phpstan-import-type PartialEnumValueConfig from EnumType */
+/**
+ * @phpstan-import-type PartialEnumValueConfig from EnumType
+ */
 class PhpEnumType extends EnumType
 {
     public const MULTIPLE_DESCRIPTIONS_DISALLOWED = 'Using more than 1 Description attribute is not supported.';
