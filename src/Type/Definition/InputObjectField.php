@@ -3,6 +3,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
@@ -15,6 +16,7 @@ use GraphQL\Utils\Utils;
  *   defaultValue?: mixed,
  *   description?: string|null,
  *   deprecationReason?: string|null,
+ *   directives?: array<DirectiveNode>|null,
  *   astNode?: InputValueDefinitionNode|null
  * }
  * @phpstan-type UnnamedInputObjectFieldConfig array{
@@ -23,6 +25,7 @@ use GraphQL\Utils\Utils;
  *   defaultValue?: mixed,
  *   description?: string|null,
  *   deprecationReason?: string|null,
+ *   directives?: array<DirectiveNode>|null,
  *   astNode?: InputValueDefinitionNode|null
  * }
  */
@@ -42,10 +45,17 @@ class InputObjectField
 
     public ?InputValueDefinitionNode $astNode;
 
+    /** @var array<DirectiveNode> */
+    public array $directives;
+
     /** @phpstan-var InputObjectFieldConfig */
     public array $config;
 
-    /** @phpstan-param InputObjectFieldConfig $config */
+    /**
+     * @phpstan-param InputObjectFieldConfig $config
+     *
+     * @throws InvariantViolation
+     */
     public function __construct(array $config)
     {
         $this->name = $config['name'];
@@ -54,6 +64,7 @@ class InputObjectField
         $this->deprecationReason = $config['deprecationReason'] ?? null;
         // Do nothing for type, it is lazy loaded in getType()
         $this->astNode = $config['astNode'] ?? null;
+        $this->directives = $config['directives'] ?? [];
 
         $this->config = $config;
     }

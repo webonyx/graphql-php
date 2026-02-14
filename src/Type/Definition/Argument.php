@@ -3,6 +3,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
@@ -15,6 +16,7 @@ use GraphQL\Utils\Utils;
  *     defaultValue?: mixed,
  *     description?: string|null,
  *     deprecationReason?: string|null,
+ *     directives?: array<DirectiveNode>|null,
  *     astNode?: InputValueDefinitionNode|null
  * }
  * @phpstan-type ArgumentConfig array{
@@ -23,6 +25,7 @@ use GraphQL\Utils\Utils;
  *     defaultValue?: mixed,
  *     description?: string|null,
  *     deprecationReason?: string|null,
+ *     directives?: array<DirectiveNode>|null,
  *     astNode?: InputValueDefinitionNode|null
  * }
  * @phpstan-type ArgumentListConfig iterable<ArgumentConfig|ArgumentType>|iterable<UnnamedArgumentConfig>
@@ -43,10 +46,17 @@ class Argument
 
     public ?InputValueDefinitionNode $astNode;
 
+    /** @var array<DirectiveNode> */
+    public array $directives;
+
     /** @phpstan-var ArgumentConfig */
     public array $config;
 
-    /** @phpstan-param ArgumentConfig $config */
+    /**
+     * @phpstan-param ArgumentConfig $config
+     *
+     * @throws InvariantViolation
+     */
     public function __construct(array $config)
     {
         $this->name = $config['name'];
@@ -55,12 +65,15 @@ class Argument
         $this->deprecationReason = $config['deprecationReason'] ?? null;
         // Do nothing for type, it is lazy loaded in getType()
         $this->astNode = $config['astNode'] ?? null;
+        $this->directives = $config['directives'] ?? [];
 
         $this->config = $config;
     }
 
     /**
      * @phpstan-param ArgumentListConfig $config
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, self>
      */
