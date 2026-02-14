@@ -6,3 +6,12 @@ benchmarks/results
 composer.lock
 composer.phar
 phpstan.neon
+
+# lnai
+.ai/.lnai-manifest.json
+
+# lnai-generated
+.claude/CLAUDE.md
+.claude/settings.json
+/AGENTS.md
+# end lnai-generated
