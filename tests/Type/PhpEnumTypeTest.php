@@ -104,7 +104,7 @@ GRAPHQL, SchemaPrinter::printType($enumType));
     {
         $enumType = new PhpEnumType(DocBlockPhpEnum::class);
         self::assertSame(<<<'GRAPHQL'
-"foo"
+"foo."
 enum DocBlockPhpEnum {
   "preferred"
   A
