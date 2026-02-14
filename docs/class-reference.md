@@ -716,6 +716,7 @@ mutation?: MaybeLazyObjectType,
 subscription?: MaybeLazyObjectType,
 types?: Types|null,
 directives?: array<Directive>|null,
+schemaDirectives?: iterable<DirectiveNode>|null,
 typeLoader?: TypeLoader|null,
 assumeValid?: bool|null,
 astNode?: SchemaDefinitionNode|null,
@@ -836,6 +837,26 @@ function getDirectives(): ?array
  * @api
  */
 function setDirectives(?array $directives): self
+```
+
+```php
+/**
+ * @return array<DirectiveNode>
+ *
+ * @api
+ */
+function getSchemaDirectives(): array
+```
+
+```php
+/**
+ * @param iterable<DirectiveNode>|null $directives
+ *
+ * @throws InvariantViolation
+ *
+ * @api
+ */
+function setSchemaDirectives(?iterable $directives): self
 ```
 
 ```php
@@ -2921,6 +2942,7 @@ sortEnumValues?: bool,
 sortFields?: bool,
 sortInputFields?: bool,
 sortTypes?: bool,
+includeAppliedDirectives?: bool,
 }
 
 @see \GraphQL\Tests\Utils\SchemaPrinterTest
