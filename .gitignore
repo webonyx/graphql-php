@@ -13,5 +13,5 @@ phpstan.neon
 # lnai-generated
 .claude/CLAUDE.md
 .claude/settings.json
-/AGENTS.md
+AGENTS.md
 # end lnai-generated
