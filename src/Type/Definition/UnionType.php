@@ -7,7 +7,6 @@ use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Type\Schema;
-use GraphQL\Utils\AppliedDirectives;
 use GraphQL\Utils\Utils;
 
 /**
@@ -21,7 +20,7 @@ use GraphQL\Utils\Utils;
  *   types: iterable<ObjectTypeReference>|callable(): iterable<ObjectTypeReference>,
  *   resolveType?: ResolveType|null,
  *   resolveValue?: ResolveValue|null,
- *   directives?: iterable<DirectiveNode>|null,
+ *   directives?: array<DirectiveNode>|null,
  *   astNode?: UnionTypeDefinitionNode|null,
  *   extensionASTNodes?: array<UnionTypeExtensionNode>|null
  * }
@@ -66,7 +65,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         $this->description = $config['description'] ?? $this->description ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
-        $this->directives = AppliedDirectives::normalize($config['directives'] ?? null);
+        $this->directives = $config['directives'] ?? [];
 
         $this->config = $config;
     }

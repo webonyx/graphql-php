@@ -5,7 +5,6 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
-use GraphQL\Utils\AppliedDirectives;
 
 /**
  * @phpstan-type EnumValueConfig array{
@@ -13,7 +12,7 @@ use GraphQL\Utils\AppliedDirectives;
  *   value?: mixed,
  *   deprecationReason?: string|null,
  *   description?: string|null,
- *   directives?: iterable<DirectiveNode>|null,
+ *   directives?: array<DirectiveNode>|null,
  *   astNode?: EnumValueDefinitionNode|null
  * }
  */
@@ -48,7 +47,7 @@ class EnumValueDefinition
         $this->deprecationReason = $config['deprecationReason'] ?? null;
         $this->description = $config['description'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
-        $this->directives = AppliedDirectives::normalize($config['directives'] ?? null);
+        $this->directives = $config['directives'] ?? [];
 
         $this->config = $config;
     }

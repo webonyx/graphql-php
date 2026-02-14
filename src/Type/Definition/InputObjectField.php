@@ -6,7 +6,6 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Schema;
-use GraphQL\Utils\AppliedDirectives;
 use GraphQL\Utils\Utils;
 
 /**
@@ -17,7 +16,7 @@ use GraphQL\Utils\Utils;
  *   defaultValue?: mixed,
  *   description?: string|null,
  *   deprecationReason?: string|null,
- *   directives?: iterable<DirectiveNode>|null,
+ *   directives?: array<DirectiveNode>|null,
  *   astNode?: InputValueDefinitionNode|null
  * }
  * @phpstan-type UnnamedInputObjectFieldConfig array{
@@ -26,7 +25,7 @@ use GraphQL\Utils\Utils;
  *   defaultValue?: mixed,
  *   description?: string|null,
  *   deprecationReason?: string|null,
- *   directives?: iterable<DirectiveNode>|null,
+ *   directives?: array<DirectiveNode>|null,
  *   astNode?: InputValueDefinitionNode|null
  * }
  */
@@ -65,7 +64,7 @@ class InputObjectField
         $this->deprecationReason = $config['deprecationReason'] ?? null;
         // Do nothing for type, it is lazy loaded in getType()
         $this->astNode = $config['astNode'] ?? null;
-        $this->directives = AppliedDirectives::normalize($config['directives'] ?? null);
+        $this->directives = $config['directives'] ?? [];
 
         $this->config = $config;
     }

@@ -12,7 +12,6 @@ use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Printer;
-use GraphQL\Utils\AppliedDirectives;
 use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
 
@@ -24,7 +23,7 @@ use GraphQL\Utils\Utils;
  *   value?: mixed,
  *   deprecationReason?: string|null,
  *   description?: string|null,
- *   directives?: iterable<DirectiveNode>|null,
+ *   directives?: array<DirectiveNode>|null,
  *   astNode?: EnumValueDefinitionNode|null
  * }
  * @phpstan-type EnumValues iterable<string, PartialEnumValueConfig>|iterable<string, mixed>|iterable<int, string>
@@ -32,7 +31,7 @@ use GraphQL\Utils\Utils;
  *   name?: string|null,
  *   description?: string|null,
  *   values: EnumValues|callable(): EnumValues,
- *   directives?: iterable<DirectiveNode>|null,
+ *   directives?: array<DirectiveNode>|null,
  *   astNode?: EnumTypeDefinitionNode|null,
  *   extensionASTNodes?: array<EnumTypeExtensionNode>|null
  * }
@@ -80,7 +79,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         $this->description = $config['description'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
-        $this->directives = AppliedDirectives::normalize($config['directives'] ?? null);
+        $this->directives = $config['directives'] ?? [];
 
         $this->config = $config;
     }

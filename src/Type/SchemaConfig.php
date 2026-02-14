@@ -10,7 +10,6 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils\AppliedDirectives;
 
 /**
  * Configuration options for schema construction.
@@ -38,7 +37,7 @@ use GraphQL\Utils\AppliedDirectives;
  *   subscription?: MaybeLazyObjectType,
  *   types?: Types|null,
  *   directives?: array<Directive>|null,
- *   schemaDirectives?: iterable<DirectiveNode>|null,
+ *   schemaDirectives?: array<DirectiveNode>|null,
  *   typeLoader?: TypeLoader|null,
  *   assumeValid?: bool|null,
  *   astNode?: SchemaDefinitionNode|null,
@@ -295,15 +294,13 @@ class SchemaConfig
     }
 
     /**
-     * @param iterable<DirectiveNode>|null $directives
-     *
-     * @throws InvariantViolation
+     * @param array<DirectiveNode>|null $directives
      *
      * @api
      */
-    public function setSchemaDirectives(?iterable $directives): self
+    public function setSchemaDirectives(?array $directives): self
     {
-        $this->schemaDirectives = AppliedDirectives::normalize($directives);
+        $this->schemaDirectives = $directives ?? [];
 
         return $this;
     }

@@ -7,7 +7,6 @@ use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Type\Schema;
-use GraphQL\Utils\AppliedDirectives;
 use GraphQL\Utils\Utils;
 
 /**
@@ -29,7 +28,7 @@ use GraphQL\Utils\Utils;
  *     description?: string|null,
  *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
- *     directives?: iterable<DirectiveNode>|null,
+ *     directives?: array<DirectiveNode>|null,
  *     astNode?: FieldDefinitionNode|null,
  *     complexity?: ComplexityFn|null
  * }
@@ -41,7 +40,7 @@ use GraphQL\Utils\Utils;
  *     description?: string|null,
  *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
- *     directives?: iterable<DirectiveNode>|null,
+ *     directives?: array<DirectiveNode>|null,
  *     astNode?: FieldDefinitionNode|null,
  *     complexity?: ComplexityFn|null
  * }
@@ -131,7 +130,7 @@ class FieldDefinition
         $this->visible = $config['visible'] ?? true;
         $this->deprecationReason = $config['deprecationReason'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
-        $this->directives = AppliedDirectives::normalize($config['directives'] ?? null);
+        $this->directives = $config['directives'] ?? [];
         $this->complexityFn = $config['complexity'] ?? null;
 
         $this->config = $config;

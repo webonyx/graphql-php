@@ -7,7 +7,6 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
-use GraphQL\Utils\AppliedDirectives;
 use GraphQL\Utils\Utils;
 
 /**
@@ -23,7 +22,7 @@ use GraphQL\Utils\Utils;
  *   isOneOf?: bool|null,
  *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
  *   parseValue?: ParseValueFn|null,
- *   directives?: iterable<DirectiveNode>|null,
+ *   directives?: array<DirectiveNode>|null,
  *   astNode?: InputObjectTypeDefinitionNode|null,
  *   extensionASTNodes?: array<InputObjectTypeExtensionNode>|null
  * }
@@ -69,7 +68,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         $this->parseValue = $config['parseValue'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
-        $this->directives = AppliedDirectives::normalize($config['directives'] ?? null);
+        $this->directives = $config['directives'] ?? [];
 
         $this->config = $config;
     }
