@@ -716,7 +716,7 @@ mutation?: MaybeLazyObjectType,
 subscription?: MaybeLazyObjectType,
 types?: Types|null,
 directives?: array<Directive>|null,
-schemaDirectives?: iterable<DirectiveNode>|null,
+schemaDirectives?: array<DirectiveNode>|null,
 typeLoader?: TypeLoader|null,
 assumeValid?: bool|null,
 astNode?: SchemaDefinitionNode|null,
@@ -850,13 +850,11 @@ function getSchemaDirectives(): array
 
 ```php
 /**
- * @param iterable<DirectiveNode>|null $directives
- *
- * @throws InvariantViolation
+ * @param array<DirectiveNode>|null $directives
  *
  * @api
  */
-function setSchemaDirectives(?iterable $directives): self
+function setSchemaDirectives(?array $directives): self
 ```
 
 ```php
