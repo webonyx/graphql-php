@@ -6,7 +6,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\UnionType;
 
-/** Custom class-based union type for testing. */
+/**
+ * Custom class-based union type for testing.
+ */
 final class SomeUnionClassType extends UnionType
 {
     public ObjectType $concrete;

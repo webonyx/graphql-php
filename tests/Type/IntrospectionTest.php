@@ -22,7 +22,9 @@ use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
 
-/** @phpstan-import-type VisibilityFn from FieldDefinition */
+/**
+ * @phpstan-import-type VisibilityFn from FieldDefinition
+ */
 final class IntrospectionTest extends TestCase
 {
     use ArraySubsetAsserts;

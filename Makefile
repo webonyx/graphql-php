@@ -6,7 +6,7 @@ help: ## Displays this list of targets with descriptions
 	@grep --extended-regexp '^[a-zA-Z0-9_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: setup
-setup: vendor phpstan.neon ## Set up the project
+setup: vendor phpstan.neon ai-sync ## Set up the project
 
 .PHONY: fix
 fix: rector php-cs-fixer prettier ## Automatic code fixes
@@ -53,6 +53,10 @@ bench: ## Runs benchmarks with PHPBench
 docs: ## Generate the class-reference docs
 	php generate-class-reference.php
 	prettier --write docs/class-reference.md
+
+.PHONY: ai-sync
+ai-sync: ## Generate local agent configuration from .ai
+	npx --yes lnai@0.6.7 sync
 
 vendor: composer.json composer.lock
 	composer install
