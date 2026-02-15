@@ -600,16 +600,6 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
-     *
-     * @phpstan-param Options $options
-     */
-    private static function shouldIncludeAppliedDirectives(array $options): bool
-    {
-        return isset($options['includeAppliedDirectives']) && $options['includeAppliedDirectives'];
-    }
-
-    /**
-     * @param array<string, bool> $options
      * @param array<string> $excludedDirectiveNames
      *
      * @phpstan-param Options $options
@@ -622,7 +612,7 @@ class SchemaPrinter
         object $definition,
         array $excludedDirectiveNames = []
     ): string {
-        if (! self::shouldIncludeAppliedDirectives($options)) {
+        if (! ($options['includeAppliedDirectives'] ?? false)) {
             return '';
         }
 
