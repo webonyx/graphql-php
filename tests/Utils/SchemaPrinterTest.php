@@ -1441,16 +1441,14 @@ final class SchemaPrinterTest extends TestCase
 
     public function testDefaultPrinterDoesNotPrintAppliedDirectives(): void
     {
-        $directive = static fn (string $directive): \GraphQL\Language\AST\DirectiveNode => Parser::directive($directive);
-
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
-                'directives' => [$directive('@onObject')],
+                'directives' => [Parser::directive('@onObject')],
                 'fields' => [
                     'hello' => [
                         'type' => Type::string(),
-                        'directives' => [$directive('@onField')],
+                        'directives' => [Parser::directive('@onField')],
                     ],
                 ],
             ]),
@@ -1474,8 +1472,6 @@ final class SchemaPrinterTest extends TestCase
 
     public function testPrintWithDirectivesPrintsAllSupportedSdlLocations(): void
     {
-        $directive = static fn (string $directive): \GraphQL\Language\AST\DirectiveNode => Parser::directive($directive);
-
         $nodeType = new ObjectType([
             'name' => 'NodeType',
             'fields' => [
@@ -1492,39 +1488,39 @@ final class SchemaPrinterTest extends TestCase
 
         $interfaceType = new InterfaceType([
             'name' => 'Node',
-            'directives' => [$directive('@onInterface')],
+            'directives' => [Parser::directive('@onInterface')],
             'fields' => [
                 'id' => [
                     'type' => Type::id(),
-                    'directives' => [$directive('@onField')],
+                    'directives' => [Parser::directive('@onField')],
                 ],
             ],
         ]);
 
         $enumType = new EnumType([
             'name' => 'Status',
-            'directives' => [$directive('@onEnum')],
+            'directives' => [Parser::directive('@onEnum')],
             'values' => [
                 'ACTIVE' => [
-                    'directives' => [$directive('@onEnumValue')],
+                    'directives' => [Parser::directive('@onEnumValue')],
                 ],
             ],
         ]);
 
         $inputType = new InputObjectType([
             'name' => 'Input',
-            'directives' => [$directive('@onInputObject')],
+            'directives' => [Parser::directive('@onInputObject')],
             'fields' => [
                 'name' => [
                     'type' => Type::string(),
-                    'directives' => [$directive('@onInputField')],
+                    'directives' => [Parser::directive('@onInputField')],
                 ],
             ],
         ]);
 
         $scalarType = new CustomScalarType([
             'name' => 'CustomScalar',
-            'directives' => [$directive('@onScalar')],
+            'directives' => [Parser::directive('@onScalar')],
             'serialize' => static fn ($value) => $value,
             'parseValue' => static fn ($value) => $value,
             'parseLiteral' => static fn ($valueNode) => $valueNode->value,
@@ -1533,21 +1529,21 @@ final class SchemaPrinterTest extends TestCase
         $unionType = new UnionType([
             'name' => 'SearchResult',
             'types' => [$nodeType, $otherType],
-            'directives' => [$directive('@onUnion')],
+            'directives' => [Parser::directive('@onUnion')],
         ]);
 
         $queryType = new ObjectType([
             'name' => 'Query',
-            'directives' => [$directive('@onObject')],
+            'directives' => [Parser::directive('@onObject')],
             'interfaces' => [$interfaceType],
             'fields' => [
                 'node' => [
                     'type' => $nodeType,
-                    'directives' => [$directive('@onField')],
+                    'directives' => [Parser::directive('@onField')],
                     'args' => [
                         'input' => [
                             'type' => $inputType,
-                            'directives' => [$directive('@onArg')],
+                            'directives' => [Parser::directive('@onArg')],
                         ],
                     ],
                 ],
@@ -1557,7 +1553,7 @@ final class SchemaPrinterTest extends TestCase
         $schema = new Schema([
             'query' => $queryType,
             'types' => [$nodeType, $otherType, $interfaceType, $enumType, $inputType, $scalarType, $unionType],
-            'schemaDirectives' => [$directive('@onSchema')],
+            'schemaDirectives' => [Parser::directive('@onSchema')],
             'directives' => [
                 new Directive(['name' => 'onSchema', 'locations' => [DirectiveLocation::SCHEMA]]),
                 new Directive(['name' => 'onScalar', 'locations' => [DirectiveLocation::SCALAR]]),
