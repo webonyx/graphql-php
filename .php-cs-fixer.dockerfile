@@ -1,5 +1,5 @@
-ARG PHP_VERSION
-FROM php:${PHP_VERSION}-cli
+ARG IMAGE
+FROM ${IMAGE}
 
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends \
