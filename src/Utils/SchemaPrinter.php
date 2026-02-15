@@ -41,6 +41,7 @@ use GraphQL\Type\Schema;
  *   sortTypes?: bool,
  *   includeAppliedDirectives?: bool,
  * }
+ * @phpstan-type AppliedDirectiveDefinition Schema|Argument|Directive|FieldDefinition|InputObjectField|EnumValueDefinition|ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType
  *
  * @see \GraphQL\Tests\Utils\SchemaPrinterTest
  */
@@ -612,11 +613,15 @@ class SchemaPrinter
      * @param array<string> $excludedDirectiveNames
      *
      * @phpstan-param Options $options
+     * @phpstan-param AppliedDirectiveDefinition $definition
      *
      * @throws \JsonException
      */
-    private static function printAppliedDirectivesIfEnabled(array $options, object $definition, array $excludedDirectiveNames = []): string
-    {
+    private static function printAppliedDirectivesIfEnabled(
+        array $options,
+        object $definition,
+        array $excludedDirectiveNames = []
+    ): string {
         if (! self::shouldIncludeAppliedDirectives($options)) {
             return '';
         }
@@ -629,6 +634,8 @@ class SchemaPrinter
     /**
      * @param array<string> $excludedDirectiveNames
      *
+     * @phpstan-param AppliedDirectiveDefinition $definition
+     *
      * @return array<DirectiveNode>
      */
     private static function collectAppliedDirectives(object $definition, array $excludedDirectiveNames = []): array
@@ -636,40 +643,51 @@ class SchemaPrinter
         $directives = [];
 
         if ($definition instanceof Schema) {
-            foreach ($definition->getConfig()->schemaDirectives as $directive) {
-                if (! in_array($directive->name->value, $excludedDirectiveNames, true)) {
-                    $directives[] = $directive;
-                }
+            self::appendConfiguredDirectives($directives, $definition->getConfig()->schemaDirectives, $excludedDirectiveNames);
+            self::appendDirectivesFromAstNode($directives, $definition->astNode, $excludedDirectiveNames);
+
+            foreach ($definition->extensionASTNodes as $extensionASTNode) {
+                self::appendDirectivesFromAstNode($directives, $extensionASTNode, $excludedDirectiveNames);
             }
+        } elseif ($definition instanceof Directive) {
+            self::appendDirectivesFromAstNode($directives, $definition->astNode, $excludedDirectiveNames);
         } else {
-            $definitionVars = get_object_vars($definition);
-            $configuredDirectives = $definitionVars['directives'] ?? null;
+            self::appendConfiguredDirectives($directives, $definition->directives, $excludedDirectiveNames);
+            self::appendDirectivesFromAstNode($directives, $definition->astNode, $excludedDirectiveNames);
 
-            if (is_iterable($configuredDirectives)) {
-                foreach ($configuredDirectives as $directive) {
-                    if ($directive instanceof DirectiveNode && ! in_array($directive->name->value, $excludedDirectiveNames, true)) {
-                        $directives[] = $directive;
-                    }
+            if (
+                $definition instanceof ScalarType
+                || $definition instanceof ObjectType
+                || $definition instanceof InterfaceType
+                || $definition instanceof UnionType
+                || $definition instanceof EnumType
+                || $definition instanceof InputObjectType
+            ) {
+                foreach ($definition->extensionASTNodes as $extensionASTNode) {
+                    self::appendDirectivesFromAstNode($directives, $extensionASTNode, $excludedDirectiveNames);
                 }
-            }
-        }
-
-        $definitionVars = get_object_vars($definition);
-        $astNode = $definitionVars['astNode'] ?? null;
-        self::appendDirectivesFromAstNode($directives, $astNode instanceof Node ? $astNode : null, $excludedDirectiveNames);
-
-        $extensionASTNodes = $definitionVars['extensionASTNodes'] ?? null;
-        if (is_iterable($extensionASTNodes)) {
-            foreach ($extensionASTNodes as $extensionASTNode) {
-                self::appendDirectivesFromAstNode(
-                    $directives,
-                    $extensionASTNode instanceof Node ? $extensionASTNode : null,
-                    $excludedDirectiveNames
-                );
             }
         }
 
         return $directives;
+    }
+
+    /**
+     * @param array<DirectiveNode> $directives
+     * @param iterable<DirectiveNode>|null $configuredDirectives
+     * @param array<string> $excludedDirectiveNames
+     */
+    private static function appendConfiguredDirectives(array &$directives, ?iterable $configuredDirectives, array $excludedDirectiveNames = []): void
+    {
+        if ($configuredDirectives === null) {
+            return;
+        }
+
+        foreach ($configuredDirectives as $directive) {
+            if (! in_array($directive->name->value, $excludedDirectiveNames, true)) {
+                $directives[] = $directive;
+            }
+        }
     }
 
     /**
