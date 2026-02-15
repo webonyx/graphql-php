@@ -168,10 +168,12 @@ class SchemaPrinter
     /**
      * @param array<string, bool> $options
      *
+     * @phpstan-param Options $options
+     *
      * @throws \JsonException
      * @throws InvariantViolation
      */
-    protected static function printSchemaDefinition(Schema $schema, array $options = []): ?string
+    protected static function printSchemaDefinition(Schema $schema, array $options): ?string
     {
         $queryType = $schema->getQueryType();
         $mutationType = $schema->getMutationType();
@@ -249,6 +251,8 @@ class SchemaPrinter
     /**
      * @param array<string, bool> $options
      * @param (Type&NamedType)|Directive|EnumValueDefinition|Argument|FieldDefinition|InputObjectField|Schema $def
+     *
+     * @phpstan-param Options $options
      *
      * @throws \JsonException
      */
@@ -350,7 +354,7 @@ class SchemaPrinter
      * @throws InvariantViolation
      * @throws SerializationError
      */
-    protected static function printInputValue($arg, array $options = []): string
+    protected static function printInputValue($arg, array $options): string
     {
         $argDecl = "{$arg->name}: {$arg->getType()->toString()}";
 
@@ -593,7 +597,11 @@ class SchemaPrinter
             . static::printBlock($fields);
     }
 
-    /** @param array<string, bool> $options */
+    /**
+     * @param array<string, bool> $options
+     *
+     * @phpstan-param Options $options
+     */
     private static function shouldIncludeAppliedDirectives(array $options): bool
     {
         return isset($options['includeAppliedDirectives']) && $options['includeAppliedDirectives'];
@@ -602,6 +610,8 @@ class SchemaPrinter
     /**
      * @param array<string, bool> $options
      * @param array<string> $excludedDirectiveNames
+     *
+     * @phpstan-param Options $options
      *
      * @throws \JsonException
      */
