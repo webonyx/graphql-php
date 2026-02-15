@@ -2942,7 +2942,8 @@ sortInputFields?: bool,
 sortTypes?: bool,
 includeAppliedDirectives?: bool,
 }
-@phpstan-type AppliedDirectiveDefinition Schema|Argument|Directive|FieldDefinition|InputObjectField|EnumValueDefinition|ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType
+@phpstan-type AppliedDirectiveDefinition Schema|Argument|FieldDefinition|InputObjectField|EnumValueDefinition|ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType
+@phpstan-type AppliedDirectiveAstNode SchemaDefinitionNode|SchemaExtensionNode|InputValueDefinitionNode|FieldDefinitionNode|EnumValueDefinitionNode|ScalarTypeDefinitionNode|ScalarTypeExtensionNode|ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode|UnionTypeDefinitionNode|UnionTypeExtensionNode|EnumTypeDefinitionNode|EnumTypeExtensionNode|InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode
 
 @see \GraphQL\Tests\Utils\SchemaPrinterTest
 
