@@ -1525,9 +1525,9 @@ final class SchemaPrinterTest extends TestCase
         $scalarType = new CustomScalarType([
             'name' => 'CustomScalar',
             'directives' => [$directive('@onScalar')],
-            'serialize' => static fn ($value): mixed => $value,
-            'parseValue' => static fn ($value): mixed => $value,
-            'parseLiteral' => static fn ($valueNode): mixed => $valueNode->value,
+            'serialize' => static fn ($value) => $value,
+            'parseValue' => static fn ($value) => $value,
+            'parseLiteral' => static fn ($valueNode) => $valueNode->value,
         ]);
 
         $unionType = new UnionType([

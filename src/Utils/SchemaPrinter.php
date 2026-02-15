@@ -341,13 +341,16 @@ class SchemaPrinter
     }
 
     /**
+     * @param InputObjectField|Argument $arg
      * @param array<string, bool> $options
+     *
+     * @phpstan-param Options $options
      *
      * @throws \JsonException
      * @throws InvariantViolation
      * @throws SerializationError
      */
-    protected static function printInputValue(InputObjectField|Argument $arg, array $options = []): string
+    protected static function printInputValue($arg, array $options = []): string
     {
         $argDecl = "{$arg->name}: {$arg->getType()->toString()}";
 
@@ -598,7 +601,6 @@ class SchemaPrinter
 
     /**
      * @param array<string, bool> $options
-     * @param object $definition
      * @param array<string> $excludedDirectiveNames
      *
      * @throws \JsonException
@@ -615,7 +617,6 @@ class SchemaPrinter
     }
 
     /**
-     * @param object $definition
      * @param array<string> $excludedDirectiveNames
      *
      * @return array<DirectiveNode>
