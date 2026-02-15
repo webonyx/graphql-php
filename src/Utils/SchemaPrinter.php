@@ -6,9 +6,25 @@ use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumTypeExtensionNode;
+use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeExtensionNode;
+use GraphQL\Language\AST\InputValueDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\ObjectTypeDefinitionNode;
+use GraphQL\Language\AST\ObjectTypeExtensionNode;
+use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Language\AST\ScalarTypeExtensionNode;
+use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Language\AST\StringValueNode;
+use GraphQL\Language\AST\UnionTypeDefinitionNode;
+use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\BlockString;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Argument;
@@ -41,7 +57,8 @@ use GraphQL\Type\Schema;
  *   sortTypes?: bool,
  *   includeAppliedDirectives?: bool,
  * }
- * @phpstan-type AppliedDirectiveDefinition Schema|Argument|Directive|FieldDefinition|InputObjectField|EnumValueDefinition|ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType
+ * @phpstan-type AppliedDirectiveDefinition Schema|Argument|FieldDefinition|InputObjectField|EnumValueDefinition|ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType
+ * @phpstan-type AppliedDirectiveAstNode SchemaDefinitionNode|SchemaExtensionNode|InputValueDefinitionNode|FieldDefinitionNode|EnumValueDefinitionNode|ScalarTypeDefinitionNode|ScalarTypeExtensionNode|ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode|UnionTypeDefinitionNode|UnionTypeExtensionNode|EnumTypeDefinitionNode|EnumTypeExtensionNode|InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode
  *
  * @see \GraphQL\Tests\Utils\SchemaPrinterTest
  */
@@ -639,8 +656,6 @@ class SchemaPrinter
             foreach ($definition->extensionASTNodes as $extensionASTNode) {
                 self::appendDirectivesFromAstNode($directives, $extensionASTNode, $excludedDirectiveNames);
             }
-        } elseif ($definition instanceof Directive) {
-            self::appendDirectivesFromAstNode($directives, $definition->astNode, $excludedDirectiveNames);
         } else {
             self::appendConfiguredDirectives($directives, $definition->directives, $excludedDirectiveNames);
             self::appendDirectivesFromAstNode($directives, $definition->astNode, $excludedDirectiveNames);
@@ -664,15 +679,11 @@ class SchemaPrinter
 
     /**
      * @param array<DirectiveNode> $directives
-     * @param iterable<DirectiveNode>|null $configuredDirectives
+     * @param iterable<DirectiveNode> $configuredDirectives
      * @param array<string> $excludedDirectiveNames
      */
-    private static function appendConfiguredDirectives(array &$directives, ?iterable $configuredDirectives, array $excludedDirectiveNames = []): void
+    private static function appendConfiguredDirectives(array &$directives, iterable $configuredDirectives, array $excludedDirectiveNames = []): void
     {
-        if ($configuredDirectives === null) {
-            return;
-        }
-
         foreach ($configuredDirectives as $directive) {
             if (! in_array($directive->name->value, $excludedDirectiveNames, true)) {
                 $directives[] = $directive;
@@ -683,6 +694,8 @@ class SchemaPrinter
     /**
      * @param array<DirectiveNode> $directives
      * @param array<string> $excludedDirectiveNames
+     *
+     * @phpstan-param AppliedDirectiveAstNode|null $astNode
      */
     private static function appendDirectivesFromAstNode(array &$directives, ?Node $astNode, array $excludedDirectiveNames = []): void
     {
@@ -690,14 +703,8 @@ class SchemaPrinter
             return;
         }
 
-        $astNodeVars = get_object_vars($astNode);
-        $astDirectives = $astNodeVars['directives'] ?? null;
-        if (! $astDirectives instanceof NodeList) {
-            return;
-        }
-
-        foreach ($astDirectives as $directive) {
-            if ($directive instanceof DirectiveNode && ! in_array($directive->name->value, $excludedDirectiveNames, true)) {
+        foreach ($astNode->directives as $directive) {
+            if (! in_array($directive->name->value, $excludedDirectiveNames, true)) {
                 $directives[] = $directive;
             }
         }

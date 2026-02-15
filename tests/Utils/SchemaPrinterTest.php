@@ -16,6 +16,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
+use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
 
@@ -1581,6 +1582,30 @@ final class SchemaPrinterTest extends TestCase
         self::assertStringContainsString('ACTIVE @onEnumValue', $printed);
         self::assertStringContainsString('input Input @onInputObject {', $printed);
         self::assertStringContainsString('name: String @onInputField', $printed);
+    }
+
+    public function testPrintWithDirectivesIncludesAstAndExtensionDirectives(): void
+    {
+        $schema = BuildSchema::build(<<<'GRAPHQL'
+            directive @onSchema on SCHEMA
+            directive @onSchemaExtension on SCHEMA
+            directive @onObject on OBJECT
+            directive @onObjectExtension on OBJECT
+
+            type Query @onObject {
+              hello: String
+            }
+            GRAPHQL);
+
+        $schema = SchemaExtender::extend($schema, Parser::parse(<<<'GRAPHQL'
+            extend schema @onSchemaExtension
+            extend type Query @onObjectExtension
+            GRAPHQL));
+
+        $printed = SchemaPrinter::doPrint($schema, ['includeAppliedDirectives' => true]);
+
+        self::assertStringContainsString('schema @onSchemaExtension {', $printed);
+        self::assertStringContainsString('type Query @onObject @onObjectExtension {', $printed);
     }
 
     public function testPrintDeprecatedFieldArg(): void
