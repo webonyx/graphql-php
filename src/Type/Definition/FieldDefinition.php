@@ -113,11 +113,7 @@ class FieldDefinition
     /** @var Type&OutputType */
     private Type $type;
 
-    /**
-     * @param FieldDefinitionConfig $config
-     *
-     * @throws InvariantViolation
-     */
+    /** @param FieldDefinitionConfig $config */
     public function __construct(array $config)
     {
         $this->name = $config['name'];

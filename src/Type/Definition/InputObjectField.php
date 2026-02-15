@@ -51,11 +51,7 @@ class InputObjectField
     /** @phpstan-var InputObjectFieldConfig */
     public array $config;
 
-    /**
-     * @phpstan-param InputObjectFieldConfig $config
-     *
-     * @throws InvariantViolation
-     */
+    /** @phpstan-param InputObjectFieldConfig $config */
     public function __construct(array $config)
     {
         $this->name = $config['name'];

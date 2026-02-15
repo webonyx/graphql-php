@@ -2,7 +2,6 @@
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
 
@@ -35,11 +34,7 @@ class EnumValueDefinition
     /** @phpstan-var EnumValueConfig */
     public array $config;
 
-    /**
-     * @phpstan-param EnumValueConfig $config
-     *
-     * @throws InvariantViolation
-     */
+    /** @phpstan-param EnumValueConfig $config */
     public function __construct(array $config)
     {
         $this->name = $config['name'];

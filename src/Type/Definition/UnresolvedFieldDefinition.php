@@ -2,8 +2,6 @@
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\InvariantViolation;
-
 /**
  * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
  *
@@ -32,7 +30,6 @@ class UnresolvedFieldDefinition
         return $this->name;
     }
 
-    /** @throws InvariantViolation */
     public function resolve(): FieldDefinition
     {
         $field = ($this->definitionResolver)();

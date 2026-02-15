@@ -52,11 +52,7 @@ class Argument
     /** @phpstan-var ArgumentConfig */
     public array $config;
 
-    /**
-     * @phpstan-param ArgumentConfig $config
-     *
-     * @throws InvariantViolation
-     */
+    /** @phpstan-param ArgumentConfig $config */
     public function __construct(array $config)
     {
         $this->name = $config['name'];
@@ -72,8 +68,6 @@ class Argument
 
     /**
      * @phpstan-param ArgumentListConfig $config
-     *
-     * @throws InvariantViolation
      *
      * @return array<int, self>
      */

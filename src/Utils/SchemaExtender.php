@@ -656,7 +656,6 @@ class SchemaExtender
         return $directives;
     }
 
-    /** @throws InvariantViolation */
     protected function extendDirective(Directive $directive): Directive
     {
         return new Directive([
