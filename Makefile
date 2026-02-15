@@ -16,15 +16,15 @@ rector: vendor ## Automatic code fixes with Rector
 	composer rector
 
 define run-php-cs-fixer
-	docker build --quiet --tag=graphql-php-cs-fixer-$(1) --build-arg=PHP_VERSION=$(1) --file=.php-cs-fixer.dockerfile .
-	docker run --rm --volume="$(PWD):/app" graphql-php-cs-fixer-$(1) $(2)
+	docker build --quiet --tag="graphql-php-cs-fixer-$(1)" --build-arg="IMAGE=$(1)" --file=.php-cs-fixer.dockerfile .
+	docker run --rm --volume="$(PWD):/app" "graphql-php-cs-fixer-$(1)" $(2)
 endef
 
 .PHONY: php-cs-fixer
 php-cs-fixer: ## Fix code style
-	$(call run-php-cs-fixer,7.4)
-	$(call run-php-cs-fixer,8.0,--path-mode=intersection src/Type/Definition/Deprecated.php src/Type/Definition/Description.php)
-	$(call run-php-cs-fixer,8.1,--path-mode=intersection src/Type/Definition/PhpEnumType.php tests/Type/PhpEnumType)
+	$(call run-php-cs-fixer,php:7.4-cli-bullseye)
+	$(call run-php-cs-fixer,php:8.0-cli-bullseye,--path-mode=intersection src/Type/Definition/Deprecated.php src/Type/Definition/Description.php)
+	$(call run-php-cs-fixer,php:8.1-cli-trixie,--path-mode=intersection src/Type/Definition/PhpEnumType.php tests/Type/PhpEnumType)
 
 .PHONY: prettier
 prettier: ## Format code with prettier
