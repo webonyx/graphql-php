@@ -26,7 +26,7 @@
     "phpstan/phpstan": "2.1.39",
     "phpstan/phpstan-phpunit": "2.0.16",
     "phpstan/phpstan-strict-rules": "2.0.10",
-    "phpunit/phpunit": "^9.5 || ^10.5.21 || ^11",
+    "phpunit/phpunit": "^13",
     "psr/http-message": "^1 || ^2",
     "react/http": "^1.6",
     "react/promise": "^2.0 || ^3.0",
