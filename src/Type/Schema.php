@@ -102,6 +102,18 @@ class Schema
         $this->extensionASTNodes = $config->extensionASTNodes;
 
         $this->config = $config;
+
+        $types = $this->config->types;
+        if (is_callable($types)) {
+            $types = $types();
+        }
+        foreach ($types as $typeOrLazyType) {
+            /** @var Type|callable(): Type $typeOrLazyType */
+            $type = self::resolveType($typeOrLazyType);
+            assert($type instanceof NamedType);
+            $this->resolvedTypes[$type->name()] = $type;
+        }
+        // $this->config->types = []; // Don't resolve these again?
     }
 
     /**
