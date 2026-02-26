@@ -77,7 +77,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
     protected function __construct(ExecutionContext $context)
     {
-        if (! isset(static::$UNDEFINED)) {
+        if (!isset(static::$UNDEFINED)) {
             static::$UNDEFINED = Utils::undefined();
         }
 
@@ -105,7 +105,8 @@ class ReferenceExecutor implements ExecutorImplementation
         array $variableValues,
         ?string $operationName,
         callable $fieldResolver,
-        ?callable $argsMapper = null // TODO make non-optional in next major release
+        ?callable $argsMapper = null,
+        bool $disableValueValidation = false
     ): ExecutorImplementation {
         $exeContext = static::buildExecutionContext(
             $schema,
@@ -117,6 +118,7 @@ class ReferenceExecutor implements ExecutorImplementation
             $fieldResolver,
             $argsMapper ?? Executor::getDefaultArgsMapper(),
             $promiseAdapter,
+            $disableValueValidation
         );
 
         if (is_array($exeContext)) {
@@ -152,7 +154,8 @@ class ReferenceExecutor implements ExecutorImplementation
         ?string $operationName,
         callable $fieldResolver,
         callable $argsMapper,
-        PromiseAdapter $promiseAdapter
+        PromiseAdapter $promiseAdapter,
+        bool $disableValueValidation = false
     ) {
         /** @var list<Error> $errors */
         $errors = [];
@@ -174,8 +177,8 @@ class ReferenceExecutor implements ExecutorImplementation
                     }
 
                     if (
-                        $operationName === null
-                        || (isset($definition->name) && $definition->name->value === $operationName)
+                        $operationName === null ||
+                        (isset($definition->name) && $definition->name->value === $operationName)
                     ) {
                         $operation = $definition;
                     }
@@ -229,7 +232,8 @@ class ReferenceExecutor implements ExecutorImplementation
             $errors,
             $fieldResolver,
             $argsMapper,
-            $promiseAdapter
+            $promiseAdapter,
+            $disableValueValidation
         );
     }
 
@@ -268,13 +272,14 @@ class ReferenceExecutor implements ExecutorImplementation
     protected function buildResponse($data)
     {
         if ($data instanceof Promise) {
-            return $data->then(fn ($resolved) => $this->buildResponse($resolved));
+            return $data->then(fn($resolved) => $this->buildResponse($resolved));
         }
 
         $promiseAdapter = $this->exeContext->promiseAdapter;
         if ($promiseAdapter->isThenable($data)) {
-            return $promiseAdapter->convertThenable($data)
-                ->then(fn ($resolved) => $this->buildResponse($resolved));
+            return $promiseAdapter
+                ->convertThenable($data)
+                ->then(fn($resolved) => $this->buildResponse($resolved));
         }
 
         if ($data !== null) {
@@ -322,7 +327,9 @@ class ReferenceExecutor implements ExecutorImplementation
         }
     }
 
-    /** @param mixed $error */
+    /**
+     * @param mixed $error
+     */
     public function onError($error): ?Promise
     {
         if ($error instanceof Error) {
@@ -399,7 +406,7 @@ class ReferenceExecutor implements ExecutorImplementation
         foreach ($selectionSet->selections as $selection) {
             switch (true) {
                 case $selection instanceof FieldNode:
-                    if (! $this->shouldIncludeNode($selection)) {
+                    if (!$this->shouldIncludeNode($selection)) {
                         break;
                     }
 
@@ -409,8 +416,8 @@ class ReferenceExecutor implements ExecutorImplementation
                     break;
                 case $selection instanceof InlineFragmentNode:
                     if (
-                        ! $this->shouldIncludeNode($selection)
-                        || ! $this->doesFragmentConditionMatch($selection, $runtimeType)
+                        !$this->shouldIncludeNode($selection) ||
+                        !$this->doesFragmentConditionMatch($selection, $runtimeType)
                     ) {
                         break;
                     }
@@ -425,18 +432,18 @@ class ReferenceExecutor implements ExecutorImplementation
                 case $selection instanceof FragmentSpreadNode:
                     $fragName = $selection->name->value;
 
-                    if (isset($visitedFragmentNames[$fragName]) || ! $this->shouldIncludeNode($selection)) {
+                    if (isset($visitedFragmentNames[$fragName]) || !$this->shouldIncludeNode($selection)) {
                         break;
                     }
 
                     $visitedFragmentNames[$fragName] = true;
 
-                    if (! isset($exeContext->fragments[$fragName])) {
+                    if (!isset($exeContext->fragments[$fragName])) {
                         break;
                     }
 
                     $fragment = $exeContext->fragments[$fragName];
-                    if (! $this->doesFragmentConditionMatch($fragment, $runtimeType)) {
+                    if (!$this->doesFragmentConditionMatch($fragment, $runtimeType)) {
                         break;
                     }
 
@@ -481,10 +488,12 @@ class ReferenceExecutor implements ExecutorImplementation
             $variableValues
         );
 
-        return ! isset($include['if']) || $include['if'] !== false;
+        return !isset($include['if']) || $include['if'] !== false;
     }
 
-    /** Implements the logic to compute the key of a given fields entry. */
+    /**
+     * Implements the logic to compute the key of a given fields entry.
+     */
     protected static function getFieldEntryKey(FieldNode $node): string
     {
         return $node->alias->value
@@ -569,7 +578,7 @@ class ReferenceExecutor implements ExecutorImplementation
         $promise = $this->getPromise($result);
         if ($promise !== null) {
             return $result->then(
-                static fn ($resolvedResults) => static::fixResultsIfEmptyArray($resolvedResults)
+                static fn($resolvedResults) => static::fixResultsIfEmptyArray($resolvedResults)
             );
         }
 
@@ -613,7 +622,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
         $fieldName = $fieldNode->name->value;
         $fieldDef = $this->getFieldDef($exeContext->schema, $parentType, $fieldName);
-        if ($fieldDef === null || ! $fieldDef->isVisible()) {
+        if ($fieldDef === null || !$fieldDef->isVisible()) {
             return static::$UNDEFINED;
         }
 
@@ -690,15 +699,13 @@ class ReferenceExecutor implements ExecutorImplementation
 
         $queryType = $schema->getQueryType();
 
-        if ($fieldName === $this->schemaMetaFieldDef->name
-            && $queryType === $parentType
-        ) {
+        if ($fieldName === $this->schemaMetaFieldDef->name &&
+                $queryType === $parentType) {
             return $this->schemaMetaFieldDef;
         }
 
-        if ($fieldName === $this->typeMetaFieldDef->name
-            && $queryType === $parentType
-        ) {
+        if ($fieldName === $this->typeMetaFieldDef->name &&
+                $queryType === $parentType) {
             return $this->typeMetaFieldDef;
         }
 
@@ -778,7 +785,7 @@ class ReferenceExecutor implements ExecutorImplementation
         try {
             $promise = $this->getPromise($result);
             if ($promise !== null) {
-                $completed = $promise->then(fn (&$resolved) => $this->completeValue($returnType, $fieldNodes, $info, $path, $unaliasedPath, $resolved, $contextValue));
+                $completed = $promise->then(fn(&$resolved) => $this->completeValue($returnType, $fieldNodes, $info, $path, $unaliasedPath, $resolved, $contextValue));
             } else {
                 $completed = $this->completeValue($returnType, $fieldNodes, $info, $path, $unaliasedPath, $result, $contextValue);
             }
@@ -867,7 +874,14 @@ class ReferenceExecutor implements ExecutorImplementation
         $result,
         $contextValue
     ) {
-        // If result is an Error, throw a located error.
+        if ($this->exeContext->disableValueValidation) {
+            if ($result instanceof \Throwable) {
+                throw $result;
+            }
+
+            return $result;
+        }
+
         if ($result instanceof \Throwable) {
             throw $result;
         }
@@ -897,7 +911,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
         // If field type is List, complete each item in the list with the inner type
         if ($returnType instanceof ListOfType) {
-            if (! is_iterable($result)) {
+            if (!is_iterable($result)) {
                 $resultType = gettype($result);
 
                 throw new InvariantViolation("Expected field {$info->parentType}.{$info->fieldName} to return iterable, but got: {$resultType}.");
@@ -932,11 +946,13 @@ class ReferenceExecutor implements ExecutorImplementation
         throw new \RuntimeException("Cannot complete value of unexpected type {$safeReturnType}.");
     }
 
-    /** @param mixed $value */
+    /**
+     * @param mixed $value
+     */
     protected function isPromise($value): bool
     {
-        return $value instanceof Promise
-            || $this->exeContext->promiseAdapter->isThenable($value);
+        return $value instanceof Promise ||
+            $this->exeContext->promiseAdapter->isThenable($value);
     }
 
     /**
@@ -978,7 +994,7 @@ class ReferenceExecutor implements ExecutorImplementation
             function ($previous, $value) use ($callback) {
                 $promise = $this->getPromise($previous);
                 if ($promise !== null) {
-                    return $promise->then(static fn ($resolved) => $callback($resolved, $value));
+                    return $promise->then(static fn($resolved) => $callback($resolved, $value));
                 }
 
                 return $callback($previous, $value);
@@ -1024,7 +1040,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
             $completedItem = $this->completeValueCatchingError($itemType, $fieldNodes, $info, $itemPath, $itemUnaliasedPath, $item, $contextValue);
 
-            if (! $containsPromise && $this->getPromise($completedItem) !== null) {
+            if (!$containsPromise && $this->getPromise($completedItem) !== null) {
                 $containsPromise = true;
             }
 
@@ -1087,7 +1103,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
         if ($typeCandidate === null) {
             $runtimeType = static::defaultTypeResolver($result, $contextValue, $info, $returnType);
-        } elseif (! is_string($typeCandidate) && is_callable($typeCandidate)) {
+        } elseif (!is_string($typeCandidate) && is_callable($typeCandidate)) {
             $runtimeType = $typeCandidate();
         } else {
             $runtimeType = $typeCandidate;
@@ -1095,7 +1111,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
         $promise = $this->getPromise($runtimeType);
         if ($promise !== null) {
-            return $promise->then(fn ($resolvedRuntimeType) => $this->completeObjectValue(
+            return $promise->then(fn($resolvedRuntimeType) => $this->completeObjectValue(
                 $this->ensureValidRuntimeType(
                     $resolvedRuntimeType,
                     $returnType,
@@ -1177,7 +1193,9 @@ class ReferenceExecutor implements ExecutorImplementation
         }
 
         if ($promisedIsTypeOfResults !== []) {
-            return $this->exeContext->promiseAdapter
+            return $this
+                ->exeContext
+                ->promiseAdapter
                 ->all($promisedIsTypeOfResults)
                 ->then(static function ($isTypeOfResults) use ($possibleTypes): ?ObjectType {
                     foreach ($isTypeOfResults as $index => $result) {
@@ -1231,7 +1249,7 @@ class ReferenceExecutor implements ExecutorImplementation
                     $unaliasedPath,
                     $result
                 ) {
-                    if (! $isTypeOfResult) {
+                    if (!$isTypeOfResult) {
                         throw $this->invalidReturnTypeError($returnType, $result, $fieldNodes);
                     }
 
@@ -1247,7 +1265,7 @@ class ReferenceExecutor implements ExecutorImplementation
             }
 
             assert(is_bool($isTypeOf), 'Promise would return early');
-            if (! $isTypeOf) {
+            if (!$isTypeOf) {
                 throw $this->invalidReturnTypeError($returnType, $result, $fieldNodes);
             }
         }
@@ -1321,7 +1339,7 @@ class ReferenceExecutor implements ExecutorImplementation
         // @phpstan-ignore-next-line generics of SplObjectStorage are not inferred from empty instantiation
         $returnTypeCache = $this->subFieldCache[$returnType] ??= new \SplObjectStorage();
 
-        if (! isset($returnTypeCache[$fieldNodes])) {
+        if (!isset($returnTypeCache[$fieldNodes])) {
             // Collect sub-fields to execute to complete this value.
             $subFieldNodes = new \ArrayObject();
             $visitedFragmentNames = new \ArrayObject();
@@ -1375,7 +1393,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 continue;
             }
 
-            if (! $containsPromise && $this->isPromise($result)) {
+            if (!$containsPromise && $this->isPromise($result)) {
                 $containsPromise = true;
             }
 
@@ -1383,7 +1401,7 @@ class ReferenceExecutor implements ExecutorImplementation
         }
 
         // If there are no promises, we can just return the object
-        if (! $containsPromise) {
+        if (!$containsPromise) {
             return static::fixResultsIfEmptyArray($results);
         }
 
@@ -1450,13 +1468,13 @@ class ReferenceExecutor implements ExecutorImplementation
             ? $this->exeContext->schema->getType($runtimeTypeOrName)
             : $runtimeTypeOrName;
 
-        if (! $runtimeType instanceof ObjectType) {
+        if (!$runtimeType instanceof ObjectType) {
             $safeResult = Utils::printSafe($result);
             $notObjectType = Utils::printSafe($runtimeType);
             throw new InvariantViolation("Abstract type {$returnType} must resolve to an Object type at runtime for field {$info->parentType}.{$info->fieldName} with value {$safeResult}, received \"{$notObjectType}\". Either the {$returnType} type should provide a \"resolveType\" function or each possible type should provide an \"isTypeOf\" function.");
         }
 
-        if (! $this->exeContext->schema->isSubType($returnType, $runtimeType)) {
+        if (!$this->exeContext->schema->isSubType($returnType, $runtimeType)) {
             throw new InvariantViolation("Runtime Object type \"{$runtimeType}\" is not a possible type for \"{$returnType}\".");
         }
 

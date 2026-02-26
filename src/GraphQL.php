@@ -83,28 +83,30 @@ class GraphQL
      * @throws InvariantViolation
      */
     public static function executeQuery(
-        SchemaType $schema,
-        $source,
-        $rootValue = null,
-        $contextValue = null,
-        ?array $variableValues = null,
-        ?string $operationName = null,
-        ?callable $fieldResolver = null,
-        ?array $validationRules = null
-    ): ExecutionResult {
+    SchemaType $schema,
+    $source,
+    $rootValue = null,
+    $contextValue = null,
+    ?array $variableValues = null,
+    ?string $operationName = null,
+    ?callable $fieldResolver = null,
+   ?array $validationRules = null,
+    bool $disableValueValidation = false
+): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
         $promise = self::promiseToExecute(
-            $promiseAdapter,
-            $schema,
-            $source,
-            $rootValue,
-            $contextValue,
-            $variableValues,
-            $operationName,
-            $fieldResolver,
-            $validationRules
-        );
+    $promiseAdapter,
+    $schema,
+    $source,
+    $rootValue,
+    $contextValue,
+    $variableValues,
+    $operationName,
+    $fieldResolver,
+    $validationRules,
+    $disableValueValidation
+);
 
         return $promiseAdapter->wait($promise);
     }
@@ -132,7 +134,8 @@ class GraphQL
         ?array $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null,
-        ?array $validationRules = null
+        ?array $validationRules = null,
+        bool $disableValueValidation = false
     ): Promise {
         try {
             $documentNode = $source instanceof DocumentNode
@@ -168,7 +171,9 @@ class GraphQL
                 $context,
                 $variableValues,
                 $operationName,
-                $fieldResolver
+                $fieldResolver,
+                null,
+                $disableValueValidation
             );
         } catch (Error $e) {
             return $promiseAdapter->createFulfilled(

@@ -19,6 +19,7 @@ use GraphQL\Type\Schema;
  */
 class ExecutionContext
 {
+    public bool $disableValueValidation = false;
     public Schema $schema;
 
     /** @var array<string, FragmentDefinitionNode> */
@@ -73,7 +74,8 @@ class ExecutionContext
         array $errors,
         callable $fieldResolver,
         callable $argsMapper,
-        PromiseAdapter $promiseAdapter
+        PromiseAdapter $promiseAdapter,
+        bool $disableValueValidation = false
     ) {
         $this->schema = $schema;
         $this->fragments = $fragments;
@@ -85,6 +87,7 @@ class ExecutionContext
         $this->fieldResolver = $fieldResolver;
         $this->argsMapper = $argsMapper;
         $this->promiseAdapter = $promiseAdapter;
+        $this->disableValueValidation = $disableValueValidation;
     }
 
     public function addError(Error $error): void

@@ -18,7 +18,7 @@ use GraphQL\Utils\Utils;
  *
  * @phpstan-type ArgsMapper callable(array<string, mixed>, FieldDefinition, FieldNode, mixed): mixed
  * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
- * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable, callable): ExecutorImplementation
+ * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable, callable, bool): ExecutorImplementation
  *
  * @see \GraphQL\Tests\Executor\ExecutorTest
  */
@@ -167,7 +167,8 @@ class Executor
         ?array $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null,
-        ?callable $argsMapper = null
+        ?callable $argsMapper = null,
+        bool $disableValueValidation = false
     ): Promise {
         $executor = (self::$implementationFactory)(
             $promiseAdapter,
@@ -179,6 +180,7 @@ class Executor
             $operationName,
             $fieldResolver ?? self::$defaultFieldResolver,
             $argsMapper ?? self::$defaultArgsMapper,
+            $disableValueValidation
         );
 
         return $executor->doExecute();
