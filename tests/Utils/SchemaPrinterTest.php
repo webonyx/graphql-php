@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Utils;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\DirectiveLocation;
+use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -15,6 +16,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
+use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
 
@@ -1436,6 +1438,174 @@ final class SchemaPrinterTest extends TestCase
             $schema,
             ['sortArguments' => true]
         );
+    }
+
+    public function testDefaultPrinterDoesNotPrintAppliedDirectives(): void
+    {
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'directives' => [Parser::directive('@onObject')],
+                'fields' => [
+                    'hello' => [
+                        'type' => Type::string(),
+                        'directives' => [Parser::directive('@onField')],
+                    ],
+                ],
+            ]),
+            'directives' => [
+                new Directive([
+                    'name' => 'onObject',
+                    'locations' => [DirectiveLocation::OBJECT],
+                ]),
+                new Directive([
+                    'name' => 'onField',
+                    'locations' => [DirectiveLocation::FIELD_DEFINITION],
+                ]),
+            ],
+        ]);
+
+        $printed = SchemaPrinter::doPrint($schema);
+
+        self::assertStringNotContainsString('type Query @onObject', $printed);
+        self::assertStringNotContainsString('hello: String @onField', $printed);
+    }
+
+    public function testPrintWithDirectivesPrintsAllSupportedSdlLocations(): void
+    {
+        $nodeType = new ObjectType([
+            'name' => 'NodeType',
+            'fields' => [
+                'id' => ['type' => Type::id()],
+            ],
+        ]);
+
+        $otherType = new ObjectType([
+            'name' => 'OtherType',
+            'fields' => [
+                'id' => ['type' => Type::id()],
+            ],
+        ]);
+
+        $interfaceType = new InterfaceType([
+            'name' => 'Node',
+            'directives' => [Parser::directive('@onInterface')],
+            'fields' => [
+                'id' => [
+                    'type' => Type::id(),
+                    'directives' => [Parser::directive('@onField')],
+                ],
+            ],
+        ]);
+
+        $enumType = new EnumType([
+            'name' => 'Status',
+            'directives' => [Parser::directive('@onEnum')],
+            'values' => [
+                'ACTIVE' => [
+                    'directives' => [Parser::directive('@onEnumValue')],
+                ],
+            ],
+        ]);
+
+        $inputType = new InputObjectType([
+            'name' => 'Input',
+            'directives' => [Parser::directive('@onInputObject')],
+            'fields' => [
+                'name' => [
+                    'type' => Type::string(),
+                    'directives' => [Parser::directive('@onInputField')],
+                ],
+            ],
+        ]);
+
+        $scalarType = new CustomScalarType([
+            'name' => 'CustomScalar',
+            'directives' => [Parser::directive('@onScalar')],
+            'serialize' => static fn ($value) => $value,
+            'parseValue' => static fn ($value) => $value,
+            'parseLiteral' => static fn ($valueNode) => $valueNode->value,
+        ]);
+
+        $unionType = new UnionType([
+            'name' => 'SearchResult',
+            'types' => [$nodeType, $otherType],
+            'directives' => [Parser::directive('@onUnion')],
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'directives' => [Parser::directive('@onObject')],
+            'interfaces' => [$interfaceType],
+            'fields' => [
+                'node' => [
+                    'type' => $nodeType,
+                    'directives' => [Parser::directive('@onField')],
+                    'args' => [
+                        'input' => [
+                            'type' => $inputType,
+                            'directives' => [Parser::directive('@onArg')],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'types' => [$nodeType, $otherType, $interfaceType, $enumType, $inputType, $scalarType, $unionType],
+            'schemaDirectives' => [Parser::directive('@onSchema')],
+            'directives' => [
+                new Directive(['name' => 'onSchema', 'locations' => [DirectiveLocation::SCHEMA]]),
+                new Directive(['name' => 'onScalar', 'locations' => [DirectiveLocation::SCALAR]]),
+                new Directive(['name' => 'onObject', 'locations' => [DirectiveLocation::OBJECT]]),
+                new Directive(['name' => 'onField', 'locations' => [DirectiveLocation::FIELD_DEFINITION]]),
+                new Directive(['name' => 'onArg', 'locations' => [DirectiveLocation::ARGUMENT_DEFINITION]]),
+                new Directive(['name' => 'onInterface', 'locations' => [DirectiveLocation::IFACE]]),
+                new Directive(['name' => 'onUnion', 'locations' => [DirectiveLocation::UNION]]),
+                new Directive(['name' => 'onEnum', 'locations' => [DirectiveLocation::ENUM]]),
+                new Directive(['name' => 'onEnumValue', 'locations' => [DirectiveLocation::ENUM_VALUE]]),
+                new Directive(['name' => 'onInputObject', 'locations' => [DirectiveLocation::INPUT_OBJECT]]),
+                new Directive(['name' => 'onInputField', 'locations' => [DirectiveLocation::INPUT_FIELD_DEFINITION]]),
+            ],
+        ]);
+
+        $printed = SchemaPrinter::doPrint($schema, ['includeAppliedDirectives' => true]);
+
+        self::assertStringContainsString('schema @onSchema {', $printed);
+        self::assertStringContainsString('scalar CustomScalar @onScalar', $printed);
+        self::assertStringContainsString('type Query implements Node @onObject {', $printed);
+        self::assertStringContainsString('node(input: Input @onArg): NodeType @onField', $printed);
+        self::assertStringContainsString('interface Node @onInterface {', $printed);
+        self::assertStringContainsString('union SearchResult @onUnion = NodeType | OtherType', $printed);
+        self::assertStringContainsString('enum Status @onEnum {', $printed);
+        self::assertStringContainsString('ACTIVE @onEnumValue', $printed);
+        self::assertStringContainsString('input Input @onInputObject {', $printed);
+        self::assertStringContainsString('name: String @onInputField', $printed);
+    }
+
+    public function testPrintWithDirectivesIncludesAstAndExtensionDirectives(): void
+    {
+        $schema = BuildSchema::build(<<<'GRAPHQL'
+            directive @onSchema on SCHEMA
+            directive @onSchemaExtension on SCHEMA
+            directive @onObject on OBJECT
+            directive @onObjectExtension on OBJECT
+
+            type Query @onObject {
+              hello: String
+            }
+            GRAPHQL);
+
+        $schema = SchemaExtender::extend($schema, Parser::parse(<<<'GRAPHQL'
+            extend schema @onSchemaExtension
+            extend type Query @onObjectExtension
+            GRAPHQL));
+
+        $printed = SchemaPrinter::doPrint($schema, ['includeAppliedDirectives' => true]);
+
+        self::assertStringContainsString('schema @onSchemaExtension {', $printed);
+        self::assertStringContainsString('type Query @onObject @onObjectExtension {', $printed);
     }
 
     public function testPrintDeprecatedFieldArg(): void

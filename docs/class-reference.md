@@ -716,6 +716,7 @@ mutation?: MaybeLazyObjectType,
 subscription?: MaybeLazyObjectType,
 types?: Types|null,
 directives?: array<Directive>|null,
+schemaDirectives?: array<DirectiveNode>|null,
 typeLoader?: TypeLoader|null,
 assumeValid?: bool|null,
 astNode?: SchemaDefinitionNode|null,
@@ -836,6 +837,24 @@ function getDirectives(): ?array
  * @api
  */
 function setDirectives(?array $directives): self
+```
+
+```php
+/**
+ * @return array<DirectiveNode>
+ *
+ * @api
+ */
+function getSchemaDirectives(): array
+```
+
+```php
+/**
+ * @param array<DirectiveNode>|null $directives
+ *
+ * @api
+ */
+function setSchemaDirectives(?array $directives): self
 ```
 
 ```php
@@ -2921,7 +2940,10 @@ sortEnumValues?: bool,
 sortFields?: bool,
 sortInputFields?: bool,
 sortTypes?: bool,
+includeAppliedDirectives?: bool,
 }
+@phpstan-type AppliedDirectiveDefinition Schema|Argument|FieldDefinition|InputObjectField|EnumValueDefinition|ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType
+@phpstan-type AppliedDirectiveAstNode SchemaDefinitionNode|SchemaExtensionNode|InputValueDefinitionNode|FieldDefinitionNode|EnumValueDefinitionNode|ScalarTypeDefinitionNode|ScalarTypeExtensionNode|ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode|UnionTypeDefinitionNode|UnionTypeExtensionNode|EnumTypeDefinitionNode|EnumTypeExtensionNode|InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode
 
 @see \GraphQL\Tests\Utils\SchemaPrinterTest
 

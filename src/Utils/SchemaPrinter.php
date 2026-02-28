@@ -5,7 +5,26 @@ namespace GraphQL\Utils;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\SerializationError;
+use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumTypeExtensionNode;
+use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeExtensionNode;
+use GraphQL\Language\AST\InputValueDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeExtensionNode;
+use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\ObjectTypeDefinitionNode;
+use GraphQL\Language\AST\ObjectTypeExtensionNode;
+use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Language\AST\ScalarTypeExtensionNode;
+use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Language\AST\StringValueNode;
+use GraphQL\Language\AST\UnionTypeDefinitionNode;
+use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\BlockString;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Argument;
@@ -36,7 +55,10 @@ use GraphQL\Type\Schema;
  *   sortFields?: bool,
  *   sortInputFields?: bool,
  *   sortTypes?: bool,
+ *   includeAppliedDirectives?: bool,
  * }
+ * @phpstan-type AppliedDirectiveDefinition Schema|Argument|FieldDefinition|InputObjectField|EnumValueDefinition|ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType
+ * @phpstan-type AppliedDirectiveAstNode SchemaDefinitionNode|SchemaExtensionNode|InputValueDefinitionNode|FieldDefinitionNode|EnumValueDefinitionNode|ScalarTypeDefinitionNode|ScalarTypeExtensionNode|ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode|UnionTypeDefinitionNode|UnionTypeExtensionNode|EnumTypeDefinitionNode|EnumTypeExtensionNode|InputObjectTypeDefinitionNode|InputObjectTypeExtensionNode
  *
  * @see \GraphQL\Tests\Utils\SchemaPrinterTest
  */
@@ -147,7 +169,7 @@ class SchemaPrinter
             ksort($types);
         }
 
-        $elements = [static::printSchemaDefinition($schema)];
+        $elements = [static::printSchemaDefinition($schema, $options)];
 
         foreach ($directives as $directive) {
             $elements[] = static::printDirective($directive, $options);
@@ -162,10 +184,14 @@ class SchemaPrinter
     }
 
     /**
+     * @param array<string, bool> $options
+     *
+     * @phpstan-param Options $options
+     *
      * @throws \JsonException
      * @throws InvariantViolation
      */
-    protected static function printSchemaDefinition(Schema $schema): ?string
+    protected static function printSchemaDefinition(Schema $schema, array $options): ?string
     {
         $queryType = $schema->getQueryType();
         $mutationType = $schema->getMutationType();
@@ -177,10 +203,12 @@ class SchemaPrinter
             return null;
         }
 
-        // Only print a schema definition if there is a description or if it should
+        $schemaDirectives = self::printAppliedDirectivesIfEnabled($options, $schema);
+
+        // Only print a schema definition if there is a description, directives, or if it should
         // not be omitted because of having default type names.
-        if ($schema->description !== null || ! static::hasDefaultRootOperationTypes($schema)) {
-            return static::printDescription([], $schema) . "schema {\n"
+        if ($schema->description !== null || $schemaDirectives !== '' || ! static::hasDefaultRootOperationTypes($schema)) {
+            return static::printDescription([], $schema) . "schema{$schemaDirectives} {\n"
                 . ($queryType !== null ? "  query: {$queryType->name}\n" : '')
                 . ($mutationType !== null ? "  mutation: {$mutationType->name}\n" : '')
                 . ($subscriptionType !== null ? "  subscription: {$subscriptionType->name}\n" : '')
@@ -242,6 +270,8 @@ class SchemaPrinter
      * @param array<string, bool> $options
      * @param (Type&NamedType)|Directive|EnumValueDefinition|Argument|FieldDefinition|InputObjectField|Schema $def
      *
+     * @phpstan-param Options $options
+     *
      * @throws \JsonException
      */
     protected static function printDescription(array $options, $def, string $indentation = '', bool $firstInBlock = true): string
@@ -301,7 +331,7 @@ class SchemaPrinter
                 . implode(
                     ', ',
                     array_map(
-                        [static::class, 'printInputValue'],
+                        static fn ($arg): string => static::printInputValue($arg, $options),
                         $args
                     )
                 )
@@ -320,7 +350,7 @@ class SchemaPrinter
             $argsStrings[] = static::printDescription($options, $arg, '  ' . $indentation, $firstInBlock)
                 . '  '
                 . $indentation
-                . static::printInputValue($arg);
+                . static::printInputValue($arg, $options);
             $firstInBlock = false;
             $previousHasDescription = $hasDescription;
         }
@@ -334,12 +364,15 @@ class SchemaPrinter
 
     /**
      * @param InputObjectField|Argument $arg
+     * @param array<string, bool> $options
+     *
+     * @phpstan-param Options $options
      *
      * @throws \JsonException
      * @throws InvariantViolation
      * @throws SerializationError
      */
-    protected static function printInputValue($arg): string
+    protected static function printInputValue($arg, array $options): string
     {
         $argDecl = "{$arg->name}: {$arg->getType()->toString()}";
 
@@ -355,7 +388,9 @@ class SchemaPrinter
             $argDecl .= " = {$printedDefaultValue}";
         }
 
-        return $argDecl . static::printDeprecated($arg);
+        return $argDecl
+            . self::printAppliedDirectivesIfEnabled($options, $arg, $arg->deprecationReason === null ? [] : ['deprecated'])
+            . static::printDeprecated($arg);
     }
 
     /**
@@ -368,7 +403,8 @@ class SchemaPrinter
     protected static function printScalar(ScalarType $type, array $options): string
     {
         return static::printDescription($options, $type)
-            . "scalar {$type->name}";
+            . "scalar {$type->name}"
+            . self::printAppliedDirectivesIfEnabled($options, $type);
     }
 
     /**
@@ -385,6 +421,7 @@ class SchemaPrinter
         return static::printDescription($options, $type)
             . "type {$type->name}"
             . static::printImplementedInterfaces($type)
+            . self::printAppliedDirectivesIfEnabled($options, $type)
             . static::printFields($options, $type);
     }
 
@@ -421,6 +458,7 @@ class SchemaPrinter
                 . static::printArgs($options, $f->args, '  ')
                 . ': '
                 . $f->getType()->toString()
+                . self::printAppliedDirectivesIfEnabled($options, $f, $f->deprecationReason === null ? [] : ['deprecated'])
                 . static::printDeprecated($f);
             $firstInBlock = false;
             $previousHasDescription = $hasDescription;
@@ -484,6 +522,7 @@ class SchemaPrinter
         return static::printDescription($options, $type)
             . "interface {$type->name}"
             . static::printImplementedInterfaces($type)
+            . self::printAppliedDirectivesIfEnabled($options, $type)
             . static::printFields($options, $type);
     }
 
@@ -502,7 +541,11 @@ class SchemaPrinter
             ? ''
             : ' = ' . implode(' | ', $types);
 
-        return static::printDescription($options, $type) . 'union ' . $type->name . $types;
+        return static::printDescription($options, $type)
+            . 'union '
+            . $type->name
+            . self::printAppliedDirectivesIfEnabled($options, $type)
+            . $types;
     }
 
     /**
@@ -528,12 +571,14 @@ class SchemaPrinter
             $values[] = static::printDescription($options, $value, '  ', $firstInBlock)
                 . '  '
                 . $value->name
+                . self::printAppliedDirectivesIfEnabled($options, $value, $value->deprecationReason === null ? [] : ['deprecated'])
                 . static::printDeprecated($value);
             $firstInBlock = false;
         }
 
         return static::printDescription($options, $type)
             . "enum {$type->name}"
+            . self::printAppliedDirectivesIfEnabled($options, $type)
             . static::printBlock($values);
     }
 
@@ -559,14 +604,130 @@ class SchemaPrinter
         foreach ($fieldDefinitions as $field) {
             $fields[] = static::printDescription($options, $field, '  ', $firstInBlock)
                 . '  '
-                . static::printInputValue($field);
+                . static::printInputValue($field, $options);
             $firstInBlock = false;
         }
 
         return static::printDescription($options, $type)
             . "input {$type->name}"
+            . self::printAppliedDirectivesIfEnabled($options, $type, $type->isOneOf() ? ['oneOf'] : [])
             . ($type->isOneOf() ? ' @oneOf' : '')
             . static::printBlock($fields);
+    }
+
+    /**
+     * @param array<string, bool> $options
+     * @param array<string> $excludedDirectiveNames
+     *
+     * @phpstan-param Options $options
+     * @phpstan-param AppliedDirectiveDefinition $definition
+     *
+     * @throws \JsonException
+     */
+    private static function printAppliedDirectivesIfEnabled(
+        array $options,
+        object $definition,
+        array $excludedDirectiveNames = []
+    ): string {
+        if (! ($options['includeAppliedDirectives'] ?? false)) {
+            return '';
+        }
+
+        return self::printAppliedDirectives(
+            self::collectAppliedDirectives($definition, $excludedDirectiveNames)
+        );
+    }
+
+    /**
+     * @param array<string> $excludedDirectiveNames
+     *
+     * @phpstan-param AppliedDirectiveDefinition $definition
+     *
+     * @return array<DirectiveNode>
+     */
+    private static function collectAppliedDirectives(object $definition, array $excludedDirectiveNames = []): array
+    {
+        $directives = [];
+
+        if ($definition instanceof Schema) {
+            self::appendConfiguredDirectives($directives, $definition->getConfig()->schemaDirectives, $excludedDirectiveNames);
+            self::appendDirectivesFromAstNode($directives, $definition->astNode, $excludedDirectiveNames);
+
+            foreach ($definition->extensionASTNodes as $extensionASTNode) {
+                self::appendDirectivesFromAstNode($directives, $extensionASTNode, $excludedDirectiveNames);
+            }
+        } else {
+            self::appendConfiguredDirectives($directives, $definition->directives, $excludedDirectiveNames);
+            self::appendDirectivesFromAstNode($directives, $definition->astNode, $excludedDirectiveNames);
+
+            if (
+                $definition instanceof ScalarType
+                || $definition instanceof ObjectType
+                || $definition instanceof InterfaceType
+                || $definition instanceof UnionType
+                || $definition instanceof EnumType
+                || $definition instanceof InputObjectType
+            ) {
+                foreach ($definition->extensionASTNodes as $extensionASTNode) {
+                    self::appendDirectivesFromAstNode($directives, $extensionASTNode, $excludedDirectiveNames);
+                }
+            }
+        }
+
+        return $directives;
+    }
+
+    /**
+     * @param array<DirectiveNode> $directives
+     * @param iterable<DirectiveNode> $configuredDirectives
+     * @param array<string> $excludedDirectiveNames
+     */
+    private static function appendConfiguredDirectives(array &$directives, iterable $configuredDirectives, array $excludedDirectiveNames = []): void
+    {
+        foreach ($configuredDirectives as $directive) {
+            if (! in_array($directive->name->value, $excludedDirectiveNames, true)) {
+                $directives[] = $directive;
+            }
+        }
+    }
+
+    /**
+     * @param array<DirectiveNode> $directives
+     * @param array<string> $excludedDirectiveNames
+     *
+     * @phpstan-param AppliedDirectiveAstNode|null $astNode
+     */
+    private static function appendDirectivesFromAstNode(array &$directives, ?Node $astNode, array $excludedDirectiveNames = []): void
+    {
+        if ($astNode === null) {
+            return;
+        }
+
+        foreach ($astNode->directives as $directive) {
+            if (! in_array($directive->name->value, $excludedDirectiveNames, true)) {
+                $directives[] = $directive;
+            }
+        }
+    }
+
+    /**
+     * @param array<DirectiveNode> $directives
+     *
+     * @throws \JsonException
+     */
+    private static function printAppliedDirectives(array $directives): string
+    {
+        if ($directives === []) {
+            return '';
+        }
+
+        return ' ' . implode(
+            ' ',
+            array_map(
+                static fn (DirectiveNode $directive): string => Printer::doPrint($directive),
+                $directives
+            )
+        );
     }
 
     /** @param array<string> $items */
