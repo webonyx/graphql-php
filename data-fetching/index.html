@@ -1,0 +1,986 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="PHP implementation of the GraphQL specification">
+      
+      
+      
+      
+        <link rel="prev" href="../executing-queries/">
+      
+      
+        <link rel="next" href="../error-handling/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Fetching Data - graphql-php</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#overview" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="graphql-php" class="md-header__button md-logo" aria-label="graphql-php" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            graphql-php
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Fetching Data
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/webonyx/graphql-php" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    webonyx/graphql-php
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="graphql-php" class="md-nav__button md-logo" aria-label="graphql-php" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    graphql-php
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/webonyx/graphql-php" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    webonyx/graphql-php
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        Concepts
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../complementary-tools/" class="md-nav__link">
+        Complementary Tools
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schema-definition/" class="md-nav__link">
+        Schema Definition
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" tabindex="0" aria-expanded="false">
+          Type Definitions
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Type Definitions" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Type Definitions
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/" class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/object-types/" class="md-nav__link">
+        Object Types
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/scalars/" class="md-nav__link">
+        Scalars
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/enums/" class="md-nav__link">
+        Enums
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/lists-and-nonnulls/" class="md-nav__link">
+        Lists and Non-Nulls
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/interfaces/" class="md-nav__link">
+        Interfaces
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/unions/" class="md-nav__link">
+        Unions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/inputs/" class="md-nav__link">
+        Inputs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/directives/" class="md-nav__link">
+        Directives
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schema-definition-language/" class="md-nav__link">
+        Schema Definition Language
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../executing-queries/" class="md-nav__link">
+        Executing Queries
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Fetching Data
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Fetching Data
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-field-resolver" class="md-nav__link">
+    Default Field Resolver
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-field-resolver-per-type" class="md-nav__link">
+    Default Field Resolver per Type
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optimize-resolvers" class="md-nav__link">
+    Optimize Resolvers
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solving-n1-problem" class="md-nav__link">
+    Solving N+1 Problem
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-php" class="md-nav__link">
+    Async PHP
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../error-handling/" class="md-nav__link">
+        Handling Errors
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        Security
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../class-reference/" class="md-nav__link">
+        Class Reference
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-field-resolver" class="md-nav__link">
+    Default Field Resolver
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-field-resolver-per-type" class="md-nav__link">
+    Default Field Resolver per Type
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optimize-resolvers" class="md-nav__link">
+    Optimize Resolvers
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solving-n1-problem" class="md-nav__link">
+    Solving N+1 Problem
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-php" class="md-nav__link">
+    Async PHP
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+  <h1>Fetching Data</h1>
+
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>GraphQL is data-storage agnostic. You can use any underlying data storage engine, including but not limited to
+SQL or NoSQL databases, plain files or in-memory data structures.</p>
+<p>In order to convert the GraphQL query to a PHP array, <strong>graphql-php</strong> traverses query fields (using depth-first algorithm)
+and runs the special <strong>resolve</strong> function on each field. This <strong>resolve</strong> function is provided by you as a part of the
+<a href="../type-definitions/object-types/#field-configuration-options">field definition</a> or <a href="../executing-queries/">query execution call</a>.</p>
+<p>The result returned by the <strong>resolve</strong> function is directly included in the response (for scalars and enums)
+or passed down to nested fields (for objects).</p>
+<p>Let's walk through an example. Consider the following GraphQL query:</p>
+<div class="highlight"><pre><span></span><code>{
+  lastStory {
+    title
+    author {
+      name
+    }
+  }
+}
+</code></pre></div>
+<p>We need a <code>Schema</code> that can fulfill it. On the very top level, the <code>Schema</code> contains the <code>Query</code> type:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ObjectType</span><span class="p">;</span>
+
+<span class="nv">$queryType</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ObjectType</span><span class="p">([</span>
+    <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Query&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;fields&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;lastStory&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nv">$blogStoryType</span><span class="p">,</span>
+            <span class="s1">&#39;resolve&#39;</span> <span class="o">=&gt;</span> <span class="nx">fn</span> <span class="p">()</span><span class="o">:</span> <span class="k">array</span> <span class="o">=&gt;</span> <span class="p">[</span>
+                <span class="s1">&#39;id&#39;</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Example blog post&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;authorId&#39;</span> <span class="o">=&gt;</span> <span class="mi">1</span>
+            <span class="p">],</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+<span class="p">]);</span>
+</code></pre></div>
+<p>As we see, the field <strong>lastStory</strong> has a <strong>resolve</strong> function that is responsible for fetching data.</p>
+<p>In our example, we simply return a static value, but in the real-world application you would query
+your data source and return the result from there.</p>
+<p>Since <strong>lastStory</strong> is of composite type <strong>BlogStory</strong>, this result is passed down to fields of this type:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\Type\Definition\Type</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ObjectType</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="no">USERS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mi">1</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;id&#39;</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Smith&#39;</span>
+    <span class="p">],</span>
+    <span class="mi">2</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;id&#39;</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Anderson&#39;</span>
+    <span class="p">]</span>
+<span class="p">];</span>
+
+<span class="nv">$blogStoryType</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ObjectType</span><span class="p">([</span>
+    <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;BlogStory&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;fields&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;author&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nv">$userType</span><span class="p">,</span>
+            <span class="s1">&#39;resolve&#39;</span> <span class="o">=&gt;</span> <span class="nx">fn</span> <span class="p">(</span><span class="k">array</span> <span class="nv">$blogStory</span><span class="p">)</span><span class="o">:</span> <span class="k">array</span> <span class="o">=&gt;</span> <span class="nx">USERS</span><span class="p">[</span><span class="nv">$blogStory</span><span class="p">[</span><span class="s1">&#39;authorId&#39;</span><span class="p">]],</span>
+        <span class="p">],</span>
+        <span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">string</span><span class="p">()</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+<span class="p">]);</span>
+</code></pre></div>
+<p>Here <strong>$blogStory</strong> is the array returned by the <strong>lastStory</strong> field above.</p>
+<p>Again: in real-world applications you would fetch user data from your data source by <strong>authorId</strong> and return it.
+Also, note that you don't have to return arrays. You can return any value, <strong>graphql-php</strong> will pass it untouched
+to nested resolvers.</p>
+<p>But then the question appears - the field <strong>title</strong> has no <strong>resolve</strong> option, how is it resolved?
+When you define no custom resolver, <a href="#default-field-resolver">the default field resolver</a> applies.</p>
+<h2 id="default-field-resolver">Default Field Resolver<a class="headerlink" href="#default-field-resolver" title="Permanent link">&para;</a></h2>
+<p><strong>graphql-php</strong> provides the following default field resolver:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ResolveInfo</span><span class="p">;</span>
+
+<span class="k">function</span> <span class="nf">defaultFieldResolver</span><span class="p">(</span><span class="nv">$objectValue</span><span class="p">,</span> <span class="k">array</span> <span class="nv">$args</span><span class="p">,</span> <span class="nv">$context</span><span class="p">,</span> <span class="nx">ResolveInfo</span> <span class="nv">$info</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="nv">$fieldName</span> <span class="o">=</span> <span class="nv">$info</span><span class="o">-&gt;</span><span class="na">fieldName</span><span class="p">;</span>
+    <span class="nv">$property</span> <span class="o">=</span> <span class="k">null</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nb">is_array</span><span class="p">(</span><span class="nv">$objectValue</span><span class="p">)</span> <span class="o">||</span> <span class="nv">$objectValue</span> <span class="nx">instanceof</span> <span class="nx">ArrayAccess</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$objectValue</span><span class="p">[</span><span class="nv">$fieldName</span><span class="p">]))</span> <span class="p">{</span>
+            <span class="nv">$property</span> <span class="o">=</span> <span class="nv">$objectValue</span><span class="p">[</span><span class="nv">$fieldName</span><span class="p">];</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">elseif</span> <span class="p">(</span><span class="nb">is_object</span><span class="p">(</span><span class="nv">$objectValue</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$objectValue</span><span class="o">-&gt;</span><span class="p">{</span><span class="nv">$fieldName</span><span class="p">}))</span> <span class="p">{</span>
+            <span class="nv">$property</span> <span class="o">=</span> <span class="nv">$objectValue</span><span class="o">-&gt;</span><span class="p">{</span><span class="nv">$fieldName</span><span class="p">};</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nv">$property</span> <span class="nx">instanceof</span> <span class="nx">Closure</span>
+        <span class="o">?</span> <span class="nv">$property</span><span class="p">(</span><span class="nv">$objectValue</span><span class="p">,</span> <span class="nv">$args</span><span class="p">,</span> <span class="nv">$contextValue</span><span class="p">,</span> <span class="nv">$info</span><span class="p">)</span>
+        <span class="o">:</span> <span class="nv">$property</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>It returns value by key (for arrays) or property (for objects).
+If the value is not set, it returns <strong>null</strong>.</p>
+<p>To override the default resolver, pass it as an argument to <a href="../executing-queries/">executeQuery</a>.</p>
+<h2 id="default-field-resolver-per-type">Default Field Resolver per Type<a class="headerlink" href="#default-field-resolver-per-type" title="Permanent link">&para;</a></h2>
+<p>Sometimes it might be convenient to set a default field resolver per type.
+You can do so by providing <a href="../type-definitions/object-types/#configuration-options">the <strong>resolveField</strong> option in the type config</a>.
+For example:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\Type\Definition\Type</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ObjectType</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ResolveInfo</span><span class="p">;</span>
+
+<span class="nv">$userType</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ObjectType</span><span class="p">([</span>
+    <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;User&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;fields&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">string</span><span class="p">(),</span>
+        <span class="s1">&#39;email&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">string</span><span class="p">()</span>
+    <span class="p">],</span>
+    <span class="s1">&#39;resolveField&#39;</span> <span class="o">=&gt;</span> <span class="k">function</span> <span class="p">(</span><span class="nx">User</span> <span class="nv">$user</span><span class="p">,</span> <span class="k">array</span> <span class="nv">$args</span><span class="p">,</span> <span class="nv">$context</span><span class="p">,</span> <span class="nx">ResolveInfo</span> <span class="nv">$info</span><span class="p">)</span><span class="o">:</span> <span class="o">?</span><span class="nx">string</span> <span class="p">{</span>
+        <span class="k">switch</span> <span class="p">(</span><span class="nv">$info</span><span class="o">-&gt;</span><span class="na">fieldName</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">case</span> <span class="s1">&#39;name&#39;</span><span class="o">:</span> <span class="k">return</span> <span class="nv">$user</span><span class="o">-&gt;</span><span class="na">getName</span><span class="p">();</span>
+            <span class="k">case</span> <span class="s1">&#39;email&#39;</span><span class="o">:</span> <span class="k">return</span> <span class="nv">$user</span><span class="o">-&gt;</span><span class="na">getEmail</span><span class="p">();</span>
+            <span class="k">default</span><span class="o">:</span> <span class="k">return</span> <span class="k">null</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+<span class="p">]);</span>
+</code></pre></div>
+<p>Keep in mind that <strong>field resolver</strong> has precedence over <strong>default field resolver per type</strong> which in turn
+has precedence over <strong>default field resolver</strong>.</p>
+<h2 id="optimize-resolvers">Optimize Resolvers<a class="headerlink" href="#optimize-resolvers" title="Permanent link">&para;</a></h2>
+<p>The 4th argument of <strong>resolver</strong> functions is an instance of <a href="../class-reference/#graphqltypedefinitionresolveinfo">ResolveInfo</a>.
+It contains information that is useful for the field resolution process.</p>
+<p>Depending on which data source is used, knowing which fields the client queried can be used to optimize
+the performance of a resolver. For example, an SQL query may only need to select the queried fields.</p>
+<p>The following example limits which columns are selected from the database:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ObjectType</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ResolveInfo</span><span class="p">;</span>
+
+<span class="nv">$queryType</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ObjectType</span><span class="p">([</span>
+    <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Query&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;fields&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;lastStory&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nv">$storyType</span><span class="p">,</span>
+            <span class="s1">&#39;resolve&#39;</span> <span class="o">=&gt;</span> <span class="k">function</span> <span class="p">(</span><span class="nv">$root</span><span class="p">,</span> <span class="k">array</span> <span class="nv">$args</span><span class="p">,</span> <span class="nv">$context</span><span class="p">,</span> <span class="nx">ResolveInfo</span> <span class="nv">$resolveInfo</span><span class="p">)</span><span class="o">:</span> <span class="nx">Story</span> <span class="p">{</span>
+                <span class="c1">// Fictitious API, use whatever database access your application/framework provides</span>
+                <span class="nv">$builder</span> <span class="o">=</span> <span class="nx">Story</span><span class="o">::</span><span class="na">builder</span><span class="p">();</span>
+                <span class="k">foreach</span> <span class="p">(</span><span class="nv">$resolveInfo</span><span class="o">-&gt;</span><span class="na">getFieldSelection</span><span class="p">()</span> <span class="k">as</span> <span class="nv">$field</span> <span class="o">=&gt;</span> <span class="nv">$_</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="nv">$builder</span><span class="o">-&gt;</span><span class="na">addSelect</span><span class="p">(</span><span class="nv">$field</span><span class="p">);</span>
+                <span class="p">}</span>
+
+                <span class="k">return</span> <span class="nv">$builder</span><span class="o">-&gt;</span><span class="na">last</span><span class="p">();</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+<span class="p">]);</span>
+</code></pre></div>
+<h2 id="solving-n1-problem">Solving N+1 Problem<a class="headerlink" href="#solving-n1-problem" title="Permanent link">&para;</a></h2>
+<p>Since: 0.9.0</p>
+<p>One of the most annoying problems with data fetching is a so-called
+<a href="https://secure.phabricator.com/book/phabcontrib/article/n_plus_one/">N+1 problem</a>. <br>
+Consider following GraphQL query:</p>
+<div class="highlight"><pre><span></span><code>{
+  topStories(limit: 10) {
+    title
+    author {
+      name
+      email
+    }
+  }
+}
+</code></pre></div>
+<p>Naive field resolution process would require up to 10 calls to the underlying data store to fetch authors for all 10 stories.</p>
+<p><strong>graphql-php</strong> provides tools to mitigate this problem: it allows you to defer actual field resolution to a later stage
+when one batched query could be executed instead of 10 distinct queries.</p>
+<p>Here is an example of <strong>BlogStory</strong> resolver for field <strong>author</strong> that uses deferring:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\Deferred</span><span class="p">;</span>
+
+<span class="s1">&#39;resolve&#39;</span> <span class="o">=&gt;</span> <span class="k">function</span> <span class="p">(</span><span class="k">array</span> <span class="nv">$blogStory</span><span class="p">)</span><span class="o">:</span> <span class="nx">Deferred</span> <span class="p">{</span>
+    <span class="nx">MyUserBuffer</span><span class="o">::</span><span class="na">add</span><span class="p">(</span><span class="nv">$blogStory</span><span class="p">[</span><span class="s1">&#39;authorId&#39;</span><span class="p">]);</span>
+
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">Deferred</span><span class="p">(</span><span class="k">function</span> <span class="p">()</span> <span class="k">use</span> <span class="p">(</span><span class="nv">$blogStory</span><span class="p">)</span><span class="o">:</span> <span class="nx">User</span> <span class="p">{</span>
+        <span class="nx">MyUserBuffer</span><span class="o">::</span><span class="na">loadBuffered</span><span class="p">();</span>
+
+        <span class="k">return</span> <span class="nx">MyUserBuffer</span><span class="o">::</span><span class="na">get</span><span class="p">(</span><span class="nv">$blogStory</span><span class="p">[</span><span class="s1">&#39;authorId&#39;</span><span class="p">]);</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>In this example, we fill up the buffer with 10 author ids first. Then <strong>graphql-php</strong> continues
+resolving other non-deferred fields until there are none of them left.</p>
+<p>After that, it calls closures wrapped by <code>GraphQL\Deferred</code> which in turn load all buffered
+ids once (using SQL <code>IN(?)</code>, Redis <code>MGET</code> or similar tools) and returns the final field value.</p>
+<p>Originally this approach was advocated by Facebook in their <a href="https://github.com/graphql/dataloader">Dataloader</a>
+project. This solution enables very interesting optimizations at no cost. Consider the following query:</p>
+<div class="highlight"><pre><span></span><code>{
+  topStories(limit: 10) {
+    author {
+      email
+    }
+  }
+  category {
+    stories(limit: 10) {
+      author {
+        email
+      }
+    }
+  }
+}
+</code></pre></div>
+<p>Even though <strong>author</strong> field is located on different levels of the query - it can be buffered in the same buffer.
+In this example, only one query will be executed for all story authors comparing to 20 queries
+in a naive implementation.</p>
+<h2 id="async-php">Async PHP<a class="headerlink" href="#async-php" title="Permanent link">&para;</a></h2>
+<p>If your project runs in an environment that supports async operations
+(like HHVM, ReactPHP, AMPHP, appserver.io, PHP threads, etc)
+you can leverage the power of your platform to resolve some fields asynchronously.</p>
+<p>The only requirement: your platform must support the concept of Promises compatible with
+<a href="https://promisesaplus.com/">Promises A+</a> specification.</p>
+<p>To start using this feature, switch facade method for query execution from
+<strong>executeQuery</strong> to <strong>promiseToExecute</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\GraphQL</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Executor\ExecutionResult</span><span class="p">;</span>
+
+<span class="nv">$promise</span> <span class="o">=</span> <span class="nx">GraphQL</span><span class="o">::</span><span class="na">promiseToExecute</span><span class="p">(</span>
+    <span class="nv">$promiseAdapter</span><span class="p">,</span>
+    <span class="nv">$schema</span><span class="p">,</span>
+    <span class="nv">$queryString</span><span class="p">,</span>
+    <span class="nv">$rootValue</span> <span class="o">=</span> <span class="k">null</span><span class="p">,</span>
+    <span class="nv">$contextValue</span> <span class="o">=</span> <span class="k">null</span><span class="p">,</span>
+    <span class="nv">$variableValues</span> <span class="o">=</span> <span class="k">null</span><span class="p">,</span>
+    <span class="nv">$operationName</span> <span class="o">=</span> <span class="k">null</span><span class="p">,</span>
+    <span class="nv">$fieldResolver</span> <span class="o">=</span> <span class="k">null</span><span class="p">,</span>
+    <span class="nv">$validationRules</span> <span class="o">=</span> <span class="k">null</span>
+<span class="p">);</span>
+<span class="nv">$promise</span><span class="o">-&gt;</span><span class="na">then</span><span class="p">(</span><span class="nx">fn</span> <span class="p">(</span><span class="nx">ExecutionResult</span> <span class="nv">$result</span><span class="p">)</span><span class="o">:</span> <span class="k">array</span> <span class="o">=&gt;</span> <span class="nv">$result</span><span class="o">-&gt;</span><span class="na">toArray</span><span class="p">());</span>
+</code></pre></div>
+<p>Where <strong>$promiseAdapter</strong> is an instance of:</p>
+<ul>
+<li>
+<p>For <a href="https://github.com/reactphp/react">ReactPHP</a> (requires <strong>react/promise</strong> as composer dependency): <br>
+  <code>GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter</code></p>
+</li>
+<li>
+<p>For <a href="https://github.com/amphp/amp">AMPHP</a>: <br>
+  <code>GraphQL\Executor\Promise\Adapter\AmpPromiseAdapter</code></p>
+</li>
+<li>
+<p>For <a href="https://swoole.com/">Swoole</a> or <a href="https://openswoole.com/">OpenSwoole</a>: <br>
+  You can use an external library: <a href="https://resonance.distantmagic.com/docs/features/graphql/standalone-promise-adapter.html">Resonance</a></p>
+</li>
+<li>
+<p>Other platforms: write your own class implementing interface: <br>
+  <a href="../class-reference/#graphqlexecutorpromisepromiseadapter"><code>GraphQL\Executor\Promise\PromiseAdapter</code></a>.</p>
+</li>
+</ul>
+<p>Then your <strong>resolve</strong> functions should return promises of your platform instead of <code>GraphQL\Deferred</code>s.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>
