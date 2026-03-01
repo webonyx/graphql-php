@@ -30,6 +30,7 @@ use GraphQL\Utils\Utils;
  * @phpstan-type IntrospectionOptions array{
  *     descriptions?: bool,
  *     directiveIsRepeatable?: bool,
+ *     includeDeprecated?: bool,
  *     schemaDescription?: bool,
  *     typeIsOneOf?: bool,
  * }
@@ -41,6 +42,12 @@ use GraphQL\Utils\Utils;
  * - directiveIsRepeatable
  *   Include field `isRepeatable` for directives?
  *   Default: false
+ * - includeDeprecated
+ *   Include deprecated fields/args/enum values/input fields and related indicators
+ *   (isDeprecated/deprecationReason) in the introspection query
+ *   Default: true
+ *
+ *   @see https://graphql-ruby.org/api-doc/1.12.1/GraphQL/Introspection.html
  * - typeIsOneOf
  *   Include field `isOneOf` for types?
  *   Default: false
@@ -86,6 +93,7 @@ class Introspection
         $optionsWithDefaults = array_merge([
             'descriptions' => true,
             'directiveIsRepeatable' => false,
+            'includeDeprecated' => true,
             'schemaDescription' => false,
             'typeIsOneOf' => false,
         ], $options);
@@ -102,6 +110,13 @@ class Introspection
         $typeIsOneOf = $optionsWithDefaults['typeIsOneOf']
             ? 'isOneOf'
             : '';
+        $includeDeprecated = $optionsWithDefaults['includeDeprecated'];
+        $includeDeprecatedArg = $includeDeprecated
+            ? '(includeDeprecated: true)'
+            : '';
+        $deprecationIndicators = $includeDeprecated
+            ? "      isDeprecated\n      deprecationReason"
+            : '';
 
         return <<<GRAPHQL
   query IntrospectionQuery {
@@ -116,7 +131,7 @@ class Introspection
       directives {
         name
         {$descriptions}
-        args(includeDeprecated: true) {
+        args{$includeDeprecatedArg} {
           ...InputValue
         }
         {$directiveIsRepeatable}
@@ -130,29 +145,27 @@ class Introspection
     name
     {$descriptions}
     {$typeIsOneOf}
-    fields(includeDeprecated: true) {
+    fields{$includeDeprecatedArg} {
       name
       {$descriptions}
-      args(includeDeprecated: true) {
+      args{$includeDeprecatedArg} {
         ...InputValue
       }
       type {
         ...TypeRef
       }
-      isDeprecated
-      deprecationReason
+      {$deprecationIndicators}
     }
-    inputFields(includeDeprecated: true) {
+    inputFields{$includeDeprecatedArg} {
       ...InputValue
     }
     interfaces {
       ...TypeRef
     }
-    enumValues(includeDeprecated: true) {
+    enumValues{$includeDeprecatedArg} {
       name
       {$descriptions}
-      isDeprecated
-      deprecationReason
+      {$deprecationIndicators}
     }
     possibleTypes {
       ...TypeRef
@@ -164,8 +177,7 @@ class Introspection
     {$descriptions}
     type { ...TypeRef }
     defaultValue
-    isDeprecated
-    deprecationReason
+    {$deprecationIndicators}
   }
 
   fragment TypeRef on __Type {
