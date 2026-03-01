@@ -35,7 +35,7 @@ Those elements are thus guaranteed to be stable within major versions. All other
 not part of this backwards compatibility guarantee and may change between minor or patch versions.
 
 The most recent version is actively developed on [`master`](https://github.com/webonyx/graphql-php/tree/master).
-Older versions are generally no longer supported, although exceptions may be made for sponsors.
+Older versions are generally no longer supported, although exceptions may be made for [sponsors](#sponsors).
 
 ## Security
 
@@ -51,7 +51,8 @@ This project exists thanks to [all the people](https://github.com/webonyx/graphq
 
 ## Sponsors
 
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [Become a sponsor](https://opencollective.com/webonyx-graphql-php#sponsor).
+Support this project by becoming a sponsor via [OpenCollective](https://opencollective.com/webonyx-graphql-php#sponsor) or [GitHub Sponsors](https://github.com/sponsors/spawnia).
+Your logo will show up here with a link to your website.
 
 <a href="https://opencollective.com/webonyx-graphql-php/sponsor/0/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/0/avatar.svg"></a>
 <a href="https://opencollective.com/webonyx-graphql-php/sponsor/1/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/1/avatar.svg"></a>
