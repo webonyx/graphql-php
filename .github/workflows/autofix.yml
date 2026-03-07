@@ -28,7 +28,7 @@ jobs:
 
       - run: composer docs
 
-      - run: npx prettier --write --tab-width=2 *.md **/*.md
+      - run: npx prettier --write --tab-width=2 '*.md' '**/*.md'
 
       - uses: autofix-ci/action@v1
         with:

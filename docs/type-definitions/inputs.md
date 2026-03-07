@@ -38,7 +38,7 @@ Every field may be of other InputObjectType (thus complex hierarchies of inputs 
 The constructor of `InputObjectType` accepts an `array` with the following options:
 
 | Option      | Type                                                           | Notes                                                                                                                                           |
-|-------------|----------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| ----------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | name        | `string`                                                       | **Required.** Unique name of this object type within Schema                                                                                     |
 | description | `string`                                                       | Plain-text description of this type for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation) |
 | isOneOf     | `bool`                                                         | Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its fields be provided).                               |
@@ -48,7 +48,7 @@ The constructor of `InputObjectType` accepts an `array` with the following optio
 Every entry in `fields` is an array with following entries:
 
 | Option            | Type     | Notes                                                                                                                                                                      |
-|-------------------|----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ----------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | name              | `string` | **Required.** Name of the input field. When not set - inferred from **fields** array key                                                                                   |
 | type              | `Type`   | **Required.** Instance of one of [Input Types](inputs.md) (**Scalar**, **Enum**, **InputObjectType** + any combination of those with **nonNull** and **listOf** modifiers) |
 | defaultValue      | `scalar` | Default value of this input field. Use the internal value if specifying a default for an **enum** type                                                                     |
@@ -165,7 +165,7 @@ Thus, nested input values will be passed through their respective `parseValue` f
 
 ## Using the `isOneOf` Configuration Option
 
-The `isOneOf` configuration option allows you to declare an input object as a *OneOf Input Object*.
+The `isOneOf` configuration option allows you to declare an input object as a _OneOf Input Object_.
 This means that exactly one of its fields must be provided when the input is used.
 This is useful when an argument can accept several alternative values, but never more than one at the same time.
 
