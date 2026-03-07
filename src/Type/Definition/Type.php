@@ -3,6 +3,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Type\BuiltInTypes;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;
 
@@ -32,9 +33,6 @@ abstract class Type implements \JsonSerializable
 
     /** @var array<string, ScalarType>|null */
     protected static ?array $standardTypes;
-
-    /** @var array<string, Type&NamedType>|null */
-    protected static ?array $builtInTypes;
 
     /**
      * Returns the registered or default standard Int type.
@@ -125,10 +123,7 @@ abstract class Type implements \JsonSerializable
      */
     public static function builtInTypes(): array
     {
-        return self::$builtInTypes ??= array_merge(
-            Introspection::getTypes(),
-            self::getStandardTypes()
-        );
+        return BuiltInTypes::standard()->allTypes();
     }
 
     /**
@@ -156,10 +151,7 @@ abstract class Type implements \JsonSerializable
      */
     public static function overrideStandardTypes(array $types): void
     {
-        // Reset caches that might contain instances of standard types
-        static::$builtInTypes = null;
-        Introspection::resetCachedInstances();
-        Directive::resetCachedInstances();
+        BuiltInTypes::resetStandard();
 
         foreach ($types as $type) {
             // @phpstan-ignore-next-line generic type is not enforced by PHP

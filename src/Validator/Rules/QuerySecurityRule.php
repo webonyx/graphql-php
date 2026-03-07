@@ -12,7 +12,6 @@ use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\HasFieldsType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Introspection;
 use GraphQL\Utils\AST;
 use GraphQL\Validator\QueryValidationContext;
 
@@ -115,9 +114,10 @@ abstract class QuerySecurityRule extends ValidationRule
 
                 $fieldDef = null;
                 if ($parentType instanceof HasFieldsType) {
-                    $schemaMetaFieldDef = Introspection::schemaMetaFieldDef();
-                    $typeMetaFieldDef = Introspection::typeMetaFieldDef();
-                    $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
+                    $builtIn = $context->getSchema()->getBuiltInTypes();
+                    $schemaMetaFieldDef = $builtIn->schemaMetaFieldDef();
+                    $typeMetaFieldDef = $builtIn->typeMetaFieldDef();
+                    $typeNameMetaFieldDef = $builtIn->typeNameMetaFieldDef();
 
                     $queryType = $context->getSchema()->getQueryType();
 

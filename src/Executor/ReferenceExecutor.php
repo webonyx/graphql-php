@@ -17,7 +17,6 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Definition\AbstractType;
-use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\LeafType;
@@ -28,7 +27,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaValidationContext;
 use GraphQL\Utils\AST;
@@ -466,8 +464,10 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         $variableValues = $this->exeContext->variableValues;
 
+        $builtIn = $this->exeContext->schema->getBuiltInTypes();
+
         $skip = Values::getDirectiveValues(
-            Directive::skipDirective(),
+            $builtIn->skipDirective(),
             $node,
             $variableValues
         );
@@ -476,7 +476,7 @@ class ReferenceExecutor implements ExecutorImplementation
         }
 
         $include = Values::getDirectiveValues(
-            Directive::includeDirective(),
+            $builtIn->includeDirective(),
             $node,
             $variableValues
         );
@@ -684,9 +684,10 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected function getFieldDef(Schema $schema, ObjectType $parentType, string $fieldName): ?FieldDefinition
     {
-        $this->schemaMetaFieldDef ??= Introspection::schemaMetaFieldDef();
-        $this->typeMetaFieldDef ??= Introspection::typeMetaFieldDef();
-        $this->typeNameMetaFieldDef ??= Introspection::typeNameMetaFieldDef();
+        $builtIn = $schema->getBuiltInTypes();
+        $this->schemaMetaFieldDef ??= $builtIn->schemaMetaFieldDef();
+        $this->typeMetaFieldDef ??= $builtIn->typeMetaFieldDef();
+        $this->typeNameMetaFieldDef ??= $builtIn->typeNameMetaFieldDef();
 
         $queryType = $schema->getQueryType();
 

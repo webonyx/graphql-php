@@ -21,7 +21,6 @@ use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
-use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use GraphQL\Type\TypeKind;
@@ -110,10 +109,7 @@ class BuildClientSchema
 
         $schemaIntrospection = $this->introspection['__schema'];
 
-        $builtInTypes = array_merge(
-            Type::getStandardTypes(),
-            Introspection::getTypes()
-        );
+        $builtInTypes = Type::builtInTypes();
 
         foreach ($schemaIntrospection['types'] as $typeIntrospection) {
             if (! isset($typeIntrospection['name'])) {

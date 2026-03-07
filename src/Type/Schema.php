@@ -4,7 +4,6 @@ namespace GraphQL\Type;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\GraphQL;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaExtensionNode;
@@ -63,6 +62,8 @@ class Schema
      */
     private array $implementationsMap;
 
+    private BuiltInTypes $builtInTypes;
+
     /** True when $resolvedTypes contains all possible schema types. */
     private bool $fullyLoaded = false;
 
@@ -100,6 +101,7 @@ class Schema
         $this->description = $config->description;
         $this->astNode = $config->astNode;
         $this->extensionASTNodes = $config->extensionASTNodes;
+        $this->builtInTypes = $config->builtInTypes ?? BuiltInTypes::standard();
 
         $this->config = $config;
     }
@@ -164,7 +166,7 @@ class Schema
                     TypeInfo::extractTypesFromDirectives($directive, $allReferencedTypes);
                 }
             }
-            TypeInfo::extractTypes(Introspection::_schema(), $allReferencedTypes);
+            TypeInfo::extractTypes($this->builtInTypes->schemaType(), $allReferencedTypes);
 
             $this->resolvedTypes = $allReferencedTypes;
             $this->fullyLoaded = true;
@@ -184,7 +186,7 @@ class Schema
      */
     public function getDirectives(): array
     {
-        return $this->config->directives ?? GraphQL::getStandardDirectives();
+        return $this->config->directives ?? array_values($this->builtInTypes->directives());
     }
 
     /** @param mixed $typeLoaderReturn could be anything */
@@ -272,6 +274,11 @@ class Schema
         return $subscription;
     }
 
+    public function getBuiltInTypes(): BuiltInTypes
+    {
+        return $this->builtInTypes;
+    }
+
     /** @api */
     public function getConfig(): SchemaConfig
     {
@@ -293,14 +300,9 @@ class Schema
             return $this->resolvedTypes[$name];
         }
 
-        $introspectionTypes = Introspection::getTypes();
-        if (isset($introspectionTypes[$name])) {
-            return $introspectionTypes[$name];
-        }
-
-        $standardTypes = Type::getStandardTypes();
-        if (isset($standardTypes[$name])) {
-            return $standardTypes[$name];
+        $builtIn = $this->builtInTypes->allTypes();
+        if (isset($builtIn[$name])) {
+            return $builtIn[$name];
         }
 
         $type = $this->loadType($name);
@@ -511,7 +513,7 @@ class Schema
             throw new InvariantViolation(implode("\n\n", $this->validationErrors));
         }
 
-        $internalTypes = Type::getStandardTypes() + Introspection::getTypes();
+        $internalTypes = $this->builtInTypes->allTypes();
         foreach ($this->getTypeMap() as $name => $type) {
             if (isset($internalTypes[$name])) {
                 continue;

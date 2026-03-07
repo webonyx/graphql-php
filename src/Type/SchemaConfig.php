@@ -37,6 +37,7 @@ use GraphQL\Type\Definition\Type;
  *   types?: Types|null,
  *   directives?: array<Directive>|null,
  *   typeLoader?: TypeLoader|null,
+ *   builtInTypes?: BuiltInTypes|null,
  *   assumeValid?: bool|null,
  *   astNode?: SchemaDefinitionNode|null,
  *   extensionASTNodes?: array<SchemaExtensionNode>|null,
@@ -64,6 +65,8 @@ class SchemaConfig
 
     /** @var array<Directive>|null */
     public ?array $directives = null;
+
+    public ?BuiltInTypes $builtInTypes = null;
 
     /**
      * @var callable|null
@@ -115,6 +118,10 @@ class SchemaConfig
 
             if (isset($options['directives'])) {
                 $config->setDirectives($options['directives']);
+            }
+
+            if (isset($options['builtInTypes'])) {
+                $config->setBuiltInTypes($options['builtInTypes']);
             }
 
             if (isset($options['typeLoader'])) {
@@ -270,6 +277,18 @@ class SchemaConfig
     public function setDirectives(?array $directives): self
     {
         $this->directives = $directives;
+
+        return $this;
+    }
+
+    public function getBuiltInTypes(): ?BuiltInTypes
+    {
+        return $this->builtInTypes;
+    }
+
+    public function setBuiltInTypes(?BuiltInTypes $builtInTypes): self
+    {
+        $this->builtInTypes = $builtInTypes;
 
         return $this;
     }

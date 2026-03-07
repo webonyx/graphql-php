@@ -13,7 +13,7 @@ use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
-use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\BuiltInTypes;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
@@ -222,18 +222,20 @@ class BuildSchema
             $directivesByName[$directive->name][] = $directive;
         }
 
+        $builtIn = BuiltInTypes::standard();
+
         // If specified directives were not explicitly declared, add them.
         if (! isset($directivesByName['include'])) {
-            $directives[] = Directive::includeDirective();
+            $directives[] = $builtIn->includeDirective();
         }
         if (! isset($directivesByName['skip'])) {
-            $directives[] = Directive::skipDirective();
+            $directives[] = $builtIn->skipDirective();
         }
         if (! isset($directivesByName['deprecated'])) {
-            $directives[] = Directive::deprecatedDirective();
+            $directives[] = $builtIn->deprecatedDirective();
         }
         if (! isset($directivesByName['oneOf'])) {
-            $directives[] = Directive::oneOfDirective();
+            $directives[] = $builtIn->oneOfDirective();
         }
 
         // Note: While this could make early assertions to get the correctly
