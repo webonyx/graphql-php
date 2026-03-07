@@ -3,8 +3,10 @@
 This is the primary facade for fulfilling GraphQL operations.
 See [related documentation](executing-queries.md).
 
+```php
 @phpstan-import-type ArgsMapper from Executor
 @phpstan-import-type FieldResolver from Executor
+```
 
 @see \GraphQL\Tests\GraphQLTest
 
@@ -338,9 +340,13 @@ Structure containing information useful for field resolution process.
 
 Passed as 4th argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
 
+```php
 @phpstan-import-type QueryPlanOptions from QueryPlan
+```
 
+```php
 @phpstan-type Path list<string|int>
+```
 
 ### GraphQL\Type\Definition\ResolveInfo Props
 
@@ -706,21 +712,23 @@ Usage example:
 
 @see Type, NamedType
 
+```php
 @phpstan-type MaybeLazyObjectType ObjectType|(callable(): (ObjectType|null))|null
 @phpstan-type TypeLoader callable(string $typeName): ((Type&NamedType)|null)
 @phpstan-type Types iterable<Type&NamedType>|(callable(): iterable<Type&NamedType>)|iterable<(callable(): Type&NamedType)>|(callable(): iterable<(callable(): Type&NamedType)>)
 @phpstan-type SchemaConfigOptions array{
-description?: string|null,
-query?: MaybeLazyObjectType,
-mutation?: MaybeLazyObjectType,
-subscription?: MaybeLazyObjectType,
-types?: Types|null,
-directives?: array<Directive>|null,
-typeLoader?: TypeLoader|null,
-assumeValid?: bool|null,
-astNode?: SchemaDefinitionNode|null,
-extensionASTNodes?: array<SchemaExtensionNode>|null,
+  description?: string|null,
+  query?: MaybeLazyObjectType,
+  mutation?: MaybeLazyObjectType,
+  subscription?: MaybeLazyObjectType,
+  types?: Types|null,
+  directives?: array<Directive>|null,
+  typeLoader?: TypeLoader|null,
+  assumeValid?: bool|null,
+  astNode?: SchemaDefinitionNode|null,
+  extensionASTNodes?: array<SchemaExtensionNode>|null,
 }
+```
 
 ### GraphQL\Type\SchemaConfig Methods
 
@@ -879,8 +887,10 @@ Or using Schema Config instance:
 
     $schema = new GraphQL\Type\Schema($config);
 
+```php
 @phpstan-import-type SchemaConfigOptions from SchemaConfig
 @phpstan-import-type OperationType from OperationDefinitionNode
+```
 
 @see \GraphQL\Tests\Type\SchemaTest
 
@@ -1059,47 +1069,42 @@ function validate(): array
 
 Parses string containing GraphQL query language or [schema definition language](schema-definition-language.md) to Abstract Syntax Tree.
 
+```php
 @phpstan-type ParserOptions array{
-noLocation?: bool,
-allowLegacySDLEmptyFields?: bool,
-allowLegacySDLImplementsInterfaces?: bool,
-experimentalFragmentVariables?: bool
+  noLocation?: bool,
+  allowLegacySDLEmptyFields?: bool,
+  allowLegacySDLImplementsInterfaces?: bool,
+  experimentalFragmentVariables?: bool
 }
+```
 
-noLocation:
-(By default, the parser creates AST nodes that know the location
-in the source that they correspond to. This configuration flag
-disables that behavior for performance or testing.)
+- **noLocation**:
+  By default, the parser creates AST nodes that know the location in the source.
+  This configuration flag disables that behavior for performance or testing.
 
-allowLegacySDLEmptyFields:
-If enabled, the parser will parse empty fields sets in the Schema
-Definition Language. Otherwise, the parser will follow the current
-specification.
+- **allowLegacySDLEmptyFields**:
+  If enabled, the parser will parse empty fields sets in the Schema Definition Language.
+  Otherwise, the parser will follow the current specification.
+  This option is provided to ease adoption of the final SDL specification and will be removed in a future major release.
 
-This option is provided to ease adoption of the final SDL specification
-and will be removed in a future major release.
+- **allowLegacySDLImplementsInterfaces**:
+  If enabled, the parser will parse implemented interfaces with no `&` character between each interface.
+  Otherwise, the parser will follow the current specification.
+  This option is provided to ease adoption of the final SDL specification and will be removed in a future major release.
 
-allowLegacySDLImplementsInterfaces:
-If enabled, the parser will parse implemented interfaces with no `&`
-character between each interface. Otherwise, the parser will follow the
-current specification.
+- **experimentalFragmentVariables**:
+  If enabled, the parser will understand and parse variable definitions contained in a fragment definition.
+  They'll be represented in the `variableDefinitions` field of the FragmentDefinitionNode.
+  The syntax is identical to normal, query-defined variables. For example:
 
-This option is provided to ease adoption of the final SDL specification
-and will be removed in a future major release.
+  ```graphql
+  fragment A($var: Boolean = false) on T {
+    ...
+  }
+  ```
 
-experimentalFragmentVariables:
-(If enabled, the parser will understand and parse variable definitions
-contained in a fragment definition. They'll be represented in the
-`variableDefinitions` field of the FragmentDefinitionNode.
+  Note: this feature is experimental and may change or be removed in the future.
 
-The syntax is identical to normal, query-defined variables. For example:
-
-    fragment A($var: Boolean = false) on T  {
-      ...
-    }
-
-Note: this feature is experimental and may change or be removed in the
-future.)
 Those magic functions allow partial parsing:
 
 @method static NameNode name(Source|string $source, ParserOptions $options = [])
@@ -1278,8 +1283,7 @@ Utility for efficient AST traversal and modification.
 the visitor's enter function at each node in the traversal, and calling the
 leave function after visiting that node and all of its child nodes.
 
-By returning different values from the `enter` and `leave` functions, the
-behavior of the visitor can be altered.
+By returning different values from the `enter` and `leave` functions, the behavior of the visitor can be altered.
 
 - no return (`void`) or return `null`: no action
 - `Visitor::skipNode()`: skips over the subtree at the current node of the AST
@@ -1291,14 +1295,16 @@ When using `visit()` to edit an AST, the original AST will not be modified, and
 a new version of the AST with the changes applied will be returned from the
 visit function.
 
+```php
 $editedAST = Visitor::visit($ast, [
-'enter' => function (Node $node, $key, $parent, array $path, array $ancestors) {
-// ...
-},
-'leave' => function (Node $node, $key, $parent, array $path, array $ancestors) {
-// ...
-}
+    'enter' => function (Node $node, $key, $parent, array $path, array $ancestors) {
+        // ...
+    },
+    'leave' => function (Node $node, $key, $parent, array $path, array $ancestors) {
+        // ...
+    }
 ]);
+```
 
 Alternatively to providing `enter` and `leave` functions, a visitor can
 instead provide functions named the same as the [kinds of AST nodes](class-reference.md#graphqllanguageastnodekind),
@@ -1307,54 +1313,64 @@ visitor API:
 
 1. Named visitors triggered when entering a node a specific kind.
 
+   ```php
    Visitor::visit($ast, [
-   NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
-   // enter the "ObjectTypeDefinition" node
-   }
+       NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+           // enter the "ObjectTypeDefinition" node
+       }
    ]);
+   ```
 
 2. Named visitors that trigger upon entering and leaving a node of
    a specific kind.
 
+   ```php
    Visitor::visit($ast, [
-   NodeKind::OBJECT_TYPE_DEFINITION => [
-   'enter' => function (ObjectTypeDefinitionNode $node) {
-   // enter the "ObjectTypeDefinition" node
-   }
-   'leave' => function (ObjectTypeDefinitionNode $node) {
-   // leave the "ObjectTypeDefinition" node
-   }
-   ]
+       NodeKind::OBJECT_TYPE_DEFINITION => [
+           'enter' => function (ObjectTypeDefinitionNode $node) {
+               // enter the "ObjectTypeDefinition" node
+           },
+           'leave' => function (ObjectTypeDefinitionNode $node) {
+               // leave the "ObjectTypeDefinition" node
+           }
+       ]
    ]);
+   ```
 
 3. Generic visitors that trigger upon entering and leaving any node.
 
+   ```php
    Visitor::visit($ast, [
-   'enter' => function (Node $node) {
-   // enter any node
-   },
-   'leave' => function (Node $node) {
-   // leave any node
-   }
+       'enter' => function (Node $node) {
+           // enter any node
+       },
+       'leave' => function (Node $node) {
+           // leave any node
+       }
    ]);
+   ```
 
 4. Parallel visitors for entering and leaving nodes of a specific kind.
 
+   ```php
    Visitor::visit($ast, [
-   'enter' => [
-   NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
-   // enter the "ObjectTypeDefinition" node
-   }
-   },
-   'leave' => [
-   NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
-   // leave the "ObjectTypeDefinition" node
-   }
-   ]
+       'enter' => [
+           NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+               // enter the "ObjectTypeDefinition" node
+           }
+       ],
+       'leave' => [
+           NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+               // leave the "ObjectTypeDefinition" node
+           }
+       ]
    ]);
+   ```
 
+```php
 @phpstan-type NodeVisitor callable(Node): (VisitorOperation|Node|NodeList<Node>|null|false|void)
 @phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
+```
 
 @see \GraphQL\Tests\Language\VisitorTest
 
@@ -1504,9 +1520,11 @@ const CLASS_MAP = [
 
 Implements the "Evaluating requests" section of the GraphQL specification.
 
+```php
 @phpstan-type ArgsMapper callable(array<string, mixed>, FieldDefinition, FieldNode, mixed): mixed
 @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
 @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable, callable): ExecutorImplementation
+```
 
 @see \GraphQL\Tests\Executor\ExecutorTest
 
@@ -1584,20 +1602,22 @@ Represents both - result of successful execution and of a failed one
 Could be converted to [spec-compliant](https://facebook.github.io/graphql/#sec-Response-Format)
 serializable array using `toArray()`.
 
+```php
 @phpstan-type SerializableError array{
-message: string,
-locations?: array<int, array{line: int, column: int}>,
-path?: array<int, int|string>,
-extensions?: array<string, mixed>
+  message: string,
+  locations?: array<int, array{line: int, column: int}>,
+  path?: array<int, int|string>,
+  extensions?: array<string, mixed>
 }
 @phpstan-type SerializableErrors list<SerializableError>
 @phpstan-type SerializableResult array{
-data?: array<string, mixed>,
-errors?: SerializableErrors,
-extensions?: array<string, mixed>
+    data?: array<string, mixed>,
+    errors?: SerializableErrors,
+    extensions?: array<string, mixed>
 }
 @phpstan-type ErrorFormatter callable(\Throwable): SerializableError
 @phpstan-type ErrorsHandler callable(list<Error> $errors, ErrorFormatter $formatter): SerializableErrors
+```
 
 @see \GraphQL\Tests\Executor\ExecutionResultTest
 
@@ -1783,7 +1803,9 @@ function all(iterable $promisesOrValues): GraphQL\Executor\Promise\Promise
 
 User-facing promise class for deferred field resolution.
 
+```php
 @phpstan-type Executor callable(): mixed
+```
 
 ### GraphQL\Deferred Methods
 
@@ -1806,7 +1828,9 @@ Owns the shared queue and provides the run loop for processing promises.
 
 @api
 
+```php
 @phpstan-type Task callable(): void
+```
 
 ### GraphQL\Executor\Promise\Adapter\SyncPromiseQueue Methods
 
@@ -2004,7 +2028,9 @@ Encapsulates warnings produced by the library.
 Warnings can be suppressed (individually or all) if required.
 Also, it is possible to override warning handler (which is **trigger_error()** by default).
 
+```php
 @phpstan-type WarningHandler callable(string $errorMessage, int $warningId, ?int $messageLevel): void
+```
 
 ### GraphQL\Error\Warning Constants
 
@@ -2104,8 +2130,10 @@ and provides tools for error debugging.
 
 @see ExecutionResult
 
+```php
 @phpstan-import-type SerializableError from ExecutionResult
 @phpstan-import-type ErrorFormatter from ExecutionResult
+```
 
 @see \GraphQL\Tests\Error\FormattedErrorTest
 
@@ -2298,12 +2326,16 @@ Usage example:
 
 @see ExecutionResult
 
+```php
 @phpstan-type PersistedQueryLoader callable(string $queryId, OperationParams $operation): (string|DocumentNode)
 @phpstan-type RootValueResolver callable(OperationParams $operation, DocumentNode $doc, string $operationType): mixed
 @phpstan-type ValidationRulesOption array<ValidationRule>|null|callable(OperationParams $operation, DocumentNode $doc, string $operationType): array<ValidationRule>
+```
 
+```php
 @phpstan-import-type ErrorsHandler from ExecutionResult
 @phpstan-import-type ErrorFormatter from ExecutionResult
+```
 
 @see \GraphQL\Tests\Server\ServerConfigTest
 
@@ -2643,24 +2675,25 @@ Build instance of @see \GraphQL\Type\Schema out of schema language definition (s
 
 See [schema definition language docs](schema-definition-language.md) for details.
 
+```php
 @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
 @phpstan-import-type FieldConfigDecorator from ASTDefinitionBuilder
+```
 
+```php
 @phpstan-type BuildSchemaOptions array{
-assumeValid?: bool,
-assumeValidSDL?: bool
+  assumeValid?: bool,
+  assumeValidSDL?: bool
 }
+```
 
 - assumeValid:
-  When building a schema from a GraphQL service's introspection result, it
-  might be safe to assume the schema is valid. Set to true to assume the
-  produced schema is valid.
-
+  When building a schema from a GraphQL service's introspection result, it might be safe to assume the schema is valid.
+  Set to true to assume the produced schema is valid.
   Default: false
 
 - assumeValidSDL:
   Set to true to assume the SDL is valid.
-
   Default: false
 
 @see \GraphQL\Tests\Utils\BuildSchemaTest
@@ -2915,13 +2948,15 @@ Prints the contents of a Schema in schema definition language.
 
 All sorting options sort alphabetically. If not given or `false`, the original schema definition order will be used.
 
+```php
 @phpstan-type Options array{
-sortArguments?: bool,
-sortEnumValues?: bool,
-sortFields?: bool,
-sortInputFields?: bool,
-sortTypes?: bool,
+  sortArguments?: bool,
+  sortEnumValues?: bool,
+  sortFields?: bool,
+  sortInputFields?: bool,
+  sortTypes?: bool,
 }
+```
 
 @see \GraphQL\Tests\Utils\SchemaPrinterTest
 

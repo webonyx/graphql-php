@@ -40,6 +40,42 @@ const ENTRIES = [
     GraphQL\Utils\SchemaPrinter::class => [],
 ];
 
+function wrapPhpstanTypes(?string $docs): ?string
+{
+    if ($docs === null) {
+        return null;
+    }
+
+    $lines = explode("\n", $docs);
+    $result = [];
+    $block = [];
+    $braceDepth = 0;
+
+    foreach ($lines as $line) {
+        if (str_starts_with($line, '@phpstan-') || ($block !== [] && $braceDepth > 0)) {
+            $block[] = $line;
+            $braceDepth += substr_count($line, '{') - substr_count($line, '}');
+        } else {
+            if ($block !== []) {
+                $result[] = '```php';
+                array_push($result, ...$block);
+                $result[] = '```';
+                $block = [];
+                $braceDepth = 0;
+            }
+            $result[] = $line;
+        }
+    }
+
+    if ($block !== []) {
+        $result[] = '```php';
+        array_push($result, ...$block);
+        $result[] = '```';
+    }
+
+    return implode("\n", $result);
+}
+
 /**
  * @param ReflectionClass<covariant object> $class
  * @param array{constants?: bool, props?: bool, methods?: bool} $options
@@ -49,7 +85,7 @@ const ENTRIES = [
  */
 function renderClass(ReflectionClass $class, array $options): string
 {
-    $classDocs = PhpDoc::unwrap(PhpDoc::unpad($class->getDocComment()));
+    $classDocs = wrapPhpstanTypes(PhpDoc::unwrap(PhpDoc::unpad($class->getDocComment())));
     $content = '';
     $className = $class->getName();
 
@@ -138,13 +174,10 @@ function renderMethod(ReflectionMethod $method): string
         ? "{$def}: {$returnType}"
         : $def;
     $docBlock = PhpDoc::unpad($method->getDocComment());
+    assert($docBlock !== null, 'isApi() guarantees a docblock exists');
+    $fence = str_contains($docBlock, '```') ? '````' : '```';
 
-    return <<<TEMPLATE
-```php
-{$docBlock}
-{$def}
-```
-TEMPLATE;
+    return "{$fence}php\n{$docBlock}\n{$def}\n{$fence}";
 }
 
 function renderProp(ReflectionProperty $prop): string
@@ -173,3 +206,7 @@ foreach (ENTRIES as $className => $options) {
     $rendered = renderClass(new ReflectionClass($className), $options);
     file_put_contents(OUTPUT_FILE, $rendered, FILE_APPEND);
 }
+
+$content = file_get_contents(OUTPUT_FILE);
+assert($content !== false);
+file_put_contents(OUTPUT_FILE, rtrim($content) . "\n");
