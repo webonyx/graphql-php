@@ -53,7 +53,7 @@ git stash pop # if stashed earlier
 Present a Markdown table comparing all benchmarked versions:
 
 | Benchmark | Master | Branch | Uncommitted | vs Master |
-|-----------|--------|--------|-------------|-----------|
+| --------- | ------ | ------ | ----------- | --------- |
 | ...       | ...    | ...    | ...         | +X% / -X% |
 
 ## Important Notes

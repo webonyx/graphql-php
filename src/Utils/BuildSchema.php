@@ -33,16 +33,13 @@ use GraphQL\Validator\DocumentValidator;
  * }
  *
  * - assumeValid:
- *     When building a schema from a GraphQL service's introspection result, it
- *     might be safe to assume the schema is valid. Set to true to assume the
- *     produced schema is valid.
- *
- *     Default: false
+ *   When building a schema from a GraphQL service's introspection result, it might be safe to assume the schema is valid.
+ *   Set to true to assume the produced schema is valid.
+ *   Default: false
  *
  * - assumeValidSDL:
- *     Set to true to assume the SDL is valid.
- *
- *     Default: false
+ *   Set to true to assume the SDL is valid.
+ *   Default: false
  *
  * @see \GraphQL\Tests\Utils\BuildSchemaTest
  */

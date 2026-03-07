@@ -28,7 +28,7 @@ php-cs-fixer: ## Fix code style
 
 .PHONY: prettier
 prettier: ## Format code with prettier
-	prettier --write --tab-width=2 *.md **/*.md
+	npx prettier --write --tab-width=2 '*.md' '**/*.md'
 
 phpstan.neon:
 	printf "includes:\n  - phpstan.neon.dist" > phpstan.neon
@@ -52,7 +52,7 @@ bench: ## Runs benchmarks with PHPBench
 .PHONY: docs
 docs: ## Generate the class-reference docs
 	php generate-class-reference.php
-	prettier --write docs/class-reference.md
+	npx prettier --write docs/class-reference.md
 
 .PHONY: ai-sync
 ai-sync: ## Generate local agent configuration from .ai
