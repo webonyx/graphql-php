@@ -10,8 +10,8 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\Argument;
-use GraphQL\Type\Definition\Directive;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
@@ -54,11 +54,13 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
      */
     public function getASTVisitor(ValidationContext $context): array
     {
+        /** @var array<string, array<string, Argument>> $requiredArgsMap */
         $requiredArgsMap = [];
+
         $schema = $context->getSchema();
-        $definedDirectives = $schema === null
-            ? Directive::getInternalDirectives()
-            : $schema->getDirectives();
+        $definedDirectives = $schema !== null
+            ? $schema->getDirectives()
+            : BuiltInDefinitions::standard()->directives();
 
         foreach ($definedDirectives as $directive) {
             $directiveArgs = [];

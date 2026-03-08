@@ -37,7 +37,7 @@ use GraphQL\Type\Definition\Type;
  *   types?: Types|null,
  *   directives?: array<Directive>|null,
  *   typeLoader?: TypeLoader|null,
- *   builtInTypes?: BuiltInTypes|null,
+ *   builtInDefinitions?: BuiltInDefinitions|null,
  *   assumeValid?: bool|null,
  *   astNode?: SchemaDefinitionNode|null,
  *   extensionASTNodes?: array<SchemaExtensionNode>|null,
@@ -66,7 +66,7 @@ class SchemaConfig
     /** @var array<Directive>|null */
     public ?array $directives = null;
 
-    public ?BuiltInTypes $builtInTypes = null;
+    public ?BuiltInDefinitions $builtInDefinitions = null;
 
     /**
      * @var callable|null
@@ -120,8 +120,8 @@ class SchemaConfig
                 $config->setDirectives($options['directives']);
             }
 
-            if (isset($options['builtInTypes'])) {
-                $config->setBuiltInTypes($options['builtInTypes']);
+            if (isset($options['builtInDefinitions'])) {
+                $config->setBuiltInDefinitions($options['builtInDefinitions']);
             }
 
             if (isset($options['typeLoader'])) {
@@ -281,14 +281,14 @@ class SchemaConfig
         return $this;
     }
 
-    public function getBuiltInTypes(): ?BuiltInTypes
+    public function getBuiltInDefinitions(): ?BuiltInDefinitions
     {
-        return $this->builtInTypes;
+        return $this->builtInDefinitions;
     }
 
-    public function setBuiltInTypes(?BuiltInTypes $builtInTypes): self
+    public function setBuiltInDefinitions(?BuiltInDefinitions $builtInDefinitions): self
     {
-        $this->builtInTypes = $builtInTypes;
+        $this->builtInDefinitions = $builtInDefinitions;
 
         return $this;
     }

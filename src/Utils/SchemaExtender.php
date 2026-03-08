@@ -32,7 +32,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
-use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use GraphQL\Validator\DocumentValidator;
@@ -562,18 +561,6 @@ class SchemaExtender
         ]);
     }
 
-    protected function isSpecifiedScalarType(Type $type): bool
-    {
-        return $type instanceof NamedType
-            && in_array($type->name, [
-                Type::STRING,
-                Type::INT,
-                Type::FLOAT,
-                Type::BOOLEAN,
-                Type::ID,
-            ], true);
-    }
-
     /**
      * @template T of Type
      *
@@ -586,7 +573,7 @@ class SchemaExtender
      */
     protected function extendNamedType(Type $type): Type
     {
-        if (Introspection::isIntrospectionType($type) || $this->isSpecifiedScalarType($type)) {
+        if ($type->isBuiltInType()) {
             return $type;
         }
 

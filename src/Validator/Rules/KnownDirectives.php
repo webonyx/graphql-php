@@ -34,7 +34,7 @@ use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Visitor;
-use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
@@ -63,11 +63,13 @@ class KnownDirectives extends ValidationRule
      */
     public function getASTVisitor(ValidationContext $context): array
     {
+        /** @var array<string, array<string>> $locationsMap */
         $locationsMap = [];
+
         $schema = $context->getSchema();
-        $definedDirectives = $schema === null
-            ? Directive::getInternalDirectives()
-            : $schema->getDirectives();
+        $definedDirectives = $schema !== null
+            ? $schema->getDirectives()
+            : BuiltInDefinitions::standard()->directives();
 
         foreach ($definedDirectives as $directive) {
             $locationsMap[$directive->name] = $directive->locations;

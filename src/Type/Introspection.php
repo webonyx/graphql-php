@@ -4,11 +4,6 @@ namespace GraphQL\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
-use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\FieldDefinition;
-use GraphQL\Type\Definition\NamedType;
-use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 
 /**
@@ -46,17 +41,6 @@ class Introspection
     public const ENUM_VALUE_OBJECT_NAME = '__EnumValue';
     public const TYPE_KIND_ENUM_NAME = '__TypeKind';
     public const DIRECTIVE_LOCATION_ENUM_NAME = '__DirectiveLocation';
-
-    public const TYPE_NAMES = [
-        self::SCHEMA_OBJECT_NAME,
-        self::TYPE_OBJECT_NAME,
-        self::DIRECTIVE_OBJECT_NAME,
-        self::FIELD_OBJECT_NAME,
-        self::INPUT_VALUE_OBJECT_NAME,
-        self::ENUM_VALUE_OBJECT_NAME,
-        self::TYPE_KIND_ENUM_NAME,
-        self::DIRECTIVE_LOCATION_ENUM_NAME,
-    ];
 
     /**
      * @param IntrospectionOptions $options
@@ -224,77 +208,5 @@ GRAPHQL;
         }
 
         return $data;
-    }
-
-    /** @param Type&NamedType $type */
-    public static function isIntrospectionType(NamedType $type): bool
-    {
-        return in_array($type->name, self::TYPE_NAMES, true);
-    }
-
-    /** @return array<string, Type&NamedType> */
-    public static function getTypes(): array
-    {
-        return BuiltInTypes::standard()->introspectionTypes();
-    }
-
-    public static function _schema(): ObjectType
-    {
-        return BuiltInTypes::standard()->schemaType();
-    }
-
-    public static function _type(): ObjectType
-    {
-        return BuiltInTypes::standard()->typeType();
-    }
-
-    public static function _typeKind(): EnumType
-    {
-        return BuiltInTypes::standard()->typeKindType();
-    }
-
-    public static function _field(): ObjectType
-    {
-        return BuiltInTypes::standard()->fieldType();
-    }
-
-    public static function _inputValue(): ObjectType
-    {
-        return BuiltInTypes::standard()->inputValueType();
-    }
-
-    public static function _enumValue(): ObjectType
-    {
-        return BuiltInTypes::standard()->enumValueType();
-    }
-
-    public static function _directive(): ObjectType
-    {
-        return BuiltInTypes::standard()->directiveType();
-    }
-
-    public static function _directiveLocation(): EnumType
-    {
-        return BuiltInTypes::standard()->directiveLocationType();
-    }
-
-    public static function schemaMetaFieldDef(): FieldDefinition
-    {
-        return BuiltInTypes::standard()->schemaMetaFieldDef();
-    }
-
-    public static function typeMetaFieldDef(): FieldDefinition
-    {
-        return BuiltInTypes::standard()->typeMetaFieldDef();
-    }
-
-    public static function typeNameMetaFieldDef(): FieldDefinition
-    {
-        return BuiltInTypes::standard()->typeNameMetaFieldDef();
-    }
-
-    public static function resetCachedInstances(): void
-    {
-        BuiltInTypes::resetStandard();
     }
 }

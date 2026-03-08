@@ -3,35 +3,35 @@
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\CustomScalarType;
-use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Introspection;
 use PHPUnit\Framework\TestCase;
 
 final class StandardTypesTest extends TestCase
 {
     /** @var array<string, ScalarType> */
-    private static array $originalStandardTypes;
+    private static array $originalScalarTypes;
 
     public static function setUpBeforeClass(): void
     {
-        self::$originalStandardTypes = Type::getStandardTypes();
+        self::$originalScalarTypes = BuiltInDefinitions::standard()->scalarTypes();
     }
 
     public function tearDown(): void
     {
         parent::tearDown();
-        Type::overrideStandardTypes(self::$originalStandardTypes);
+
+        BuiltInDefinitions::overrideScalarTypes(self::$originalScalarTypes);
     }
 
-    public function testAllowsOverridingStandardTypes(): void
+    public function testAllowsOverridingScalarTypes(): void
     {
-        $originalTypes = Type::getStandardTypes();
-        self::assertCount(5, $originalTypes);
-        self::assertSame(self::$originalStandardTypes, $originalTypes);
+        $originalScalarTypes = BuiltInDefinitions::standard()->scalarTypes();
+        self::assertCount(5, $originalScalarTypes);
+        self::assertSame(self::$originalScalarTypes, $originalScalarTypes);
 
         $newBooleanType = self::createCustomScalarType(Type::BOOLEAN);
         $newFloatType = self::createCustomScalarType(Type::FLOAT);
@@ -39,7 +39,7 @@ final class StandardTypesTest extends TestCase
         $newIntType = self::createCustomScalarType(Type::INT);
         $newStringType = self::createCustomScalarType(Type::STRING);
 
-        Type::overrideStandardTypes([
+        BuiltInDefinitions::overrideScalarTypes([
             $newBooleanType,
             $newFloatType,
             $newIDType,
@@ -47,7 +47,7 @@ final class StandardTypesTest extends TestCase
             $newStringType,
         ]);
 
-        $types = Type::getStandardTypes();
+        $types = BuiltInDefinitions::standard()->scalarTypes();
         self::assertCount(5, $types);
 
         self::assertSame($newBooleanType, $types[Type::BOOLEAN]);
@@ -63,21 +63,21 @@ final class StandardTypesTest extends TestCase
         self::assertSame($newStringType, Type::string());
     }
 
-    public function testPreservesOriginalStandardTypes(): void
+    public function testPreservesOriginalScalarTypes(): void
     {
-        $originalTypes = Type::getStandardTypes();
+        $originalTypes = BuiltInDefinitions::standard()->scalarTypes();
         self::assertCount(5, $originalTypes);
-        self::assertSame(self::$originalStandardTypes, $originalTypes);
+        self::assertSame(self::$originalScalarTypes, $originalTypes);
 
         $newIDType = self::createCustomScalarType(Type::ID);
         $newStringType = self::createCustomScalarType(Type::STRING);
 
-        Type::overrideStandardTypes([
+        BuiltInDefinitions::overrideScalarTypes([
             $newStringType,
             $newIDType,
         ]);
 
-        $types = Type::getStandardTypes();
+        $types = BuiltInDefinitions::standard()->scalarTypes();
         self::assertCount(5, $types);
 
         self::assertSame($originalTypes[Type::BOOLEAN], $types[Type::BOOLEAN]);
@@ -100,7 +100,7 @@ final class StandardTypesTest extends TestCase
      *
      * @return iterable<array{mixed, string}>
      */
-    public static function invalidStandardTypes(): iterable
+    public static function invalidScalarTypes(): iterable
     {
         yield [null, 'Expecting instance of GraphQL\Type\Definition\ScalarType, got null'];
         yield [5, 'Expecting instance of GraphQL\Type\Definition\ScalarType, got 5'];
@@ -108,41 +108,41 @@ final class StandardTypesTest extends TestCase
         yield [new \stdClass(), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got instance of stdClass'];
         yield [[], 'Expecting instance of GraphQL\Type\Definition\ScalarType, got []'];
         yield [new ObjectType(['name' => 'ID', 'fields' => []]), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got ID'];
-        yield [self::createCustomScalarType('NonStandardName'), 'Expecting one of the following names for a standard type: Int, Float, String, Boolean, ID; got "NonStandardName"'];
+        yield [self::createCustomScalarType('NonStandardName'), 'Expecting one of the following names for a built-in scalar type: Int, Float, String, Boolean, ID; got "NonStandardName"'];
     }
 
     /**
      * @param mixed $notType invalid type
      *
-     * @dataProvider invalidStandardTypes
+     * @dataProvider invalidScalarTypes
      */
-    public function testStandardTypesOverrideDoesSanityChecks($notType, string $expectedMessage): void
+    public function testScalarTypesOverrideDoesSanityChecks($notType, string $expectedMessage): void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage($expectedMessage);
 
-        Type::overrideStandardTypes([$notType]);
+        BuiltInDefinitions::overrideScalarTypes([$notType]);
     }
 
-    public function testCachesShouldResetWhenOverridingStandardTypes(): void
+    public function testCachesShouldResetWhenOverridingScalarTypes(): void
     {
         $string = Type::string();
 
-        $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
+        $typeNameMetaFieldDef = BuiltInDefinitions::standard()->typeNameMetaFieldDef();
         self::assertSame($string, Type::getNullableType($typeNameMetaFieldDef->getType()));
 
-        $deprecatedDirective = Directive::deprecatedDirective();
+        $deprecatedDirective = BuiltInDefinitions::standard()->deprecatedDirective();
         self::assertSame($string, $deprecatedDirective->args[0]->getType());
 
         $newString = self::createCustomScalarType(Type::STRING);
         self::assertNotSame($string, $newString);
-        Type::overrideStandardTypes([$newString]);
+        BuiltInDefinitions::overrideScalarTypes([$newString]);
 
-        $newTypeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
+        $newTypeNameMetaFieldDef = BuiltInDefinitions::standard()->typeNameMetaFieldDef();
         self::assertNotSame($typeNameMetaFieldDef, $newTypeNameMetaFieldDef);
         self::assertSame($newString, Type::getNullableType($newTypeNameMetaFieldDef->getType()));
 
-        $newDeprecatedDirective = Directive::deprecatedDirective();
+        $newDeprecatedDirective = BuiltInDefinitions::standard()->deprecatedDirective();
         self::assertNotSame($deprecatedDirective, $newDeprecatedDirective);
         self::assertSame($newString, $newDeprecatedDirective->args[0]->getType());
     }

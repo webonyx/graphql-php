@@ -2,7 +2,7 @@
 
 namespace GraphQL\Tests\Type;
 
-use GraphQL\Type\BuiltInTypes;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -10,52 +10,30 @@ use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use PHPUnit\Framework\TestCase;
 
-final class BuiltInTypesTest extends TestCase
+final class BuiltInDefinitionsTest extends TestCase
 {
-    /** @var array<string, \GraphQL\Type\Definition\ScalarType> */
-    private static array $originalStandardTypes;
-
-    public static function setUpBeforeClass(): void
-    {
-        self::$originalStandardTypes = Type::getStandardTypes();
-    }
-
-    public function tearDown(): void
-    {
-        parent::tearDown();
-        Type::overrideStandardTypes(self::$originalStandardTypes);
-    }
-
     public function testStandardReturnsSingleton(): void
     {
-        $a = BuiltInTypes::standard();
-        $b = BuiltInTypes::standard();
+        $a = BuiltInDefinitions::standard();
+        $b = BuiltInDefinitions::standard();
         self::assertSame($a, $b);
-    }
-
-    public function testResetStandardClearsSingleton(): void
-    {
-        $before = BuiltInTypes::standard();
-        BuiltInTypes::resetStandard();
-        $after = BuiltInTypes::standard();
-        self::assertNotSame($before, $after);
     }
 
     public function testDefaultInstanceMatchesStaticTypes(): void
     {
-        $builtIn = BuiltInTypes::standard();
+        $builtInDefinitions = BuiltInDefinitions::standard();
 
-        self::assertSame(Type::int(), $builtIn->int());
-        self::assertSame(Type::float(), $builtIn->float());
-        self::assertSame(Type::string(), $builtIn->string());
-        self::assertSame(Type::boolean(), $builtIn->boolean());
-        self::assertSame(Type::id(), $builtIn->id());
+        self::assertSame(Type::int(), $builtInDefinitions->int());
+        self::assertSame(Type::float(), $builtInDefinitions->float());
+        self::assertSame(Type::string(), $builtInDefinitions->string());
+        self::assertSame(Type::boolean(), $builtInDefinitions->boolean());
+        self::assertSame(Type::id(), $builtInDefinitions->id());
     }
 
     public function testTwoInstancesProduceDistinctTypes(): void
     {
-        $a = new BuiltInTypes();
-        $b = new BuiltInTypes();
+        $a = new BuiltInDefinitions();
+        $b = new BuiltInDefinitions();
 
         self::assertNotSame($a->schemaType(), $b->schemaType());
         self::assertNotSame($a->typeType(), $b->typeType());
@@ -70,58 +48,58 @@ final class BuiltInTypesTest extends TestCase
             'serialize' => static fn ($value) => $value,
         ]);
 
-        $builtIn = new BuiltInTypes([Type::STRING => $customString]);
+        $builtInDefinitions = new BuiltInDefinitions([Type::STRING => $customString]);
 
-        self::assertSame($customString, $builtIn->string());
-        self::assertSame($customString, $builtIn->standardTypes()[Type::STRING]);
-        self::assertSame($customString, $builtIn->allTypes()[Type::STRING]);
+        self::assertSame($customString, $builtInDefinitions->string());
+        self::assertSame($customString, $builtInDefinitions->scalarTypes()[Type::STRING]);
+        self::assertSame($customString, $builtInDefinitions->types()[Type::STRING]);
 
-        $typeNameMeta = $builtIn->typeNameMetaFieldDef();
+        $typeNameMeta = $builtInDefinitions->typeNameMetaFieldDef();
         $innerType = Type::getNullableType($typeNameMeta->getType());
         self::assertSame($customString, $innerType);
 
-        $deprecatedDirective = $builtIn->deprecatedDirective();
+        $deprecatedDirective = $builtInDefinitions->deprecatedDirective();
         self::assertSame($customString, $deprecatedDirective->args[0]->getType());
     }
 
-    public function testTwoSchemasWithDifferentBuiltInTypes(): void
+    public function testTwoSchemasWithDifferentBuiltInDefinitions(): void
     {
         $queryType = new ObjectType([
             'name' => 'Query',
             'fields' => ['hello' => Type::string()],
         ]);
 
-        $builtInA = new BuiltInTypes();
-        $builtInB = new BuiltInTypes();
+        $builtInDefinitionsA = new BuiltInDefinitions();
+        $builtInDefinitionsB = new BuiltInDefinitions();
 
         $schemaA = new Schema(
             (new SchemaConfig())
                 ->setQuery($queryType)
-                ->setBuiltInTypes($builtInA)
+                ->setBuiltInDefinitions($builtInDefinitionsA)
                 ->setAssumeValid(true)
         );
 
         $schemaB = new Schema(
             (new SchemaConfig())
                 ->setQuery($queryType)
-                ->setBuiltInTypes($builtInB)
+                ->setBuiltInDefinitions($builtInDefinitionsB)
                 ->setAssumeValid(true)
         );
 
-        self::assertSame($builtInA, $schemaA->getBuiltInTypes());
-        self::assertSame($builtInB, $schemaB->getBuiltInTypes());
-        self::assertNotSame($schemaA->getBuiltInTypes(), $schemaB->getBuiltInTypes());
+        self::assertSame($builtInDefinitionsA, $schemaA->getBuiltInDefinitions());
+        self::assertSame($builtInDefinitionsB, $schemaB->getBuiltInDefinitions());
+        self::assertNotSame($schemaA->getBuiltInDefinitions(), $schemaB->getBuiltInDefinitions());
 
         self::assertNotSame(
-            $schemaA->getBuiltInTypes()->schemaType(),
-            $schemaB->getBuiltInTypes()->schemaType()
+            $schemaA->getBuiltInDefinitions()->schemaType(),
+            $schemaB->getBuiltInDefinitions()->schemaType()
         );
     }
 
     public function testAllTypesContainsScalarsAndIntrospection(): void
     {
-        $builtIn = new BuiltInTypes();
-        $allTypes = $builtIn->allTypes();
+        $builtInDefinitions = new BuiltInDefinitions();
+        $allTypes = $builtInDefinitions->types();
 
         self::assertArrayHasKey('Int', $allTypes);
         self::assertArrayHasKey('String', $allTypes);
@@ -133,8 +111,8 @@ final class BuiltInTypesTest extends TestCase
 
     public function testDirectivesReturnsAllStandard(): void
     {
-        $builtIn = new BuiltInTypes();
-        $directives = $builtIn->directives();
+        $builtInDefinitions = new BuiltInDefinitions();
+        $directives = $builtInDefinitions->directives();
 
         self::assertArrayHasKey('include', $directives);
         self::assertArrayHasKey('skip', $directives);

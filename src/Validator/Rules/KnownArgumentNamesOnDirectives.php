@@ -9,8 +9,8 @@ use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\Argument;
-use GraphQL\Type\Definition\Directive;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
@@ -58,11 +58,13 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
      */
     public function getASTVisitor(ValidationContext $context): array
     {
+        /** @var array<string, array<string>> $directiveArgs */
         $directiveArgs = [];
+
         $schema = $context->getSchema();
         $definedDirectives = $schema !== null
             ? $schema->getDirectives()
-            : Directive::getInternalDirectives();
+            : BuiltInDefinitions::standard()->directives();
 
         foreach ($definedDirectives as $directive) {
             $directiveArgs[$directive->name] = array_map(

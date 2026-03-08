@@ -88,9 +88,9 @@ class ReferenceExecutor implements ExecutorImplementation
         $this->subFieldCache = new \SplObjectStorage();
         $this->fieldArgsCache = new \SplObjectStorage();
 
-        $builtIn = $context->schema->getBuiltInTypes();
-        $this->skipDirective = $builtIn->skipDirective();
-        $this->includeDirective = $builtIn->includeDirective();
+        $builtInDefinitions = $context->schema->getBuiltInDefinitions();
+        $this->skipDirective = $builtInDefinitions->skipDirective();
+        $this->includeDirective = $builtInDefinitions->includeDirective();
     }
 
     /**
@@ -690,10 +690,10 @@ class ReferenceExecutor implements ExecutorImplementation
             return $parentType->findField($fieldName);
         }
 
-        $builtIn = $schema->getBuiltInTypes();
-        $this->schemaMetaFieldDef ??= $builtIn->schemaMetaFieldDef();
-        $this->typeMetaFieldDef ??= $builtIn->typeMetaFieldDef();
-        $this->typeNameMetaFieldDef ??= $builtIn->typeNameMetaFieldDef();
+        $builtInDefinitions = $schema->getBuiltInDefinitions();
+        $this->schemaMetaFieldDef ??= $builtInDefinitions->schemaMetaFieldDef();
+        $this->typeMetaFieldDef ??= $builtInDefinitions->typeMetaFieldDef();
+        $this->typeNameMetaFieldDef ??= $builtInDefinitions->typeNameMetaFieldDef();
 
         $queryType = $schema->getQueryType();
 

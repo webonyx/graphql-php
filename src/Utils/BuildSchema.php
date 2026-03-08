@@ -13,7 +13,7 @@ use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
-use GraphQL\Type\BuiltInTypes;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
@@ -217,25 +217,19 @@ class BuildSchema
             $directiveDefs
         );
 
+        /** @var array<string, true> $directivesByName */
         $directivesByName = [];
         foreach ($directives as $directive) {
-            $directivesByName[$directive->name][] = $directive;
+            $directivesByName[$directive->name] = true;
         }
 
-        $builtIn = BuiltInTypes::standard();
+        $builtInDirectives = BuiltInDefinitions::standard()->directives();
+        foreach ($builtInDirectives as $name => $directive) {
+            if (isset($directivesByName[$name])) {
+                continue;
+            }
 
-        // If specified directives were not explicitly declared, add them.
-        if (! isset($directivesByName['include'])) {
-            $directives[] = $builtIn->includeDirective();
-        }
-        if (! isset($directivesByName['skip'])) {
-            $directives[] = $builtIn->skipDirective();
-        }
-        if (! isset($directivesByName['deprecated'])) {
-            $directives[] = $builtIn->deprecatedDirective();
-        }
-        if (! isset($directivesByName['oneOf'])) {
-            $directives[] = $builtIn->oneOfDirective();
+            $directives[] = $directive;
         }
 
         // Note: While this could make early assertions to get the correctly
@@ -244,15 +238,15 @@ class BuildSchema
         return new Schema(
             (new SchemaConfig())
                 ->setDescription($schemaDef->description->value ?? null)
-            // @phpstan-ignore-next-line
+                // @phpstan-ignore-next-line
                 ->setQuery(isset($operationTypes['query'])
                     ? $definitionBuilder->maybeBuildType($operationTypes['query'])
                     : null)
-            // @phpstan-ignore-next-line
+                // @phpstan-ignore-next-line
                 ->setMutation(isset($operationTypes['mutation'])
                     ? $definitionBuilder->maybeBuildType($operationTypes['mutation'])
                     : null)
-            // @phpstan-ignore-next-line
+                // @phpstan-ignore-next-line
                 ->setSubscription(isset($operationTypes['subscription'])
                     ? $definitionBuilder->maybeBuildType($operationTypes['subscription'])
                     : null)

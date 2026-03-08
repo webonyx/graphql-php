@@ -3,6 +3,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Type\BuiltInDefinitions;
 
 /**
  * @see NamedType
@@ -43,7 +44,7 @@ trait NamedTypeImplementation
 
     public function isBuiltInType(): bool
     {
-        return in_array($this->name, Type::BUILT_IN_TYPE_NAMES, true);
+        return BuiltInDefinitions::isBuiltInType($this);
     }
 
     public function name(): string

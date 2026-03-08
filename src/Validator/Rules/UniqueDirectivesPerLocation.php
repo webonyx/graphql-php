@@ -7,6 +7,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Visitor;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
@@ -47,7 +48,8 @@ class UniqueDirectivesPerLocation extends ValidationRule
         $schema = $context->getSchema();
         $definedDirectives = $schema !== null
             ? $schema->getDirectives()
-            : Directive::getInternalDirectives();
+            : BuiltInDefinitions::standard()->directives();
+
         foreach ($definedDirectives as $directive) {
             if (! $directive->isRepeatable) {
                 $uniqueDirectiveMap[$directive->name] = true;

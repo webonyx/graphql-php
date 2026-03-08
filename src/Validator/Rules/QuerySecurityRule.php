@@ -114,10 +114,10 @@ abstract class QuerySecurityRule extends ValidationRule
 
                 $fieldDef = null;
                 if ($parentType instanceof HasFieldsType) {
-                    $builtIn = $context->getSchema()->getBuiltInTypes();
-                    $schemaMetaFieldDef = $builtIn->schemaMetaFieldDef();
-                    $typeMetaFieldDef = $builtIn->typeMetaFieldDef();
-                    $typeNameMetaFieldDef = $builtIn->typeNameMetaFieldDef();
+                    $builtInDefinitions = $context->getSchema()->getBuiltInDefinitions();
+                    $schemaMetaFieldDef = $builtInDefinitions->schemaMetaFieldDef();
+                    $typeMetaFieldDef = $builtInDefinitions->typeMetaFieldDef();
+                    $typeNameMetaFieldDef = $builtInDefinitions->typeNameMetaFieldDef();
 
                     $queryType = $context->getSchema()->getQueryType();
 

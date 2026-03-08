@@ -10,6 +10,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -368,9 +369,9 @@ abstract class ValidatorTestCase extends TestCase
             'query' => $queryRoot,
             'subscription' => $subscriptionRoot,
             'directives' => [
-                Directive::includeDirective(),
-                Directive::skipDirective(),
-                Directive::deprecatedDirective(),
+                BuiltInDefinitions::standard()->includeDirective(),
+                BuiltInDefinitions::standard()->skipDirective(),
+                BuiltInDefinitions::standard()->deprecatedDirective(),
                 new Directive([
                     'name' => 'directive',
                     'locations' => [DirectiveLocation::FIELD, DirectiveLocation::FRAGMENT_DEFINITION],

@@ -724,7 +724,7 @@ Usage example:
   types?: Types|null,
   directives?: array<Directive>|null,
   typeLoader?: TypeLoader|null,
-  builtInTypes?: BuiltInTypes|null,
+  builtInDefinitions?: BuiltInDefinitions|null,
   assumeValid?: bool|null,
   astNode?: SchemaDefinitionNode|null,
   extensionASTNodes?: array<SchemaExtensionNode>|null,

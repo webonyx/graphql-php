@@ -186,7 +186,7 @@ class SchemaValidationContext
         $error = Utils::isValidNameError($object->name, $object->astNode);
         if (
             $error === null
-            || ($object instanceof Type && Introspection::isIntrospectionType($object))
+            || ($object instanceof Type && BuiltInDefinitions::isIntrospectionType($object))
         ) {
             return;
         }

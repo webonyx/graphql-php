@@ -6,31 +6,68 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Argument;
+use GraphQL\Type\Definition\BooleanType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\FloatType;
+use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\IntType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\ScalarType;
+use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 
-class BuiltInTypes
+class BuiltInDefinitions
 {
+    protected const SCALAR_TYPE_NAMES = [
+        Type::INT,
+        Type::FLOAT,
+        Type::STRING,
+        Type::BOOLEAN,
+        Type::ID,
+    ];
+
+    public const INTROSPECTION_TYPE_NAMES = [
+        Introspection::SCHEMA_OBJECT_NAME,
+        Introspection::TYPE_OBJECT_NAME,
+        Introspection::DIRECTIVE_OBJECT_NAME,
+        Introspection::FIELD_OBJECT_NAME,
+        Introspection::INPUT_VALUE_OBJECT_NAME,
+        Introspection::ENUM_VALUE_OBJECT_NAME,
+        Introspection::TYPE_KIND_ENUM_NAME,
+        Introspection::DIRECTIVE_LOCATION_ENUM_NAME,
+    ];
+
+    public const BUILT_IN_TYPE_NAMES = [
+        ...self::SCALAR_TYPE_NAMES,
+        ...self::INTROSPECTION_TYPE_NAMES,
+    ];
+
+    public const BUILT_IN_DIRECTIVE_NAMES = [
+        Directive::INCLUDE_NAME,
+        Directive::SKIP_NAME,
+        Directive::DEPRECATED_NAME,
+        Directive::ONE_OF_NAME,
+    ];
+
+    /** Singleton containing standard built-in definitions. */
     private static ?self $standard = null;
 
     /** @var array<string, ScalarType> */
-    private array $scalars = [];
+    private array $scalarTypes = [];
 
     private ?ObjectType $schemaTypeInstance = null;
 
@@ -55,15 +92,15 @@ class BuiltInTypes
     private array $directives = [];
 
     /** @var array<string, Type&NamedType>|null */
-    private ?array $allTypesCache = null;
+    private ?array $typesCache = null;
 
     /** @var array<string, ScalarType> */
-    private array $standardTypeOverrides;
+    private array $scalarTypeOverrides;
 
-    /** @param array<string, ScalarType> $standardTypeOverrides */
-    public function __construct(array $standardTypeOverrides = [])
+    /** @param array<string, ScalarType> $scalarTypeOverrides */
+    public function __construct(array $scalarTypeOverrides = [])
     {
-        $this->standardTypeOverrides = $standardTypeOverrides;
+        $this->scalarTypeOverrides = $scalarTypeOverrides;
     }
 
     public static function standard(): self
@@ -71,38 +108,81 @@ class BuiltInTypes
         return self::$standard ??= new self();
     }
 
-    public static function resetStandard(): void
+    /** @param array<ScalarType> $types */
+    public static function overrideScalarTypes(array $types): void
     {
-        self::$standard = null;
+        // Preserve non-overridden scalar instances from the current standard.
+        $scalarOverrides = self::$standard !== null
+            ? self::$standard->scalarTypes()
+            : [];
+
+        foreach ($types as $type) {
+            // @phpstan-ignore-next-line generic type is not enforced by PHP
+            if (! $type instanceof ScalarType) {
+                $typeClass = ScalarType::class;
+                $notType = Utils::printSafe($type);
+                throw new InvariantViolation("Expecting instance of {$typeClass}, got {$notType}");
+            }
+
+            if (! in_array($type->name, self::SCALAR_TYPE_NAMES, true)) {
+                $builtInScalarNames = implode(', ', self::SCALAR_TYPE_NAMES);
+                $notBuiltInName = Utils::printSafe($type->name);
+                throw new InvariantViolation("Expecting one of the following names for a built-in scalar type: {$builtInScalarNames}; got {$notBuiltInName}"); // @phpstan-ignore missingType.checkedException (validation is part of the public contract)
+            }
+
+            $scalarOverrides[$type->name] = $type;
+        }
+
+        self::$standard = new self($scalarOverrides);
+    }
+
+    public static function isIntrospectionType(NamedType $type): bool
+    {
+        return in_array($type->name, self::INTROSPECTION_TYPE_NAMES, true);
+    }
+
+    public static function isBuiltInDirective(Directive $directive): bool
+    {
+        return in_array($directive->name, self::BUILT_IN_DIRECTIVE_NAMES, true);
     }
 
     public function int(): ScalarType
     {
-        return $this->scalars[Type::INT] ??= $this->standardTypeOverrides[Type::INT] ?? Type::int();
+        return $this->scalarTypes[Type::INT]
+            ??= $this->scalarTypeOverrides[Type::INT]
+            ?? new IntType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     public function float(): ScalarType
     {
-        return $this->scalars[Type::FLOAT] ??= $this->standardTypeOverrides[Type::FLOAT] ?? Type::float();
+        return $this->scalarTypes[Type::FLOAT]
+            ??= $this->scalarTypeOverrides[Type::FLOAT]
+            ?? new FloatType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     public function string(): ScalarType
     {
-        return $this->scalars[Type::STRING] ??= $this->standardTypeOverrides[Type::STRING] ?? Type::string();
+        return $this->scalarTypes[Type::STRING]
+            ??= $this->scalarTypeOverrides[Type::STRING]
+            ?? new StringType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     public function boolean(): ScalarType
     {
-        return $this->scalars[Type::BOOLEAN] ??= $this->standardTypeOverrides[Type::BOOLEAN] ?? Type::boolean();
+        return $this->scalarTypes[Type::BOOLEAN]
+            ??= $this->scalarTypeOverrides[Type::BOOLEAN]
+            ?? new BooleanType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     public function id(): ScalarType
     {
-        return $this->scalars[Type::ID] ??= $this->standardTypeOverrides[Type::ID] ?? Type::id();
+        return $this->scalarTypes[Type::ID]
+            ??= $this->scalarTypeOverrides[Type::ID]
+            ?? new IDType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     /** @return array<string, ScalarType> */
-    public function standardTypes(): array
+    public function scalarTypes(): array
     {
         return [
             Type::INT => $this->int(),
@@ -111,6 +191,16 @@ class BuiltInTypes
             Type::BOOLEAN => $this->boolean(),
             Type::ID => $this->id(),
         ];
+    }
+
+    public static function isBuiltInTypeName(string $name): bool
+    {
+        return in_array($name, BuiltInDefinitions::BUILT_IN_TYPE_NAMES, true);
+    }
+
+    public static function isBuiltInType(NamedType $type): bool
+    {
+        return in_array($type->name, BuiltInDefinitions::BUILT_IN_TYPE_NAMES, true);
     }
 
     public function schemaType(): ObjectType
@@ -773,11 +863,11 @@ class BuiltInTypes
     }
 
     /** @return array<string, Type&NamedType> */
-    public function allTypes(): array
+    public function types(): array
     {
-        return $this->allTypesCache ??= array_merge(
+        return $this->typesCache ??= array_merge(
             $this->introspectionTypes(),
-            $this->standardTypes()
+            $this->scalarTypes()
         );
     }
 }

@@ -24,6 +24,7 @@ use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use GraphQL\Tests\TestCaseBase;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
@@ -36,7 +37,6 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
-use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
@@ -279,10 +279,10 @@ final class BuildSchemaTest extends TestCaseBase
 
         // TODO switch to 5 when adding @specifiedBy - see https://github.com/webonyx/graphql-php/issues/1140
         self::assertCount(4, $schema->getDirectives());
-        self::assertSame(Directive::skipDirective(), $schema->getDirective('skip'));
-        self::assertSame(Directive::includeDirective(), $schema->getDirective('include'));
-        self::assertSame(Directive::deprecatedDirective(), $schema->getDirective('deprecated'));
-        self::assertSame(Directive::oneOfDirective(), $schema->getDirective('oneOf'));
+        self::assertSame(BuiltInDefinitions::standard()->skipDirective(), $schema->getDirective('skip'));
+        self::assertSame(BuiltInDefinitions::standard()->includeDirective(), $schema->getDirective('include'));
+        self::assertSame(BuiltInDefinitions::standard()->deprecatedDirective(), $schema->getDirective('deprecated'));
+        self::assertSame(BuiltInDefinitions::standard()->oneOfDirective(), $schema->getDirective('oneOf'));
 
         self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/1140');
         self::assertSame(Directive::specifiedByDirective(), $schema->getDirective('specifiedBy'));
@@ -299,10 +299,10 @@ final class BuildSchemaTest extends TestCaseBase
         '));
 
         self::assertCount(5, $schema->getDirectives());
-        self::assertNotEquals(Directive::skipDirective(), $schema->getDirective('skip'));
-        self::assertNotEquals(Directive::includeDirective(), $schema->getDirective('include'));
-        self::assertNotEquals(Directive::deprecatedDirective(), $schema->getDirective('deprecated'));
-        self::assertSame(Directive::oneOfDirective(), $schema->getDirective('oneOf'));
+        self::assertNotEquals(BuiltInDefinitions::standard()->skipDirective(), $schema->getDirective('skip'));
+        self::assertNotEquals(BuiltInDefinitions::standard()->includeDirective(), $schema->getDirective('include'));
+        self::assertNotEquals(BuiltInDefinitions::standard()->deprecatedDirective(), $schema->getDirective('deprecated'));
+        self::assertSame(BuiltInDefinitions::standard()->oneOfDirective(), $schema->getDirective('oneOf'));
 
         self::markTestIncomplete('See https://github.com/webonyx/graphql-php/issues/1140');
         self::assertNotEquals(Directive::specifiedByDirective(), $schema->getDirective('specifiedBy'));
@@ -1263,7 +1263,7 @@ final class BuildSchemaTest extends TestCaseBase
         ');
 
         self::assertSame(Type::id(), $schema->getType('ID'));
-        self::assertSame(Introspection::_schema(), $schema->getType('__Schema'));
+        self::assertSame(BuiltInDefinitions::standard()->schemaType(), $schema->getType('__Schema'));
     }
 
     /** @see it('Allows to reference introspection types') */
@@ -1280,7 +1280,7 @@ final class BuildSchemaTest extends TestCaseBase
         $type = $queryType->getField('introspectionField')->getType();
         self::assertInstanceOf(ObjectType::class, $type);
         self::assertSame('__EnumValue', $type->name);
-        self::assertSame(Introspection::_enumValue(), $schema->getType('__EnumValue'));
+        self::assertSame(BuiltInDefinitions::standard()->enumValueType(), $schema->getType('__EnumValue'));
     }
 
     /** @see it('Rejects invalid SDL') */

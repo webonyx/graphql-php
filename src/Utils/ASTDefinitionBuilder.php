@@ -29,6 +29,7 @@ use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\AST\TypeNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -81,7 +82,7 @@ class ASTDefinitionBuilder
     private $fieldConfigDecorator;
 
     /** @var array<string, Type&NamedType> */
-    private array $cache;
+    private array $typeMap;
 
     /** @var array<string, array<int, Node&TypeExtensionNode>> */
     private array $typeExtensionsMap;
@@ -108,7 +109,7 @@ class ASTDefinitionBuilder
         $this->typeConfigDecorator = $typeConfigDecorator;
         $this->fieldConfigDecorator = $fieldConfigDecorator;
 
-        $this->cache = Type::builtInTypes();
+        $this->typeMap = BuiltInDefinitions::standard()->types();
     }
 
     /** @throws \Exception */
@@ -259,8 +260,8 @@ class ASTDefinitionBuilder
      */
     private function internalBuildType(string $typeName, ?Node $typeNode = null): Type
     {
-        if (isset($this->cache[$typeName])) {
-            return $this->cache[$typeName];
+        if (isset($this->typeMap[$typeName])) {
+            return $this->typeMap[$typeName];
         }
 
         if (isset($this->typeDefinitionsMap[$typeName])) {
@@ -288,10 +289,10 @@ class ASTDefinitionBuilder
                 $type = $this->makeSchemaDefFromConfig($this->typeDefinitionsMap[$typeName], $config);
             }
 
-            return $this->cache[$typeName] = $type;
+            return $this->typeMap[$typeName] = $type;
         }
 
-        return $this->cache[$typeName] = ($this->resolveType)($typeName, $typeNode);
+        return $this->typeMap[$typeName] = ($this->resolveType)($typeName, $typeNode);
     }
 
     /**
@@ -409,7 +410,7 @@ class ASTDefinitionBuilder
     private function getDeprecationReason(Node $node): ?string
     {
         $deprecated = Values::getDirectiveValues(
-            Directive::deprecatedDirective(),
+            BuiltInDefinitions::standard()->deprecatedDirective(),
             $node
         );
 
@@ -547,7 +548,7 @@ class ASTDefinitionBuilder
         /** @var array<InputObjectTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
         $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
 
-        $oneOfDirective = Directive::oneOfDirective();
+        $oneOfDirective = BuiltInDefinitions::standard()->oneOfDirective();
 
         // Check for @oneOf directive in the definition node
         $isOneOf = Values::getDirectiveValues($oneOfDirective, $def) !== null;

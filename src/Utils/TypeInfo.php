@@ -33,6 +33,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
+use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 
 class TypeInfo
@@ -337,21 +338,26 @@ class TypeInfo
     private static function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode): ?FieldDefinition
     {
         $name = $fieldNode->name->value;
-        $builtIn = $schema->getBuiltInTypes();
 
-        $schemaMeta = $builtIn->schemaMetaFieldDef();
-        if ($name === $schemaMeta->name && $schema->getQueryType() === $parentType) {
-            return $schemaMeta;
+        if ($name === Introspection::SCHEMA_FIELD_NAME
+            && $schema->getQueryType() === $parentType
+        ) {
+            return $schema->getBuiltInDefinitions()
+                ->schemaMetaFieldDef();
         }
 
-        $typeMeta = $builtIn->typeMetaFieldDef();
-        if ($name === $typeMeta->name && $schema->getQueryType() === $parentType) {
-            return $typeMeta;
+        if ($name === Introspection::TYPE_FIELD_NAME
+            && $schema->getQueryType() === $parentType
+        ) {
+            return $schema->getBuiltInDefinitions()
+                ->typeMetaFieldDef();
         }
 
-        $typeNameMeta = $builtIn->typeNameMetaFieldDef();
-        if ($name === $typeNameMeta->name && $parentType instanceof CompositeType) {
-            return $typeNameMeta;
+        if ($name === Introspection::TYPE_NAME_FIELD_NAME
+            && $parentType instanceof CompositeType
+        ) {
+            return $schema->getBuiltInDefinitions()
+                ->typeNameMetaFieldDef();
         }
 
         if (

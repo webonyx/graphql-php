@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Language\DirectiveLocation;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -1161,7 +1162,7 @@ final class BreakingChangesFinderTest extends TestCase
             ],
         ]);
 
-        $directiveThatIsRemoved = Directive::skipDirective();
+        $directiveThatIsRemoved = BuiltInDefinitions::standard()->skipDirective();
         $directiveThatRemovesArgOld = new Directive([
             'name' => 'DirectiveThatRemovesArg',
             'locations' => [DirectiveLocation::FIELD_DEFINITION],
@@ -1303,14 +1304,14 @@ final class BreakingChangesFinderTest extends TestCase
     public function testShouldDetectIfADirectiveWasExplicitlyRemoved(): void
     {
         $oldSchema = new Schema([
-            'directives' => [Directive::skipDirective(), Directive::includeDirective()],
+            'directives' => [BuiltInDefinitions::standard()->skipDirective(), BuiltInDefinitions::standard()->includeDirective()],
         ]);
 
         $newSchema = new Schema([
-            'directives' => [Directive::skipDirective()],
+            'directives' => [BuiltInDefinitions::standard()->skipDirective()],
         ]);
 
-        $includeDirective = Directive::includeDirective();
+        $includeDirective = BuiltInDefinitions::standard()->includeDirective();
 
         self::assertEquals(
             [
@@ -1329,11 +1330,11 @@ final class BreakingChangesFinderTest extends TestCase
         $oldSchema = new Schema([]);
 
         $newSchema = new Schema([
-            'directives' => [Directive::skipDirective(), Directive::includeDirective()],
+            'directives' => [BuiltInDefinitions::standard()->skipDirective(), BuiltInDefinitions::standard()->includeDirective()],
         ]);
 
-        $deprecatedDirective = Directive::deprecatedDirective();
-        $oneOfDirective = Directive::oneOfDirective();
+        $deprecatedDirective = BuiltInDefinitions::standard()->deprecatedDirective();
+        $oneOfDirective = BuiltInDefinitions::standard()->oneOfDirective();
 
         self::assertEquals(
             [

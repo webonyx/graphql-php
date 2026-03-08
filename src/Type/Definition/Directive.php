@@ -3,7 +3,6 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\DirectiveDefinitionNode;
-use GraphQL\Type\BuiltInTypes;
 
 /**
  * @phpstan-import-type ArgumentListConfig from Argument
@@ -66,41 +65,5 @@ class Directive
         $this->astNode = $config['astNode'] ?? null;
 
         $this->config = $config;
-    }
-
-    /** @return array<string, Directive> */
-    public static function getInternalDirectives(): array
-    {
-        return BuiltInTypes::standard()->directives();
-    }
-
-    public static function includeDirective(): Directive
-    {
-        return BuiltInTypes::standard()->includeDirective();
-    }
-
-    public static function skipDirective(): Directive
-    {
-        return BuiltInTypes::standard()->skipDirective();
-    }
-
-    public static function deprecatedDirective(): Directive
-    {
-        return BuiltInTypes::standard()->deprecatedDirective();
-    }
-
-    public static function oneOfDirective(): Directive
-    {
-        return BuiltInTypes::standard()->oneOfDirective();
-    }
-
-    public static function isSpecifiedDirective(Directive $directive): bool
-    {
-        return array_key_exists($directive->name, self::getInternalDirectives());
-    }
-
-    public static function resetCachedInstances(): void
-    {
-        BuiltInTypes::resetStandard();
     }
 }

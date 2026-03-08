@@ -5,6 +5,7 @@ namespace GraphQL\Utils;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Parser;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -109,7 +110,7 @@ class BuildClientSchema
 
         $schemaIntrospection = $this->introspection['__schema'];
 
-        $builtInTypes = Type::builtInTypes();
+        $builtInTypes = BuiltInDefinitions::standard()->types();
 
         foreach ($schemaIntrospection['types'] as $typeIntrospection) {
             if (! isset($typeIntrospection['name'])) {

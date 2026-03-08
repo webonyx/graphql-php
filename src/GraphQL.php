@@ -12,6 +12,7 @@ use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
@@ -188,7 +189,7 @@ class GraphQL
      */
     public static function getStandardDirectives(): array
     {
-        return Directive::getInternalDirectives();
+        return BuiltInDefinitions::standard()->directives();
     }
 
     /**
@@ -202,7 +203,7 @@ class GraphQL
      */
     public static function getStandardTypes(): array
     {
-        return Type::getStandardTypes();
+        return BuiltInDefinitions::standard()->scalarTypes();
     }
 
     /**
@@ -218,7 +219,7 @@ class GraphQL
      */
     public static function overrideStandardTypes(array $types): void
     {
-        Type::overrideStandardTypes($types);
+        BuiltInDefinitions::overrideScalarTypes($types);
     }
 
     /**

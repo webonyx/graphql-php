@@ -8,6 +8,7 @@ use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\BlockString;
 use GraphQL\Language\Printer;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\Argument;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -22,7 +23,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
-use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 
 /**
@@ -58,7 +58,7 @@ class SchemaPrinter
     {
         return static::printFilteredSchema(
             $schema,
-            static fn (Directive $directive): bool => ! Directive::isSpecifiedDirective($directive),
+            static fn (Directive $directive): bool => ! BuiltInDefinitions::isBuiltInDirective($directive),
             static fn (NamedType $type): bool => ! $type->isBuiltInType(),
             $options
         );
@@ -80,8 +80,8 @@ class SchemaPrinter
     {
         return static::printFilteredSchema(
             $schema,
-            [Directive::class, 'isSpecifiedDirective'],
-            [Introspection::class, 'isIntrospectionType'],
+            [BuiltInDefinitions::class, 'isBuiltInDirective'],
+            [BuiltInDefinitions::class, 'isIntrospectionType'],
             $options
         );
     }

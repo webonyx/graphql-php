@@ -8,7 +8,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeSystemDefinitionNode;
 use GraphQL\Language\AST\TypeSystemExtensionNode;
-use GraphQL\Type\Definition\Type;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\QueryValidationContext;
 use GraphQL\Validator\SDLValidationContext;
@@ -60,7 +60,7 @@ class KnownTypeNames extends ValidationRule
 
                 $definitionNode = $ancestors[2] ?? $parent;
                 $isSDL = $definitionNode instanceof TypeSystemDefinitionNode || $definitionNode instanceof TypeSystemExtensionNode;
-                if ($isSDL && in_array($typeName, Type::BUILT_IN_TYPE_NAMES, true)) {
+                if ($isSDL && BuiltInDefinitions::isBuiltInTypeName($typeName)) {
                     return;
                 }
 
@@ -77,7 +77,7 @@ class KnownTypeNames extends ValidationRule
                         Utils::suggestionList(
                             $typeName,
                             $isSDL
-                                ? [...Type::BUILT_IN_TYPE_NAMES, ...$typeNames]
+                                ? [...BuiltInDefinitions::BUILT_IN_TYPE_NAMES, ...$typeNames]
                                 : $typeNames
                         )
                     ),

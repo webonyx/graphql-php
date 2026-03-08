@@ -17,6 +17,7 @@ use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Introspection;
@@ -197,7 +198,7 @@ class QueryComplexity extends QuerySecurityRule
 
             if ($directiveNode->name->value === Directive::INCLUDE_NAME) {
                 $includeArguments = Values::getArgumentValues(
-                    Directive::includeDirective(),
+                    BuiltInDefinitions::standard()->includeDirective(),
                     $directiveNode,
                     $variableValues
                 );
@@ -208,7 +209,7 @@ class QueryComplexity extends QuerySecurityRule
 
             if ($directiveNode->name->value === Directive::SKIP_NAME) {
                 $skipArguments = Values::getArgumentValues(
-                    Directive::skipDirective(),
+                    BuiltInDefinitions::standard()->skipDirective(),
                     $directiveNode,
                     $variableValues
                 );

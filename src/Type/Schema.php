@@ -62,7 +62,7 @@ class Schema
      */
     private array $implementationsMap;
 
-    private BuiltInTypes $builtInTypes;
+    private BuiltInDefinitions $builtInDefinitions;
 
     /** True when $resolvedTypes contains all possible schema types. */
     private bool $fullyLoaded = false;
@@ -101,7 +101,7 @@ class Schema
         $this->description = $config->description;
         $this->astNode = $config->astNode;
         $this->extensionASTNodes = $config->extensionASTNodes;
-        $this->builtInTypes = $config->builtInTypes ?? BuiltInTypes::standard();
+        $this->builtInDefinitions = $config->builtInDefinitions ?? BuiltInDefinitions::standard();
 
         $this->config = $config;
     }
@@ -166,7 +166,7 @@ class Schema
                     TypeInfo::extractTypesFromDirectives($directive, $allReferencedTypes);
                 }
             }
-            TypeInfo::extractTypes($this->builtInTypes->schemaType(), $allReferencedTypes);
+            TypeInfo::extractTypes($this->builtInDefinitions->schemaType(), $allReferencedTypes);
 
             $this->resolvedTypes = $allReferencedTypes;
             $this->fullyLoaded = true;
@@ -186,7 +186,8 @@ class Schema
      */
     public function getDirectives(): array
     {
-        return $this->config->directives ?? array_values($this->builtInTypes->directives());
+        return $this->config->directives
+            ?? $this->builtInDefinitions->directives();
     }
 
     /** @param mixed $typeLoaderReturn could be anything */
@@ -274,9 +275,9 @@ class Schema
         return $subscription;
     }
 
-    public function getBuiltInTypes(): BuiltInTypes
+    public function getBuiltInDefinitions(): BuiltInDefinitions
     {
-        return $this->builtInTypes;
+        return $this->builtInDefinitions;
     }
 
     /** @api */
@@ -300,9 +301,9 @@ class Schema
             return $this->resolvedTypes[$name];
         }
 
-        $builtIn = $this->builtInTypes->allTypes();
-        if (isset($builtIn[$name])) {
-            return $builtIn[$name];
+        $builtInTypes = $this->builtInDefinitions->types();
+        if (isset($builtInTypes[$name])) {
+            return $builtInTypes[$name];
         }
 
         $type = $this->loadType($name);
@@ -513,9 +514,8 @@ class Schema
             throw new InvariantViolation(implode("\n\n", $this->validationErrors));
         }
 
-        $internalTypes = $this->builtInTypes->allTypes();
         foreach ($this->getTypeMap() as $name => $type) {
-            if (isset($internalTypes[$name])) {
+            if ($type->isBuiltInType()) {
                 continue;
             }
 
