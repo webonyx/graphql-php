@@ -95,6 +95,39 @@ final class BuiltInDefinitionsTest extends TestCase
         );
     }
 
+    public function testCorrectScalarOverrideWorksEndToEnd(): void
+    {
+        $upperString = new CustomScalarType([
+            'name' => Type::STRING,
+            'serialize' => static fn ($value) => strtoupper((string) $value),
+        ]);
+
+        $builtInDefs = new BuiltInDefinitions([Type::STRING => $upperString]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'greeting' => [
+                    'type' => $builtInDefs->string(), // use the instance, not the singleton
+                    'resolve' => static fn (): string => 'hello world',
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(
+            (new SchemaConfig())
+                ->setQuery($queryType)
+                ->setBuiltInDefinitions($builtInDefs)
+        );
+
+        $schema->assertValid();
+
+        $result = GraphQL::executeQuery($schema, '{ greeting }');
+        self::assertSame([], $result->errors);
+        assert(is_array($result->data));
+        self::assertSame('HELLO WORLD', $result->data['greeting']);
+    }
+
     /**
      * The type isolation case — no scalar overrides, just fresh BuiltInDefinitions instances
      * for each schema — already breaks at runtime when setAssumeValid(true) is used to skip
