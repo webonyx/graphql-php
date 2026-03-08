@@ -902,6 +902,24 @@ final class ExecutorTest extends TestCase
         self::assertSame(['data' => []], $mutationResult->toArray());
     }
 
+    public function testResolvesFieldsWithSingleUnderscorePrefix(): void
+    {
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    '_privateField' => [
+                        'type' => Type::string(),
+                        'resolve' => static fn (): string => 'secret',
+                    ],
+                ],
+            ]),
+        ]);
+
+        $result = Executor::execute($schema, Parser::parse('{ _privateField }'));
+        self::assertSame(['data' => ['_privateField' => 'secret']], $result->toArray());
+    }
+
     /** @see it('does not include arguments that were not set') */
     public function testDoesNotIncludeArgumentsThatWereNotSet(): void
     {

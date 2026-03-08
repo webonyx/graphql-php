@@ -17,6 +17,7 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Definition\AbstractType;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\LeafType;
@@ -73,6 +74,10 @@ class ReferenceExecutor implements ExecutorImplementation
 
     protected FieldDefinition $typeNameMetaFieldDef;
 
+    protected Directive $skipDirective;
+
+    protected Directive $includeDirective;
+
     protected function __construct(ExecutionContext $context)
     {
         if (! isset(static::$UNDEFINED)) {
@@ -82,6 +87,10 @@ class ReferenceExecutor implements ExecutorImplementation
         $this->exeContext = $context;
         $this->subFieldCache = new \SplObjectStorage();
         $this->fieldArgsCache = new \SplObjectStorage();
+
+        $builtIn = $context->schema->getBuiltInTypes();
+        $this->skipDirective = $builtIn->skipDirective();
+        $this->includeDirective = $builtIn->includeDirective();
     }
 
     /**
@@ -464,22 +473,12 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         $variableValues = $this->exeContext->variableValues;
 
-        $builtIn = $this->exeContext->schema->getBuiltInTypes();
-
-        $skip = Values::getDirectiveValues(
-            $builtIn->skipDirective(),
-            $node,
-            $variableValues
-        );
+        $skip = Values::getDirectiveValues($this->skipDirective, $node, $variableValues);
         if (isset($skip['if']) && $skip['if'] === true) {
             return false;
         }
 
-        $include = Values::getDirectiveValues(
-            $builtIn->includeDirective(),
-            $node,
-            $variableValues
-        );
+        $include = Values::getDirectiveValues($this->includeDirective, $node, $variableValues);
 
         return ! isset($include['if']) || $include['if'] !== false;
     }
@@ -684,6 +683,13 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected function getFieldDef(Schema $schema, ObjectType $parentType, string $fieldName): ?FieldDefinition
     {
+        // Only `__`-prefixed names are reserved for introspection meta-fields (__schema, __type, __typename).
+        // https://spec.graphql.org/October2021/#sec-Reserved-Names
+        // Skipping this check for all other fields avoids the cost of lazy-initializing the built-in meta-field definitions.
+        if (($fieldName[0] ?? '') !== '_' || ($fieldName[1] ?? '') !== '_') {
+            return $parentType->findField($fieldName);
+        }
+
         $builtIn = $schema->getBuiltInTypes();
         $this->schemaMetaFieldDef ??= $builtIn->schemaMetaFieldDef();
         $this->typeMetaFieldDef ??= $builtIn->typeMetaFieldDef();

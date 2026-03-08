@@ -54,6 +54,9 @@ class BuiltInTypes
     /** @var array<string, Directive> */
     private array $directives = [];
 
+    /** @var array<string, Type&NamedType>|null */
+    private ?array $allTypesCache = null;
+
     /** @var array<string, ScalarType> */
     private array $standardTypeOverrides;
 
@@ -772,7 +775,7 @@ class BuiltInTypes
     /** @return array<string, Type&NamedType> */
     public function allTypes(): array
     {
-        return array_merge(
+        return $this->allTypesCache ??= array_merge(
             $this->introspectionTypes(),
             $this->standardTypes()
         );
