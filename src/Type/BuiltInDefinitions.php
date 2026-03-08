@@ -198,6 +198,11 @@ class BuiltInDefinitions
         return in_array($name, BuiltInDefinitions::BUILT_IN_TYPE_NAMES, true);
     }
 
+    public static function isBuiltInScalarName(string $name): bool
+    {
+        return in_array($name, self::SCALAR_TYPE_NAMES, true);
+    }
+
     public static function isBuiltInType(NamedType $type): bool
     {
         return in_array($type->name, BuiltInDefinitions::BUILT_IN_TYPE_NAMES, true);

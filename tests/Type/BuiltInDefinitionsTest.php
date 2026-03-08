@@ -128,18 +128,7 @@ final class BuiltInDefinitionsTest extends TestCase
         self::assertSame('HELLO WORLD', $result->data['greeting']);
     }
 
-    /**
-     * The type isolation case — no scalar overrides, just fresh BuiltInDefinitions instances
-     * for each schema — already breaks at runtime when setAssumeValid(true) is used to skip
-     * validation. A field typed via Type::string() holds the global singleton StringType,
-     * but the schema's BuiltInDefinitions owns a different StringType instance. The executor
-     * detects the mismatch and rejects the field with a "Found duplicate type" error.
-     *
-     * This is the scenario described in https://github.com/webonyx/graphql-php/issues/1424:
-     * schemas that should be independent still collide through built-in type instances.
-     *
-     * This test documents that failure. It should pass once the issue is resolved.
-     */
+    /** @see https://github.com/webonyx/graphql-php/issues/1424 */
     public function testIsolatedSchemaFailsAtRuntime(): void
     {
         $queryType = new ObjectType([
@@ -161,9 +150,6 @@ final class BuiltInDefinitionsTest extends TestCase
 
         $result = GraphQL::executeQuery($schema, '{ hello }');
 
-        // Expects no errors and hello => 'world'.
-        // Actual: field error "Found duplicate type in schema at Query.hello: String"
-        // because Type::string() (singleton) != new BuiltInDefinitions()->string() (fresh instance).
         self::assertSame([], $result->errors);
         assert(is_array($result->data));
         self::assertSame('world', $result->data['hello']);
@@ -194,16 +180,7 @@ final class BuiltInDefinitionsTest extends TestCase
         self::assertCount(4, $directives);
     }
 
-    /**
-     * In production PHP (zend.assertions = -1), the executor's runtime type-identity
-     * assert() at ReferenceExecutor.php is compiled out. setAssumeValid(true) already
-     * skips schema validation. With both disabled, execution completes without error —
-     * but silently uses the singleton StringType's serialize(), not the custom one.
-     * The result is wrong and there is no indication that the override was ignored.
-     *
-     * This test simulates that scenario by disabling assert.active at runtime.
-     * It documents that failure. It should pass once the issue is resolved.
-     */
+    /** Scalar override must take effect even with assertions disabled and validation skipped. */
     public function testNaiveScalarOverrideIsIgnoredSilentlyInProduction(): void
     {
         $upperString = new CustomScalarType([
@@ -240,24 +217,12 @@ final class BuiltInDefinitionsTest extends TestCase
             @ini_set('assert.active', $prevAssertActive);
         }
 
-        // No errors — setAssumeValid skips schema validation and the disabled assert
-        // suppresses the executor's runtime identity check. Execution "succeeds".
         self::assertSame([], $result->errors);
         assert(is_array($result->data));
-        // Expects 'HELLO WORLD' from the custom String serializer.
-        // Actual: 'hello world' — the field holds a reference to the singleton StringType,
-        // which is what the executor calls serialize() on. The override is silently lost.
         self::assertSame('HELLO WORLD', $result->data['greeting']);
     }
 
-    /**
-     * A user naturally reaches for Type::string() when defining fields — the same way every
-     * example and doc in this repository does. When they pair that with a BuiltInDefinitions
-     * override they expect the custom scalar to take effect. Instead, schema validation blows
-     * up because two different StringType instances with the same name end up in the type map.
-     *
-     * This test documents that failure. It should pass once the issue is resolved.
-     */
+    /** Scalar override via BuiltInDefinitions must not break validation when fields use Type::string(). */
     public function testNaiveScalarOverridePassesValidation(): void
     {
         $upperString = new CustomScalarType([
@@ -278,22 +243,11 @@ final class BuiltInDefinitionsTest extends TestCase
                 ->setBuiltInDefinitions($builtInDefs)
         );
 
-        // Fails: "Schema must contain unique named types but contains multiple types named "String""
         $schema->assertValid();
+        self::assertSame($upperString, $schema->getType(Type::STRING));
     }
 
-    /**
-     * Even when validation is skipped, the custom String scalar is never invoked at runtime.
-     * Fields defined via Type::string() hold a direct reference to the singleton StringType.
-     * The executor detects that the field's type instance differs from the schema's String
-     * (the two instances have the same name but are not identical), and rejects the field
-     * with: "Found duplicate type in schema at Query.greeting: String.".
-     *
-     * The field resolves to null with a GraphQL error — not even falling back to the
-     * singleton's standard serialization, let alone invoking the custom one.
-     *
-     * This test documents that failure. It should pass once the issue is resolved.
-     */
+    /** Scalar override must work at runtime even when fields use Type::string(). */
     public function testNaiveScalarOverrideIsUsedAtRuntime(): void
     {
         $upperString = new CustomScalarType([
@@ -322,9 +276,6 @@ final class BuiltInDefinitionsTest extends TestCase
 
         $result = GraphQL::executeQuery($schema, '{ greeting }');
 
-        // Expects no errors and 'HELLO WORLD' from the custom String serializer.
-        // Actual: field error "Found duplicate type in schema at Query.greeting: String"
-        // and greeting => null, because the executor sees two different StringType instances.
         self::assertSame([], $result->errors);
         assert(is_array($result->data));
         self::assertSame('HELLO WORLD', $result->data['greeting']);

@@ -5,9 +5,9 @@
  *
  * Run: php examples/06-per-schema-scalar-override/example.php
  *
- * The key pattern: pass a BuiltInDefinitions instance to SchemaConfig and use
- * that same instance's scalar accessors in field definitions — never Type::string()
- * or other static singleton accessors.
+ * Register a custom scalar with the same name as a built-in (e.g. "String")
+ * via BuiltInDefinitions, and the schema transparently uses it — even for
+ * fields that reference the global Type::string() singleton.
  */
 
 require_once __DIR__ . '/../../vendor/autoload.php';
@@ -16,12 +16,10 @@ use GraphQL\GraphQL;
 use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 
-// A custom String scalar that trims leading/trailing whitespace on serialization.
 $trimmedString = new CustomScalarType([
     'name' => Type::STRING,
     'serialize' => static fn (mixed $value): string => trim((string) $value),
@@ -31,52 +29,26 @@ $trimmedString = new CustomScalarType([
 
 $builtInDefs = new BuiltInDefinitions([Type::STRING => $trimmedString]);
 
-/**
- * Instance-based type registry that threads BuiltInDefinitions through all type
- * definitions.
- * Each type accessor that returns a string field must delegate to
- * $this->builtInDefs->string() rather than Type::string(), so every field in
- * the schema references the same scalar instance that was registered with the
- * schema.
- */
-final class TypeRegistry
-{
-    /** @var array<string, ObjectType> */
-    private array $cache = [];
-
-    public function __construct(private readonly BuiltInDefinitions $builtInDefs) {}
-
-    public function string(): ScalarType
-    {
-        return $this->builtInDefs->string();
-    }
-
-    public function user(): ObjectType
-    {
-        return $this->cache['User'] ??= new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
-            'name' => 'User',
-            'fields' => fn (): array => [
-                'name' => ['type' => $this->string()],
-                'email' => ['type' => $this->string()],
-            ],
-        ]);
-    }
-}
-
-$registry = new TypeRegistry($builtInDefs);
+$userType = new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
+    'name' => 'User',
+    'fields' => [
+        'name' => Type::string(),
+        'email' => Type::string(),
+    ],
+]);
 
 $queryType = new ObjectType([
     'name' => 'Query',
     'fields' => [
         'user' => [
-            'type' => $registry->user(),
+            'type' => $userType,
             'resolve' => static fn (): array => [
                 'name' => '  Alice  ',
                 'email' => '  alice@example.com  ',
             ],
         ],
         'greeting' => [
-            'type' => $registry->string(),
+            'type' => Type::string(),
             'resolve' => static fn (): string => '  hello world  ',
         ],
     ],

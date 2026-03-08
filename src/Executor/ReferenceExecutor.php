@@ -16,6 +16,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionNode;
 use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Type\BuiltInDefinitions;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
@@ -918,11 +919,21 @@ class ReferenceExecutor implements ExecutorImplementation
         // Account for invalid schema definition when typeLoader returns different
         // instance than `resolveType` or $field->getType() or $arg->getType()
         assert(
-            $returnType === $this->exeContext->schema->getType($returnType->name),
+            $returnType === $this->exeContext->schema->getType($returnType->name)
+            || BuiltInDefinitions::isBuiltInScalarName($returnType->name),
             SchemaValidationContext::duplicateType($this->exeContext->schema, "{$info->parentType}.{$info->fieldName}", $returnType->name)
         );
 
         if ($returnType instanceof LeafType) {
+            // For built-in scalars, resolve from the schema so that per-schema overrides
+            // (via BuiltInDefinitions) take effect even when fields reference the global
+            // singleton (e.g. Type::string()).
+            if (BuiltInDefinitions::isBuiltInScalarName($returnType->name)) {
+                $schemaScalar = $this->exeContext->schema->getType($returnType->name);
+                assert($schemaScalar instanceof LeafType);
+                $returnType = $schemaScalar;
+            }
+
             return $this->completeLeafValue($returnType, $result);
         }
 

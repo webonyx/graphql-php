@@ -160,6 +160,20 @@ class Schema
                 }
             }
 
+            // Replace standard singleton scalars (from Type::string() etc.) with the
+            // schema's own instances from BuiltInDefinitions. This allows scalar overrides
+            // to take effect transparently — fields that reference the global singleton are
+            // resolved to the schema's version before directive/introspection types are
+            // extracted, preventing "duplicate type" conflicts.
+            $standardDefs = BuiltInDefinitions::standard();
+            foreach ($this->builtInDefinitions->scalarTypes() as $scalarName => $scalar) {
+                if (isset($allReferencedTypes[$scalarName])
+                    && $allReferencedTypes[$scalarName] === $standardDefs->scalarTypes()[$scalarName]
+                    && $scalar !== $allReferencedTypes[$scalarName]) {
+                    $allReferencedTypes[$scalarName] = $scalar;
+                }
+            }
+
             foreach ($this->getDirectives() as $directive) {
                 // @phpstan-ignore-next-line generics are not strictly enforceable, error will be caught during schema validation
                 if ($directive instanceof Directive) {
