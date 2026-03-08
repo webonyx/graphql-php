@@ -22,14 +22,14 @@ use GraphQL\Type\SchemaConfig;
 
 $trimmedString = new CustomScalarType([
     'name' => Type::STRING,
-    'serialize' => static fn (mixed $value): string => trim((string) $value),
-    'parseValue' => static fn (mixed $value): string => trim((string) $value),
-    'parseLiteral' => static fn (mixed $ast): string => trim($ast->value ?? ''),
+    'serialize' => static fn ($value): string => trim((string) $value),
+    'parseValue' => static fn ($value): string => trim((string) $value),
+    'parseLiteral' => static fn ($ast): string => trim($ast->value ?? ''),
 ]);
 
 $builtInDefs = new BuiltInDefinitions([Type::STRING => $trimmedString]);
 
-$userType = new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
+$userType = new ObjectType([
     'name' => 'User',
     'fields' => [
         'name' => Type::string(),

@@ -214,7 +214,9 @@ final class BuiltInDefinitionsTest extends TestCase
         try {
             $result = GraphQL::executeQuery($schema, '{ greeting }');
         } finally {
-            @ini_set('assert.active', $prevAssertActive);
+            if (is_string($prevAssertActive)) {
+                @ini_set('assert.active', $prevAssertActive);
+            }
         }
 
         self::assertSame([], $result->errors);
