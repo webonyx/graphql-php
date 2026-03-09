@@ -4,6 +4,9 @@ namespace GraphQL\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
+use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\NamedType;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 
 /**
@@ -41,6 +44,62 @@ class Introspection
     public const ENUM_VALUE_OBJECT_NAME = '__EnumValue';
     public const TYPE_KIND_ENUM_NAME = '__TypeKind';
     public const DIRECTIVE_LOCATION_ENUM_NAME = '__DirectiveLocation';
+
+    /**
+     * @deprecated use {@see BuiltInDefinitions::INTROSPECTION_TYPE_NAMES}
+     *
+     * @var array<string>
+     */
+    public const TYPE_NAMES = [
+        self::SCHEMA_OBJECT_NAME,
+        self::TYPE_OBJECT_NAME,
+        self::DIRECTIVE_OBJECT_NAME,
+        self::FIELD_OBJECT_NAME,
+        self::INPUT_VALUE_OBJECT_NAME,
+        self::ENUM_VALUE_OBJECT_NAME,
+        self::TYPE_KIND_ENUM_NAME,
+        self::DIRECTIVE_LOCATION_ENUM_NAME,
+    ];
+
+    /**
+     * Checks if the given type is an introspection type.
+     *
+     * @deprecated use {@see BuiltInDefinitions::isIntrospectionType()}
+     */
+    public static function isIntrospectionType(NamedType $type): bool
+    {
+        return BuiltInDefinitions::isIntrospectionType($type);
+    }
+
+    /**
+     * Returns all introspection types.
+     *
+     * @deprecated use {@see BuiltInDefinitions::standard()}->introspectionTypes()
+     *
+     * @return array<string, Type&NamedType>
+     */
+    public static function getTypes(): array
+    {
+        return BuiltInDefinitions::standard()->introspectionTypes();
+    }
+
+    /** @deprecated use {@see BuiltInDefinitions::standard()}->schemaMetaFieldDef() */
+    public static function schemaMetaFieldDef(): FieldDefinition
+    {
+        return BuiltInDefinitions::standard()->schemaMetaFieldDef();
+    }
+
+    /** @deprecated use {@see BuiltInDefinitions::standard()}->typeMetaFieldDef() */
+    public static function typeMetaFieldDef(): FieldDefinition
+    {
+        return BuiltInDefinitions::standard()->typeMetaFieldDef();
+    }
+
+    /** @deprecated use {@see BuiltInDefinitions::standard()}->typeNameMetaFieldDef() */
+    public static function typeNameMetaFieldDef(): FieldDefinition
+    {
+        return BuiltInDefinitions::standard()->typeNameMetaFieldDef();
+    }
 
     /**
      * @param IntrospectionOptions $options

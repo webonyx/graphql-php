@@ -178,6 +178,275 @@ static function setDefaultFieldResolver(callable $fn): void
 static function setDefaultArgsMapper(callable $fn): void
 ```
 
+## GraphQL\Type\BuiltInDefinitions
+
+Per-instance container for all built-in GraphQL definitions: scalars, introspection types, meta-fields, and directives.
+
+Each Schema can own its own instance to avoid global state conflicts in multi-schema environments.
+Use {@see BuiltInDefinitions::standard()} for the shared default singleton.
+
+### GraphQL\Type\BuiltInDefinitions Constants
+
+```php
+const SCALAR_TYPE_NAMES = [
+    'Int',
+    'Float',
+    'String',
+    'Boolean',
+    'ID',
+];
+const INTROSPECTION_TYPE_NAMES = [
+    '__Schema',
+    '__Type',
+    '__Directive',
+    '__Field',
+    '__InputValue',
+    '__EnumValue',
+    '__TypeKind',
+    '__DirectiveLocation',
+];
+const BUILT_IN_TYPE_NAMES = [
+    'Int',
+    'Float',
+    'String',
+    'Boolean',
+    'ID',
+    '__Schema',
+    '__Type',
+    '__Directive',
+    '__Field',
+    '__InputValue',
+    '__EnumValue',
+    '__TypeKind',
+    '__DirectiveLocation',
+];
+const BUILT_IN_DIRECTIVE_NAMES = [
+    'include',
+    'skip',
+    'deprecated',
+    'oneOf',
+];
+```
+
+### GraphQL\Type\BuiltInDefinitions Methods
+
+```php
+/**
+ * Returns the shared default singleton instance.
+ *
+ * @api
+ */
+static function standard(): self
+```
+
+```php
+/**
+ * Replaces the standard singleton with one that uses the given scalar overrides.
+ *
+ * @param array<ScalarType> $types
+ *
+ * @api
+ */
+static function overrideScalarTypes(array $types): void
+```
+
+```php
+/**
+ * Checks if the given type is one of the introspection types.
+ *
+ * @api
+ */
+static function isIntrospectionType(GraphQL\Type\Definition\NamedType $type): bool
+```
+
+```php
+/**
+ * Checks if the given directive is one of the built-in directives.
+ *
+ * @api
+ */
+static function isBuiltInDirective(GraphQL\Type\Definition\Directive $directive): bool
+```
+
+```php
+/**
+ * Returns the built-in Int scalar type.
+ *
+ * @api
+ */
+function int(): GraphQL\Type\Definition\ScalarType
+```
+
+```php
+/**
+ * Returns the built-in Float scalar type.
+ *
+ * @api
+ */
+function float(): GraphQL\Type\Definition\ScalarType
+```
+
+```php
+/**
+ * Returns the built-in String scalar type.
+ *
+ * @api
+ */
+function string(): GraphQL\Type\Definition\ScalarType
+```
+
+```php
+/**
+ * Returns the built-in Boolean scalar type.
+ *
+ * @api
+ */
+function boolean(): GraphQL\Type\Definition\ScalarType
+```
+
+```php
+/**
+ * Returns the built-in ID scalar type.
+ *
+ * @api
+ */
+function id(): GraphQL\Type\Definition\ScalarType
+```
+
+```php
+/**
+ * Returns all five standard scalar types keyed by name.
+ *
+ * @return array<string, ScalarType>
+ *
+ * @api
+ */
+function scalarTypes(): array
+```
+
+```php
+/**
+ * Checks if the given name is a built-in type (scalar or introspection).
+ *
+ * @api
+ */
+static function isBuiltInTypeName(string $name): bool
+```
+
+```php
+/**
+ * Checks if the given name is one of the five standard scalar types.
+ *
+ * @api
+ */
+static function isBuiltInScalarName(string $name): bool
+```
+
+```php
+/**
+ * Checks if the given type instance is a built-in type.
+ *
+ * @api
+ */
+static function isBuiltInType(GraphQL\Type\Definition\NamedType $type): bool
+```
+
+```php
+/**
+ * Returns all eight introspection types keyed by name.
+ *
+ * @return array<string, Type&NamedType>
+ *
+ * @api
+ */
+function introspectionTypes(): array
+```
+
+```php
+/**
+ * Returns the __schema meta-field definition.
+ *
+ * @api
+ */
+function schemaMetaFieldDef(): GraphQL\Type\Definition\FieldDefinition
+```
+
+```php
+/**
+ * Returns the __type meta-field definition.
+ *
+ * @api
+ */
+function typeMetaFieldDef(): GraphQL\Type\Definition\FieldDefinition
+```
+
+```php
+/**
+ * Returns the __typename meta-field definition.
+ *
+ * @api
+ */
+function typeNameMetaFieldDef(): GraphQL\Type\Definition\FieldDefinition
+```
+
+```php
+/**
+ * Returns the built-in @include directive.
+ *
+ * @api
+ */
+function includeDirective(): GraphQL\Type\Definition\Directive
+```
+
+```php
+/**
+ * Returns the built-in @skip directive.
+ *
+ * @api
+ */
+function skipDirective(): GraphQL\Type\Definition\Directive
+```
+
+```php
+/**
+ * Returns the built-in @deprecated directive.
+ *
+ * @api
+ */
+function deprecatedDirective(): GraphQL\Type\Definition\Directive
+```
+
+```php
+/**
+ * Returns the built-in @oneOf directive.
+ *
+ * @api
+ */
+function oneOfDirective(): GraphQL\Type\Definition\Directive
+```
+
+```php
+/**
+ * Returns all four built-in directives keyed by name.
+ *
+ * @return array<string, Directive>
+ *
+ * @api
+ */
+function directives(): array
+```
+
+```php
+/**
+ * Returns all built-in types (scalars + introspection types) keyed by name.
+ *
+ * @return array<string, Type&NamedType>
+ *
+ * @api
+ */
+function types(): array
+```
+
 ## GraphQL\Type\Definition\Type
 
 Registry of standard GraphQL types and base class for all other types.

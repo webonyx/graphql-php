@@ -3,6 +3,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Type\BuiltInDefinitions;
+use GraphQL\Type\Introspection;
 
 /**
  * Registry of standard GraphQL types and base class for all other types.
@@ -14,6 +15,29 @@ abstract class Type implements \JsonSerializable
     public const STRING = 'String';
     public const BOOLEAN = 'Boolean';
     public const ID = 'ID';
+
+    /**
+     * @deprecated use {@see BuiltInDefinitions::SCALAR_TYPE_NAMES} or {@see BuiltInDefinitions::isBuiltInScalarName()}
+     *
+     * @var array<string>
+     */
+    public const STANDARD_TYPE_NAMES = [
+        self::INT,
+        self::FLOAT,
+        self::STRING,
+        self::BOOLEAN,
+        self::ID,
+    ];
+
+    /**
+     * @deprecated use {@see BuiltInDefinitions::BUILT_IN_TYPE_NAMES} or {@see BuiltInDefinitions::isBuiltInTypeName()}
+     *
+     * @var array<string>
+     */
+    public const BUILT_IN_TYPE_NAMES = [
+        ...self::STANDARD_TYPE_NAMES,
+        ...Introspection::TYPE_NAMES,
+    ];
 
     /**
      * Returns the registered or default standard Int type.
@@ -193,6 +217,42 @@ abstract class Type implements \JsonSerializable
         assert($type instanceof NullableType, 'only other option');
 
         return $type;
+    }
+
+    /**
+     * Returns all built-in types (scalars + introspection types).
+     *
+     * @deprecated use {@see BuiltInDefinitions::standard()}->types()
+     *
+     * @return array<string, Type&NamedType>
+     */
+    public static function builtInTypes(): array
+    {
+        return BuiltInDefinitions::standard()->types();
+    }
+
+    /**
+     * Returns the standard scalar types (Int, Float, String, Boolean, ID).
+     *
+     * @deprecated use {@see BuiltInDefinitions::standard()}->scalarTypes()
+     *
+     * @return array<string, ScalarType>
+     */
+    public static function getStandardTypes(): array
+    {
+        return BuiltInDefinitions::standard()->scalarTypes();
+    }
+
+    /**
+     * Replaces standard scalar types with the given types.
+     *
+     * @deprecated use {@see BuiltInDefinitions::overrideScalarTypes()}
+     *
+     * @param array<ScalarType> $types
+     */
+    public static function overrideStandardTypes(array $types): void
+    {
+        BuiltInDefinitions::overrideScalarTypes($types);
     }
 
     abstract public function toString(): string;

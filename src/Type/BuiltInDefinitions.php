@@ -30,9 +30,16 @@ use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 
+/**
+ * Per-instance container for all built-in GraphQL definitions: scalars, introspection types, meta-fields, and directives.
+ *
+ * Each Schema can own its own instance to avoid global state conflicts in multi-schema environments.
+ * Use {@see BuiltInDefinitions::standard()} for the shared default singleton.
+ */
 class BuiltInDefinitions
 {
-    protected const SCALAR_TYPE_NAMES = [
+    /** @var array<string> */
+    public const SCALAR_TYPE_NAMES = [
         Type::INT,
         Type::FLOAT,
         Type::STRING,
@@ -103,12 +110,23 @@ class BuiltInDefinitions
         $this->scalarTypeOverrides = $scalarTypeOverrides;
     }
 
+    /**
+     * Returns the shared default singleton instance.
+     *
+     * @api
+     */
     public static function standard(): self
     {
         return self::$standard ??= new self();
     }
 
-    /** @param array<ScalarType> $types */
+    /**
+     * Replaces the standard singleton with one that uses the given scalar overrides.
+     *
+     * @param array<ScalarType> $types
+     *
+     * @api
+     */
     public static function overrideScalarTypes(array $types): void
     {
         // Preserve non-overridden scalar instances from the current standard.
@@ -136,16 +154,31 @@ class BuiltInDefinitions
         self::$standard = new self($scalarOverrides);
     }
 
+    /**
+     * Checks if the given type is one of the introspection types.
+     *
+     * @api
+     */
     public static function isIntrospectionType(NamedType $type): bool
     {
         return in_array($type->name, self::INTROSPECTION_TYPE_NAMES, true);
     }
 
+    /**
+     * Checks if the given directive is one of the built-in directives.
+     *
+     * @api
+     */
     public static function isBuiltInDirective(Directive $directive): bool
     {
         return in_array($directive->name, self::BUILT_IN_DIRECTIVE_NAMES, true);
     }
 
+    /**
+     * Returns the built-in Int scalar type.
+     *
+     * @api
+     */
     public function int(): ScalarType
     {
         return $this->scalarTypes[Type::INT]
@@ -153,6 +186,11 @@ class BuiltInDefinitions
             ?? new IntType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
+    /**
+     * Returns the built-in Float scalar type.
+     *
+     * @api
+     */
     public function float(): ScalarType
     {
         return $this->scalarTypes[Type::FLOAT]
@@ -160,6 +198,11 @@ class BuiltInDefinitions
             ?? new FloatType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
+    /**
+     * Returns the built-in String scalar type.
+     *
+     * @api
+     */
     public function string(): ScalarType
     {
         return $this->scalarTypes[Type::STRING]
@@ -167,6 +210,11 @@ class BuiltInDefinitions
             ?? new StringType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
+    /**
+     * Returns the built-in Boolean scalar type.
+     *
+     * @api
+     */
     public function boolean(): ScalarType
     {
         return $this->scalarTypes[Type::BOOLEAN]
@@ -174,6 +222,11 @@ class BuiltInDefinitions
             ?? new BooleanType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
+    /**
+     * Returns the built-in ID scalar type.
+     *
+     * @api
+     */
     public function id(): ScalarType
     {
         return $this->scalarTypes[Type::ID]
@@ -181,7 +234,13 @@ class BuiltInDefinitions
             ?? new IDType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
-    /** @return array<string, ScalarType> */
+    /**
+     * Returns all five standard scalar types keyed by name.
+     *
+     * @return array<string, ScalarType>
+     *
+     * @api
+     */
     public function scalarTypes(): array
     {
         return [
@@ -193,16 +252,31 @@ class BuiltInDefinitions
         ];
     }
 
+    /**
+     * Checks if the given name is a built-in type (scalar or introspection).
+     *
+     * @api
+     */
     public static function isBuiltInTypeName(string $name): bool
     {
         return in_array($name, BuiltInDefinitions::BUILT_IN_TYPE_NAMES, true);
     }
 
+    /**
+     * Checks if the given name is one of the five standard scalar types.
+     *
+     * @api
+     */
     public static function isBuiltInScalarName(string $name): bool
     {
         return in_array($name, self::SCALAR_TYPE_NAMES, true);
     }
 
+    /**
+     * Checks if the given type instance is a built-in type.
+     *
+     * @api
+     */
     public static function isBuiltInType(NamedType $type): bool
     {
         return in_array($type->name, BuiltInDefinitions::BUILT_IN_TYPE_NAMES, true);
@@ -732,7 +806,13 @@ class BuiltInDefinitions
         ]);
     }
 
-    /** @return array<string, Type&NamedType> */
+    /**
+     * Returns all eight introspection types keyed by name.
+     *
+     * @return array<string, Type&NamedType>
+     *
+     * @api
+     */
     public function introspectionTypes(): array
     {
         return [
@@ -747,6 +827,11 @@ class BuiltInDefinitions
         ];
     }
 
+    /**
+     * Returns the __schema meta-field definition.
+     *
+     * @api
+     */
     public function schemaMetaFieldDef(): FieldDefinition
     {
         return $this->metaFieldDefs[Introspection::SCHEMA_FIELD_NAME] ??= new FieldDefinition([
@@ -758,6 +843,11 @@ class BuiltInDefinitions
         ]);
     }
 
+    /**
+     * Returns the __type meta-field definition.
+     *
+     * @api
+     */
     public function typeMetaFieldDef(): FieldDefinition
     {
         return $this->metaFieldDefs[Introspection::TYPE_FIELD_NAME] ??= new FieldDefinition([
@@ -774,6 +864,11 @@ class BuiltInDefinitions
         ]);
     }
 
+    /**
+     * Returns the __typename meta-field definition.
+     *
+     * @api
+     */
     public function typeNameMetaFieldDef(): FieldDefinition
     {
         return $this->metaFieldDefs[Introspection::TYPE_NAME_FIELD_NAME] ??= new FieldDefinition([
@@ -785,6 +880,11 @@ class BuiltInDefinitions
         ]);
     }
 
+    /**
+     * Returns the built-in @include directive.
+     *
+     * @api
+     */
     public function includeDirective(): Directive
     {
         return $this->directives[Directive::INCLUDE_NAME] ??= new Directive([
@@ -804,6 +904,11 @@ class BuiltInDefinitions
         ]);
     }
 
+    /**
+     * Returns the built-in @skip directive.
+     *
+     * @api
+     */
     public function skipDirective(): Directive
     {
         return $this->directives[Directive::SKIP_NAME] ??= new Directive([
@@ -823,6 +928,11 @@ class BuiltInDefinitions
         ]);
     }
 
+    /**
+     * Returns the built-in @deprecated directive.
+     *
+     * @api
+     */
     public function deprecatedDirective(): Directive
     {
         return $this->directives[Directive::DEPRECATED_NAME] ??= new Directive([
@@ -844,6 +954,11 @@ class BuiltInDefinitions
         ]);
     }
 
+    /**
+     * Returns the built-in @oneOf directive.
+     *
+     * @api
+     */
     public function oneOfDirective(): Directive
     {
         return $this->directives[Directive::ONE_OF_NAME] ??= new Directive([
@@ -856,7 +971,13 @@ class BuiltInDefinitions
         ]);
     }
 
-    /** @return array<string, Directive> */
+    /**
+     * Returns all four built-in directives keyed by name.
+     *
+     * @return array<string, Directive>
+     *
+     * @api
+     */
     public function directives(): array
     {
         return [
@@ -867,7 +988,13 @@ class BuiltInDefinitions
         ];
     }
 
-    /** @return array<string, Type&NamedType> */
+    /**
+     * Returns all built-in types (scalars + introspection types) keyed by name.
+     *
+     * @return array<string, Type&NamedType>
+     *
+     * @api
+     */
     public function types(): array
     {
         return $this->typesCache ??= array_merge(

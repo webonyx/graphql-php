@@ -3,6 +3,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\DirectiveDefinitionNode;
+use GraphQL\Type\BuiltInDefinitions;
 
 /**
  * @phpstan-import-type ArgumentListConfig from Argument
@@ -65,5 +66,51 @@ class Directive
         $this->astNode = $config['astNode'] ?? null;
 
         $this->config = $config;
+    }
+
+    /**
+     * Returns all built-in directives.
+     *
+     * @deprecated use {@see BuiltInDefinitions::standard()}->directives()
+     *
+     * @return array<string, Directive>
+     */
+    public static function getInternalDirectives(): array
+    {
+        return BuiltInDefinitions::standard()->directives();
+    }
+
+    /** @deprecated use {@see BuiltInDefinitions::standard()}->includeDirective() */
+    public static function includeDirective(): self
+    {
+        return BuiltInDefinitions::standard()->includeDirective();
+    }
+
+    /** @deprecated use {@see BuiltInDefinitions::standard()}->skipDirective() */
+    public static function skipDirective(): self
+    {
+        return BuiltInDefinitions::standard()->skipDirective();
+    }
+
+    /** @deprecated use {@see BuiltInDefinitions::standard()}->deprecatedDirective() */
+    public static function deprecatedDirective(): self
+    {
+        return BuiltInDefinitions::standard()->deprecatedDirective();
+    }
+
+    /** @deprecated use {@see BuiltInDefinitions::standard()}->oneOfDirective() */
+    public static function oneOfDirective(): self
+    {
+        return BuiltInDefinitions::standard()->oneOfDirective();
+    }
+
+    /**
+     * Checks if the given directive is one of the built-in directives.
+     *
+     * @deprecated use {@see BuiltInDefinitions::isBuiltInDirective()}
+     */
+    public static function isSpecifiedDirective(self $directive): bool
+    {
+        return BuiltInDefinitions::isBuiltInDirective($directive);
     }
 }
