@@ -917,9 +917,10 @@ class ReferenceExecutor implements ExecutorImplementation
         );
 
         if ($returnType instanceof LeafType) {
-            // Fields declared with Type::string() etc. reference global singletons,
-            // but the schema may have per-schema scalar overrides.
-            $returnType = $this->exeContext->schema->resolveStandardScalar($returnType->name) ?? $returnType;
+            $schemaType = $this->exeContext->schema->getType($returnType->name);
+            if ($schemaType instanceof LeafType) {
+                $returnType = $schemaType;
+            }
 
             return $this->completeLeafValue($returnType, $result);
         }

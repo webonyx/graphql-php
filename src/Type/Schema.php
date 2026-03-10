@@ -67,9 +67,6 @@ class Schema
     /** True when $resolvedTypes contains all possible schema types. */
     private bool $fullyLoaded = false;
 
-    /** @var array<string, ScalarType|null> */
-    private array $standardScalarOverrides = [];
-
     /** @var array<int, Error> */
     private array $validationErrors;
 
@@ -336,77 +333,14 @@ class Schema
             return $introspectionTypes[$name];
         }
 
+        $type = $this->loadType($name);
+        if ($type !== null) {
+            return $this->resolvedTypes[$name] = self::resolveType($type);
+        }
+
         $standardTypes = Type::getStandardTypes();
         if (isset($standardTypes[$name])) {
-            return $standardTypes[$name];
-        }
-
-        $type = $this->loadType($name);
-        if ($type === null) {
-            return null;
-        }
-
-        return $this->resolvedTypes[$name] = self::resolveType($type);
-    }
-
-    /**
-     * Returns a per-schema standard scalar override if one exists,
-     * or null if the global singleton should be used.
-     *
-     * Used by the executor to apply per-schema scalar overrides even
-     * for fields declared with Type::string() etc.
-     */
-    public function resolveStandardScalar(string $name): ?ScalarType
-    {
-        if (array_key_exists($name, $this->standardScalarOverrides)) {
-            return $this->standardScalarOverrides[$name];
-        }
-
-        $standardTypes = Type::getStandardTypes();
-        if (! isset($standardTypes[$name])) {
-            return null;
-        }
-
-        if (isset($this->resolvedTypes[$name]) && $this->resolvedTypes[$name] !== $standardTypes[$name]) {
-            $type = $this->resolvedTypes[$name];
-            assert($type instanceof ScalarType);
-            $this->standardScalarOverrides[$name] = $type;
-
-            return $type;
-        }
-
-        $override = $this->fullyLoaded
-            ? null
-            : $this->findStandardScalarOverride($name, $standardTypes[$name]);
-        $this->standardScalarOverrides[$name] = $override;
-
-        return $override;
-    }
-
-    private function findStandardScalarOverride(string $name, ScalarType $standardType): ?ScalarType
-    {
-        $types = $this->config->types;
-        if (is_callable($types)) {
-            $types = $types();
-        }
-
-        foreach ($types as $typeOrLazyType) {
-            /** @var Type|callable(): Type $typeOrLazyType */
-            $type = self::resolveType($typeOrLazyType);
-            if ($type instanceof ScalarType && $type->name === $name && $type !== $standardType) {
-                $this->resolvedTypes[$name] = $type;
-
-                return $type;
-            }
-        }
-
-        if (isset($this->config->typeLoader)) {
-            $type = ($this->config->typeLoader)($name);
-            if ($type instanceof ScalarType && $type->name === $name && $type !== $standardType) {
-                $this->resolvedTypes[$name] = $type;
-
-                return $type;
-            }
+            return $this->resolvedTypes[$name] = $standardTypes[$name];
         }
 
         return null;
