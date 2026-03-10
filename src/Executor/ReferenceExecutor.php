@@ -911,11 +911,16 @@ class ReferenceExecutor implements ExecutorImplementation
         // Account for invalid schema definition when typeLoader returns different
         // instance than `resolveType` or $field->getType() or $arg->getType()
         assert(
-            $returnType === $this->exeContext->schema->getType($returnType->name),
+            $returnType === $this->exeContext->schema->getType($returnType->name)
+            || in_array($returnType->name, Type::STANDARD_TYPE_NAMES, true),
             SchemaValidationContext::duplicateType($this->exeContext->schema, "{$info->parentType}.{$info->fieldName}", $returnType->name)
         );
 
         if ($returnType instanceof LeafType) {
+            // Fields declared with Type::string() etc. reference global singletons,
+            // but the schema may have per-schema scalar overrides.
+            $returnType = $this->exeContext->schema->resolveStandardScalar($returnType->name) ?? $returnType;
+
             return $this->completeLeafValue($returnType, $result);
         }
 
