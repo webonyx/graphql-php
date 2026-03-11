@@ -912,7 +912,7 @@ class ReferenceExecutor implements ExecutorImplementation
         // instance than `resolveType` or $field->getType() or $arg->getType()
         assert(
             $returnType === $this->exeContext->schema->getType($returnType->name)
-            || in_array($returnType->name, Type::STANDARD_TYPE_NAMES, true),
+            || in_array($returnType->name, Type::BUILT_IN_SCALAR_NAMES, true),
             SchemaValidationContext::duplicateType($this->exeContext->schema, "{$info->parentType}.{$info->fieldName}", $returnType->name)
         );
 

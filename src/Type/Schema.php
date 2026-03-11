@@ -131,7 +131,7 @@ class Schema
             // with Type::string() etc. references in field definitions during extractTypes.
             /** @var array<string, ScalarType> $scalarOverrides */
             $scalarOverrides = [];
-            $standardTypes = Type::getStandardTypes();
+            $builtInScalars = Type::builtInScalars();
 
             foreach ($types as $typeOrLazyType) {
                 /** @var Type|callable(): Type $typeOrLazyType */
@@ -142,8 +142,8 @@ class Schema
                 $typeName = $type->name;
 
                 if ($type instanceof ScalarType
-                    && isset($standardTypes[$typeName])
-                    && $type !== $standardTypes[$typeName]
+                    && isset($builtInScalars[$typeName])
+                    && $type !== $builtInScalars[$typeName]
                 ) {
                     $scalarOverrides[$typeName] = $type;
                     continue;
@@ -189,13 +189,16 @@ class Schema
             }
 
             if (isset($this->config->typeLoader)) {
-                foreach (Type::STANDARD_TYPE_NAMES as $scalarName) {
+                foreach (Type::BUILT_IN_SCALAR_NAMES as $scalarName) {
                     if (isset($scalarOverrides[$scalarName])) {
                         continue;
                     }
 
                     $type = ($this->config->typeLoader)($scalarName);
-                    if ($type instanceof ScalarType && $type->name === $scalarName && $type !== $standardTypes[$scalarName]) {
+                    if ($type instanceof ScalarType
+                        && $type->name === $scalarName
+                        && $type !== $builtInScalars[$scalarName]
+                    ) {
                         $allReferencedTypes[$scalarName] = $type;
                     }
                 }
@@ -338,9 +341,9 @@ class Schema
             return $this->resolvedTypes[$name] = self::resolveType($type);
         }
 
-        $standardTypes = Type::getStandardTypes();
-        if (isset($standardTypes[$name])) {
-            return $this->resolvedTypes[$name] = $standardTypes[$name];
+        $builtInScalars = Type::builtInScalars();
+        if (isset($builtInScalars[$name])) {
+            return $this->resolvedTypes[$name] = $builtInScalars[$name];
         }
 
         return null;
@@ -546,7 +549,7 @@ class Schema
             throw new InvariantViolation(implode("\n\n", $this->validationErrors));
         }
 
-        $internalTypes = Type::getStandardTypes() + Introspection::getTypes();
+        $internalTypes = Type::builtInScalars() + Introspection::getTypes();
         foreach ($this->getTypeMap() as $name => $type) {
             if (isset($internalTypes[$name])) {
                 continue;

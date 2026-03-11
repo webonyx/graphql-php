@@ -23,7 +23,7 @@ final class ScalarOverridesTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        self::$originalStandardTypes = Type::getStandardTypes();
+        self::$originalStandardTypes = Type::builtInScalars();
     }
 
     public function tearDown(): void

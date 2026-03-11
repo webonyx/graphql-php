@@ -111,7 +111,7 @@ class BuildClientSchema
         $schemaIntrospection = $this->introspection['__schema'];
 
         $builtInTypes = array_merge(
-            Type::getStandardTypes(),
+            Type::builtInScalars(),
             Introspection::getTypes()
         );
 

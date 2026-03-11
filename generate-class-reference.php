@@ -10,7 +10,7 @@ const OUTPUT_FILE = __DIR__ . '/docs/class-reference.md';
 
 const ENTRIES = [
     GraphQL\GraphQL::class => [],
-    GraphQL\Type\Definition\Type::class => [],
+    GraphQL\Type\Definition\Type::class => ['constants' => true],
     GraphQL\Type\Definition\ResolveInfo::class => [],
     GraphQL\Language\DirectiveLocation::class => ['constants' => true],
     GraphQL\Type\SchemaConfig::class => [],
