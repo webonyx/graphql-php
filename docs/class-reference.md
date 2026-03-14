@@ -72,7 +72,8 @@ static function executeQuery(
     ?array $variableValues = null,
     ?string $operationName = null,
     ?callable $fieldResolver = null,
-    ?array $validationRules = null
+    ?array $validationRules = null,
+    bool $trustResult = false
 ): GraphQL\Executor\ExecutionResult
 ```
 
@@ -100,7 +101,8 @@ static function promiseToExecute(
     ?array $variableValues = null,
     ?string $operationName = null,
     ?callable $fieldResolver = null,
-    ?array $validationRules = null
+    ?array $validationRules = null,
+    bool $trustResult = false
 ): GraphQL\Executor\Promise\Promise
 ```
 
@@ -1590,7 +1592,7 @@ Implements the "Evaluating requests" section of the GraphQL specification.
 ```php
 @phpstan-type ArgsMapper callable(array<string, mixed>, FieldDefinition, FieldNode, mixed): mixed
 @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
-@phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable, callable): ExecutorImplementation
+@phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable, ?callable, bool): ExecutorImplementation
 ```
 
 @see \GraphQL\Tests\Executor\ExecutorTest
@@ -1621,7 +1623,8 @@ static function execute(
     $contextValue = null,
     ?array $variableValues = null,
     ?string $operationName = null,
-    ?callable $fieldResolver = null
+    ?callable $fieldResolver = null,
+    bool $trustResult = false
 ): GraphQL\Executor\ExecutionResult
 ```
 
@@ -1650,7 +1653,8 @@ static function promiseToExecute(
     ?array $variableValues = null,
     ?string $operationName = null,
     ?callable $fieldResolver = null,
-    ?callable $argsMapper = null
+    ?callable $argsMapper = null,
+    bool $trustResult = false
 ): GraphQL\Executor\Promise\Promise
 ```
 

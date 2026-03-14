@@ -11,9 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 final class TrustResultTest extends TestCase
 {
-    /**
-     * @see https://github.com/webonyx/graphql-php/issues/1493
-     */
+    /** @see https://github.com/webonyx/graphql-php/issues/1493 */
     public function testTrustResultSkipsListIterableValidation(): void
     {
         $schema = new Schema([
