@@ -11,9 +11,11 @@ use GraphQL\Utils\BuildSchema;
  *
  * @Warmup(2)
  *
+ * @Sleep(500000)
+ *
  * @Revs(10)
  *
- * @Iterations(2)
+ * @Iterations(5)
  */
 class BuildSchemaBench
 {

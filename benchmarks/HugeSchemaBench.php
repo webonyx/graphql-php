@@ -16,9 +16,11 @@ use GraphQL\Type\SchemaConfig;
  *
  * @Warmup(2)
  *
+ * @Sleep(500000)
+ *
  * @Revs(10)
  *
- * @Iterations(3)
+ * @Iterations(5)
  */
 class HugeSchemaBench
 {
