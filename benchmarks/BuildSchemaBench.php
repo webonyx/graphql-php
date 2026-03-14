@@ -72,5 +72,6 @@ GRAPHQL;
     public function benchBuildSchema(): void
     {
         BuildSchema::build($this->schema);
+        usleep(100_000); // artificial regression to validate benchmark alert
     }
 }
