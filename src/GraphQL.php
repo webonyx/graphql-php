@@ -120,6 +120,11 @@ class GraphQL
      * @param mixed $context
      * @param array<string, mixed>|null $variableValues
      * @param array<ValidationRule>|null $validationRules Defaults to using all available rules
+     * @param bool $trustResult When true, assumes resolver results are already correctly typed
+     *                          and serialized and skips normal type and serialization checks.
+     *                          This is unsafe for untrusted schemas or inputs and should only
+     *                          be enabled when you fully control the schema, resolvers and
+     *                          execution pipeline.
      *
      * @api
      *
