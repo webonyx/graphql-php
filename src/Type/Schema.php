@@ -14,6 +14,7 @@ use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\InterfaceImplementations;
@@ -126,6 +127,12 @@ class Schema
             // Reset order of user provided types, since calls to getType() may have loaded them
             $this->resolvedTypes = [];
 
+            // Separate built-in scalar overrides to avoid identity conflicts
+            // with Type::string() etc. references in field definitions during extractTypes.
+            /** @var array<string, ScalarType> $scalarOverrides */
+            $scalarOverrides = [];
+            $builtInScalars = Type::builtInScalars();
+
             foreach ($types as $typeOrLazyType) {
                 /** @var Type|callable(): Type $typeOrLazyType */
                 $type = self::resolveType($typeOrLazyType);
@@ -133,6 +140,15 @@ class Schema
 
                 /** @var string $typeName Necessary assertion for PHPStan + PHP 8.2 */
                 $typeName = $type->name;
+
+                if ($type instanceof ScalarType
+                    && isset($builtInScalars[$typeName])
+                    && $type !== $builtInScalars[$typeName]
+                ) {
+                    $scalarOverrides[$typeName] = $type;
+                    continue;
+                }
+
                 assert(
                     ! isset($this->resolvedTypes[$typeName]) || $type === $this->resolvedTypes[$typeName],
                     "Schema must contain unique named types but contains multiple types named \"{$type}\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).",
@@ -165,6 +181,28 @@ class Schema
                 }
             }
             TypeInfo::extractTypes(Introspection::_schema(), $allReferencedTypes);
+
+            // Apply scalar overrides after all extractions, replacing the
+            // global singletons with user-provided instances.
+            foreach ($scalarOverrides as $name => $override) {
+                $allReferencedTypes[$name] = $override;
+            }
+
+            if (isset($this->config->typeLoader)) {
+                foreach (Type::BUILT_IN_SCALAR_NAMES as $scalarName) {
+                    if (isset($scalarOverrides[$scalarName])) {
+                        continue;
+                    }
+
+                    $type = ($this->config->typeLoader)($scalarName);
+                    if ($type instanceof ScalarType
+                        && $type->name === $scalarName
+                        && $type !== $builtInScalars[$scalarName]
+                    ) {
+                        $allReferencedTypes[$scalarName] = $type;
+                    }
+                }
+            }
 
             $this->resolvedTypes = $allReferencedTypes;
             $this->fullyLoaded = true;
@@ -298,17 +336,17 @@ class Schema
             return $introspectionTypes[$name];
         }
 
-        $standardTypes = Type::getStandardTypes();
-        if (isset($standardTypes[$name])) {
-            return $standardTypes[$name];
-        }
-
         $type = $this->loadType($name);
-        if ($type === null) {
-            return null;
+        if ($type !== null) {
+            return $this->resolvedTypes[$name] = self::resolveType($type);
         }
 
-        return $this->resolvedTypes[$name] = self::resolveType($type);
+        $builtInScalars = Type::builtInScalars();
+        if (isset($builtInScalars[$name])) {
+            return $this->resolvedTypes[$name] = $builtInScalars[$name];
+        }
+
+        return null;
     }
 
     /** @throws InvariantViolation */
@@ -511,7 +549,7 @@ class Schema
             throw new InvariantViolation(implode("\n\n", $this->validationErrors));
         }
 
-        $internalTypes = Type::getStandardTypes() + Introspection::getTypes();
+        $internalTypes = Type::builtInScalars() + Introspection::getTypes();
         foreach ($this->getTypeMap() as $name => $type) {
             if (isset($internalTypes[$name])) {
                 continue;

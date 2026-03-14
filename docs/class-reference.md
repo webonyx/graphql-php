@@ -108,6 +108,8 @@ static function promiseToExecute(
 /**
  * Returns directives defined in GraphQL spec.
  *
+ * @deprecated use {@see Directive::builtInDirectives()}
+ *
  * @throws InvariantViolation
  *
  * @return array<string, Directive>
@@ -119,7 +121,9 @@ static function getStandardDirectives(): array
 
 ```php
 /**
- * Returns types defined in GraphQL spec.
+ * Returns built-in scalar types defined in GraphQL spec.
+ *
+ * @deprecated use {@see Type::builtInScalars()}
  *
  * @throws InvariantViolation
  *
@@ -135,6 +139,8 @@ static function getStandardTypes(): array
  * Replaces standard types with types from this list (matching by name).
  *
  * Standard types not listed here remain untouched.
+ *
+ * @deprecated prefer per-schema scalar overrides via {@see \GraphQL\Type\SchemaConfig::$types} or {@see \GraphQL\Type\SchemaConfig::$typeLoader}
  *
  * @param array<string, ScalarType> $types
  *
@@ -180,13 +186,52 @@ static function setDefaultArgsMapper(callable $fn): void
 
 ## GraphQL\Type\Definition\Type
 
-Registry of standard GraphQL types and base class for all other types.
+Registry of built-in GraphQL types and base class for all other types.
+
+### GraphQL\Type\Definition\Type Constants
+
+```php
+const INT = 'Int';
+const FLOAT = 'Float';
+const STRING = 'String';
+const BOOLEAN = 'Boolean';
+const ID = 'ID';
+const BUILT_IN_SCALAR_NAMES = [
+    'Int',
+    'Float',
+    'String',
+    'Boolean',
+    'ID',
+];
+const STANDARD_TYPE_NAMES = [
+    'Int',
+    'Float',
+    'String',
+    'Boolean',
+    'ID',
+];
+const BUILT_IN_TYPE_NAMES = [
+    'Int',
+    'Float',
+    'String',
+    'Boolean',
+    'ID',
+    '__Schema',
+    '__Type',
+    '__Directive',
+    '__Field',
+    '__InputValue',
+    '__EnumValue',
+    '__TypeKind',
+    '__DirectiveLocation',
+];
+```
 
 ### GraphQL\Type\Definition\Type Methods
 
 ```php
 /**
- * Returns the registered or default standard Int type.
+ * Returns the built-in Int scalar type.
  *
  * @api
  */
@@ -195,7 +240,7 @@ static function int(): GraphQL\Type\Definition\ScalarType
 
 ```php
 /**
- * Returns the registered or default standard Float type.
+ * Returns the built-in Float scalar type.
  *
  * @api
  */
@@ -204,7 +249,7 @@ static function float(): GraphQL\Type\Definition\ScalarType
 
 ```php
 /**
- * Returns the registered or default standard String type.
+ * Returns the built-in String scalar type.
  *
  * @api
  */
@@ -213,7 +258,7 @@ static function string(): GraphQL\Type\Definition\ScalarType
 
 ```php
 /**
- * Returns the registered or default standard Boolean type.
+ * Returns the built-in Boolean scalar type.
  *
  * @api
  */
@@ -222,7 +267,7 @@ static function boolean(): GraphQL\Type\Definition\ScalarType
 
 ```php
 /**
- * Returns the registered or default standard ID type.
+ * Returns the built-in ID scalar type.
  *
  * @api
  */
@@ -253,6 +298,28 @@ static function listOf($type): GraphQL\Type\Definition\ListOfType
  * @api
  */
 static function nonNull($type): GraphQL\Type\Definition\NonNull
+```
+
+```php
+/**
+ * Returns all built-in types: built-in scalars and introspection types.
+ *
+ * @api
+ *
+ * @return array<string, Type&NamedType>
+ */
+static function builtInTypes(): array
+```
+
+```php
+/**
+ * Returns all built-in scalar types.
+ *
+ * @api
+ *
+ * @return array<string, ScalarType>
+ */
+static function builtInScalars(): array
 ```
 
 ```php

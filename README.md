@@ -31,8 +31,9 @@ with a specific README file per example.
 This project follows [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html).
 
 Elements that belong to the public API of this package are marked with the `@api` PHPDoc tag.
-Those elements are thus guaranteed to be stable within major versions. All other elements are
-not part of this backwards compatibility guarantee and may change between minor or patch versions.
+Constants included in the [class-reference docs](https://webonyx.github.io/graphql-php/class-reference) are also part of the public API.
+Those elements are thus guaranteed to be stable within major versions.
+All other elements are not part of this backwards compatibility guarantee and may change between minor or patch versions.
 
 The most recent version is actively developed on [`master`](https://github.com/webonyx/graphql-php/tree/master).
 Older versions are generally no longer supported, although exceptions may be made for [sponsors](#sponsors).

@@ -1,0 +1,90 @@
+name: Benchmarks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  benchmark-pr:
+    name: Run benchmarks
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          coverage: none
+          php-version: "8.3"
+
+      - uses: ramsey/composer-install@v3
+
+      - name: Run PHPBench
+        run: |
+          php -d zend.assertions=-1 vendor/bin/phpbench run \
+            --progress=none \
+            --dump-file=benchmark.xml
+
+      - name: Convert results
+        run: php benchmarks/convert-results.php benchmark.xml > benchmark-results.json
+
+      - uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: customSmallerIsBetter
+          output-file-path: benchmark-results.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: false
+          gh-pages-branch: benchmark-results
+          benchmark-data-dir-path: dev/bench
+          alert-threshold: '150%'
+          # TODO: switch to true once baseline variance is understood
+          fail-on-alert: false
+          comment-on-alert: true
+          comment-always: false
+
+  benchmark-history:
+    name: Track benchmark history
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          coverage: none
+          php-version: "8.3"
+
+      - uses: ramsey/composer-install@v3
+
+      - name: Run PHPBench
+        run: |
+          php -d zend.assertions=-1 vendor/bin/phpbench run \
+            --progress=none \
+            --dump-file=benchmark.xml
+
+      - name: Convert results
+        run: php benchmarks/convert-results.php benchmark.xml > benchmark-results.json
+
+      - uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: customSmallerIsBetter
+          output-file-path: benchmark-results.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: ${{ github.ref == 'refs/heads/master' }}
+          gh-pages-branch: benchmark-results
+          benchmark-data-dir-path: dev/bench
+          alert-threshold: '150%'
+          # TODO: switch to true once baseline variance is understood
+          fail-on-alert: false
+          comment-on-alert: false
+          comment-always: false
