@@ -20,6 +20,12 @@ make bench          # Run PHPBench benchmarks
 make docs           # Generate class reference docs
 ```
 
+## Public API
+
+Elements marked with `@api` in PHPDoc are part of the stable public API.
+
+Constants listed in the [class-reference docs](https://webonyx.github.io/graphql-php/class-reference/) (generated via `generate-class-reference.php` with `'constants' => true`) are also stable public API, even without an `@api` tag.
+
 ## Code and Testing Expectations
 
 - Preserve backward compatibility for public APIs unless explicitly requested.

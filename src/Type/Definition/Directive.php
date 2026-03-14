@@ -76,7 +76,7 @@ class Directive
     }
 
     /** @return array<string, Directive> */
-    public static function getInternalDirectives(): array
+    public static function builtInDirectives(): array
     {
         return [
             self::INCLUDE_NAME => self::includeDirective(),
@@ -84,6 +84,16 @@ class Directive
             self::DEPRECATED_NAME => self::deprecatedDirective(),
             self::ONE_OF_NAME => self::oneOfDirective(),
         ];
+    }
+
+    /**
+     * @deprecated use {@see Directive::builtInDirectives()}
+     *
+     * @return array<string, Directive>
+     */
+    public static function getInternalDirectives(): array
+    {
+        return self::builtInDirectives();
     }
 
     public static function includeDirective(): Directive
@@ -157,9 +167,15 @@ class Directive
         ]);
     }
 
+    public static function isBuiltInDirective(self $directive): bool
+    {
+        return array_key_exists($directive->name, self::builtInDirectives());
+    }
+
+    /** @deprecated use {@see Directive::isBuiltInDirective()} */
     public static function isSpecifiedDirective(Directive $directive): bool
     {
-        return array_key_exists($directive->name, self::getInternalDirectives());
+        return self::isBuiltInDirective($directive);
     }
 
     public static function resetCachedInstances(): void

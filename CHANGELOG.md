@@ -9,6 +9,22 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.31.0
+
+### Added
+
+- Support per-schema scalar overrides via `types` config or `typeLoader`, without global side effects https://github.com/webonyx/graphql-php/pull/1869
+- Add `Type::builtInScalars()` and `Type::BUILT_IN_SCALAR_NAMES` aligning with GraphQL spec terminology https://github.com/webonyx/graphql-php/pull/1869
+- Add `Directive::builtInDirectives()` and `Directive::isBuiltInDirective()` aligning with GraphQL spec terminology https://github.com/webonyx/graphql-php/pull/1869
+
+### Deprecated
+
+- Deprecate `Type::overrideStandardTypes()` in favor of per-schema scalar overrides https://github.com/webonyx/graphql-php/pull/1869
+- Deprecate `Type::getStandardTypes()` in favor of `Type::builtInScalars()` https://github.com/webonyx/graphql-php/pull/1869
+- Deprecate `Type::STANDARD_TYPE_NAMES` in favor of `Type::BUILT_IN_SCALAR_NAMES` https://github.com/webonyx/graphql-php/pull/1869
+- Deprecate `Directive::getInternalDirectives()` in favor of `Directive::builtInDirectives()` https://github.com/webonyx/graphql-php/pull/1869
+- Deprecate `Directive::isSpecifiedDirective()` in favor of `Directive::isBuiltInDirective()` https://github.com/webonyx/graphql-php/pull/1869
+
 ## v15.30.2
 
 ### Fixed
