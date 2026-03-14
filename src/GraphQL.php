@@ -81,7 +81,6 @@ class GraphQL
      * @param mixed $contextValue
      * @param array<string, mixed>|null $variableValues
      * @param array<ValidationRule>|null $validationRules
-     * @param bool $trustResult
      *
      * @api
      *

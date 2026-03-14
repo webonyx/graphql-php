@@ -198,6 +198,7 @@ class Executor
             // Fallback for safety, should not happen for valid callables
         }
 
+        // @phpstan-ignore arguments.count
         $executor = $factory(...$args);
 
         return $executor->doExecute();
