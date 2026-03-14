@@ -16,7 +16,8 @@ if ($xmlFile === null) {
     exit(1);
 }
 
-$xml = simplexml_load_file($xmlFile);
+libxml_use_internal_errors(true);
+$xml = simplexml_load_file($xmlFile, SimpleXMLElement::class, LIBXML_NONET);
 
 if ($xml === false) {
     fwrite(STDERR, "Failed to parse XML file: {$xmlFile}\n");
@@ -46,7 +47,8 @@ foreach ($xml->suite as $suite) {
                 $meanUs = (float) $variant->stats['mean'];
                 $valueMs = round($meanUs / 1000, 3);
 
-                $paramSetName = (string) ($variant->{'parameter-set'}['name'] ?? '0');
+                $parameterSet = $variant->{'parameter-set'};
+                $paramSetName = isset($parameterSet['name']) ? (string) $parameterSet['name'] : '0';
                 $name = count($variants) > 1
                     ? "{$shortClass}::{$subjectName}#{$paramSetName}"
                     : "{$shortClass}::{$subjectName}";
