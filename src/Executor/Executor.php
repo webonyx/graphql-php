@@ -173,7 +173,8 @@ class Executor
         ?callable $argsMapper = null,
         bool $trustResult = false
     ): Promise {
-        $executor = (self::$implementationFactory)(
+        $factory = self::$implementationFactory;
+        $args = [
             $promiseAdapter,
             $schema,
             $documentNode,
@@ -184,7 +185,20 @@ class Executor
             $fieldResolver ?? self::$defaultFieldResolver,
             $argsMapper ?? self::$defaultArgsMapper,
             $trustResult,
-        );
+        ];
+
+        try {
+            // Check if userland factory supports the 10th argument for BC
+            $reflector = new \ReflectionFunction(\Closure::fromCallable($factory));
+            if ($reflector->getNumberOfParameters() < 10) {
+                // Remove $trustResult argument for older implementations
+                array_pop($args);
+            }
+        } catch (\ReflectionException $e) {
+            // Fallback for safety, should not happen for valid callables
+        }
+
+        $executor = $factory(...$args);
 
         return $executor->doExecute();
     }

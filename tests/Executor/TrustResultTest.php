@@ -30,15 +30,13 @@ final class TrustResultTest extends TestCase
 
         // Without trustResult, it should have an error in the result
         $result = Executor::execute($schema, Parser::parse($query));
-        $this->assertCount(1, $result->errors);
-        $this->assertStringContainsString('Expected field Query.list to return iterable, but got: string.', $result->errors[0]->getMessage());
+        self::assertCount(1, $result->errors);
+        self::assertStringContainsString('Expected field Query.list to return iterable, but got: string.', $result->errors[0]->getMessage());
 
-        // With trustResult, it should NOT have the InvariantViolation error.
-        // However, it will fail with a TypeError because of the 'iterable' type hint in completeListValue.
+        // With trustResult, it should NOT skip the InvariantViolation error since it's required for type safety
         $result = Executor::execute($schema, Parser::parse($query), null, null, null, null, null, true);
-        $this->assertCount(1, $result->errors);
-        $this->assertStringContainsString('completeListValue()', $result->errors[0]->getMessage());
-        $this->assertStringContainsString('must be of type', $result->errors[0]->getMessage());
+        self::assertCount(1, $result->errors);
+        self::assertStringContainsString('Expected field Query.list to return iterable, but got: string.', $result->errors[0]->getMessage());
     }
 
     public function testTrustResultSkipsLeafSerialization(): void
@@ -59,11 +57,13 @@ final class TrustResultTest extends TestCase
 
         // Without trustResult, it returns 123 (int) because Type::int() serializes '123' to 123
         $result = Executor::execute($schema, Parser::parse($query));
-        $this->assertSame(123, $result->data['scalar']);
+        self::assertIsArray($result->data);
+        self::assertSame(123, $result->data['scalar']);
 
         // With trustResult, it should return '123' (string) directly without serialization
         $result = Executor::execute($schema, Parser::parse($query), null, null, null, null, null, true);
-        $this->assertSame('123', $result->data['scalar']);
+        self::assertIsArray($result->data);
+        self::assertSame('123', $result->data['scalar']);
     }
 
     public function testTrustResultSkipsIsTypeOfValidation(): void
@@ -95,13 +95,15 @@ final class TrustResultTest extends TestCase
 
         // Without trustResult, it should have an error
         $result = Executor::execute($schema, Parser::parse($query));
-        $this->assertCount(1, $result->errors);
-        $this->assertStringContainsString('Expected value of type "SomeType" but got:', $result->errors[0]->getMessage());
+        self::assertCount(1, $result->errors);
+        self::assertStringContainsString('Expected value of type "SomeType" but got:', $result->errors[0]->getMessage());
 
         // With trustResult, it should skip isTypeOf check
         $result = Executor::execute($schema, Parser::parse($query), null, null, null, null, null, true);
-        $this->assertCount(0, $result->errors);
-        $this->assertSame('bar', $result->data['obj']['foo']);
+        self::assertCount(0, $result->errors);
+        self::assertIsArray($result->data);
+        self::assertIsArray($result->data['obj']);
+        self::assertSame('bar', $result->data['obj']['foo']);
     }
 
     public function testTrustResultSkipsNonNullValidation(): void
@@ -122,12 +124,13 @@ final class TrustResultTest extends TestCase
 
         // Without trustResult, it should have an error
         $result = Executor::execute($schema, Parser::parse($query));
-        $this->assertCount(1, $result->errors);
-        $this->assertStringContainsString('Cannot return null for non-nullable field "Query.nonNull".', $result->errors[0]->getMessage());
+        self::assertCount(1, $result->errors);
+        self::assertStringContainsString('Cannot return null for non-nullable field "Query.nonNull".', $result->errors[0]->getMessage());
 
         // With trustResult, it returns null without error
         $result = Executor::execute($schema, Parser::parse($query), null, null, null, null, null, true);
-        $this->assertCount(0, $result->errors);
-        $this->assertNull($result->data['nonNull']);
+        self::assertCount(0, $result->errors);
+        self::assertIsArray($result->data);
+        self::assertNull($result->data['nonNull']);
     }
 }
