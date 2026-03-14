@@ -105,7 +105,8 @@ class ReferenceExecutor implements ExecutorImplementation
         array $variableValues,
         ?string $operationName,
         callable $fieldResolver,
-        ?callable $argsMapper = null // TODO make non-optional in next major release
+        ?callable $argsMapper = null, // TODO make non-optional in next major release
+        bool $trustResult = false
     ): ExecutorImplementation {
         $exeContext = static::buildExecutionContext(
             $schema,
@@ -117,6 +118,7 @@ class ReferenceExecutor implements ExecutorImplementation
             $fieldResolver,
             $argsMapper ?? Executor::getDefaultArgsMapper(),
             $promiseAdapter,
+            $trustResult
         );
 
         if (is_array($exeContext)) {
@@ -152,7 +154,8 @@ class ReferenceExecutor implements ExecutorImplementation
         ?string $operationName,
         callable $fieldResolver,
         callable $argsMapper,
-        PromiseAdapter $promiseAdapter
+        PromiseAdapter $promiseAdapter,
+        bool $trustResult = false
     ) {
         /** @var list<Error> $errors */
         $errors = [];
@@ -229,7 +232,8 @@ class ReferenceExecutor implements ExecutorImplementation
             $errors,
             $fieldResolver,
             $argsMapper,
-            $promiseAdapter
+            $promiseAdapter,
+            $trustResult
         );
     }
 
@@ -884,7 +888,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 $result,
                 $contextValue
             );
-            if ($completed === null) {
+            if ($completed === null && ! $this->exeContext->trustResult) {
                 throw new InvariantViolation("Cannot return null for non-nullable field \"{$info->parentType}.{$info->fieldName}\".");
             }
 
@@ -897,7 +901,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
         // If field type is List, complete each item in the list with the inner type
         if ($returnType instanceof ListOfType) {
-            if (! is_iterable($result)) {
+            if (! $this->exeContext->trustResult && ! is_iterable($result)) {
                 $resultType = gettype($result);
 
                 throw new InvariantViolation("Expected field {$info->parentType}.{$info->fieldName} to return iterable, but got: {$resultType}.");
@@ -1047,6 +1051,10 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     protected function completeLeafValue(LeafType $returnType, $result)
     {
+        if ($this->exeContext->trustResult) {
+            return $result;
+        }
+
         try {
             return $returnType->serialize($result);
         } catch (\Throwable $error) {
@@ -1219,36 +1227,38 @@ class ReferenceExecutor implements ExecutorImplementation
         // If there is an isTypeOf predicate function, call it with the
         // current result. If isTypeOf returns false, then raise an error rather
         // than continuing execution.
-        $isTypeOf = $returnType->isTypeOf($result, $contextValue, $info);
-        if ($isTypeOf !== null) {
-            $promise = $this->getPromise($isTypeOf);
-            if ($promise !== null) {
-                return $promise->then(function ($isTypeOfResult) use (
-                    $contextValue,
-                    $returnType,
-                    $fieldNodes,
-                    $path,
-                    $unaliasedPath,
-                    $result
-                ) {
-                    if (! $isTypeOfResult) {
-                        throw $this->invalidReturnTypeError($returnType, $result, $fieldNodes);
-                    }
-
-                    return $this->collectAndExecuteSubfields(
+        if (! $this->exeContext->trustResult) {
+            $isTypeOf = $returnType->isTypeOf($result, $contextValue, $info);
+            if ($isTypeOf !== null) {
+                $promise = $this->getPromise($isTypeOf);
+                if ($promise !== null) {
+                    return $promise->then(function ($isTypeOfResult) use (
+                        $contextValue,
                         $returnType,
                         $fieldNodes,
                         $path,
                         $unaliasedPath,
-                        $result,
-                        $contextValue
-                    );
-                });
-            }
+                        $result
+                    ) {
+                        if (! $isTypeOfResult) {
+                            throw $this->invalidReturnTypeError($returnType, $result, $fieldNodes);
+                        }
 
-            assert(is_bool($isTypeOf), 'Promise would return early');
-            if (! $isTypeOf) {
-                throw $this->invalidReturnTypeError($returnType, $result, $fieldNodes);
+                        return $this->collectAndExecuteSubfields(
+                            $returnType,
+                            $fieldNodes,
+                            $path,
+                            $unaliasedPath,
+                            $result,
+                            $contextValue
+                        );
+                    });
+                }
+
+                assert(is_bool($isTypeOf), 'Promise would return early');
+                if (! $isTypeOf) {
+                    throw $this->invalidReturnTypeError($returnType, $result, $fieldNodes);
+                }
             }
         }
 
