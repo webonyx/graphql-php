@@ -1,0 +1,48 @@
+name: Benchmarks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  benchmark:
+    name: Track benchmark history
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          coverage: none
+          php-version: "8.3"
+
+      - uses: ramsey/composer-install@v2
+
+      - name: Run PHPBench
+        run: |
+          php -d zend.assertions=-1 vendor/bin/phpbench run \
+            --progress=none \
+            --dump-file=benchmark.xml
+
+      - name: Convert results
+        run: php benchmarks/convert-results.php benchmark.xml > benchmark-results.json
+
+      - uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: customSmallerIsBetter
+          output-file-path: benchmark-results.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: ${{ github.ref == 'refs/heads/master' }}
+          gh-pages-branch: benchmark-results
+          benchmark-data-dir-path: dev/bench
+          alert-threshold: '150%'
+          # TODO: switch to true once baseline variance is understood
+          fail-on-alert: false
+          comment-on-alert: true
+          comment-always: false
