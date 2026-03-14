@@ -70,6 +70,11 @@ class GraphQL
      *    A set of rules for query validation step. Default value is all available rules.
      *    Empty array would allow to skip query validation (may be convenient for persisted
      *    queries which are validated before persisting and assumed valid during execution)
+     * trustResult:
+     *    When true, assumes resolver results are already correctly typed and serialized
+     *    and skips normal type and serialization checks. This is unsafe for untrusted
+     *    schemas or inputs and should only be enabled when you fully control the schema,
+     *    resolvers and execution pipeline.
      *
      * @param string|DocumentNode $source
      * @param mixed $rootValue
@@ -90,7 +95,8 @@ class GraphQL
         ?array $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null,
-        ?array $validationRules = null
+        ?array $validationRules = null,
+        bool $trustResult = false
     ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
@@ -103,7 +109,8 @@ class GraphQL
             $variableValues,
             $operationName,
             $fieldResolver,
-            $validationRules
+            $validationRules,
+            $trustResult
         );
 
         return $promiseAdapter->wait($promise);
@@ -118,6 +125,11 @@ class GraphQL
      * @param mixed $context
      * @param array<string, mixed>|null $variableValues
      * @param array<ValidationRule>|null $validationRules Defaults to using all available rules
+     * @param bool $trustResult When true, assumes resolver results are already correctly typed
+     *                          and serialized and skips normal type and serialization checks.
+     *                          This is unsafe for untrusted schemas or inputs and should only
+     *                          be enabled when you fully control the schema, resolvers and
+     *                          execution pipeline.
      *
      * @api
      *
@@ -132,7 +144,8 @@ class GraphQL
         ?array $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null,
-        ?array $validationRules = null
+        ?array $validationRules = null,
+        bool $trustResult = false
     ): Promise {
         try {
             $documentNode = $source instanceof DocumentNode
@@ -168,7 +181,9 @@ class GraphQL
                 $context,
                 $variableValues,
                 $operationName,
-                $fieldResolver
+                $fieldResolver,
+                null,
+                $trustResult
             );
         } catch (Error $e) {
             return $promiseAdapter->createFulfilled(
