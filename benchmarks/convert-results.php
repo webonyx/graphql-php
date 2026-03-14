@@ -9,7 +9,6 @@
  * stats/@mean is the mean time per revolution in microseconds,
  * computed by phpbench over all non-warm-up iterations.
  */
-
 $xmlFile = $argv[1] ?? null;
 
 if ($xmlFile === null) {
@@ -40,7 +39,7 @@ foreach ($xml->suite as $suite) {
                     continue;
                 }
 
-                if (!isset($variant->stats)) {
+                if (! isset($variant->stats)) {
                     continue;
                 }
 
