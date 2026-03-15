@@ -173,8 +173,7 @@ class Executor
         ?callable $argsMapper = null,
         bool $trustResult = false
     ): Promise {
-        $factory = self::$implementationFactory;
-        $args = [
+        $executor = (self::$implementationFactory)(
             $promiseAdapter,
             $schema,
             $documentNode,
@@ -185,9 +184,7 @@ class Executor
             $fieldResolver ?? self::$defaultFieldResolver,
             $argsMapper ?? self::$defaultArgsMapper,
             $trustResult,
-        ];
-
-        $executor = $factory(...$args);
+        );
 
         return $executor->doExecute();
     }

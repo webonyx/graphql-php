@@ -8,6 +8,9 @@ use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
+use GraphQL\Executor\Promise\PromiseAdapter;
+use GraphQL\Executor\ReferenceExecutor;
+use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\NotSpecial;
@@ -30,6 +33,9 @@ final class ExecutorTest extends TestCase
     public function tearDown(): void
     {
         Executor::setDefaultPromiseAdapter();
+        Executor::setImplementationFactory([ReferenceExecutor::class, 'create']);
+
+        parent::tearDown();
     }
 
     // Execute: Handles basic execution tasks
@@ -1367,23 +1373,21 @@ final class ExecutorTest extends TestCase
     {
         $called = false;
 
-        // This factory takes only 9 arguments, representing older userland implementations
-        // that do not typehint or expect the 10th `$trustResult` argument.
         Executor::setImplementationFactory(
+            // Represents older userland implementations that don't know newly added args
             static function (
-                $promiseAdapter,
-                $schema,
-                $documentNode,
+                PromiseAdapter $promiseAdapter,
+                Schema $schema,
+                DocumentNode $documentNode,
                 $rootValue,
                 $contextValue,
-                $variableValues,
-                $operationName,
-                $fieldResolver,
-                $argsMapper
+                array $variableValues,
+                ?string $operationName,
+                callable $fieldResolver
             ) use (&$called) {
                 $called = true;
 
-                return \GraphQL\Executor\ReferenceExecutor::create(
+                return ReferenceExecutor::create(
                     $promiseAdapter,
                     $schema,
                     $documentNode,
@@ -1391,9 +1395,7 @@ final class ExecutorTest extends TestCase
                     $contextValue,
                     $variableValues,
                     $operationName,
-                    $fieldResolver,
-                    $argsMapper,
-                    false
+                    $fieldResolver
                 );
             }
         );
@@ -1405,17 +1407,14 @@ final class ExecutorTest extends TestCase
             'query' => new ObjectType([
                 'name' => 'Type',
                 'fields' => [
-                    'a' => ['type' => Type::string()],
+                    'a' => Type::string(),
                 ],
             ]),
         ]);
 
-        $ex = Executor::execute($schema, $ast, $data);
+        $executor = Executor::execute($schema, $ast, $data);
 
         self::assertTrue($called);
-        self::assertSame(['data' => ['a' => 'b']], $ex->toArray());
-
-        // Reset the factory
-        Executor::setImplementationFactory([\GraphQL\Executor\ReferenceExecutor::class, 'create']);
+        self::assertSame(['data' => $data], $executor->toArray());
     }
 }
