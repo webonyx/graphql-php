@@ -115,7 +115,7 @@ class TrustResultBench
 
     public function benchBuiltinScalarFieldsTrusted(): void
     {
-        GraphQL::executeQuery($this->builtinScalarSchema, $this->builtinScalarQuery, trustResult: true);
+        GraphQL::executeQuery($this->builtinScalarSchema, $this->builtinScalarQuery, null, null, null, null, null, null, true);
     }
 
     /**
@@ -177,7 +177,7 @@ class TrustResultBench
 
     public function benchCustomScalarFieldsTrusted(): void
     {
-        GraphQL::executeQuery($this->customScalarSchema, $this->customScalarQuery, trustResult: true);
+        GraphQL::executeQuery($this->customScalarSchema, $this->customScalarQuery, null, null, null, null, null, null, true);
     }
 
     /**
@@ -226,7 +226,7 @@ class TrustResultBench
 
     public function benchIsTypeOfTrusted(): void
     {
-        GraphQL::executeQuery($this->typeOfSchema, $this->typeOfQuery, trustResult: true);
+        GraphQL::executeQuery($this->typeOfSchema, $this->typeOfQuery, null, null, null, null, null, null, true);
     }
 
     /**
@@ -289,6 +289,6 @@ class TrustResultBench
 
     public function benchCombinedQueryTrusted(): void
     {
-        GraphQL::executeQuery($this->combinedSchema, $this->combinedQuery, trustResult: true);
+        GraphQL::executeQuery($this->combinedSchema, $this->combinedQuery, null, null, null, null, null, null, true);
     }
 }
