@@ -5,6 +5,8 @@ This file provides guidance to coding agents when working with code in this repo
 ## Project Overview
 
 `webonyx/graphql-php` is a PHP implementation of the GraphQL specification.
+As a foundational library, it requires no dependencies to install.
+Supports PHP 7.4+.
 
 ## Development Workflow
 
@@ -22,9 +24,10 @@ make docs           # Generate class reference docs
 
 ## Public API
 
-Elements marked with `@api` in PHPDoc are part of the stable public API.
+The following elements are part of the stable public API:
 
-Constants listed in the [class-reference docs](https://webonyx.github.io/graphql-php/class-reference/) (generated via `generate-class-reference.php` with `'constants' => true`) are also stable public API, even without an `@api` tag.
+- Elements marked with `@api` in PHPDoc
+- Constants listed in `/docs/class-reference.md`, generated for classes with `'constants' => true` in `generate-class-reference.php`
 
 ## Code and Testing Expectations
 
