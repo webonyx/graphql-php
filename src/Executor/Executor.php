@@ -187,18 +187,6 @@ class Executor
             $trustResult,
         ];
 
-        try {
-            // Check if userland factory supports the 10th argument for BC
-            $reflector = new \ReflectionFunction(\Closure::fromCallable($factory));
-            if ($reflector->getNumberOfParameters() < 10) {
-                // Remove $trustResult argument for older implementations
-                array_pop($args);
-            }
-        } catch (\ReflectionException $e) {
-            // Fallback for safety, should not happen for valid callables
-        }
-
-        // @phpstan-ignore arguments.count
         $executor = $factory(...$args);
 
         return $executor->doExecute();
