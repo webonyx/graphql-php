@@ -129,9 +129,9 @@ class GraphQL
      * @param array<ValidationRule>|null $validationRules Defaults to using all available rules
      * @param bool $trustResult When true, assumes resolver results are already correctly typed
      *                          and serialized and skips normal type and serialization checks.
-     *                          This is purely for performance optimization. The tradeoff is 
-     *                          potentially corrupted results for the client if resolvers return 
-     *                          malformed data. Only enable this when you are confident that 
+     *                          This is purely for performance optimization. The tradeoff is
+     *                          potentially corrupted results for the client if resolvers return
+     *                          malformed data. Only enable this when you are confident that
      *                          your resolvers correctly return data conforming to the schema.
      *
      * @api

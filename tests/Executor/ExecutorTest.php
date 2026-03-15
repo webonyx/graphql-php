@@ -1366,7 +1366,7 @@ final class ExecutorTest extends TestCase
     public function testCustomImplementationFactoryIgnoresExtraArguments(): void
     {
         $called = false;
-        
+
         // This factory takes only 9 arguments, representing older userland implementations
         // that do not typehint or expect the 10th `$trustResult` argument.
         Executor::setImplementationFactory(
@@ -1382,6 +1382,7 @@ final class ExecutorTest extends TestCase
                 $argsMapper
             ) use (&$called) {
                 $called = true;
+
                 return \GraphQL\Executor\ReferenceExecutor::create(
                     $promiseAdapter,
                     $schema,
@@ -1410,10 +1411,10 @@ final class ExecutorTest extends TestCase
         ]);
 
         $ex = Executor::execute($schema, $ast, $data);
-        
+
         self::assertTrue($called);
         self::assertSame(['data' => ['a' => 'b']], $ex->toArray());
-        
+
         // Reset the factory
         Executor::setImplementationFactory([\GraphQL\Executor\ReferenceExecutor::class, 'create']);
     }
