@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.31.1
+
+### Fixed
+
+- Fix variable validation and input coercion for per-schema scalar overrides https://github.com/webonyx/graphql-php/pull/1876
+
 ## v15.31.0
 
 ### Added
