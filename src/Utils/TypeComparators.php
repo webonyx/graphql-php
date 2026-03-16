@@ -19,12 +19,7 @@ class TypeComparators
             return true;
         }
 
-        // Built-in scalars may exist as different instances when a type loader
-        // overrides them. Compare by name to handle this case.
-        if (Type::isBuiltInScalar($typeA)
-            && Type::isBuiltInScalar($typeB)
-            && $typeA->name() === $typeB->name()
-        ) {
+        if (self::areSameBuiltInScalar($typeA, $typeB)) {
             return true;
         }
 
@@ -55,12 +50,7 @@ class TypeComparators
             return true;
         }
 
-        // Built-in scalars may exist as different instances when a type loader
-        // overrides them. Compare by name to handle this case.
-        if (Type::isBuiltInScalar($maybeSubType)
-            && Type::isBuiltInScalar($superType)
-            && $maybeSubType->name() === $superType->name()
-        ) {
+        if (self::areSameBuiltInScalar($maybeSubType, $superType)) {
             return true;
         }
 
@@ -101,5 +91,16 @@ class TypeComparators
         }
 
         return false;
+    }
+
+    /**
+     * Built-in scalars may exist as different instances when a type loader
+     * overrides them. Compare by name to handle this case.
+     */
+    private static function areSameBuiltInScalar(Type $typeA, Type $typeB): bool
+    {
+        return Type::isBuiltInScalar($typeA)
+            && Type::isBuiltInScalar($typeB)
+            && $typeA->name() === $typeB->name();
     }
 }

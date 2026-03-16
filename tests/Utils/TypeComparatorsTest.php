@@ -55,6 +55,32 @@ final class TypeComparatorsTest extends TestCase
         ));
     }
 
+    public function testIsEqualTypeReturnsFalseForDifferentBuiltInScalars(): void
+    {
+        $customString = new CustomScalarType(['name' => Type::STRING]);
+
+        self::assertFalse(TypeComparators::isEqualType(Type::string(), Type::int()));
+        self::assertFalse(TypeComparators::isEqualType($customString, Type::int()));
+        self::assertFalse(TypeComparators::isEqualType(Type::nonNull(Type::string()), Type::nonNull(Type::int())));
+    }
+
+    public function testIsEqualTypeReturnsFalseForDifferentWrapping(): void
+    {
+        $customString = new CustomScalarType(['name' => Type::STRING]);
+
+        self::assertFalse(TypeComparators::isEqualType(Type::nonNull($customString), Type::string()));
+        self::assertFalse(TypeComparators::isEqualType(Type::listOf($customString), Type::string()));
+    }
+
+    public function testIsTypeSubTypeOfReturnsFalseForDifferentBuiltInScalars(): void
+    {
+        $schema = $this->createSchemaWithCustomString();
+        $customString = new CustomScalarType(['name' => Type::STRING]);
+
+        self::assertFalse(TypeComparators::isTypeSubTypeOf($schema, $customString, Type::int()));
+        self::assertFalse(TypeComparators::isTypeSubTypeOf($schema, Type::int(), $customString));
+    }
+
     /** @throws InvariantViolation */
     private function createSchemaWithCustomString(): Schema
     {
