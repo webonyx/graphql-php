@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1773675503638,
+  "lastUpdate": 1773676161410,
   "repoUrl": "https://github.com/webonyx/graphql-php",
   "entries": {
     "Benchmark": [
@@ -595,6 +595,155 @@ window.BENCHMARK_DATA = {
           {
             "name": "HugeSchemaBench::benchSmallQueryLazy",
             "value": 15.599,
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "ruudk@users.noreply.github.com",
+            "name": "Ruud Kamphuis",
+            "username": "ruudk"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "edf6ad7f3fb51aceb7cf9c8afe8a44d6d55ddf09",
+          "message": "Fix variable validation and input coercion for per-schema scalar overrides (#1876)\n\nPer-schema scalar overrides (#1869) allow type loaders to return custom\ninstances for built-in scalars (ID, String, Int, Float, Boolean). This\nintroduced two bugs where the custom instance and the built-in singleton\ndiverge, causing identity checks to fail.\n\nBug 1: Variable validation rejects valid queries.\nTypeComparators uses === to compare types. When a variable type is\nresolved via Schema::getType() (returning the custom instance) but the\nargument type references the built-in singleton, the identity check\nfails and VariablesInAllowedPosition reports a spurious error:\n\"Variable \"$id\" of type \"ID!\" used in position expecting type \"ID!\".\"\n\nFix: Add name-based equality in isEqualType() and isTypeSubTypeOf()\nfor built-in scalars, so two ScalarType instances with the same\nbuilt-in name are considered equal.\n\nBug 2: Input coercion calls the wrong parseValue().\nValue::coerceInputValue() calls parseValue() on the type from field\ndefinitions (the built-in singleton), not the custom override registered\nvia the type loader. Custom parsing logic (e.g. decoding a global ID)\nis silently skipped.\n\nFix: Pass the Schema into coerceInputValue() and resolve built-in\nscalars from the schema before calling parseValue(), mirroring the\noutput-side fix already in ReferenceExecutor::completeValue().\n\nAdditionally:\n- Add Type::isBuiltInScalar() to centralize the instanceof + name\n  check used across TypeComparators, Value, and ReferenceExecutor.\n- Scope the ReferenceExecutor schema type resolution (from #1869) to\n  built-in scalars only, matching the narrower fix elsewhere.\n- Replace silent fallbacks with assertions when the schema returns an\n  unexpected type for a built-in scalar name.\n\nFixes #1874\nRef #1869",
+          "timestamp": "2026-03-16T16:31:10+01:00",
+          "tree_id": "48460516ab0b720c5bf2f536a452b6f90e671f75",
+          "url": "https://github.com/webonyx/graphql-php/commit/edf6ad7f3fb51aceb7cf9c8afe8a44d6d55ddf09"
+        },
+        "date": 1773676160440,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "LexerBench::benchIntrospectionQuery",
+            "value": 0.47,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithoutOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithTypeLoaderOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithTypesOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithoutOverride",
+            "value": 0.164,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithTypeLoaderOverride",
+            "value": 0.164,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithTypesOverride",
+            "value": 0.164,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchSingleDeferred",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchNestedDeferred",
+            "value": 0.002,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain5",
+            "value": 0.005,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain100",
+            "value": 0.081,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyDeferreds",
+            "value": 0.449,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyNestedDeferreds",
+            "value": 12.305,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::bench1000Chains",
+            "value": 3.405,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchSchema",
+            "value": 0.005,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchHeroQuery",
+            "value": 0.344,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchNestedQuery",
+            "value": 0.765,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithFragment",
+            "value": 0.813,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithInterfaceFragment",
+            "value": 0.756,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchStarWarsIntrospectionQuery",
+            "value": 7.352,
+            "unit": "ms"
+          },
+          {
+            "name": "BuildSchemaBench::benchBuildSchema",
+            "value": 26.047,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchema",
+            "value": 12.874,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchemaLazy",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQuery",
+            "value": 17.259,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQueryLazy",
+            "value": 15.532,
             "unit": "ms"
           }
         ]
