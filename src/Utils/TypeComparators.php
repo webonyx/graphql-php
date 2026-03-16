@@ -5,6 +5,7 @@ namespace GraphQL\Utils;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -16,6 +17,14 @@ class TypeComparators
     {
         // Equivalent types are equal.
         if ($typeA === $typeB) {
+            return true;
+        }
+
+        // Named types with the same name are equal, even if they are different
+        // instances (e.g. a type loader override vs the built-in singleton).
+        if ($typeA instanceof NamedType && $typeB instanceof NamedType
+            && $typeA->name() === $typeB->name()
+        ) {
             return true;
         }
 
@@ -43,6 +52,14 @@ class TypeComparators
     {
         // Equivalent type is a valid subtype
         if ($maybeSubType === $superType) {
+            return true;
+        }
+
+        // Named types with the same name are equivalent, even if they are different
+        // instances (e.g. a type loader override vs the built-in singleton).
+        if ($maybeSubType instanceof NamedType && $superType instanceof NamedType
+            && $maybeSubType->name() === $superType->name()
+        ) {
             return true;
         }
 
