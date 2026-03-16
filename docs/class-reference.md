@@ -326,6 +326,9 @@ static function builtInScalars(): array
 /**
  * Determines if the given type is a built-in scalar (Int, Float, String, Boolean, ID).
  *
+ * Does not unwrap NonNull/List wrappers — checks the type instance directly.
+ * ScalarType is a NamedType, so {@see Type::getNamedType()} is unnecessary.
+ *
  * @param mixed $type
  *
  * @phpstan-assert-if-true ScalarType $type
