@@ -912,13 +912,14 @@ class ReferenceExecutor implements ExecutorImplementation
         // instance than `resolveType` or $field->getType() or $arg->getType()
         assert(
             $returnType === $this->exeContext->schema->getType($returnType->name)
-            || in_array($returnType->name, Type::BUILT_IN_SCALAR_NAMES, true),
+            || Type::isBuiltInScalar($returnType),
             SchemaValidationContext::duplicateType($this->exeContext->schema, "{$info->parentType}.{$info->fieldName}", $returnType->name)
         );
 
         if ($returnType instanceof LeafType) {
-            $schemaType = $this->exeContext->schema->getType($returnType->name);
-            if ($schemaType instanceof LeafType) {
+            if (Type::isBuiltInScalar($returnType)) {
+                $schemaType = $this->exeContext->schema->getType($returnType->name);
+                assert($schemaType instanceof LeafType, "Schema must provide a LeafType for built-in scalar \"{$returnType->name}\".");
                 $returnType = $schemaType;
             }
 
