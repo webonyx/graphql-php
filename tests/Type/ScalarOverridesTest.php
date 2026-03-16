@@ -4,7 +4,9 @@ namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
@@ -204,12 +206,147 @@ final class ScalarOverridesTest extends TestCase
         self::assertSame('abc-123', $data['identifier']);
     }
 
+    public function testTypeLoaderOverrideWithVariableOfOverriddenBuiltInScalarType(): void
+    {
+        $customID = self::createCustomID(static fn ($value): string => (string) $value);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'node' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'id' => Type::nonNull(Type::id()),
+                    ],
+                    'resolve' => static fn ($root, array $args): string => 'node-' . $args['id'],
+                ],
+            ],
+        ]);
+
+        $types = ['Query' => $queryType, 'ID' => $customID];
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+        ]);
+
+        $schema->assertValid();
+
+        $result = GraphQL::executeQuery($schema, 'query ($id: ID!) { node(id: $id) }', null, null, ['id' => 'abc-123']);
+
+        self::assertEmpty($result->errors, isset($result->errors[0]) ? $result->errors[0]->getMessage() : '');
+        self::assertSame(['data' => ['node' => 'node-abc-123']], $result->toArray());
+    }
+
+    public function testTypeLoaderOverrideWithNullableVariableOfOverriddenBuiltInScalarType(): void
+    {
+        $customString = self::createUppercaseString();
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'echo' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'text' => Type::string(),
+                    ],
+                    'resolve' => static fn ($root, array $args): ?string => $args['text'] ?? null,
+                ],
+            ],
+        ]);
+
+        $types = ['Query' => $queryType, 'String' => $customString];
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+        ]);
+
+        $schema->assertValid();
+
+        $result = GraphQL::executeQuery($schema, 'query ($text: String) { echo(text: $text) }', null, null, ['text' => 'hello']);
+
+        self::assertEmpty($result->errors, isset($result->errors[0]) ? $result->errors[0]->getMessage() : '');
+        self::assertSame(['data' => ['echo' => 'HELLO']], $result->toArray());
+    }
+
+    public function testTypeLoaderOverrideWithInputObjectFieldOfOverriddenBuiltInScalarType(): void
+    {
+        $customID = self::createCustomID(static fn ($value): string => 'custom-' . $value);
+
+        $inputType = new InputObjectType([
+            'name' => 'NodeInput',
+            'fields' => [
+                'id' => Type::nonNull(Type::id()),
+                'label' => Type::string(),
+            ],
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'node' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'input' => Type::nonNull($inputType),
+                    ],
+                    'resolve' => static fn ($root, array $args): string => $args['input']['id'] . ':' . ($args['input']['label'] ?? ''),
+                ],
+            ],
+        ]);
+
+        $types = ['Query' => $queryType, 'ID' => $customID, 'NodeInput' => $inputType];
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+        ]);
+
+        $schema->assertValid();
+
+        $result = GraphQL::executeQuery(
+            $schema,
+            'query ($input: NodeInput!) { node(input: $input) }',
+            null,
+            null,
+            ['input' => ['id' => 'abc-123', 'label' => 'test']],
+        );
+
+        self::assertEmpty($result->errors, isset($result->errors[0]) ? $result->errors[0]->getMessage() : '');
+        self::assertSame(['data' => ['node' => 'custom-abc-123:test']], $result->toArray());
+    }
+
+    /** @throws InvariantViolation */
+    private static function createCustomID(\Closure $parseValue): CustomScalarType
+    {
+        return new CustomScalarType([
+            'name' => Type::ID,
+            'serialize' => static fn ($value): string => (string) $value,
+            'parseValue' => $parseValue,
+            'parseLiteral' => static function ($node): string {
+                if (! $node instanceof StringValueNode) {
+                    throw new \Exception('Expected a string literal for ID.');
+                }
+
+                return $node->value;
+            },
+        ]);
+    }
+
     /** @throws InvariantViolation */
     private static function createUppercaseString(): CustomScalarType
     {
         return new CustomScalarType([
             'name' => Type::STRING,
             'serialize' => static fn ($value): string => strtoupper((string) $value),
+            'parseValue' => static fn ($value): string => (string) $value,
+            'parseLiteral' => static function ($node): string {
+                if (! $node instanceof StringValueNode) {
+                    throw new \Exception('Expected a string literal for String.');
+                }
+
+                return $node->value;
+            },
         ]);
     }
 

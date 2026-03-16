@@ -214,6 +214,21 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * Determines if the given type is a built-in scalar (Int, Float, String, Boolean, ID).
+     *
+     * @param mixed $type
+     *
+     * @phpstan-assert-if-true ScalarType $type
+     *
+     * @api
+     */
+    public static function isBuiltInScalar($type): bool
+    {
+        return $type instanceof ScalarType
+            && in_array($type->name, self::BUILT_IN_SCALAR_NAMES, true);
+    }
+
+    /**
      * Determines if the given type is an input type.
      *
      * @param mixed $type
