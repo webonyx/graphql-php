@@ -738,7 +738,8 @@ class ReferenceExecutor implements ExecutorImplementation
             $args = $this->fieldArgsCache[$fieldDef][$fieldNode] ??= $argsMapper(Values::getArgumentValues(
                 $fieldDef,
                 $fieldNode,
-                $this->exeContext->variableValues
+                $this->exeContext->variableValues,
+                $this->exeContext->schema,
             ), $fieldDef, $fieldNode, $contextValue);
 
             return $resolveFn($rootValue, $args, $contextValue, $info);

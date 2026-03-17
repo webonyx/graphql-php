@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
+use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -314,6 +315,50 @@ final class ScalarOverridesTest extends TestCase
 
         self::assertEmpty($result->errors, isset($result->errors[0]) ? $result->errors[0]->getMessage() : '');
         self::assertSame(['data' => ['node' => 'custom-abc-123:test']], $result->toArray());
+    }
+
+    public function testTypeLoaderOverrideCallsParseLiteralForInlineArgument(): void
+    {
+        $parseLiteralCalled = false;
+
+        $customID = new CustomScalarType([
+            'name' => Type::ID,
+            'serialize' => static fn ($value): string => (string) $value,
+            'parseValue' => static fn ($value): string => 'parsed-' . $value,
+            'parseLiteral' => static function ($node) use (&$parseLiteralCalled): string {
+                $parseLiteralCalled = true;
+
+                assert($node instanceof IntValueNode || $node instanceof StringValueNode);
+
+                return 'literal-' . $node->value;
+            },
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'node' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'id' => Type::nonNull(Type::id()),
+                    ],
+                    'resolve' => static fn ($root, array $args): string => 'node-' . $args['id'],
+                ],
+            ],
+        ]);
+
+        $types = ['Query' => $queryType, 'ID' => $customID];
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+        ]);
+
+        $result = GraphQL::executeQuery($schema, '{ node(id: 123) }');
+
+        self::assertEmpty($result->errors, isset($result->errors[0]) ? $result->errors[0]->getMessage() : '');
+        self::assertTrue($parseLiteralCalled, 'Expected custom parseLiteral to be called for inline literal argument');
+        self::assertSame(['data' => ['node' => 'node-literal-123']], $result->toArray());
     }
 
     /** @throws InvariantViolation */

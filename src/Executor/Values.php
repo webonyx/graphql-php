@@ -180,7 +180,7 @@ class Values
      *
      * @return array<string, mixed>
      */
-    public static function getArgumentValues($def, Node $node, ?array $variableValues = null): array
+    public static function getArgumentValues($def, Node $node, ?array $variableValues = null, ?Schema $schema = null): array
     {
         if ($def->args === []) {
             return [];
@@ -196,7 +196,7 @@ class Values
             }
         }
 
-        return static::getArgumentValuesForMap($def, $argumentValueMap, $variableValues, $node);
+        return static::getArgumentValuesForMap($def, $argumentValueMap, $variableValues, $node, $schema);
     }
 
     /**
@@ -209,7 +209,7 @@ class Values
      *
      * @return array<string, mixed>
      */
-    public static function getArgumentValuesForMap($def, array $argumentValueMap, ?array $variableValues = null, ?Node $referenceNode = null): array
+    public static function getArgumentValuesForMap($def, array $argumentValueMap, ?array $variableValues = null, ?Node $referenceNode = null, ?Schema $schema = null): array
     {
         /** @var array<string, mixed> $coercedValues */
         $coercedValues = [];
@@ -260,7 +260,7 @@ class Values
                     // usage here is of the correct type.
                     $coercedValues[$name] = $variableValues[$variableName] ?? null;
                 } else {
-                    $coercedValue = AST::valueFromAST($argumentValueNode, $argType, $variableValues);
+                    $coercedValue = AST::valueFromAST($argumentValueNode, $argType, $variableValues, $schema);
                     if (Utils::undefined() === $coercedValue) {
                         // Note: ValuesOfCorrectType validation should catch this before
                         // execution. This is a runtime check to ensure execution does not
