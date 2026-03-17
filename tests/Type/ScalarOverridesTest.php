@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
+use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\CustomScalarType;
@@ -359,6 +360,47 @@ final class ScalarOverridesTest extends TestCase
         self::assertEmpty($result->errors, isset($result->errors[0]) ? $result->errors[0]->getMessage() : '');
         self::assertTrue($parseLiteralCalled, 'Expected custom parseLiteral to be called for inline literal argument');
         self::assertSame(['data' => ['node' => 'node-literal-123']], $result->toArray());
+    }
+
+    public function testTypeLoaderOverrideCallsParseLiteralForDirectiveArgument(): void
+    {
+        $parseLiteralCalled = false;
+
+        $customBoolean = new CustomScalarType([
+            'name' => Type::BOOLEAN,
+            'serialize' => static fn ($value): bool => (bool) $value,
+            'parseValue' => static fn ($value): bool => (bool) $value,
+            'parseLiteral' => static function ($node) use (&$parseLiteralCalled): bool {
+                $parseLiteralCalled = true;
+
+                self::assertInstanceOf(BooleanValueNode::class, $node);
+
+                return $node->value;
+            },
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'greeting' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (): string => 'hello',
+                ],
+            ],
+        ]);
+
+        $types = ['Query' => $queryType, 'Boolean' => $customBoolean];
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+        ]);
+
+        $result = GraphQL::executeQuery($schema, '{ greeting @include(if: true) }');
+
+        self::assertEmpty($result->errors, isset($result->errors[0]) ? $result->errors[0]->getMessage() : '');
+        self::assertTrue($parseLiteralCalled, 'Expected custom parseLiteral to be called for inline directive argument');
+        self::assertSame(['data' => ['greeting' => 'hello']], $result->toArray());
     }
 
     /** @throws InvariantViolation */

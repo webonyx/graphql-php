@@ -154,13 +154,13 @@ class Values
      *
      * @return array<string, mixed>|null
      */
-    public static function getDirectiveValues(Directive $directiveDef, Node $node, ?array $variableValues = null): ?array
+    public static function getDirectiveValues(Directive $directiveDef, Node $node, ?array $variableValues = null, ?Schema $schema = null): ?array
     {
         $directiveDefName = $directiveDef->name;
 
         foreach ($node->directives as $directive) {
             if ($directive->name->value === $directiveDefName) {
-                return self::getArgumentValues($directiveDef, $directive, $variableValues);
+                return self::getArgumentValues($directiveDef, $directive, $variableValues, $schema);
             }
         }
 

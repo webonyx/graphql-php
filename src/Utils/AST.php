@@ -441,13 +441,14 @@ class AST
         }
 
         assert($type instanceof ScalarType, 'only remaining option');
+        $typeName = $type->name;
 
         // Account for type loader returning a different scalar instance than
         // the built-in singleton used in field definitions. Resolve the actual
         // type from the schema to ensure the correct parseLiteral() is called.
-        if ($schema !== null && Type::isBuiltInScalarName($type->name)) {
-            $schemaType = $schema->getType($type->name);
-            assert($schemaType instanceof ScalarType, "Schema must provide a ScalarType for built-in scalar \"{$type->name}\".");
+        if ($schema !== null && Type::isBuiltInScalarName($typeName)) {
+            $schemaType = $schema->getType($typeName);
+            assert($schemaType instanceof ScalarType, "Schema must provide a ScalarType for built-in scalar \"{$typeName}\".");
             $type = $schemaType;
         }
 
