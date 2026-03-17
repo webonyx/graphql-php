@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Type;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Warning;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
@@ -78,6 +79,51 @@ abstract class TypeLoaderTestCaseBase extends TestCaseBase
         ]);
 
         self::assertNull($schema->getType('NonExistingType'));
+    }
+
+    public function testThrowingTypeLoaderForBuiltInScalarTriggersDeprecation(): void
+    {
+        $schema = new Schema([
+            'query' => $this->query,
+            'typeLoader' => function (string $name): ?Type {
+                if (Type::isBuiltInScalarName($name)) {
+                    throw new \Exception("Type \"{$name}\" not found");
+                }
+
+                return ($this->typeLoader)($name);
+            },
+        ]);
+
+        $warnings = [];
+        Warning::setWarningHandler(static function (string $message, int $warningId) use (&$warnings): void {
+            $warnings[] = ['message' => $message, 'id' => $warningId];
+        });
+
+        try {
+            self::assertSame(Type::string(), $schema->getType('String'));
+            self::assertSame(Type::string(), $schema->getTypeMap()['String']);
+
+            self::assertNotEmpty($warnings);
+            self::assertSame(Warning::WARNING_CONFIG_DEPRECATION, $warnings[0]['id']);
+            self::assertStringContainsString('String', $warnings[0]['message']);
+        } finally {
+            Warning::setWarningHandler(null);
+        }
+    }
+
+    public function testThrowingTypeLoaderForNonBuiltInTypeIsNotCaught(): void
+    {
+        $schema = new Schema([
+            'query' => $this->query,
+            'typeLoader' => static function (string $name): ?Type {
+                throw new \Exception("Type \"{$name}\" not found");
+            },
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Type "Node" not found');
+
+        $schema->getType('Node');
     }
 
     public function testFailsOnNonType(): void
