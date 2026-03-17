@@ -466,10 +466,13 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         $variableValues = $this->exeContext->variableValues;
 
+        $schema = $this->exeContext->schema;
+
         $skip = Values::getDirectiveValues(
             Directive::skipDirective(),
             $node,
-            $variableValues
+            $variableValues,
+            $schema,
         );
         if (isset($skip['if']) && $skip['if'] === true) {
             return false;
@@ -478,7 +481,8 @@ class ReferenceExecutor implements ExecutorImplementation
         $include = Values::getDirectiveValues(
             Directive::includeDirective(),
             $node,
-            $variableValues
+            $variableValues,
+            $schema,
         );
 
         return ! isset($include['if']) || $include['if'] !== false;
@@ -738,7 +742,8 @@ class ReferenceExecutor implements ExecutorImplementation
             $args = $this->fieldArgsCache[$fieldDef][$fieldNode] ??= $argsMapper(Values::getArgumentValues(
                 $fieldDef,
                 $fieldNode,
-                $this->exeContext->variableValues
+                $this->exeContext->variableValues,
+                $this->exeContext->schema,
             ), $fieldDef, $fieldNode, $contextValue);
 
             return $resolveFn($rootValue, $args, $contextValue, $info);

@@ -48,4 +48,20 @@ final class TypeTest extends TestCase
     {
         self::assertFalse(Type::isBuiltInScalar(new CustomScalarType(['name' => 'MyScalar']))); // @phpstan-ignore staticMethod.alreadyNarrowedType
     }
+
+    public function testIsBuiltInScalarNameReturnsTrueForBuiltInNames(): void
+    {
+        self::assertTrue(Type::isBuiltInScalarName(Type::STRING));
+        self::assertTrue(Type::isBuiltInScalarName(Type::INT));
+        self::assertTrue(Type::isBuiltInScalarName(Type::FLOAT));
+        self::assertTrue(Type::isBuiltInScalarName(Type::BOOLEAN));
+        self::assertTrue(Type::isBuiltInScalarName(Type::ID));
+    }
+
+    public function testIsBuiltInScalarNameReturnsFalseForNonBuiltInNames(): void
+    {
+        self::assertFalse(Type::isBuiltInScalarName('MyScalar'));
+        self::assertFalse(Type::isBuiltInScalarName('Query'));
+        self::assertFalse(Type::isBuiltInScalarName(''));
+    }
 }

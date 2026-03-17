@@ -37,6 +37,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\NullableType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 
 /**
  * Various utilities dealing with AST.
@@ -307,7 +308,7 @@ class AST
      *
      * @api
      */
-    public static function valueFromAST(?ValueNode $valueNode, Type $type, ?array $variables = null)
+    public static function valueFromAST(?ValueNode $valueNode, Type $type, ?array $variables = null, ?Schema $schema = null)
     {
         $undefined = Utils::undefined();
 
@@ -323,7 +324,7 @@ class AST
                 return $undefined;
             }
 
-            return self::valueFromAST($valueNode, $type->getWrappedType(), $variables);
+            return self::valueFromAST($valueNode, $type->getWrappedType(), $variables, $schema);
         }
 
         if ($valueNode instanceof NullValueNode) {
@@ -362,7 +363,7 @@ class AST
 
                         $coercedValues[] = null;
                     } else {
-                        $itemValue = self::valueFromAST($itemNode, $itemType, $variables);
+                        $itemValue = self::valueFromAST($itemNode, $itemType, $variables, $schema);
                         if ($undefined === $itemValue) {
                             // Invalid: intentionally return no value.
                             return $undefined;
@@ -375,7 +376,7 @@ class AST
                 return $coercedValues;
             }
 
-            $coercedValue = self::valueFromAST($valueNode, $itemType, $variables);
+            $coercedValue = self::valueFromAST($valueNode, $itemType, $variables, $schema);
             if ($undefined === $coercedValue) {
                 // Invalid: intentionally return no value.
                 return $undefined;
@@ -416,7 +417,8 @@ class AST
                 $fieldValue = self::valueFromAST(
                     $fieldNode->value,
                     $field->getType(),
-                    $variables
+                    $variables,
+                    $schema,
                 );
 
                 if ($undefined === $fieldValue) {
@@ -439,6 +441,16 @@ class AST
         }
 
         assert($type instanceof ScalarType, 'only remaining option');
+        $typeName = $type->name;
+
+        // Account for type loader returning a different scalar instance than
+        // the built-in singleton used in field definitions. Resolve the actual
+        // type from the schema to ensure the correct parseLiteral() is called.
+        if ($schema !== null && Type::isBuiltInScalarName($typeName)) {
+            $schemaType = $schema->getType($typeName);
+            assert($schemaType instanceof ScalarType, "Schema must provide a ScalarType for built-in scalar \"{$typeName}\".");
+            $type = $schemaType;
+        }
 
         // Scalars fulfill parsing a literal value via parseLiteral().
         // Invalid values represent a failure to parse correctly, in which case
