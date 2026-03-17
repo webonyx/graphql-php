@@ -190,13 +190,14 @@ class Schema
             }
 
             if (isset($this->config->typeLoader)) {
+                $typeLoader = $this->config->typeLoader;
                 foreach (Type::BUILT_IN_SCALAR_NAMES as $scalarName) {
                     if (isset($scalarOverrides[$scalarName])) {
                         continue;
                     }
 
                     try {
-                        $type = ($this->config->typeLoader)($scalarName);
+                        $type = $typeLoader($scalarName);
                     } catch (\Throwable $e) {
                         self::deprecateThrowingTypeLoaderForBuiltInScalar($scalarName, $e);
                         continue;
