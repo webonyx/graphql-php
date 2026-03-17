@@ -194,7 +194,16 @@ class Schema
                         continue;
                     }
 
-                    $type = ($this->config->typeLoader)($scalarName);
+                    try {
+                        $type = ($this->config->typeLoader)($scalarName);
+                    } catch (\Throwable $e) {
+                        @trigger_error(
+                            "Type loader should return null for unknown types, but threw for built-in scalar \"{$scalarName}\": {$e->getMessage()}. In a future major version, this exception will not be caught.",
+                            \E_USER_DEPRECATED,
+                        );
+                        continue;
+                    }
+
                     if ($type instanceof ScalarType
                         && $type->name === $scalarName
                         && $type !== $builtInScalars[$scalarName]
@@ -366,7 +375,21 @@ class Schema
             return $this->getTypeMap()[$typeName] ?? null;
         }
 
-        $type = ($this->config->typeLoader)($typeName);
+        try {
+            $type = ($this->config->typeLoader)($typeName);
+        } catch (\Throwable $e) {
+            if (isset(Type::builtInScalars()[$typeName])) {
+                @trigger_error(
+                    "Type loader should return null for unknown types, but threw for built-in scalar \"{$typeName}\": {$e->getMessage()}. In a future major version, this exception will not be caught.",
+                    \E_USER_DEPRECATED,
+                );
+
+                return null;
+            }
+
+            throw $e;
+        }
+
         if ($type === null) {
             return null;
         }

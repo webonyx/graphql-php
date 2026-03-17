@@ -80,6 +80,56 @@ abstract class TypeLoaderTestCaseBase extends TestCaseBase
         self::assertNull($schema->getType('NonExistingType'));
     }
 
+    public function testThrowingTypeLoaderForBuiltInScalarTriggersDeprecation(): void
+    {
+        $schema = new Schema([
+            'query' => $this->query,
+            'typeLoader' => function (string $name): ?Type {
+                if (isset(Type::builtInScalars()[$name])) {
+                    throw new \Exception("Type \"{$name}\" not found");
+                }
+
+                return ($this->typeLoader)($name);
+            },
+        ]);
+
+        $deprecations = [];
+        set_error_handler(static function (int $errno, string $errstr) use (&$deprecations): bool {
+            if ($errno === \E_USER_DEPRECATED) {
+                $deprecations[] = $errstr;
+
+                return true;
+            }
+
+            return false;
+        });
+
+        try {
+            self::assertSame(Type::string(), $schema->getType('String'));
+            self::assertSame(Type::string(), $schema->getTypeMap()['String']);
+
+            self::assertNotEmpty($deprecations);
+            self::assertStringContainsString('String', $deprecations[0]);
+        } finally {
+            restore_error_handler();
+        }
+    }
+
+    public function testThrowingTypeLoaderForNonBuiltInTypeIsNotCaught(): void
+    {
+        $schema = new Schema([
+            'query' => $this->query,
+            'typeLoader' => static function (string $name): ?Type {
+                throw new \Exception("Type \"{$name}\" not found");
+            },
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Type "Node" not found');
+
+        $schema->getType('Node');
+    }
+
     public function testFailsOnNonType(): void
     {
         $notType = new \stdClass();
