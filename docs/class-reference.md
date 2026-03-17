@@ -2955,7 +2955,8 @@ static function astFromValue($value, GraphQL\Type\Definition\InputType $type): ?
 static function valueFromAST(
     ?GraphQL\Language\AST\ValueNode $valueNode,
     GraphQL\Type\Definition\Type $type,
-    ?array $variables = null
+    ?array $variables = null,
+    ?GraphQL\Type\Schema $schema = null
 )
 ```
 
