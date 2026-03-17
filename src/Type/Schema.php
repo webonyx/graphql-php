@@ -4,6 +4,7 @@ namespace GraphQL\Type;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Warning;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
@@ -197,10 +198,7 @@ class Schema
                     try {
                         $type = ($this->config->typeLoader)($scalarName);
                     } catch (\Throwable $e) {
-                        @trigger_error(
-                            "Type loader should return null for unknown types, but threw for built-in scalar \"{$scalarName}\": {$e->getMessage()}. In a future major version, this exception will not be caught.",
-                            \E_USER_DEPRECATED,
-                        );
+                        self::deprecateThrowingTypeLoaderForBuiltInScalar($scalarName, $e);
                         continue;
                     }
 
@@ -232,6 +230,15 @@ class Schema
     public function getDirectives(): array
     {
         return $this->config->directives ?? GraphQL::getStandardDirectives();
+    }
+
+    private static function deprecateThrowingTypeLoaderForBuiltInScalar(string $scalarName, \Throwable $e): void
+    {
+        Warning::warn(
+            "Type loader should return null for unknown types, but threw for built-in scalar \"{$scalarName}\": {$e->getMessage()}. In a future major version, this exception will not be caught.",
+            Warning::WARNING_CONFIG_DEPRECATION,
+            \E_USER_DEPRECATED,
+        );
     }
 
     /** @param mixed $typeLoaderReturn could be anything */
@@ -379,10 +386,7 @@ class Schema
             $type = ($this->config->typeLoader)($typeName);
         } catch (\Throwable $e) {
             if (Type::isBuiltInScalarName($typeName)) {
-                @trigger_error(
-                    "Type loader should return null for unknown types, but threw for built-in scalar \"{$typeName}\": {$e->getMessage()}. In a future major version, this exception will not be caught.",
-                    \E_USER_DEPRECATED,
-                );
+                self::deprecateThrowingTypeLoaderForBuiltInScalar($typeName, $e);
 
                 return null;
             }

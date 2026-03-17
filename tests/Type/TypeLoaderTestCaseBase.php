@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Type;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Warning;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
@@ -93,25 +94,20 @@ abstract class TypeLoaderTestCaseBase extends TestCaseBase
             },
         ]);
 
-        $deprecations = [];
-        set_error_handler(static function (int $errno, string $errstr) use (&$deprecations): bool {
-            if ($errno === \E_USER_DEPRECATED) {
-                $deprecations[] = $errstr;
-
-                return true;
-            }
-
-            return false;
+        $warnings = [];
+        Warning::setWarningHandler(static function (string $message, int $warningId) use (&$warnings): void {
+            $warnings[] = ['message' => $message, 'id' => $warningId];
         });
 
         try {
             self::assertSame(Type::string(), $schema->getType('String'));
             self::assertSame(Type::string(), $schema->getTypeMap()['String']);
 
-            self::assertNotEmpty($deprecations);
-            self::assertStringContainsString('String', $deprecations[0]);
+            self::assertNotEmpty($warnings);
+            self::assertSame(Warning::WARNING_CONFIG_DEPRECATION, $warnings[0]['id']);
+            self::assertStringContainsString('String', $warnings[0]['message']);
         } finally {
-            restore_error_handler();
+            Warning::setWarningHandler(null);
         }
     }
 
