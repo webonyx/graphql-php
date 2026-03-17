@@ -378,7 +378,7 @@ class Schema
         try {
             $type = ($this->config->typeLoader)($typeName);
         } catch (\Throwable $e) {
-            if (isset(Type::builtInScalars()[$typeName])) {
+            if (Type::isBuiltInScalarName($typeName)) {
                 @trigger_error(
                     "Type loader should return null for unknown types, but threw for built-in scalar \"{$typeName}\": {$e->getMessage()}. In a future major version, this exception will not be caught.",
                     \E_USER_DEPRECATED,

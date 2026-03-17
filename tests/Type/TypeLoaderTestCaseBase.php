@@ -85,7 +85,7 @@ abstract class TypeLoaderTestCaseBase extends TestCaseBase
         $schema = new Schema([
             'query' => $this->query,
             'typeLoader' => function (string $name): ?Type {
-                if (isset(Type::builtInScalars()[$name])) {
+                if (Type::isBuiltInScalarName($name)) {
                     throw new \Exception("Type \"{$name}\" not found");
                 }
 
