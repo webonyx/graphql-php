@@ -52,6 +52,13 @@ See [related documentation](executing-queries.md).
  *    A set of rules for query validation step. Default value is all available rules.
  *    Empty array would allow to skip query validation (may be convenient for persisted
  *    queries which are validated before persisting and assumed valid during execution)
+ * trustResult:
+ *    When true, assumes resolver results are already correctly typed and serialized
+ *    and skips normal type and serialization checks. This is purely for
+ *    performance optimization. The tradeoff is potentially corrupted results for the client
+ *    if resolvers return malformed data. Only enable this when you are confident
+ *    that your resolvers are safely and correctly returning data conforming to
+ *    the schema.
  *
  * @param string|DocumentNode $source
  * @param mixed $rootValue
@@ -72,7 +79,8 @@ static function executeQuery(
     ?array $variableValues = null,
     ?string $operationName = null,
     ?callable $fieldResolver = null,
-    ?array $validationRules = null
+    ?array $validationRules = null,
+    bool $trustResult = false
 ): GraphQL\Executor\ExecutionResult
 ```
 
@@ -86,6 +94,12 @@ static function executeQuery(
  * @param mixed $context
  * @param array<string, mixed>|null $variableValues
  * @param array<ValidationRule>|null $validationRules Defaults to using all available rules
+ * @param bool $trustResult When true, assumes resolver results are already correctly typed
+ *                          and serialized and skips normal type and serialization checks.
+ *                          This is purely for performance optimization. The tradeoff is
+ *                          potentially corrupted results for the client if resolvers return
+ *                          malformed data. Only enable this when you are confident that
+ *                          your resolvers correctly return data conforming to the schema.
  *
  * @api
  *
@@ -100,7 +114,8 @@ static function promiseToExecute(
     ?array $variableValues = null,
     ?string $operationName = null,
     ?callable $fieldResolver = null,
-    ?array $validationRules = null
+    ?array $validationRules = null,
+    bool $trustResult = false
 ): GraphQL\Executor\Promise\Promise
 ```
 
@@ -1606,7 +1621,7 @@ Implements the "Evaluating requests" section of the GraphQL specification.
 ```php
 @phpstan-type ArgsMapper callable(array<string, mixed>, FieldDefinition, FieldNode, mixed): mixed
 @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
-@phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable, callable): ExecutorImplementation
+@phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable, ?callable, bool): ExecutorImplementation
 ```
 
 @see \GraphQL\Tests\Executor\ExecutorTest
@@ -1637,7 +1652,8 @@ static function execute(
     $contextValue = null,
     ?array $variableValues = null,
     ?string $operationName = null,
-    ?callable $fieldResolver = null
+    ?callable $fieldResolver = null,
+    bool $trustResult = false
 ): GraphQL\Executor\ExecutionResult
 ```
 
@@ -1666,7 +1682,8 @@ static function promiseToExecute(
     ?array $variableValues = null,
     ?string $operationName = null,
     ?callable $fieldResolver = null,
-    ?callable $argsMapper = null
+    ?callable $argsMapper = null,
+    bool $trustResult = false
 ): GraphQL\Executor\Promise\Promise
 ```
 
