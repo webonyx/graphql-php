@@ -43,6 +43,7 @@ final class ScalarOverridesTest extends TestCase
         $schema = new Schema([
             'query' => $queryType,
             'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'typeLoaderSupportsScalars' => true,
         ]);
 
         $schema->assertValid();
@@ -65,6 +66,7 @@ final class ScalarOverridesTest extends TestCase
             $schema = new Schema([
                 'query' => $queryType,
                 'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+                'typeLoaderSupportsScalars' => true,
             ]);
 
             $result = GraphQL::executeQuery($schema, '{ greeting }');
@@ -117,6 +119,7 @@ final class ScalarOverridesTest extends TestCase
         $schema = new Schema([
             'query' => $queryType,
             'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'typeLoaderSupportsScalars' => true,
         ]);
 
         $result = GraphQL::executeQuery($schema, '{ __type(name: "Query") { fields { name } } }');
@@ -126,6 +129,28 @@ final class ScalarOverridesTest extends TestCase
         $fieldNames = array_column($fields, 'name');
 
         self::assertContains('GREETING', $fieldNames);
+    }
+
+    public function testTypeLoaderNotInvokedForScalarsWhenOptInNotSet(): void
+    {
+        $invocations = [];
+        $uppercaseString = self::createUppercaseString();
+        $queryType = self::createQueryType();
+        $types = ['Query' => $queryType, 'String' => $uppercaseString];
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static function (string $name) use ($types, &$invocations): ?Type {
+                $invocations[] = $name;
+
+                return $types[$name] ?? null;
+            },
+        ]);
+
+        $result = GraphQL::executeQuery($schema, '{ greeting }');
+
+        self::assertSame(['data' => ['greeting' => 'hello world']], $result->toArray());
+        self::assertNotContains('String', $invocations);
     }
 
     public function testTwoSchemasWithDifferentOverridesAreIndependent(): void
@@ -151,6 +176,7 @@ final class ScalarOverridesTest extends TestCase
         $schemaB = new Schema([
             'query' => $queryTypeB,
             'typeLoader' => static fn (string $name): ?Type => $typesB[$name] ?? null,
+            'typeLoaderSupportsScalars' => true,
         ]);
 
         $resultA = GraphQL::executeQuery($schemaA, '{ greeting }');
@@ -194,6 +220,7 @@ final class ScalarOverridesTest extends TestCase
         $schema = new Schema([
             'query' => $queryType,
             'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'typeLoaderSupportsScalars' => true,
         ]);
 
         $result = GraphQL::executeQuery($schema, '{ greeting count ratio active identifier }');

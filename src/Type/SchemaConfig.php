@@ -37,6 +37,7 @@ use GraphQL\Type\Definition\Type;
  *   types?: Types|null,
  *   directives?: array<Directive>|null,
  *   typeLoader?: TypeLoader|null,
+ *   typeLoaderSupportsScalars?: bool|null,
  *   assumeValid?: bool|null,
  *   astNode?: SchemaDefinitionNode|null,
  *   extensionASTNodes?: array<SchemaExtensionNode>|null,
@@ -71,6 +72,8 @@ class SchemaConfig
      * @phpstan-var TypeLoader|null
      */
     public $typeLoader;
+
+    public bool $typeLoaderSupportsScalars = false;
 
     public bool $assumeValid = false;
 
@@ -119,6 +122,10 @@ class SchemaConfig
 
             if (isset($options['typeLoader'])) {
                 $config->setTypeLoader($options['typeLoader']);
+            }
+
+            if (isset($options['typeLoaderSupportsScalars'])) {
+                $config->setTypeLoaderSupportsScalars($options['typeLoaderSupportsScalars']);
             }
 
             if (isset($options['assumeValid'])) {
@@ -294,6 +301,20 @@ class SchemaConfig
     public function setTypeLoader(?callable $typeLoader): self
     {
         $this->typeLoader = $typeLoader;
+
+        return $this;
+    }
+
+    /** @api */
+    public function getTypeLoaderSupportsScalars(): bool
+    {
+        return $this->typeLoaderSupportsScalars;
+    }
+
+    /** @api */
+    public function setTypeLoaderSupportsScalars(bool $supportsScalars): self
+    {
+        $this->typeLoaderSupportsScalars = $supportsScalars;
 
         return $this;
     }
