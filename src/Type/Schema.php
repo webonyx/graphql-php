@@ -188,13 +188,14 @@ class Schema
                 $allReferencedTypes[$name] = $override;
             }
 
-            if (isset($this->config->typeLoader)) {
+            $typeLoader = $this->config->getTypeLoader();
+            if ($typeLoader && $this->config->getTypeLoaderSupportsScalars()) {
                 foreach (Type::BUILT_IN_SCALAR_NAMES as $scalarName) {
                     if (isset($scalarOverrides[$scalarName])) {
                         continue;
                     }
 
-                    $type = ($this->config->typeLoader)($scalarName);
+                    $type = $typeLoader($scalarName);
                     if ($type instanceof ScalarType
                         && $type->name === $scalarName
                         && $type !== $builtInScalars[$scalarName]
@@ -362,11 +363,16 @@ class Schema
      */
     private function loadType(string $typeName): ?Type
     {
-        if (! isset($this->config->typeLoader)) {
+        $typeLoader = $this->config->getTypeLoader();
+        if (! $typeLoader) {
             return $this->getTypeMap()[$typeName] ?? null;
         }
 
-        $type = ($this->config->typeLoader)($typeName);
+        if (! $this->config->getTypeLoaderSupportsScalars() && in_array($typeName, Type::BUILT_IN_SCALAR_NAMES)) {
+            return null;
+        }
+
+        $type = $typeLoader($typeName);
         if ($type === null) {
             return null;
         }

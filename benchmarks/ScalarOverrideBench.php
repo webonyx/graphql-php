@@ -60,6 +60,7 @@ class ScalarOverrideBench
         $this->schemaTypeLoader = new Schema([
             'query' => $queryTypeLoader,
             'typeLoader' => static fn (string $name): ?Type => $typesForLoader[$name] ?? null,
+            'typeLoaderSupportsScalars' => true,
         ]);
 
         $queryTypeTypes = new ObjectType([

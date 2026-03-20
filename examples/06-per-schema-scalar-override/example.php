@@ -56,6 +56,7 @@ $types = ['Query' => $queryTypeForLoader, 'String' => $trimmedString];
 $schemaViaTypeLoader = new Schema([
     'query' => $queryTypeForLoader,
     'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+    'typeLoaderSupportsScalars' => true,
 ]);
 
 $result = GraphQL::executeQuery($schemaViaTypeLoader, '{ greeting(name: "World") }');
