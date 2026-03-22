@@ -346,16 +346,18 @@ class Schema
      */
     private function loadType(string $typeName): ?Type
     {
-        if (! isset($this->config->typeLoader)) {
+        $typeLoader = $this->config->typeLoader;
+
+        if (! isset($typeLoader)) {
             return $this->getTypeMap()[$typeName] ?? null;
         }
 
         // TODO https://github.com/webonyx/graphql-php/issues/1874 - reconsider supporting typeLoader-based scalar overrides in the next major version
-        if (isset(Type::builtInScalars()[$typeName])) {
+        if (Type::isBuiltInScalarName($typeName)) {
             return null;
         }
 
-        $type = ($this->config->typeLoader)($typeName);
+        $type = $typeLoader($typeName);
         if ($type === null) {
             return null;
         }

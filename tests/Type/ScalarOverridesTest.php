@@ -309,10 +309,11 @@ final class ScalarOverridesTest extends TestCase
             'typeLoader' => static function (string $name) use (&$calledWith, $queryType): ?Type {
                 $calledWith[] = $name;
 
-                return match ($name) {
-                    'Query' => $queryType,
-                    default => null,
-                };
+                if ($name === 'Query') {
+                    return $queryType;
+                }
+
+                return null;
             },
         ]);
 

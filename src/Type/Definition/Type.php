@@ -203,7 +203,7 @@ abstract class Type implements \JsonSerializable
                 throw new InvariantViolation("Expecting instance of {$typeClass}, got {$notType}");
             }
 
-            if (! in_array($type->name, self::BUILT_IN_SCALAR_NAMES, true)) {
+            if (! self::isBuiltInScalarName($type->name)) {
                 $standardTypeNames = implode(', ', self::BUILT_IN_SCALAR_NAMES);
                 $notStandardTypeName = Utils::printSafe($type->name);
                 throw new InvariantViolation("Expecting one of the following names for a standard type: {$standardTypeNames}; got {$notStandardTypeName}");
@@ -229,6 +229,12 @@ abstract class Type implements \JsonSerializable
     {
         return $type instanceof ScalarType
             && in_array($type->name, self::BUILT_IN_SCALAR_NAMES, true);
+    }
+
+    /** Checks if the given name is one of the built-in scalar type names (ID, String, Int, Float, Boolean). */
+    public static function isBuiltInScalarName(string $name): bool
+    {
+        return in_array($name, self::BUILT_IN_SCALAR_NAMES, true);
     }
 
     /**
