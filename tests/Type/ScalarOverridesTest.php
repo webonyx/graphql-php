@@ -298,6 +298,45 @@ final class ScalarOverridesTest extends TestCase
         self::assertSame(['data' => ['node' => 'custom-abc-123:test']], $result->toArray());
     }
 
+    public function testTypesOverrideWorksWithTypeLoader(): void
+    {
+        $uppercaseString = self::createUppercaseString();
+
+        $userType = new ObjectType([
+            'name' => 'User',
+            'fields' => [
+                'name' => Type::string(),
+            ],
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'greeting' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (): string => 'hello world',
+                ],
+                'user' => [
+                    'type' => $userType,
+                    'resolve' => static fn (): array => ['name' => 'Jane'],
+                ],
+            ],
+        ]);
+
+        $types = ['Query' => $queryType, 'User' => $userType];
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'types' => [$uppercaseString],
+        ]);
+
+        $schema->assertValid();
+
+        $result = GraphQL::executeQuery($schema, '{ greeting user { name } }');
+
+        self::assertSame(['data' => ['greeting' => 'HELLO WORLD', 'user' => ['name' => 'JANE']]], $result->toArray());
+    }
+
     /** @see https://github.com/webonyx/graphql-php/issues/1874 */
     public function testTypeLoaderIsNotCalledForBuiltInScalarNames(): void
     {
