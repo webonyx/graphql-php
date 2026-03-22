@@ -106,3 +106,30 @@ $emailType = new CustomScalarType([
 
 Keep in mind the passed functions will be called statically, so a passed in `callable`
 such as `[Foo::class, 'bar']` should only reference static class methods.
+
+## Overriding Built-in Scalars
+
+You can override built-in scalars (`String`, `Int`, `Float`, `Boolean`, `ID`) on a per-schema basis by passing a custom scalar with the same name through the `types` option.
+This works with or without a `typeLoader`:
+
+```php
+use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
+
+$uppercaseString = new CustomScalarType([
+    'name' => 'String',
+    'serialize' => static fn ($value): string => strtoupper((string) $value),
+]);
+
+$schema = new Schema([
+    'query' => $queryType,
+    'typeLoader' => $myTypeLoader,
+    'types' => [$uppercaseString],
+]);
+```
+
+The custom scalar replaces the built-in one throughout the entire schema, affecting both serialization of results and coercion of inputs.
+
+> **Note:** The `typeLoader` is never called for built-in scalar names.
+> Always use `types` to override them.
