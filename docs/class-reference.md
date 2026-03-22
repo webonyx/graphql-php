@@ -807,6 +807,7 @@ Usage example:
   types?: Types|null,
   directives?: array<Directive>|null,
   typeLoader?: TypeLoader|null,
+  typeLoaderSupportsScalars?: bool|null,
   assumeValid?: bool|null,
   astNode?: SchemaDefinitionNode|null,
   extensionASTNodes?: array<SchemaExtensionNode>|null,
