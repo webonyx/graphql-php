@@ -188,22 +188,6 @@ class Schema
                 $allReferencedTypes[$name] = $override;
             }
 
-            if (isset($this->config->typeLoader)) {
-                foreach (Type::BUILT_IN_SCALAR_NAMES as $scalarName) {
-                    if (isset($scalarOverrides[$scalarName])) {
-                        continue;
-                    }
-
-                    $type = ($this->config->typeLoader)($scalarName);
-                    if ($type instanceof ScalarType
-                        && $type->name === $scalarName
-                        && $type !== $builtInScalars[$scalarName]
-                    ) {
-                        $allReferencedTypes[$scalarName] = $type;
-                    }
-                }
-            }
-
             $this->resolvedTypes = $allReferencedTypes;
             $this->fullyLoaded = true;
         }
@@ -364,6 +348,11 @@ class Schema
     {
         if (! isset($this->config->typeLoader)) {
             return $this->getTypeMap()[$typeName] ?? null;
+        }
+
+        // TODO https://github.com/webonyx/graphql-php/issues/1874 - reconsider supporting typeLoader-based scalar overrides in the next major version
+        if (isset(Type::builtInScalars()[$typeName])) {
+            return null;
         }
 
         $type = ($this->config->typeLoader)($typeName);

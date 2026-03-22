@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Changed
+
+- Stop calling `typeLoader` for built-in scalar names (`String`, `Int`, `Float`, `Boolean`, `ID`), use `types` config for per-schema scalar overrides https://github.com/webonyx/graphql-php/issues/1874
+
 ## v15.31.1
 
 ### Fixed
