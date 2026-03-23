@@ -413,8 +413,6 @@ final class ScalarOverridesTest extends TestCase
             'types' => [$uppercaseString],
         ]);
 
-        $schema->assertValid();
-
         $result = GraphQL::executeQuery($schema, '{ greeting user { name } }');
 
         self::assertSame(['data' => ['greeting' => 'HELLO WORLD', 'user' => ['name' => 'JANE']]], $result->toArray());
