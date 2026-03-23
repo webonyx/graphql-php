@@ -228,7 +228,7 @@ abstract class Type implements \JsonSerializable
     public static function isBuiltInScalar($type): bool
     {
         return $type instanceof ScalarType
-            && in_array($type->name, self::BUILT_IN_SCALAR_NAMES, true);
+            && self::isBuiltInScalarName($type->name);
     }
 
     /** Checks if the given name is one of the built-in scalar type names (ID, String, Int, Float, Boolean). */

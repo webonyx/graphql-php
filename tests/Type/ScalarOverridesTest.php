@@ -4,6 +4,8 @@ namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
+use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -296,6 +298,87 @@ final class ScalarOverridesTest extends TestCase
 
         self::assertEmpty($result->errors, isset($result->errors[0]) ? $result->errors[0]->getMessage() : '');
         self::assertSame(['data' => ['node' => 'custom-abc-123:test']], $result->toArray());
+    }
+
+    public function testTypesOverrideCallsParseLiteralForInlineArgument(): void
+    {
+        $parseLiteralCalled = false;
+
+        $customID = new CustomScalarType([
+            'name' => Type::ID,
+            'serialize' => static fn ($value): string => (string) $value,
+            'parseValue' => static fn ($value): string => 'parsed-' . $value,
+            'parseLiteral' => static function ($node) use (&$parseLiteralCalled): string {
+                $parseLiteralCalled = true;
+
+                assert($node instanceof IntValueNode || $node instanceof StringValueNode);
+
+                return 'literal-' . $node->value;
+            },
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'node' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'id' => Type::nonNull(Type::id()),
+                    ],
+                    'resolve' => static fn ($root, array $args): string => 'node-' . $args['id'],
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'types' => [$customID],
+        ]);
+
+        $result = GraphQL::executeQuery($schema, '{ node(id: 123) }');
+
+        self::assertEmpty($result->errors, isset($result->errors[0]) ? $result->errors[0]->getMessage() : '');
+        self::assertTrue($parseLiteralCalled, 'Expected custom parseLiteral to be called for inline literal argument');
+        self::assertSame(['data' => ['node' => 'node-literal-123']], $result->toArray());
+    }
+
+    public function testTypesOverrideCallsParseLiteralForDirectiveArgument(): void
+    {
+        $parseLiteralCalled = false;
+
+        $customBoolean = new CustomScalarType([
+            'name' => Type::BOOLEAN,
+            'serialize' => static fn ($value): bool => (bool) $value,
+            'parseValue' => static fn ($value): bool => (bool) $value,
+            'parseLiteral' => static function ($node) use (&$parseLiteralCalled): bool {
+                $parseLiteralCalled = true;
+
+                self::assertInstanceOf(BooleanValueNode::class, $node);
+
+                return $node->value;
+            },
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'greeting' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (): string => 'hello',
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'types' => [$customBoolean],
+        ]);
+
+        $result = GraphQL::executeQuery($schema, '{ greeting @include(if: true) }');
+
+        self::assertEmpty($result->errors, isset($result->errors[0]) ? $result->errors[0]->getMessage() : '');
+        self::assertTrue($parseLiteralCalled, 'Expected custom parseLiteral to be called for directive argument');
+        self::assertSame(['data' => ['greeting' => 'hello']], $result->toArray());
     }
 
     public function testTypesOverrideWorksWithTypeLoader(): void
