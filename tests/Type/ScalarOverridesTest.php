@@ -36,15 +36,13 @@ final class ScalarOverridesTest extends TestCase
         Type::overrideStandardTypes(self::$originalStandardTypes);
     }
 
-    public function testTypeLoaderOverrideWorksEndToEnd(): void
+    public function testTypesOverrideWorksEndToEnd(): void
     {
         $uppercaseString = self::createUppercaseString();
-        $queryType = self::createQueryType();
-        $types = ['Query' => $queryType, 'String' => $uppercaseString];
 
         $schema = new Schema([
-            'query' => $queryType,
-            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'query' => self::createQueryType(),
+            'types' => [$uppercaseString],
         ]);
 
         $schema->assertValid();
@@ -54,19 +52,17 @@ final class ScalarOverridesTest extends TestCase
         self::assertSame(['data' => ['greeting' => 'HELLO WORLD']], $result->toArray());
     }
 
-    public function testTypeLoaderOverrideWorksInProductionMode(): void
+    public function testTypesOverrideWorksInProductionMode(): void
     {
         $assertActive = (int) ini_get('assert.active');
         @ini_set('assert.active', '0');
 
         try {
             $uppercaseString = self::createUppercaseString();
-            $queryType = self::createQueryType();
-            $types = ['Query' => $queryType, 'String' => $uppercaseString];
 
             $schema = new Schema([
-                'query' => $queryType,
-                'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+                'query' => self::createQueryType(),
+                'types' => [$uppercaseString],
             ]);
 
             $result = GraphQL::executeQuery($schema, '{ greeting }');
@@ -113,12 +109,10 @@ final class ScalarOverridesTest extends TestCase
     public function testIntrospectionUsesOverriddenScalar(): void
     {
         $uppercaseString = self::createUppercaseString();
-        $queryType = self::createQueryType();
-        $types = ['Query' => $queryType, 'String' => $uppercaseString];
 
         $schema = new Schema([
-            'query' => $queryType,
-            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'query' => self::createQueryType(),
+            'types' => [$uppercaseString],
         ]);
 
         $result = GraphQL::executeQuery($schema, '{ __type(name: "Query") { fields { name } } }');
@@ -141,18 +135,14 @@ final class ScalarOverridesTest extends TestCase
             'serialize' => static fn ($value): string => strrev((string) $value),
         ]);
 
-        $queryTypeA = self::createQueryType();
-        $typesA = ['Query' => $queryTypeA, 'String' => $uppercaseString];
         $schemaA = new Schema([
-            'query' => $queryTypeA,
-            'typeLoader' => static fn (string $name): ?Type => $typesA[$name] ?? null,
+            'query' => self::createQueryType(),
+            'types' => [$uppercaseString],
         ]);
 
-        $queryTypeB = self::createQueryType();
-        $typesB = ['Query' => $queryTypeB, 'String' => $reversedString];
         $schemaB = new Schema([
-            'query' => $queryTypeB,
-            'typeLoader' => static fn (string $name): ?Type => $typesB[$name] ?? null,
+            'query' => self::createQueryType(),
+            'types' => [$reversedString],
         ]);
 
         $resultA = GraphQL::executeQuery($schemaA, '{ greeting }');
@@ -191,11 +181,9 @@ final class ScalarOverridesTest extends TestCase
             ],
         ]);
 
-        $types = ['Query' => $queryType, 'String' => $uppercaseString];
-
         $schema = new Schema([
             'query' => $queryType,
-            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'types' => [$uppercaseString],
         ]);
 
         $result = GraphQL::executeQuery($schema, '{ greeting count ratio active identifier }');
@@ -208,7 +196,7 @@ final class ScalarOverridesTest extends TestCase
         self::assertSame('abc-123', $data['identifier']);
     }
 
-    public function testTypeLoaderOverrideWithVariableOfOverriddenBuiltInScalarType(): void
+    public function testTypesOverrideWithVariableOfOverriddenBuiltInScalarType(): void
     {
         $customID = self::createCustomID(static fn ($value): string => (string) $value);
 
@@ -225,11 +213,9 @@ final class ScalarOverridesTest extends TestCase
             ],
         ]);
 
-        $types = ['Query' => $queryType, 'ID' => $customID];
-
         $schema = new Schema([
             'query' => $queryType,
-            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'types' => [$customID],
         ]);
 
         $schema->assertValid();
@@ -240,7 +226,7 @@ final class ScalarOverridesTest extends TestCase
         self::assertSame(['data' => ['node' => 'node-abc-123']], $result->toArray());
     }
 
-    public function testTypeLoaderOverrideWithNullableVariableOfOverriddenBuiltInScalarType(): void
+    public function testTypesOverrideWithNullableVariableOfOverriddenBuiltInScalarType(): void
     {
         $customString = self::createUppercaseString();
 
@@ -257,11 +243,9 @@ final class ScalarOverridesTest extends TestCase
             ],
         ]);
 
-        $types = ['Query' => $queryType, 'String' => $customString];
-
         $schema = new Schema([
             'query' => $queryType,
-            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'types' => [$customString],
         ]);
 
         $schema->assertValid();
@@ -272,7 +256,7 @@ final class ScalarOverridesTest extends TestCase
         self::assertSame(['data' => ['echo' => 'HELLO']], $result->toArray());
     }
 
-    public function testTypeLoaderOverrideWithInputObjectFieldOfOverriddenBuiltInScalarType(): void
+    public function testTypesOverrideWithInputObjectFieldOfOverriddenBuiltInScalarType(): void
     {
         $customID = self::createCustomID(static fn ($value): string => 'custom-' . $value);
 
@@ -297,11 +281,9 @@ final class ScalarOverridesTest extends TestCase
             ],
         ]);
 
-        $types = ['Query' => $queryType, 'ID' => $customID, 'NodeInput' => $inputType];
-
         $schema = new Schema([
             'query' => $queryType,
-            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'types' => [$customID],
         ]);
 
         $schema->assertValid();
@@ -318,7 +300,7 @@ final class ScalarOverridesTest extends TestCase
         self::assertSame(['data' => ['node' => 'custom-abc-123:test']], $result->toArray());
     }
 
-    public function testTypeLoaderOverrideCallsParseLiteralForInlineArgument(): void
+    public function testTypesOverrideCallsParseLiteralForInlineArgument(): void
     {
         $parseLiteralCalled = false;
 
@@ -348,11 +330,9 @@ final class ScalarOverridesTest extends TestCase
             ],
         ]);
 
-        $types = ['Query' => $queryType, 'ID' => $customID];
-
         $schema = new Schema([
             'query' => $queryType,
-            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'types' => [$customID],
         ]);
 
         $result = GraphQL::executeQuery($schema, '{ node(id: 123) }');
@@ -362,7 +342,7 @@ final class ScalarOverridesTest extends TestCase
         self::assertSame(['data' => ['node' => 'node-literal-123']], $result->toArray());
     }
 
-    public function testTypeLoaderOverrideCallsParseLiteralForDirectiveArgument(): void
+    public function testTypesOverrideCallsParseLiteralForDirectiveArgument(): void
     {
         $parseLiteralCalled = false;
 
@@ -389,18 +369,83 @@ final class ScalarOverridesTest extends TestCase
             ],
         ]);
 
-        $types = ['Query' => $queryType, 'Boolean' => $customBoolean];
-
         $schema = new Schema([
             'query' => $queryType,
-            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'types' => [$customBoolean],
         ]);
 
         $result = GraphQL::executeQuery($schema, '{ greeting @include(if: true) }');
 
         self::assertEmpty($result->errors, isset($result->errors[0]) ? $result->errors[0]->getMessage() : '');
-        self::assertTrue($parseLiteralCalled, 'Expected custom parseLiteral to be called for inline directive argument');
+        self::assertTrue($parseLiteralCalled, 'Expected custom parseLiteral to be called for directive argument');
         self::assertSame(['data' => ['greeting' => 'hello']], $result->toArray());
+    }
+
+    public function testTypesOverrideWorksWithTypeLoader(): void
+    {
+        $uppercaseString = self::createUppercaseString();
+
+        $userType = new ObjectType([
+            'name' => 'User',
+            'fields' => [
+                'name' => Type::string(),
+            ],
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'greeting' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (): string => 'hello world',
+                ],
+                'user' => [
+                    'type' => $userType,
+                    'resolve' => static fn (): array => ['name' => 'Jane'],
+                ],
+            ],
+        ]);
+
+        $types = ['Query' => $queryType, 'User' => $userType];
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'types' => [$uppercaseString],
+        ]);
+
+        $schema->assertValid();
+
+        $result = GraphQL::executeQuery($schema, '{ greeting user { name } }');
+
+        self::assertSame(['data' => ['greeting' => 'HELLO WORLD', 'user' => ['name' => 'JANE']]], $result->toArray());
+    }
+
+    /** @see https://github.com/webonyx/graphql-php/issues/1874 */
+    public function testTypeLoaderIsNotCalledForBuiltInScalarNames(): void
+    {
+        $calledWith = [];
+        $queryType = self::createQueryType();
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static function (string $name) use (&$calledWith, $queryType): ?Type {
+                $calledWith[] = $name;
+
+                if ($name === 'Query') {
+                    return $queryType;
+                }
+
+                return null;
+            },
+        ]);
+
+        $result = GraphQL::executeQuery($schema, '{ greeting }');
+
+        self::assertSame(['data' => ['greeting' => 'hello world']], $result->toArray());
+
+        foreach (Type::BUILT_IN_SCALAR_NAMES as $scalarName) {
+            self::assertNotContains($scalarName, $calledWith, "typeLoader should not be called for built-in scalar '{$scalarName}'");
+        }
     }
 
     /** @throws InvariantViolation */

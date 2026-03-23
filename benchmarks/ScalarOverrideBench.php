@@ -23,8 +23,6 @@ class ScalarOverrideBench
 {
     private Schema $schemaBaseline;
 
-    private Schema $schemaTypeLoader;
-
     private Schema $schemaTypes;
 
     public function setUp(): void
@@ -47,21 +45,6 @@ class ScalarOverrideBench
             'query' => $queryTypeBaseline,
         ]);
 
-        $queryTypeLoader = new ObjectType([
-            'name' => 'Query',
-            'fields' => [
-                'greeting' => [
-                    'type' => Type::string(),
-                    'resolve' => static fn (): string => 'hello world',
-                ],
-            ],
-        ]);
-        $typesForLoader = ['Query' => $queryTypeLoader, 'String' => $uppercaseString];
-        $this->schemaTypeLoader = new Schema([
-            'query' => $queryTypeLoader,
-            'typeLoader' => static fn (string $name): ?Type => $typesForLoader[$name] ?? null,
-        ]);
-
         $queryTypeTypes = new ObjectType([
             'name' => 'Query',
             'fields' => [
@@ -82,11 +65,6 @@ class ScalarOverrideBench
         $this->schemaBaseline->getType('String');
     }
 
-    public function benchGetTypeWithTypeLoaderOverride(): void
-    {
-        $this->schemaTypeLoader->getType('String');
-    }
-
     public function benchGetTypeWithTypesOverride(): void
     {
         $this->schemaTypes->getType('String');
@@ -95,11 +73,6 @@ class ScalarOverrideBench
     public function benchExecuteWithoutOverride(): void
     {
         GraphQL::executeQuery($this->schemaBaseline, '{ greeting }');
-    }
-
-    public function benchExecuteWithTypeLoaderOverride(): void
-    {
-        GraphQL::executeQuery($this->schemaTypeLoader, '{ greeting }');
     }
 
     public function benchExecuteWithTypesOverride(): void

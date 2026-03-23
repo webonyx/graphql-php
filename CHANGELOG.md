@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Changed
+
+- Exclusively support `types` for per-schema scalar overrides, not `typeLoader` https://github.com/webonyx/graphql-php/pull/1884
+
 ## v15.31.1
 
 ### Fixed
