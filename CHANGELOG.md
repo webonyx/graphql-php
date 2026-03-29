@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.31.3
+
+### Fixed
+
+- Apply per-schema built-in scalar overrides without `assertValid()` https://github.com/webonyx/graphql-php/pull/1886
+
 ## v15.31.2
 
 ### Changed
