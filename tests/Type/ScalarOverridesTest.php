@@ -413,6 +413,134 @@ final class ScalarOverridesTest extends TestCase
             'types' => [$uppercaseString],
         ]);
 
+        $result = GraphQL::executeQuery($schema, '{ greeting user { name } }');
+
+        self::assertSame(['data' => ['greeting' => 'HELLO WORLD', 'user' => ['name' => 'JANE']]], $result->toArray());
+    }
+
+    public function testTypesOverrideWorksWithTypeLoaderAndAssertValid(): void
+    {
+        $uppercaseString = self::createUppercaseString();
+
+        $userType = new ObjectType([
+            'name' => 'User',
+            'fields' => [
+                'name' => Type::string(),
+            ],
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'greeting' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (): string => 'hello world',
+                ],
+                'user' => [
+                    'type' => $userType,
+                    'resolve' => static fn (): array => ['name' => 'Jane'],
+                ],
+            ],
+        ]);
+
+        $types = ['Query' => $queryType, 'User' => $userType];
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'types' => [$uppercaseString],
+        ]);
+
+        $schema->assertValid();
+
+        $result = GraphQL::executeQuery($schema, '{ greeting user { name } }');
+
+        self::assertSame(['data' => ['greeting' => 'HELLO WORLD', 'user' => ['name' => 'JANE']]], $result->toArray());
+    }
+
+    public function testGetTypeReturnsScalarOverrideWithTypeLoader(): void
+    {
+        $uppercaseString = self::createUppercaseString();
+        $queryType = self::createQueryType();
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $name === 'Query' ? $queryType : null,
+            'types' => [$uppercaseString],
+        ]);
+
+        self::assertSame($uppercaseString, $schema->getType(Type::STRING));
+    }
+
+    public function testTypesOverrideWorksWithCallableTypesConfig(): void
+    {
+        $uppercaseString = self::createUppercaseString();
+        $queryType = self::createQueryType();
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $name === 'Query' ? $queryType : null,
+            'types' => static fn (): array => [$uppercaseString],
+        ]);
+
+        $result = GraphQL::executeQuery($schema, '{ greeting }');
+
+        self::assertSame(['data' => ['greeting' => 'HELLO WORLD']], $result->toArray());
+    }
+
+    public function testTypesOverrideWorksWithGeneratorTypesConfig(): void
+    {
+        $uppercaseString = self::createUppercaseString();
+        $queryType = self::createQueryType();
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $name === 'Query' ? $queryType : null,
+            'types' => static function () use ($uppercaseString): \Generator {
+                yield $uppercaseString;
+            },
+        ]);
+
+        $result = GraphQL::executeQuery($schema, '{ greeting }');
+
+        self::assertSame(['data' => ['greeting' => 'HELLO WORLD']], $result->toArray());
+
+        $schema->assertValid();
+    }
+
+    public function testGetTypeThenAssertValidBothWorkWithTypeLoader(): void
+    {
+        $uppercaseString = self::createUppercaseString();
+
+        $userType = new ObjectType([
+            'name' => 'User',
+            'fields' => [
+                'name' => Type::string(),
+            ],
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'greeting' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (): string => 'hello world',
+                ],
+                'user' => [
+                    'type' => $userType,
+                    'resolve' => static fn (): array => ['name' => 'Jane'],
+                ],
+            ],
+        ]);
+
+        $types = ['Query' => $queryType, 'User' => $userType];
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $types[$name] ?? null,
+            'types' => [$uppercaseString],
+        ]);
+
+        self::assertSame($uppercaseString, $schema->getType(Type::STRING));
+
         $schema->assertValid();
 
         $result = GraphQL::executeQuery($schema, '{ greeting user { name } }');
