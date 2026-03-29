@@ -67,6 +67,9 @@ class Schema
     /** True when $resolvedTypes contains all possible schema types. */
     private bool $fullyLoaded = false;
 
+    /** @var array<string, ScalarType>|null Lazily initialised by getScalarOverrides(). */
+    private ?array $scalarOverrides = null;
+
     /** @var array<int, Error> */
     private array $validationErrors;
 
@@ -127,11 +130,7 @@ class Schema
             // Reset order of user provided types, since calls to getType() may have loaded them
             $this->resolvedTypes = [];
 
-            // Separate built-in scalar overrides to avoid identity conflicts
-            // with Type::string() etc. references in field definitions during extractTypes.
-            /** @var array<string, ScalarType> $scalarOverrides */
-            $scalarOverrides = [];
-            $builtInScalars = Type::builtInScalars();
+            $scalarOverrides = $this->getScalarOverrides();
 
             foreach ($types as $typeOrLazyType) {
                 /** @var Type|callable(): Type $typeOrLazyType */
@@ -141,11 +140,7 @@ class Schema
                 /** @var string $typeName Necessary assertion for PHPStan + PHP 8.2 */
                 $typeName = $type->name;
 
-                if ($type instanceof ScalarType
-                    && isset($builtInScalars[$typeName])
-                    && $type !== $builtInScalars[$typeName]
-                ) {
-                    $scalarOverrides[$typeName] = $type;
+                if (isset($scalarOverrides[$typeName])) {
                     continue;
                 }
 
@@ -186,22 +181,6 @@ class Schema
             // global singletons with user-provided instances.
             foreach ($scalarOverrides as $name => $override) {
                 $allReferencedTypes[$name] = $override;
-            }
-
-            if (isset($this->config->typeLoader)) {
-                foreach (Type::BUILT_IN_SCALAR_NAMES as $scalarName) {
-                    if (isset($scalarOverrides[$scalarName])) {
-                        continue;
-                    }
-
-                    $type = ($this->config->typeLoader)($scalarName);
-                    if ($type instanceof ScalarType
-                        && $type->name === $scalarName
-                        && $type !== $builtInScalars[$scalarName]
-                    ) {
-                        $allReferencedTypes[$scalarName] = $type;
-                    }
-                }
             }
 
             $this->resolvedTypes = $allReferencedTypes;
@@ -341,6 +320,11 @@ class Schema
             return $this->resolvedTypes[$name] = self::resolveType($type);
         }
 
+        $scalarOverrides = $this->getScalarOverrides();
+        if (isset($scalarOverrides[$name])) {
+            return $this->resolvedTypes[$name] = $scalarOverrides[$name];
+        }
+
         $builtInScalars = Type::builtInScalars();
         if (isset($builtInScalars[$name])) {
             return $this->resolvedTypes[$name] = $builtInScalars[$name];
@@ -362,11 +346,18 @@ class Schema
      */
     private function loadType(string $typeName): ?Type
     {
-        if (! isset($this->config->typeLoader)) {
+        $typeLoader = $this->config->typeLoader;
+
+        if (! isset($typeLoader)) {
             return $this->getTypeMap()[$typeName] ?? null;
         }
 
-        $type = ($this->config->typeLoader)($typeName);
+        // TODO https://github.com/webonyx/graphql-php/issues/1874 - reconsider supporting typeLoader-based scalar overrides in the next major version
+        if (Type::isBuiltInScalarName($typeName)) {
+            return null;
+        }
+
+        $type = $typeLoader($typeName);
         if ($type === null) {
             return null;
         }
@@ -381,6 +372,40 @@ class Schema
         }
 
         return $type;
+    }
+
+    /** @return array<string, ScalarType> */
+    private function getScalarOverrides(): array
+    {
+        if ($this->scalarOverrides === null) {
+            $this->scalarOverrides = [];
+
+            $types = $this->config->types;
+            if (is_callable($types)) {
+                $types = $types();
+            }
+
+            // Materialize the iterable in case it is a generator, so that
+            // getTypeMap() can still iterate config->types later.
+            if (! is_array($types)) {
+                $types = iterator_to_array($types);
+                $this->config->types = $types;
+            }
+
+            $builtInScalars = Type::builtInScalars();
+            foreach ($types as $typeOrLazyType) {
+                /** @var Type|callable(): Type $typeOrLazyType */
+                $type = self::resolveType($typeOrLazyType);
+                if ($type instanceof ScalarType
+                    && isset($builtInScalars[$type->name])
+                    && $type !== $builtInScalars[$type->name]
+                ) {
+                    $this->scalarOverrides[$type->name] = $type;
+                }
+            }
+        }
+
+        return $this->scalarOverrides;
     }
 
     /**

@@ -13,6 +13,28 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 - Allow injecting pre-built type instances when building a schema from SDL https://github.com/webonyx/graphql-php/issues/681
 
+## v15.31.3
+
+### Fixed
+
+- Apply per-schema built-in scalar overrides without `assertValid()` https://github.com/webonyx/graphql-php/pull/1886
+
+## v15.31.2
+
+### Changed
+
+- Exclusively support `types` for per-schema built-in scalar overrides, not `typeLoader` https://github.com/webonyx/graphql-php/pull/1884
+
+### Fixed
+
+- Fix `parseLiteral` not called on per-schema built-in scalar overrides for inline arguments https://github.com/webonyx/graphql-php/pull/1880
+
+## v15.31.1
+
+### Fixed
+
+- Fix variable validation and input coercion for per-schema scalar overrides https://github.com/webonyx/graphql-php/pull/1876
+
 ## v15.31.0
 
 ### Added
