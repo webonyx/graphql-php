@@ -142,7 +142,6 @@ class SchemaExtender
         $this->astBuilder = new ASTDefinitionBuilder(
             $typeDefinitionMap,
             [],
-            // @phpstan-ignore-next-line no idea what is wrong here
             function (string $typeName) use ($schema): Type {
                 $existingType = $schema->getType($typeName);
                 if ($existingType === null) {
