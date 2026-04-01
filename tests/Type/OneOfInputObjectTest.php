@@ -322,6 +322,7 @@ final class OneOfInputObjectTest extends TestCaseBase
      *     stringField: String
      *     intField: Int
      *   }
+     *
      * @throws \GraphQL\Error\InvariantViolation
      */
     private function buildOneOfSchema(): Schema
