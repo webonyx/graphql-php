@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.31.4
+
+### Changed
+
+- Prioritize count error over null error in `@oneOf` coercion https://github.com/webonyx/graphql-php/pull/1891
+
 ## v15.31.3
 
 ### Fixed
