@@ -2790,6 +2790,7 @@ See [schema definition language docs](schema-definition-language.md) for details
  *
  * @param DocumentNode|Source|string $source
  * @param array<string, bool> $options
+ * @param iterable<Type&NamedType> $types
  *
  * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
  * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
@@ -2807,7 +2808,8 @@ static function build(
     $source,
     ?callable $typeConfigDecorator = null,
     array $options = [],
-    ?callable $fieldConfigDecorator = null
+    ?callable $fieldConfigDecorator = null,
+    iterable $types = []
 ): GraphQL\Type\Schema
 ```
 
@@ -2821,6 +2823,7 @@ static function build(
  * has no resolve methods, so execution will use default resolvers.
  *
  * @param array<string, bool> $options
+ * @param iterable<Type&NamedType> $types
  *
  * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
  * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
@@ -2837,7 +2840,8 @@ static function buildAST(
     GraphQL\Language\AST\DocumentNode $ast,
     ?callable $typeConfigDecorator = null,
     array $options = [],
-    ?callable $fieldConfigDecorator = null
+    ?callable $fieldConfigDecorator = null,
+    iterable $types = []
 ): GraphQL\Type\Schema
 ```
 

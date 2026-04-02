@@ -24,6 +24,7 @@ use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use GraphQL\Tests\TestCaseBase;
+use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
@@ -1450,6 +1451,71 @@ final class BuildSchemaTest extends TestCaseBase
         $hello = $schema->getType('Hello');
         self::assertInstanceOf(InterfaceType::class, $hello);
         self::assertSame('My description of Hello', $hello->description);
+    }
+
+    public function testBuildSchemaWithTypeOverrides(): void
+    {
+        $sdl = '
+            schema {
+              query: Query
+            }
+
+            type Query {
+              value: MyScalar
+              status: Status
+            }
+
+            scalar MyScalar
+
+            enum Status {
+              ACTIVE
+              INACTIVE
+            }
+        ';
+
+        $myScalar = new CustomScalarType([
+            'name' => 'MyScalar',
+            'serialize' => static fn ($value) => 'serialized:' . $value,
+            'parseValue' => static fn ($value) => 'parsed:' . $value,
+        ]);
+
+        $myEnum = new EnumType([
+            'name' => 'Status',
+            'values' => [
+                'ACTIVE' => [
+                    'value' => 1,
+                ],
+                'INACTIVE' => [
+                    'value' => 0,
+                ],
+            ],
+        ]);
+
+        $extraType = new ObjectType([
+            'name' => 'ExtraType',
+            'fields' => [
+                'id' => \GraphQL\Type\Definition\Type::string(),
+            ],
+        ]);
+
+        $schema = BuildSchema::build($sdl, null, [], null, [$myScalar, $myEnum, $extraType]);
+
+        $scalar = $schema->getType('MyScalar');
+        self::assertSame($myScalar, $scalar);
+
+        $enum = $schema->getType('Status');
+        self::assertSame($myEnum, $enum);
+
+        $extra = $schema->getType('ExtraType');
+        self::assertSame($extraType, $extra);
+
+        // Verify the custom scalar serialize/parseValue are actually used
+        $result = GraphQL::executeQuery(
+            $schema,
+            '{ value }',
+            ['value' => 'hello']
+        );
+        self::assertSame(['value' => 'serialized:hello'], $result->data);
     }
 
     public function testCreatesTypesLazily(): void

@@ -14,6 +14,7 @@ use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
@@ -68,8 +69,12 @@ class BuildSchema
      */
     private array $options;
 
+    /** @var iterable<Type&NamedType> */
+    private iterable $types;
+
     /**
      * @param array<string, bool> $options
+     * @param iterable<Type&NamedType> $types
      *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      * @phpstan-param BuildSchemaOptions $options
@@ -78,12 +83,14 @@ class BuildSchema
         DocumentNode $ast,
         ?callable $typeConfigDecorator = null,
         array $options = [],
-        ?callable $fieldConfigDecorator = null
+        ?callable $fieldConfigDecorator = null,
+        iterable $types = []
     ) {
         $this->ast = $ast;
         $this->typeConfigDecorator = $typeConfigDecorator;
         $this->options = $options;
         $this->fieldConfigDecorator = $fieldConfigDecorator;
+        $this->types = $types;
     }
 
     /**
@@ -92,6 +99,7 @@ class BuildSchema
      *
      * @param DocumentNode|Source|string $source
      * @param array<string, bool> $options
+     * @param iterable<Type&NamedType> $types
      *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
@@ -109,13 +117,14 @@ class BuildSchema
         $source,
         ?callable $typeConfigDecorator = null,
         array $options = [],
-        ?callable $fieldConfigDecorator = null
+        ?callable $fieldConfigDecorator = null,
+        iterable $types = []
     ): Schema {
         $doc = $source instanceof DocumentNode
             ? $source
             : Parser::parse($source);
 
-        return self::buildAST($doc, $typeConfigDecorator, $options, $fieldConfigDecorator);
+        return self::buildAST($doc, $typeConfigDecorator, $options, $fieldConfigDecorator, $types);
     }
 
     /**
@@ -127,6 +136,7 @@ class BuildSchema
      * has no resolve methods, so execution will use default resolvers.
      *
      * @param array<string, bool> $options
+     * @param iterable<Type&NamedType> $types
      *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
@@ -143,9 +153,10 @@ class BuildSchema
         DocumentNode $ast,
         ?callable $typeConfigDecorator = null,
         array $options = [],
-        ?callable $fieldConfigDecorator = null
+        ?callable $fieldConfigDecorator = null,
+        iterable $types = []
     ): Schema {
-        return (new self($ast, $typeConfigDecorator, $options, $fieldConfigDecorator))->buildSchema();
+        return (new self($ast, $typeConfigDecorator, $options, $fieldConfigDecorator, $types))->buildSchema();
     }
 
     /**
@@ -201,6 +212,18 @@ class BuildSchema
                 'subscription' => 'Subscription',
             ];
 
+        /** @var array<string, Type&NamedType> $typeOverrides */
+        $typeOverrides = [];
+        /** @var array<string, Type&NamedType> $extraTypesMap */
+        $extraTypesMap = [];
+        foreach ($this->types as $type) {
+            if (isset($typeDefinitionsMap[$type->name])) {
+                $typeOverrides[$type->name] = $type;
+            } else {
+                $extraTypesMap[$type->name] = $type;
+            }
+        }
+
         $definitionBuilder = new ASTDefinitionBuilder(
             $typeDefinitionsMap,
             $typeExtensionsMap,
@@ -208,7 +231,8 @@ class BuildSchema
                 throw self::unknownType($typeName);
             },
             $this->typeConfigDecorator,
-            $this->fieldConfigDecorator
+            $this->fieldConfigDecorator,
+            $typeOverrides
         );
 
         $directives = array_map(
@@ -253,12 +277,16 @@ class BuildSchema
                 ->setSubscription(isset($operationTypes['subscription'])
                     ? $definitionBuilder->maybeBuildType($operationTypes['subscription'])
                     : null)
-                ->setTypeLoader(static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name))
+                ->setTypeLoader(static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name)
+                    ?? ($extraTypesMap[$name] ?? null))
                 ->setDirectives($directives)
                 ->setAstNode($schemaDef)
-                ->setTypes(fn (): array => array_map(
-                    static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->getName()->value),
-                    $typeDefinitionsMap,
+                ->setTypes(fn (): array => array_merge(
+                    array_map(
+                        static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->getName()->value),
+                        $typeDefinitionsMap,
+                    ),
+                    array_values($extraTypesMap),
                 ))
         );
     }
