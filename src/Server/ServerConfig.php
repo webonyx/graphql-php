@@ -85,6 +85,9 @@ class ServerConfig
                 case 'promiseAdapter':
                     $instance->setPromiseAdapter($value);
                     break;
+                case 'trustResult':
+                    $instance->setTrustResult($value);
+                    break;
                 default:
                     throw new InvariantViolation("Unknown server config option: {$key}");
             }
@@ -134,6 +137,8 @@ class ServerConfig
     private $fieldResolver;
 
     private ?PromiseAdapter $promiseAdapter = null;
+
+    private bool $trustResult = false;
 
     /**
      * @var callable|null
@@ -276,6 +281,14 @@ class ServerConfig
         return $this;
     }
 
+    /** @api */
+    public function setTrustResult(bool $trustResult): self
+    {
+        $this->trustResult = $trustResult;
+
+        return $this;
+    }
+
     /** @return mixed|callable */
     public function getContext()
     {
@@ -343,5 +356,10 @@ class ServerConfig
     public function getQueryBatching(): bool
     {
         return $this->queryBatching;
+    }
+
+    public function getTrustResult(): bool
+    {
+        return $this->trustResult;
     }
 }
