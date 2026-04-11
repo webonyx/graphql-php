@@ -3,6 +3,23 @@
 This is a PHP implementation of the [GraphQL](https://graphql.org) [specification](https://github.com/graphql/graphql-spec)
 based on the [reference implementation in JavaScript](https://github.com/graphql/graphql-js).
 
+## Sponsors
+
+If you make money using this project, please consider sponsoring [its maintainer on GitHub Sponsors](https://github.com/sponsors/spawnia) or [the project on OpenCollective](https://opencollective.com/webonyx-graphql-php).
+
+<a href="https://opencollective.com/webonyx-graphql-php#backers" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/backers.svg?width=890"></a>
+
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/0/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/1/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/2/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/3/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/4/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/5/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/6/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/7/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/8/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/9/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/9/avatar.svg"></a>
+
 ## Installation
 
 Via composer:
@@ -32,23 +49,3 @@ All other elements are not part of this backwards compatibility guarantee and ma
 
 The most recent version is actively developed on [`master`](https://github.com/webonyx/graphql-php/tree/master).
 Older versions are generally no longer supported, although exceptions may be made for [sponsors](#sponsors).
-
-## Backers
-
-<a href="https://opencollective.com/webonyx-graphql-php#backers" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/backers.svg?width=890"></a>
-
-## Sponsors
-
-Support this project by becoming a sponsor via [OpenCollective](https://opencollective.com/webonyx-graphql-php#sponsor) or [GitHub Sponsors](https://github.com/sponsors/spawnia).
-Your logo will show up here with a link to your website.
-
-<a href="https://opencollective.com/webonyx-graphql-php/sponsor/0/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/webonyx-graphql-php/sponsor/1/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/webonyx-graphql-php/sponsor/2/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/webonyx-graphql-php/sponsor/3/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/webonyx-graphql-php/sponsor/4/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/webonyx-graphql-php/sponsor/5/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/webonyx-graphql-php/sponsor/6/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/webonyx-graphql-php/sponsor/7/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/webonyx-graphql-php/sponsor/8/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/webonyx-graphql-php/sponsor/9/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/9/avatar.svg"></a>
