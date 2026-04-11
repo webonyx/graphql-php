@@ -3,12 +3,14 @@
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 
 final class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
@@ -1235,6 +1237,40 @@ final class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         fragment fragB on Human { name, ...fragC }
         fragment fragC on Human { name, ...fragA }
         '
+        );
+    }
+
+    public function testManyRepeatedFieldsDoNotCauseQuadraticBlowup(): void
+    {
+        $repeatedFields = str_repeat('name ', 3000);
+        $query = "
+      fragment manyRepeatedFields on Dog {
+        {$repeatedFields}
+      }
+        ";
+        $this->expectPassesRule(
+            new OverlappingFieldsCanBeMerged(),
+            $query
+        );
+    }
+
+    public function testManyRepeatedFieldsWithConflictStillDetected(): void
+    {
+        $repeatedFields = str_repeat('name ', 100);
+        $query = "
+      fragment conflictsAmongMany on Dog {
+        {$repeatedFields}
+        name: nickname
+      }
+        ";
+
+        $rule = new OverlappingFieldsCanBeMerged();
+        $errors = DocumentValidator::validate(self::getTestSchema(), Parser::parse($query), [$rule]);
+
+        self::assertNotEmpty($errors);
+        self::assertStringContainsString(
+            'name and nickname are different fields',
+            $errors[0]->getMessage(),
         );
     }
 

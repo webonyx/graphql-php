@@ -308,6 +308,14 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 continue;
             }
 
+            // Deduplicate structurally identical fields to avoid O(n²) blowup
+            // when a query repeats the same field many times.
+            $fields = $this->deduplicateFields($fields);
+            $fieldsLength = count($fields);
+            if ($fieldsLength <= 1) {
+                continue;
+            }
+
             for ($i = 0; $i < $fieldsLength; ++$i) {
                 for ($j = $i + 1; $j < $fieldsLength; ++$j) {
                     $conflict = $this->findConflict(
@@ -323,6 +331,54 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 }
             }
         }
+    }
+
+    /**
+     * @phpstan-param array<int, FieldInfo> $fields
+     *
+     * @throws \JsonException
+     *
+     * @phpstan-return array<int, FieldInfo>
+     */
+    protected function deduplicateFields(array $fields): array
+    {
+        $unique = [];
+        $seen = [];
+        foreach ($fields as $field) {
+            $key = $this->fieldFingerprint($field);
+            if (! isset($seen[$key])) {
+                $seen[$key] = true;
+                $unique[] = $field;
+            }
+        }
+
+        return $unique;
+    }
+
+    /**
+     * @phpstan-param FieldInfo $field
+     *
+     * @throws \JsonException
+     */
+    protected function fieldFingerprint(array $field): string
+    {
+        [$parentType, $ast] = $field;
+
+        $parentTypeId = $parentType !== null
+            ? spl_object_id($parentType)
+            : '';
+        $name = $ast->name->value;
+        $selectionSetId = $ast->selectionSet !== null
+            ? spl_object_id($ast->selectionSet)
+            : '';
+
+        $fingerprint = "{$parentTypeId}:{$name}:{$selectionSetId}";
+
+        foreach ($ast->arguments as $argument) {
+            $fingerprint .= ":{$argument->name->value}=" . Printer::doPrint($argument->value);
+        }
+
+        return $fingerprint;
     }
 
     /**
