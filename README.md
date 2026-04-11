@@ -38,10 +38,6 @@ All other elements are not part of this backwards compatibility guarantee and ma
 The most recent version is actively developed on [`master`](https://github.com/webonyx/graphql-php/tree/master).
 Older versions are generally no longer supported, although exceptions may be made for [sponsors](#sponsors).
 
-## Security
-
-For security related issues, email [benedikt@franke.tech](benedikt@franke.tech) instead of opening a GitHub issue.
-
 ## Contributors
 
 This project exists thanks to [all the people](https://github.com/webonyx/graphql-php/graphs/contributors) who [contribute](CONTRIBUTING.md).
