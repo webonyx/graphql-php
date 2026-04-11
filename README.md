@@ -7,8 +7,6 @@ based on the [reference implementation in JavaScript](https://github.com/graphql
 
 If you make money using this project, please consider sponsoring [its maintainer on GitHub Sponsors](https://github.com/sponsors/spawnia) or [the project on OpenCollective](https://opencollective.com/webonyx-graphql-php).
 
-<a href="https://opencollective.com/webonyx-graphql-php#backers" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/backers.svg?width=890"></a>
-
 <a href="https://opencollective.com/webonyx-graphql-php/sponsor/0/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/0/avatar.svg"></a>
 <a href="https://opencollective.com/webonyx-graphql-php/sponsor/1/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/1/avatar.svg"></a>
 <a href="https://opencollective.com/webonyx-graphql-php/sponsor/2/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/2/avatar.svg"></a>
@@ -19,6 +17,8 @@ If you make money using this project, please consider sponsoring [its maintainer
 <a href="https://opencollective.com/webonyx-graphql-php/sponsor/7/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/7/avatar.svg"></a>
 <a href="https://opencollective.com/webonyx-graphql-php/sponsor/8/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/8/avatar.svg"></a>
 <a href="https://opencollective.com/webonyx-graphql-php/sponsor/9/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/9/avatar.svg"></a>
+
+<a href="https://opencollective.com/webonyx-graphql-php#backers" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/backers.svg?width=890"></a>
 
 ## Installation
 
