@@ -8,6 +8,9 @@ use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
+use GraphQL\Executor\Promise\PromiseAdapter;
+use GraphQL\Executor\ReferenceExecutor;
+use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\NotSpecial;
@@ -30,6 +33,9 @@ final class ExecutorTest extends TestCase
     public function tearDown(): void
     {
         Executor::setDefaultPromiseAdapter();
+        Executor::setImplementationFactory([ReferenceExecutor::class, 'create']);
+
+        parent::tearDown();
     }
 
     // Execute: Handles basic execution tasks
@@ -1361,5 +1367,54 @@ final class ExecutorTest extends TestCase
             ],
             $result->toArray()
         );
+    }
+
+    public function testCustomImplementationFactoryIgnoresExtraArguments(): void
+    {
+        $called = false;
+
+        Executor::setImplementationFactory(
+            // Represents older userland implementations that don't know newly added args
+            static function (
+                PromiseAdapter $promiseAdapter,
+                Schema $schema,
+                DocumentNode $documentNode,
+                $rootValue,
+                $contextValue,
+                array $variableValues,
+                ?string $operationName,
+                callable $fieldResolver
+            ) use (&$called) {
+                $called = true;
+
+                return ReferenceExecutor::create(
+                    $promiseAdapter,
+                    $schema,
+                    $documentNode,
+                    $rootValue,
+                    $contextValue,
+                    $variableValues,
+                    $operationName,
+                    $fieldResolver
+                );
+            }
+        );
+
+        $doc = '{ a }';
+        $data = ['a' => 'b'];
+        $ast = Parser::parse($doc);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'a' => Type::string(),
+                ],
+            ]),
+        ]);
+
+        $executor = Executor::execute($schema, $ast, $data);
+
+        self::assertTrue($called);
+        self::assertSame(['data' => $data], $executor->toArray());
     }
 }
