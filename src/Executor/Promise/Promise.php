@@ -2,6 +2,7 @@
 
 namespace GraphQL\Executor\Promise;
 
+use Amp\Future as AmpFuture;
 use Amp\Promise as AmpPromise;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
@@ -12,7 +13,7 @@ use React\Promise\PromiseInterface as ReactPromise;
  */
 class Promise
 {
-    /** @var SyncPromise|ReactPromise<mixed>|AmpPromise<mixed> */
+    /** @var SyncPromise|ReactPromise<mixed>|AmpFuture<mixed>|AmpPromise<mixed> */
     public $adoptedPromise;
 
     private PromiseAdapter $adapter;

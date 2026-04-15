@@ -18,6 +18,13 @@ use function Amp\call;
  */
 final class AmpPromiseAdapterTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        if (! class_exists(\Amp\Deferred::class)) {
+            self::markTestSkipped('amphmp/amp ^2 is required for this test suite.');
+        }
+    }
+
     public function testIsThenableReturnsTrueWhenAnAmpPromiseIsGiven(): void
     {
         $ampAdapter = new AmpPromiseAdapter();
