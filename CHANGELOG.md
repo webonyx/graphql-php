@@ -9,6 +9,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Added
+
 - Implement `AmpFutureAdapter` for integration with AMPHP v3
 
 ## v15.31.5
