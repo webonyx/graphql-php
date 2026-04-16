@@ -39,9 +39,9 @@ $adapter = new AmpFutureAdapter();
 Resolver return types change from `Amp\Promise` to `Amp\Future`:
 
 ```php
-// Before
+// Before (amphp/amp ^2)
 'resolve' => fn (): \Amp\Promise => \Amp\call(fn (): string => 'value'),
 
-// After
+// After (amphp/amp ^3)
 'resolve' => fn (): \Amp\Future => \Amp\async(fn (): string => 'value'),
 ```
