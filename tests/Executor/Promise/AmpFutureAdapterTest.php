@@ -162,7 +162,6 @@ final class AmpFutureAdapterTest extends TestCase
 
         $allPromise = $ampAdapter->all($promises);
 
-        // Resolve the async future
         $deferred->complete(3);
 
         $allFuture = $allPromise->adoptedPromise;
