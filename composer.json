@@ -14,8 +14,8 @@
     "ext-mbstring": "*"
   },
   "require-dev": {
-    "amphp/amp": "^2.6 || ^3.0",
-    "amphp/http-server": "^2.1 || ^3.0",
+    "amphp/amp": "^2.6 || ^3",
+    "amphp/http-server": "^2.1 || ^3",
     "dms/phpunit-arraysubset-asserts": "dev-master",
     "ergebnis/composer-normalize": "^2.28",
     "friendsofphp/php-cs-fixer": "3.95.1",
