@@ -1,6 +1,6 @@
 ## GraphQL with AMPHP v3 (Fiber-based)
 
-This example uses [AMPHP v3](https://amphp.org/) with fiber-based async execution via `AmpFutureAdapter`.
+This example uses [AMPHP v3](https://amphp.org) with fiber-based async execution via `AmpFutureAdapter`.
 
 ### Dependencies
 
