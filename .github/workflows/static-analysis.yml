@@ -35,7 +35,7 @@ jobs:
           tools: cs2pr
 
       - name: Install dependencies with Composer
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
 
       - name: Run a static analysis with phpstan/phpstan
         run: vendor/bin/phpstan --error-format=github
