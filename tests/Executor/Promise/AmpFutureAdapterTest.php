@@ -90,7 +90,7 @@ final class AmpFutureAdapterTest extends TestCase
         });
 
         $resultFuture = $resultPromise->adoptedPromise;
-        \PHPUnit\Framework\Assert::assertInstanceOf(Future::class, $resultFuture);
+        self::assertInstanceOf(Future::class, $resultFuture);
         $resultFuture->await();
 
         self::assertSame(1, $result);
@@ -110,7 +110,7 @@ final class AmpFutureAdapterTest extends TestCase
         });
 
         $resultFuture = $resultPromise->adoptedPromise;
-        \PHPUnit\Framework\Assert::assertInstanceOf(Future::class, $resultFuture);
+        self::assertInstanceOf(Future::class, $resultFuture);
         $resultFuture->await();
 
         self::assertSame(1, $result);
@@ -133,7 +133,7 @@ final class AmpFutureAdapterTest extends TestCase
         );
 
         $resultFuture = $resultPromise->adoptedPromise;
-        \PHPUnit\Framework\Assert::assertInstanceOf(Future::class, $resultFuture);
+        self::assertInstanceOf(Future::class, $resultFuture);
         $resultFuture->await();
 
         self::assertInstanceOf(\Throwable::class, $exception);
