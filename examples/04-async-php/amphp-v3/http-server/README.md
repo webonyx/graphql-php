@@ -1,6 +1,6 @@
 ## HTTP-Server example with AMPHP
 
-This is a basic example using [AMPHP](https://amphp.org/).
+This is a basic example using [AMPHP](https://amphp.org).
 
 ### Dependencies
 
