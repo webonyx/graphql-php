@@ -20,7 +20,7 @@ final class AmpPromiseAdapterTest extends TestCase
 {
     protected function setUp(): void
     {
-        if (! class_exists(\Amp\Deferred::class)) {
+        if (! class_exists(Deferred::class)) {
             self::markTestSkipped('amphmp/amp ^2 is required for this test suite.');
         }
     }
