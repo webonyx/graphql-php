@@ -1,11 +1,8 @@
 <?php declare(strict_types=1);
 
-/*
- * The resolvers for "product" and "article" run asynchronously via fibers.
- * This can have big advantages if you fetch data from different microservices.
- * Keep in mind resolvers should use non-blocking async libraries like
- * amphp/mysql, amphp/http-client, etc.
- */
+// The resolvers for "product" and "article" run asynchronously via fibers.
+// This can have big advantages if you fetch data from different microservices.
+// Keep in mind resolvers should use non-blocking async libraries like amphp/mysql, amphp/http-client, etc.
 
 use Amp\Future;
 use GraphQL\Type\Definition\ObjectType;
