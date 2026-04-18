@@ -52,8 +52,9 @@ parameters:
         - message: "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node\\:\\:\\$.+~"
           path: tests/Language/VisitorTest.php
 
-        # Ignore not installed Amp v2 packages
-        - message: "~(Amp\\\\.* not found|(unknown class|has invalid type|has invalid bound type|invalid return type|Result of method|Method|Cannot instantiate interface) Amp\\\\)~"
+        # Ignore not installed Amp v2 packages and old php version <8.1 for AMP v3 examples
+        - message: "~(Amp\\\\.* (not found|given)|(unknown class|has invalid type|has invalid bound type|invalid return type|Result of method|Method|Cannot instantiate interface) Amp\\\\)~"
+          reportUnmatched: false
           paths:
             - tests/Executor/Promise/AmpFutureAdapterTest.php
             - tests/Executor/Promise/AmpPromiseAdapterTest.php
