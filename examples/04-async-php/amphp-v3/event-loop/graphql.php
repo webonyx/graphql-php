@@ -5,6 +5,7 @@
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
+use Amp\Future;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Adapter\AmpFutureAdapter;
 use GraphQL\GraphQL;
@@ -30,6 +31,10 @@ $promise = GraphQL::promiseToExecute(
     $input['operationName'] ?? null
 );
 
-$promise->then(function (ExecutionResult $result): void {
-    echo json_encode($result->toArray(), JSON_THROW_ON_ERROR);
-});
+$future = $promise->adoptedPromise;
+assert($future instanceof Future);
+
+$result = $future->await();
+assert($result instanceof ExecutionResult);
+
+echo json_encode($result->toArray(), JSON_THROW_ON_ERROR);
