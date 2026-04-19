@@ -17,7 +17,7 @@ final class AmpFutureAdapterTest extends TestCase
     protected function setUp(): void
     {
         if (! class_exists(Future::class)) {
-            self::markTestSkipped('amphmp/amp ^3 is required for this test suite.');
+            self::markTestSkipped('amphp/amp ^3 is required for this test suite.');
         }
     }
 
