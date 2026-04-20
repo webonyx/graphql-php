@@ -9,9 +9,11 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.32.0
+
 ### Added
 
-- Implement `AmpFutureAdapter` for integration with AMPHP v3
+- Implement `AmpFutureAdapter` for integration with AMPHP v3 https://github.com/webonyx/graphql-php/pull/1900
 
 ## v15.31.5
 
