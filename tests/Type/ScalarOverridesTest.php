@@ -487,7 +487,7 @@ final class ScalarOverridesTest extends TestCase
         self::assertSame(['data' => ['greeting' => 'HELLO WORLD']], $result->toArray());
     }
 
-    public function testTypesOverrideWorksWithGeneratorTypesConfig(): void
+    public function testTypesOverrideWorksWithCallableGeneratorTypesConfig(): void
     {
         $uppercaseString = self::createUppercaseString();
         $queryType = self::createQueryType();
@@ -498,6 +498,26 @@ final class ScalarOverridesTest extends TestCase
             'types' => static function () use ($uppercaseString): \Generator {
                 yield $uppercaseString;
             },
+        ]);
+
+        $result = GraphQL::executeQuery($schema, '{ greeting }');
+
+        self::assertSame(['data' => ['greeting' => 'HELLO WORLD']], $result->toArray());
+
+        $schema->assertValid();
+    }
+
+    public function testTypesOverrideWorksWithGeneratorTypesConfig(): void
+    {
+        $uppercaseString = self::createUppercaseString();
+        $queryType = self::createQueryType();
+
+        /** @var \Generator<int, CustomScalarType> $types */
+        $types = self::generateTypes($uppercaseString);
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'types' => $types,
         ]);
 
         $result = GraphQL::executeQuery($schema, '{ greeting }');
@@ -608,6 +628,12 @@ final class ScalarOverridesTest extends TestCase
                 return $node->value;
             },
         ]);
+    }
+
+    /** @return \Generator<int|string, ScalarType> */
+    private static function generateTypes(ScalarType ...$types): \Generator
+    {
+        yield from $types;
     }
 
     /** @throws InvariantViolation */
