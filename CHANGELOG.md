@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.32.1
+
+### Fixed
+
+- Fix "Cannot traverse an already closed generator" in `Schema::getTypeMap()` https://github.com/webonyx/graphql-php/pull/1903
+
 ## v15.32.0
 
 ### Added
