@@ -108,10 +108,7 @@ class PhpEnumType extends EnumType
         $attributes = $reflection->getAttributes(Description::class);
 
         if (count($attributes) === 1) {
-            $description = $attributes[0]->newInstance();
-            assert($description instanceof Description);
-
-            return $description->description;
+            return $attributes[0]->newInstance()->description;
         }
 
         if (count($attributes) > 1) {
