@@ -42,7 +42,7 @@ jobs:
           php-version: "${{ matrix.php-version }}"
 
       - name: Install dependencies with Composer
-        uses: ramsey/composer-install@4.0.0
+        uses: ramsey/composer-install@v4
         with:
           dependency-versions: ${{ matrix.dependencies }}
           composer-options: ${{ matrix.composer-options }}
@@ -97,7 +97,7 @@ jobs:
           php-version: "7.4"
 
       - name: Install dependencies with Composer
-        uses: ramsey/composer-install@4.0.0
+        uses: ramsey/composer-install@v4
 
       - name: Run PHPBench
         run: composer bench
