@@ -782,6 +782,24 @@ GRAPHQL
         $this->expectNotToPerformAssertions();
     }
 
+    public function testValueLiteralAtExactLimitPasses(): void
+    {
+        $depth = 5;
+        $query = '{ field(arg: ' . str_repeat('[', $depth) . '1' . str_repeat(']', $depth) . ') }';
+
+        Parser::parse($query, ['recursionLimit' => $depth + 2]);
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testTypeReferenceAtExactLimitPasses(): void
+    {
+        $depth = 5;
+        $query = 'query ($var: ' . str_repeat('[', $depth) . 'Int' . str_repeat(']', $depth) . ') { field }';
+
+        Parser::parse($query, ['recursionLimit' => $depth + 2]);
+        $this->expectNotToPerformAssertions();
+    }
+
     public function testSiblingBranchesDontAccumulate(): void
     {
         $limit = 5;

@@ -66,7 +66,7 @@ use GraphQL\Language\AST\VariableNode;
  *   allowLegacySDLEmptyFields?: bool,
  *   allowLegacySDLImplementsInterfaces?: bool,
  *   experimentalFragmentVariables?: bool,
- *   recursionLimit?: int
+ *   recursionLimit?: int<0, max>
  * }
  *
  * - **noLocation**:
@@ -95,6 +95,11 @@ use GraphQL\Language\AST\VariableNode;
  *   ```
  *
  *   Note: this feature is experimental and may change or be removed in the future.
+ *
+ * - **recursionLimit**:
+ *   Limits the depth of recursion during parsing to prevent stack overflows from deeply nested queries.
+ *   The counter is shared across `parseSelectionSet`, `parseValueLiteral`, and `parseTypeReference`.
+ *   Defaults to 256. Set to 0 to disable the limit.
  *
  * Those magic functions allow partial parsing:
  *
@@ -168,6 +173,9 @@ use GraphQL\Language\AST\VariableNode;
  */
 class Parser
 {
+    /** @api */
+    public const DEFAULT_RECURSION_LIMIT = 256;
+
     /**
      * Given a GraphQL source, parses it into a `GraphQL\Language\AST\DocumentNode`.
      *
@@ -333,7 +341,7 @@ class Parser
             ? $source
             : new Source($source);
         $this->lexer = new Lexer($sourceObj, $options);
-        $this->recursionLimit = $options['recursionLimit'] ?? 256;
+        $this->recursionLimit = $options['recursionLimit'] ?? self::DEFAULT_RECURSION_LIMIT;
     }
 
     /**

@@ -11,6 +11,29 @@ At a basic level, it is recommended to limit the resources a single HTTP request
 
 In addition, graphql-php offers security mechanisms that are specific to GraphQL.
 
+## Parser Recursion Limit
+
+The parser uses recursive descent to handle nested structures such as selection sets, list values, and list types.
+Without a depth limit, a deeply nested query can cause a PHP stack overflow (SIGSEGV) that cannot be caught.
+
+By default, the parser limits recursion depth to **256**.
+This is well above realistic queries (typically 10–20 levels deep) and far below the threshold that would crash PHP.
+
+You can customize the limit through the `recursionLimit` parser option:
+
+```php
+use GraphQL\Language\Parser;
+
+// Custom limit
+$ast = Parser::parse($source, ['recursionLimit' => 128]);
+
+// Disable the limit (not recommended for untrusted input)
+$ast = Parser::parse($source, ['recursionLimit' => 0]);
+```
+
+The limit is shared across all recursive entry points (`parseSelectionSet`, `parseValueLiteral`, `parseTypeReference`).
+When exceeded, the parser throws a `SyntaxError` before the PHP stack overflows.
+
 ## Query Complexity Analysis
 
 This is a port of [Query Complexity Analysis in Sangria](https://sangria-graphql.github.io/learn#query-complexity-analysis).

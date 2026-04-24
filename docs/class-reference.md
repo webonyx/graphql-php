@@ -1158,7 +1158,7 @@ Parses string containing GraphQL query language or [schema definition language](
   allowLegacySDLEmptyFields?: bool,
   allowLegacySDLImplementsInterfaces?: bool,
   experimentalFragmentVariables?: bool,
-  recursionLimit?: int
+  recursionLimit?: int<0, max>
 }
 ```
 
@@ -1188,6 +1188,11 @@ Parses string containing GraphQL query language or [schema definition language](
   ```
 
   Note: this feature is experimental and may change or be removed in the future.
+
+- **recursionLimit**:
+  Limits the depth of recursion during parsing to prevent stack overflows from deeply nested queries.
+  The counter is shared across `parseSelectionSet`, `parseValueLiteral`, and `parseTypeReference`.
+  Defaults to 256. Set to 0 to disable the limit.
 
 Those magic functions allow partial parsing:
 
