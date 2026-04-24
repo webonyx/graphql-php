@@ -1157,7 +1157,8 @@ Parses string containing GraphQL query language or [schema definition language](
   noLocation?: bool,
   allowLegacySDLEmptyFields?: bool,
   allowLegacySDLImplementsInterfaces?: bool,
-  experimentalFragmentVariables?: bool
+  experimentalFragmentVariables?: bool,
+  recursionLimit?: int
 }
 ```
 

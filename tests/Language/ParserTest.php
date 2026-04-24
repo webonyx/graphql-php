@@ -713,4 +713,82 @@ GRAPHQL
         $this->expectException(SyntaxError::class);
         Parser::constValueLiteral('$foo');
     }
+
+    public function testRejectsDeeplyNestedLists(): void
+    {
+        $depth = 257;
+        $query = '{ field(arg: ' . str_repeat('[', $depth) . '1' . str_repeat(']', $depth) . ') }';
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 256 exceeded');
+        Parser::parse($query);
+    }
+
+    public function testRejectsDeeplyNestedObjects(): void
+    {
+        $depth = 257;
+        $query = '{ field(arg: ' . str_repeat('{a:', $depth) . '1' . str_repeat('}', $depth) . ') }';
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 256 exceeded');
+        Parser::parse($query);
+    }
+
+    public function testRejectsDeeplyNestedSelections(): void
+    {
+        $depth = 257;
+        $query = str_repeat('{ a ', $depth) . str_repeat('}', $depth);
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 256 exceeded');
+        Parser::parse($query);
+    }
+
+    public function testRejectsDeeplyNestedTypes(): void
+    {
+        $depth = 257;
+        $query = 'query ($var: ' . str_repeat('[', $depth) . 'Int' . str_repeat(']', $depth) . ') { field }';
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 256 exceeded');
+        Parser::parse($query);
+    }
+
+    public function testCustomRecursionLimit(): void
+    {
+        $depth = 6;
+        $query = str_repeat('{ a ', $depth) . str_repeat('}', $depth);
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 5 exceeded');
+        Parser::parse($query, ['recursionLimit' => 5]);
+    }
+
+    public function testRecursionLimitZeroDisablesCheck(): void
+    {
+        $depth = 500;
+        $query = 'query ($var: ' . str_repeat('[', $depth) . 'Int' . str_repeat(']', $depth) . ') { field }';
+
+        Parser::parse($query, ['recursionLimit' => 0]);
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testQueryAtExactLimitPasses(): void
+    {
+        $depth = 5;
+        $query = str_repeat('{ a ', $depth) . str_repeat('}', $depth);
+
+        Parser::parse($query, ['recursionLimit' => $depth]);
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testSiblingBranchesDontAccumulate(): void
+    {
+        $limit = 5;
+        $innerSelection = str_repeat('{ a ', $limit - 1) . str_repeat('}', $limit - 1);
+        $query = "{ a {$innerSelection} b {$innerSelection} }";
+
+        Parser::parse($query, ['recursionLimit' => $limit]);
+        $this->expectNotToPerformAssertions();
+    }
 }
