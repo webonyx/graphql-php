@@ -10,6 +10,7 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 
@@ -1270,6 +1271,24 @@ final class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         self::assertNotEmpty($errors);
         self::assertStringContainsString(
             'name and nickname are different fields',
+            $errors[0]->getMessage(),
+        );
+    }
+
+    public function testInlineFragmentsDontCauseQuadraticBlowup(): void
+    {
+        $schema = BuildSchema::build('type Query { field: Node }  type Node { f: Node, g: Node, x: String }');
+
+        $innerFragments = implode(' ', array_fill(0, 100, '... on Node { x }'));
+        $outerFragments = implode(' ', array_fill(0, 100, "... on Node { f { {$innerFragments} } }"));
+        $query = "{ field { {$outerFragments} } }";
+
+        $rule = new OverlappingFieldsCanBeMerged();
+        $errors = DocumentValidator::validate($schema, Parser::parse($query), [$rule]);
+
+        self::assertNotEmpty($errors);
+        self::assertStringContainsString(
+            'Too many field comparisons',
             $errors[0]->getMessage(),
         );
     }
