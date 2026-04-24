@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.32.2
+
+### Fixed
+
+- Denial of Service via quadratic complexity in `OverlappingFieldsCanBeMerged` validation through inline fragments https://github.com/webonyx/graphql-php/security/advisories/GHSA-fc86-6rv6-2jpm
+
 ## v15.32.1
 
 ### Fixed
