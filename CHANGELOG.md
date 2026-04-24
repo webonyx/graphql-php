@@ -9,6 +9,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.32.3
+
 ### Fixed
 
 - Denial of Service via stack overflow from deeply nested queries in the parser https://github.com/webonyx/graphql-php/security/advisories/GHSA-r7cg-qjjm-xhqq
