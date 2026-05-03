@@ -1,5 +1,8 @@
 # graphql-php
 
+**This repository is planned to move to a new home.**
+**See the [announcement](https://github.com/webonyx/graphql-php/discussions/1912) for details and to share feedback.**
+
 This is a PHP implementation of the [GraphQL](https://graphql.org) [specification](https://github.com/graphql/graphql-spec)
 based on the [reference implementation in JavaScript](https://github.com/graphql/graphql-js).
 
