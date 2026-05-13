@@ -87,8 +87,8 @@ class Directive
             self::INCLUDE_NAME => self::includeDirective(),
             self::SKIP_NAME => self::skipDirective(),
             self::DEPRECATED_NAME => self::deprecatedDirective(),
-            self::ONE_OF_NAME => self::oneOfDirective(),
             self::SPECIFIED_BY_NAME => self::specifiedByDirective(),
+            self::ONE_OF_NAME => self::oneOfDirective(),
         ];
     }
 
@@ -177,14 +177,14 @@ class Directive
     {
         return self::$internalDirectives[self::SPECIFIED_BY_NAME] ??= new self([
             'name' => self::SPECIFIED_BY_NAME,
-            'description' => 'Exposes a URL that specifies the behaviour of this scalar.',
+            'description' => 'Exposes a URL that specifies the behavior of this scalar.',
             'locations' => [
                 DirectiveLocation::SCALAR,
             ],
             'args' => [
                 self::URL_ARGUMENT_NAME => [
                     'type' => Type::nonNull(Type::string()),
-                    'description' => 'The URL that specifies the behaviour of this scalar and points to a human-readable specification of the data format, serialization, and coercion rules. It must not appear on built-in scalar types.',
+                    'description' => 'The URL that specifies the behavior of this scalar.',
                 ],
             ],
         ]);

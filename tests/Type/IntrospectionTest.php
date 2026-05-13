@@ -1034,14 +1034,6 @@ final class IntrospectionTest extends TestCase
                             ],
                         ],
                         [
-                            'name' => 'oneOf',
-                            'args' => [],
-                            'isRepeatable' => false,
-                            'locations' => [
-                                0 => 'INPUT_OBJECT',
-                            ],
-                        ],
-                        [
                             'name' => 'specifiedBy',
                             'args' => [
                                 0 => [
@@ -1063,6 +1055,14 @@ final class IntrospectionTest extends TestCase
                             'isRepeatable' => false,
                             'locations' => [
                                 0 => 'SCALAR',
+                            ],
+                        ],
+                        [
+                            'name' => 'oneOf',
+                            'args' => [],
+                            'isRepeatable' => false,
+                            'locations' => [
+                                0 => 'INPUT_OBJECT',
                             ],
                         ],
                     ],

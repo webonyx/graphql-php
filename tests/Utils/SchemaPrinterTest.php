@@ -1073,14 +1073,14 @@ final class SchemaPrinterTest extends TestCase
         reason: String = "No longer supported"
       ) on FIELD_DEFINITION | ENUM_VALUE | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
-      "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its fields be provided)."
-      directive @oneOf on INPUT_OBJECT
-
-      "Exposes a URL that specifies the behaviour of this scalar."
+      "Exposes a URL that specifies the behavior of this scalar."
       directive @specifiedBy(
-        "The URL that specifies the behaviour of this scalar and points to a human-readable specification of the data format, serialization, and coercion rules. It must not appear on built-in scalar types."
+        "The URL that specifies the behavior of this scalar."
         url: String!
       ) on SCALAR
+
+      "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its fields be provided)."
+      directive @oneOf on INPUT_OBJECT
 
       "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations."
       type __Schema {
