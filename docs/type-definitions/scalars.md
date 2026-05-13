@@ -109,8 +109,7 @@ such as `[Foo::class, 'bar']` should only reference static class methods.
 
 ## Linking a Scalar to Its Specification
 
-The `@specifiedBy` built-in directive lets you attach a URL to a custom scalar that points to a
-human-readable specification describing the scalar's serialization format.
+The `@specifiedBy` built-in directive lets you attach a URL to a custom scalar that specifies the behavior of that scalar.
 This URL is exposed through introspection and printed in SDL output.
 
 Pass `specifiedByURL` when constructing the type:
