@@ -361,6 +361,12 @@ GRAPHQL;
                         ? $type->description
                         : null,
                 ],
+                'specifiedByURL' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (Type $type): ?string => $type instanceof ScalarType
+                        ? $type->specifiedByURL
+                        : null,
+                ],
                 'fields' => [
                     'type' => Type::listOf(Type::nonNull(self::_field())),
                     'args' => [

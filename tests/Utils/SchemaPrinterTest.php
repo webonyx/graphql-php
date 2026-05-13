@@ -1111,6 +1111,7 @@ final class SchemaPrinterTest extends TestCase
         kind: __TypeKind!
         name: String
         description: String
+        specifiedByURL: String
         fields(includeDeprecated: Boolean! = false): [__Field!]
         interfaces: [__Type!]
         possibleTypes: [__Type!]

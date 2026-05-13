@@ -181,16 +181,16 @@ class QueryComplexity extends QuerySecurityRule
      */
     protected function directiveExcludesField(FieldNode $node): bool
     {
-        foreach ($node->directives as $directiveNode) {
-            [$errors, $variableValues] = Values::getVariableValues(
-                $this->context->getSchema(),
-                $this->variableDefs,
-                $this->getRawVariableValues()
-            );
-            if ($errors !== null && $errors !== []) {
-                throw new Error(implode("\n\n", array_map(static fn (Error $error): string => $error->getMessage(), $errors)));
-            }
+        [$errors, $variableValues] = Values::getVariableValues(
+            $this->context->getSchema(),
+            $this->variableDefs,
+            $this->getRawVariableValues()
+        );
+        if ($errors !== null && $errors !== []) {
+            throw new Error(implode("\n\n", array_map(static fn (Error $error): string => $error->getMessage(), $errors)));
+        }
 
+        foreach ($node->directives as $directiveNode) {
             if ($directiveNode->name->value === Directive::INCLUDE_NAME) {
                 $includeArguments = Values::getArgumentValues(
                     Directive::includeDirective(),
@@ -199,7 +199,9 @@ class QueryComplexity extends QuerySecurityRule
                 );
                 assert(is_bool($includeArguments['if']), 'ensured by query validation');
 
-                return ! $includeArguments['if'];
+                if (! $includeArguments['if']) {
+                    return true;
+                }
             }
 
             if ($directiveNode->name->value === Directive::SKIP_NAME) {
@@ -210,7 +212,9 @@ class QueryComplexity extends QuerySecurityRule
                 );
                 assert(is_bool($skipArguments['if']), 'ensured by query validation');
 
-                return $skipArguments['if'];
+                if ($skipArguments['if']) {
+                    return true;
+                }
             }
         }
 

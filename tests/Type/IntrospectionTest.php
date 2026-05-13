@@ -11,6 +11,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -246,6 +247,17 @@ final class IntrospectionTest extends TestCase
                                     'deprecationReason' => null,
                                 ],
                                 3 => [
+                                    'name' => 'specifiedByURL',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
+                                ],
+                                4 => [
                                     'name' => 'fields',
                                     'args' => [
                                         0 => [
@@ -280,7 +292,7 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                4 => [
+                                5 => [
                                     'name' => 'interfaces',
                                     'args' => [],
                                     'type' => [
@@ -299,7 +311,7 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                5 => [
+                                6 => [
                                     'name' => 'possibleTypes',
                                     'args' => [],
                                     'type' => [
@@ -318,7 +330,7 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                6 => [
+                                7 => [
                                     'name' => 'enumValues',
                                     'args' => [
                                         0 => [
@@ -353,7 +365,7 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                7 => [
+                                8 => [
                                     'name' => 'inputFields',
                                     'args' => [
                                         0 => [
@@ -388,7 +400,7 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                8 => [
+                                9 => [
                                     'name' => 'ofType',
                                     'args' => [],
                                     'type' => [
@@ -399,7 +411,7 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                9 => [
+                                10 => [
                                     'name' => 'isOneOf',
                                     'args' => [],
                                     'type' => [
@@ -2032,6 +2044,42 @@ final class IntrospectionTest extends TestCase
     }
 
     /** @see it('include "description" field on schema') */
+    public function testSpecifiedByURL(): void
+    {
+        $scalarType = new CustomScalarType([
+            'name' => 'UUID',
+            'specifiedByURL' => 'https://tools.ietf.org/html/rfc4122',
+            'serialize' => static fn ($value) => $value,
+        ]);
+
+        $query = new ObjectType([
+            'name' => 'QueryRoot',
+            'fields' => [
+                'uuid' => ['type' => $scalarType],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $query]);
+
+        $result = GraphQL::executeQuery($schema, '{ __type(name: "UUID") { specifiedByURL } }')->toArray();
+
+        self::assertSame(['data' => ['__type' => ['specifiedByURL' => 'https://tools.ietf.org/html/rfc4122']]], $result);
+    }
+
+    public function testSpecifiedByURLIsNullForNonScalars(): void
+    {
+        $query = new ObjectType([
+            'name' => 'QueryRoot',
+            'fields' => ['x' => ['type' => Type::string()]],
+        ]);
+
+        $schema = new Schema(['query' => $query]);
+
+        $result = GraphQL::executeQuery($schema, '{ __type(name: "QueryRoot") { specifiedByURL } }')->toArray();
+
+        self::assertSame(['data' => ['__type' => ['specifiedByURL' => null]]], $result);
+    }
+
     public function testIncludeDescriptionFieldOnSchema(): void
     {
         preg_match_all('/\bdescription\b/', Introspection::getIntrospectionQuery(), $matches);

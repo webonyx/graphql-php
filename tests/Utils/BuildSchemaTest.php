@@ -836,6 +836,33 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame('https://example.com/foo_spec', $type->specifiedByURL);
     }
 
+    /**
+     * Verifies that overriding @specifiedBy with a custom directive (no url arg) does not throw
+     * when building a schema with a scalar that uses the custom directive.
+     */
+    public function testCustomSpecifiedByDirectiveOverrideShouldNotThrow(): void
+    {
+        // A schema that overrides @specifiedBy with a different (arg-less) definition
+        // and uses it on a scalar should not throw during schema building.
+        $sdl = <<<GRAPHQL
+            directive @specifiedBy on SCALAR
+            
+            scalar Foo @specifiedBy
+            
+            type Query {
+              foo: Foo
+            }
+            
+            GRAPHQL;
+
+        $schema = BuildSchema::build($sdl);
+        $type = $schema->getType('Foo');
+
+        self::assertInstanceOf(ScalarType::class, $type);
+        // When the built-in @specifiedBy is overridden with no url arg, specifiedByURL stays null
+        self::assertNull($type->specifiedByURL);
+    }
+
     /** @see it('Correctly extend scalar type') */
     public function testCorrectlyExtendScalarType(): void
     {

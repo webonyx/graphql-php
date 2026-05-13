@@ -484,6 +484,31 @@ GRAPHQL,
         );
     }
 
+    /**
+     * Verifies that overriding @specifiedBy with a custom directive (no url arg)
+     * and using it in an extension does not throw.
+     */
+    public function testExtendsScalarsWithCustomSpecifiedByOverrideShouldNotThrow(): void
+    {
+        $schema = BuildSchema::build('
+          directive @specifiedBy on SCALAR
+
+          type Query {
+            foo: Foo
+          }
+
+          scalar Foo
+        ');
+        $extendedSchema = SchemaExtender::extend($schema, Parser::parse('
+          extend scalar Foo @specifiedBy
+        '));
+        $foo = $extendedSchema->getType('Foo');
+        assert($foo instanceof ScalarType);
+
+        // Custom @specifiedBy without url arg leaves specifiedByURL as null
+        self::assertNull($foo->specifiedByURL);
+    }
+
     /** @see it('correctly assign AST nodes to new and extended types') */
     public function testCorrectlyAssignASTNodesToNewAndExtendedTypes(): void
     {

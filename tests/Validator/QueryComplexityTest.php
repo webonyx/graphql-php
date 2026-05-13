@@ -191,6 +191,21 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 1, 2);
     }
 
+    /**
+     * Verifies that @include(if:true) followed by @skip(if:true) on the same field correctly excludes it.
+     * Without evaluating all directives, returning early on @include(if:true) would yield the wrong result.
+     */
+    public function testQueryWithIncludeAndSkipDirectives(): void
+    {
+        // @include(if:true) alone would include the field, but @skip(if:true) should still exclude it
+        $query = 'query MyQuery($withDogs: Boolean!, $withoutDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) @skip(if:$withoutDogs) { name } } }';
+
+        $this->getRule()->setRawVariableValues(['withDogs' => true, 'withoutDogs' => true]);
+
+        // dogs is excluded by @skip(if:true), so complexity is 1 (only human)
+        $this->assertDocumentValidators($query, 1, 2);
+    }
+
     public function testComplexityIntrospectionQuery(): void
     {
         $query = Introspection::getIntrospectionQuery();

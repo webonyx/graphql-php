@@ -4,7 +4,6 @@ namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Executor\Values;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
@@ -14,6 +13,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeExtensionNode;
@@ -230,10 +230,18 @@ class SchemaExtender
         $specifiedByURL = $type->specifiedByURL;
         if ($specifiedByURL === null) {
             foreach ($extensionASTNodes as $extensionNode) {
-                $specifiedBy = Values::getDirectiveValues(Directive::specifiedByDirective(), $extensionNode);
-                if ($specifiedBy !== null) {
-                    $specifiedByURL = $specifiedBy['url'] ?? null;
-                    break;
+                foreach ($extensionNode->directives as $directive) {
+                    if ($directive->name->value !== Directive::SPECIFIED_BY_NAME) {
+                        continue;
+                    }
+
+                    foreach ($directive->arguments as $argument) {
+                        if ($argument->name->value === Directive::URL_ARGUMENT_NAME
+                            && $argument->value instanceof StringValueNode) {
+                            $specifiedByURL = $argument->value->value;
+                            break 3;
+                        }
+                    }
                 }
             }
         }
