@@ -182,14 +182,6 @@ class QueryComplexity extends QuerySecurityRule
     protected function directiveExcludesField(FieldNode $node): bool
     {
         foreach ($node->directives as $directiveNode) {
-            if ($directiveNode->name->value === Directive::DEPRECATED_NAME) {
-                continue;
-            }
-
-            if ($directiveNode->name->value === Directive::SPECIFIED_BY_NAME) {
-                continue;
-            }
-
             [$errors, $variableValues] = Values::getVariableValues(
                 $this->context->getSchema(),
                 $this->variableDefs,
