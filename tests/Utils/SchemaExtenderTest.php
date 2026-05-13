@@ -456,8 +456,6 @@ GRAPHQL,
     /** @see it('extends scalars by adding specifiedBy directive') */
     public function testExtendsScalarsByAddingSpecifiedByDirective(): void
     {
-        // @phpstan-ignore-next-line
-        $this->markTestSkipped('See https://github.com/webonyx/graphql-php/issues/1140');
         $schema = BuildSchema::build('
           type Query {
             foo: Foo
@@ -472,8 +470,10 @@ GRAPHQL,
 
           extend scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
           GRAPHQL;
+
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
         $foo = $extendedSchema->getType('Foo');
+        assert($foo instanceof ScalarType);
 
         self::assertSame('https://example.com/foo_spec', $foo->specifiedByURL);
         self::assertEmpty($extendedSchema->validate());

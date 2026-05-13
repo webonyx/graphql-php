@@ -1076,6 +1076,12 @@ final class SchemaPrinterTest extends TestCase
       "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its fields be provided)."
       directive @oneOf on INPUT_OBJECT
 
+      "Exposes a URL that specifies the behaviour of this scalar."
+      directive @specifiedBy(
+        "The URL that specifies the behaviour of this scalar and points to a human-readable specification of the data format, serialization, and coercion rules. It must not appear on built-in scalar types."
+        url: String!
+      ) on SCALAR
+
       "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations."
       type __Schema {
         description: String

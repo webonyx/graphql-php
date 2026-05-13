@@ -4,6 +4,7 @@ namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Executor\Values;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
@@ -226,12 +227,24 @@ class SchemaExtender
         /** @var array<ScalarTypeExtensionNode> $extensionASTNodes */
         $extensionASTNodes = $this->extensionASTNodes($type);
 
+        $specifiedByURL = $type->specifiedByURL;
+        if ($specifiedByURL === null) {
+            foreach ($extensionASTNodes as $extensionNode) {
+                $specifiedBy = Values::getDirectiveValues(Directive::specifiedByDirective(), $extensionNode);
+                if ($specifiedBy !== null) {
+                    $specifiedByURL = $specifiedBy['url'] ?? null;
+                    break;
+                }
+            }
+        }
+
         return new CustomScalarType([
             'name' => $type->name,
             'description' => $type->description,
             'serialize' => [$type, 'serialize'],
             'parseValue' => [$type, 'parseValue'],
             'parseLiteral' => [$type, 'parseLiteral'],
+            'specifiedByURL' => $specifiedByURL,
             'astNode' => $type->astNode,
             'extensionASTNodes' => $extensionASTNodes,
         ]);
