@@ -183,11 +183,11 @@ class QueryComplexity extends QuerySecurityRule
     {
         foreach ($node->directives as $directiveNode) {
             if ($directiveNode->name->value === Directive::DEPRECATED_NAME) {
-                return false;
+                continue;
             }
 
             if ($directiveNode->name->value === Directive::SPECIFIED_BY_NAME) {
-                return false;
+                continue;
             }
 
             [$errors, $variableValues] = Values::getVariableValues(

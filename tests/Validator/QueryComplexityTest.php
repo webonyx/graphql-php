@@ -176,6 +176,21 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 1, 2);
     }
 
+    /**
+     * Verifies that a non-excluding directive appearing before @skip on the same field
+     * does not prevent the @skip from being evaluated, avoiding incorrect complexity.
+     */
+    public function testQueryWithNonExcludingDirectiveBeforeSkip(): void
+    {
+        // @foo appears before @skip on the same field; @skip(if:true) should still exclude dogs
+        $query = 'query MyQuery($withoutDogs: Boolean!) { human { dogs(name: "Root") @foo(bar: true) @skip(if:$withoutDogs) { name } } }';
+
+        $this->getRule()->setRawVariableValues(['withoutDogs' => true]);
+
+        // dogs is excluded by @skip, so complexity is 1 (only human)
+        $this->assertDocumentValidators($query, 1, 2);
+    }
+
     public function testComplexityIntrospectionQuery(): void
     {
         $query = Introspection::getIntrospectionQuery();

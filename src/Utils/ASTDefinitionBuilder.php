@@ -416,14 +416,12 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * Given a collection of directives, returns the string value for the specifiedBy URL.
-     *
-     * @param ScalarTypeDefinitionNode $node
+     * Given a scalar type definition, returns the string value for the specifiedBy URL.
      *
      * @throws \Exception
      * @throws InvariantViolation
      */
-    private function getSpecifiedByURL(Node $node): ?string
+    private function getSpecifiedByURL(ScalarTypeDefinitionNode $node): ?string
     {
         $specifiedBy = Values::getDirectiveValues(
             Directive::specifiedByDirective(),
