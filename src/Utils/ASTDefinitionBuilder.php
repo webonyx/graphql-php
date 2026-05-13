@@ -421,7 +421,7 @@ class ASTDefinitionBuilder
      *
      * Reads the URL directly from the AST to avoid coercing arguments against the
      * built-in directive definition, which would throw if the schema has overridden
-     * @specifiedBy with a custom directive that uses different arguments.
+     * the built-in with a custom directive that uses different arguments.
      */
     private function getSpecifiedByURL(ScalarTypeDefinitionNode $node): ?string
     {
