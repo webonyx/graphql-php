@@ -469,6 +469,7 @@ GRAPHQL,
           extend scalar Foo @foo
 
           extend scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
+
           GRAPHQL;
 
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));

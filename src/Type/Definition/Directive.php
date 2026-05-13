@@ -87,8 +87,8 @@ class Directive
             self::INCLUDE_NAME => self::includeDirective(),
             self::SKIP_NAME => self::skipDirective(),
             self::DEPRECATED_NAME => self::deprecatedDirective(),
-            self::SPECIFIED_BY_NAME => self::specifiedByDirective(),
             self::ONE_OF_NAME => self::oneOfDirective(),
+            self::SPECIFIED_BY_NAME => self::specifiedByDirective(),
         ];
     }
 
