@@ -1044,22 +1044,6 @@ SDL;
 
     public function testRoundTripPreservesSpecifiedByURL(): void
     {
-        $sdl = '
-            scalar UUID
-
-            type Query {
-              id: UUID
-            }
-        ';
-
-        $serverSchema = BuildSchema::build($sdl);
-
-        // Manually set specifiedByURL because SDL-built scalars do not set it without the directive
-        $uuidType = $serverSchema->getType('UUID');
-        self::assertInstanceOf(\GraphQL\Type\Definition\ScalarType::class, $uuidType);
-        self::assertNull($uuidType->specifiedByURL, 'precondition: no URL in plain SDL');
-
-        // Use a programmatic schema with specifiedByURL set
         $scalarType = new \GraphQL\Type\Definition\CustomScalarType([
             'name' => 'UUID',
             'specifiedByURL' => 'https://tools.ietf.org/html/rfc4122',

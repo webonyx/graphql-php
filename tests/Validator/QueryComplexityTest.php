@@ -295,8 +295,11 @@ final class QueryComplexityTest extends QuerySecurityTestCase
      * every field unconditionally. Now it is lazy: coercion only happens when an
      * @include or @skip directive is actually encountered on the field.
      *
-     * This test passes invalid variable values for a query where no field uses
-     * @include or @skip. Because coercion is lazy, no error should be thrown.
+     * This test passes a PHP integer for a variable declared as `String!`. The `StringType`
+     * rejects non-string values in `parseValue`, so coercing this variable would throw. With
+     * the old code (unconditional coercion) this would propagate as an exception through
+     * `directiveExcludesField` for every field. With lazy coercion it is never triggered,
+     * because no field in the query uses @include or @skip.
      */
     public function testVariableCoercionIsLazyWhenNoIncludeOrSkipDirectives(): void
     {
@@ -304,8 +307,9 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         // so variable coercion should never be triggered by directiveExcludesField.
         $query = 'query MyQuery($dog: String!) { human { firstName } }';
 
-        // Provide invalid variable value (empty string for a non-null String! is technically
-        // valid, but passing an int is not). The old code would coerce for every field and throw.
+        // An integer is rejected by StringType::parseValue, so if coercion ran (as it did
+        // before the lazy-coercion fix) it would throw. With the fix, coercion is never
+        // triggered here because no field uses @include or @skip.
         $this->getRule()->setRawVariableValues(['dog' => 42]);
 
         // Should produce no errors from the complexity rule itself (complexity is within bounds)
