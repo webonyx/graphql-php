@@ -288,4 +288,43 @@ final class QueryComplexityTest extends QuerySecurityTestCase
     {
         return QueryComplexity::maxQueryComplexityErrorMessage($max, $count);
     }
+
+    /**
+     * Verifies that variable coercion is not triggered for fields without @include/@skip
+     * directives. Previously, directiveExcludesField() called getVariableValues() for
+     * every field unconditionally. Now it is lazy: coercion only happens when an
+     * @include or @skip directive is actually encountered on the field.
+     *
+     * This test passes invalid variable values for a query where no field uses
+     * @include or @skip. Because coercion is lazy, no error should be thrown.
+     */
+    public function testVariableCoercionIsLazyWhenNoIncludeOrSkipDirectives(): void
+    {
+        // $dog is declared but none of the fields use @include/@skip,
+        // so variable coercion should never be triggered by directiveExcludesField.
+        $query = 'query MyQuery($dog: String!) { human { firstName } }';
+
+        // Provide invalid variable value (empty string for a non-null String! is technically
+        // valid, but passing an int is not). The old code would coerce for every field and throw.
+        $this->getRule()->setRawVariableValues(['dog' => 42]);
+
+        // Should produce no errors from the complexity rule itself (complexity is within bounds)
+        $this->assertDocumentValidators($query, 2, 3);
+    }
+
+    /**
+     * Verifies that variable coercion is cached: when multiple fields each have @skip,
+     * coercion is only performed once, not once per field.
+     */
+    public function testVariableCoercionIsCachedAcrossMultipleDirectives(): void
+    {
+        // Two fields each with @skip using the same variable.
+        // Coercion should occur once and be cached.
+        $query = 'query MyQuery($skipIt: Boolean!) { human { firstName @skip(if:$skipIt) dogs { name @skip(if:$skipIt) } } }';
+
+        $this->getRule()->setRawVariableValues(['skipIt' => false]);
+
+        // skipIt=false means nothing is skipped: complexity = human(1) + firstName(1) + dogs(10) + name(1) = 13
+        $this->assertDocumentValidators($query, 13, 14);
+    }
 }

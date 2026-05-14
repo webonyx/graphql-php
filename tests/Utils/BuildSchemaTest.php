@@ -837,6 +837,30 @@ final class BuildSchemaTest extends TestCaseBase
     }
 
     /**
+     * Verifies that @specifiedBy on a scalar extension node is picked up by BuildSchema.
+     * The URL should come from the `extend scalar` directive, not just the base definition.
+     */
+    public function testSpecifiedByURLFromExtensionNode(): void
+    {
+        $sdl = <<<GRAPHQL
+            scalar Foo
+            
+            extend scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
+            
+            type Query {
+              foo: Foo
+            }
+            
+            GRAPHQL;
+
+        $schema = BuildSchema::build($sdl);
+        $type = $schema->getType('Foo');
+
+        self::assertInstanceOf(ScalarType::class, $type);
+        self::assertSame('https://example.com/foo_spec', $type->specifiedByURL);
+    }
+
+    /**
      * Verifies that overriding @specifiedBy with a custom directive (no url arg) does not throw
      * when building a schema with a scalar that uses the custom directive.
      */

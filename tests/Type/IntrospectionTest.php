@@ -2094,4 +2094,45 @@ final class IntrospectionTest extends TestCase
         preg_match_all('/\bdescription\b/', Introspection::getIntrospectionQuery(['descriptions' => false, 'schemaDescription' => true]), $matches);
         self::assertCount(0, $matches[0]);
     }
+
+    public function testSpecifiedByURLNotIncludedInIntrospectionQueryByDefault(): void
+    {
+        self::assertStringNotContainsString('specifiedByURL', Introspection::getIntrospectionQuery());
+    }
+
+    public function testSpecifiedByURLIncludedInIntrospectionQueryWhenEnabled(): void
+    {
+        self::assertStringContainsString('specifiedByURL', Introspection::getIntrospectionQuery(['specifiedByURL' => true]));
+    }
+
+    public function testFromSchemaIncludesSpecifiedByURLByDefault(): void
+    {
+        $scalarType = new CustomScalarType([
+            'name' => 'UUID',
+            'specifiedByURL' => 'https://tools.ietf.org/html/rfc4122',
+            'serialize' => static fn ($value) => $value,
+        ]);
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => ['uuid' => ['type' => $scalarType]],
+            ]),
+        ]);
+
+        $introspection = Introspection::fromSchema($schema);
+
+        // Find the UUID type in the introspection result
+        $uuidType = null;
+        foreach ($introspection['__schema']['types'] as $type) {
+            if ($type['name'] === 'UUID') {
+                $uuidType = $type;
+                break;
+            }
+        }
+
+        self::assertNotNull($uuidType, 'UUID type not found in introspection result');
+        self::assertArrayHasKey('specifiedByURL', $uuidType);
+        self::assertSame('https://tools.ietf.org/html/rfc4122', $uuidType['specifiedByURL']);
+    }
 }

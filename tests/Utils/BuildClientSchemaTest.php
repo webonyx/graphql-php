@@ -1041,4 +1041,42 @@ SDL;
 
         self::assertSame(['foo' => ['baz' => 'value']], $result->data);
     }
+
+    public function testRoundTripPreservesSpecifiedByURL(): void
+    {
+        $sdl = '
+            scalar UUID
+
+            type Query {
+              id: UUID
+            }
+        ';
+
+        $serverSchema = BuildSchema::build($sdl);
+
+        // Manually set specifiedByURL because SDL-built scalars do not set it without the directive
+        $uuidType = $serverSchema->getType('UUID');
+        self::assertInstanceOf(\GraphQL\Type\Definition\ScalarType::class, $uuidType);
+        self::assertNull($uuidType->specifiedByURL, 'precondition: no URL in plain SDL');
+
+        // Use a programmatic schema with specifiedByURL set
+        $scalarType = new \GraphQL\Type\Definition\CustomScalarType([
+            'name' => 'UUID',
+            'specifiedByURL' => 'https://tools.ietf.org/html/rfc4122',
+            'serialize' => static fn ($value) => $value,
+        ]);
+        $schema = new Schema([
+            'query' => new \GraphQL\Type\Definition\ObjectType([
+                'name' => 'Query',
+                'fields' => ['id' => ['type' => $scalarType]],
+            ]),
+        ]);
+
+        $introspection = Introspection::fromSchema($schema);
+        $clientSchema = BuildClientSchema::build($introspection);
+
+        $uuidFromClient = $clientSchema->getType('UUID');
+        self::assertInstanceOf(\GraphQL\Type\Definition\ScalarType::class, $uuidFromClient);
+        self::assertSame('https://tools.ietf.org/html/rfc4122', $uuidFromClient->specifiedByURL);
+    }
 }
