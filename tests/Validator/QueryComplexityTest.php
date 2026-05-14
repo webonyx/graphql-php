@@ -292,7 +292,8 @@ final class QueryComplexityTest extends QuerySecurityTestCase
     /**
      * Verifies that variable coercion is not triggered for fields without @include/@skip
      * directives. Previously, directiveExcludesField() called getVariableValues() for
-     * every field unconditionally. Now it is lazy: coercion only happens when an
+     * every field unconditionally. Now it is lazy: coercion only happens when an.
+     *
      * @include or @skip directive is actually encountered on the field.
      *
      * This test passes a PHP integer for a variable declared as `String!`. The `StringType`
