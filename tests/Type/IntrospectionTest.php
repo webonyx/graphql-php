@@ -2043,7 +2043,7 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, $result['data']['__schema']['directives'] ?? null);
     }
 
-    /** @see it('include "description" field on schema') */
+    /** @see it('executes an introspection query') */
     public function testSpecifiedByURL(): void
     {
         $scalarType = new CustomScalarType([
@@ -2066,6 +2066,7 @@ final class IntrospectionTest extends TestCase
         self::assertSame(['data' => ['__type' => ['specifiedByURL' => 'https://tools.ietf.org/html/rfc4122']]], $result);
     }
 
+    /** @see it('executes an introspection query') */
     public function testSpecifiedByURLIsNullForNonScalars(): void
     {
         $query = new ObjectType([
@@ -2095,16 +2096,19 @@ final class IntrospectionTest extends TestCase
         self::assertCount(0, $matches[0]);
     }
 
+    /** @see it('include "specifiedBy" field') */
     public function testSpecifiedByURLNotIncludedInIntrospectionQueryByDefault(): void
     {
         self::assertStringNotContainsString('specifiedByURL', Introspection::getIntrospectionQuery());
     }
 
+    /** @see it('include "specifiedBy" field') */
     public function testSpecifiedByURLIncludedInIntrospectionQueryWhenEnabled(): void
     {
         self::assertStringContainsString('specifiedByURL', Introspection::getIntrospectionQuery(['specifiedByURL' => true]));
     }
 
+    /** @see it('include "specifiedBy" field') */
     public function testFromSchemaIncludesSpecifiedByURLByDefault(): void
     {
         $scalarType = new CustomScalarType([

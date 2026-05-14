@@ -4,11 +4,9 @@ namespace GraphQL\Tests\Utils;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
-use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
@@ -1044,25 +1042,15 @@ SDL;
         self::assertSame(['foo' => ['baz' => 'value']], $result->data);
     }
 
+    /** @see it('builds a schema with specifiedBy url') */
     public function testRoundTripPreservesSpecifiedByURL(): void
     {
-        $scalarType = new CustomScalarType([
-            'name' => 'UUID',
-            'specifiedByURL' => 'https://tools.ietf.org/html/rfc4122',
-            'serialize' => static fn ($value) => $value,
-        ]);
-        $schema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'Query',
-                'fields' => ['id' => ['type' => $scalarType]],
-            ]),
-        ]);
+        self::assertCycleIntrospection('
+            scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
 
-        $introspection = Introspection::fromSchema($schema);
-        $clientSchema = BuildClientSchema::build($introspection);
-
-        $uuidFromClient = $clientSchema->getType('UUID');
-        self::assertInstanceOf(ScalarType::class, $uuidFromClient);
-        self::assertSame('https://tools.ietf.org/html/rfc4122', $uuidFromClient->specifiedByURL);
+            type Query {
+              foo: Foo
+            }
+        ');
     }
 }

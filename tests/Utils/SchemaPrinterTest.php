@@ -831,6 +831,28 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
+    /** @see it('Custom Scalar with specifiedByURL') */
+    public function testCustomScalarWithSpecifiedByURL(): void
+    {
+        $fooType = new CustomScalarType([
+            'name' => 'Foo',
+            'specifiedByURL' => 'https://example.com/foo_spec',
+            'serialize' => static fn () => null,
+        ]);
+
+        $schema = new Schema([
+            'types' => [$fooType],
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
+
+            GRAPHQL,
+            $schema
+        );
+    }
+
     /** @see it('Enum') */
     public function testEnum(): void
     {
