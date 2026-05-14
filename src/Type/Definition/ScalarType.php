@@ -56,7 +56,7 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
     {
         $this->name = $config['name'] ?? $this->inferName();
         $this->description = $config['description'] ?? $this->description ?? null;
-        $this->specifiedByURL = $config['specifiedByURL'] ?? null;
+        $this->specifiedByURL = $config['specifiedByURL'] ?? $this->specifiedByURL ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
 

@@ -403,7 +403,7 @@ class Printer
                     return BlockString::print($node->value);
                 }
 
-                // Do not escape unicode or slashes in order to keep URLs valid
+                // Do not escape unicode or slashes to keep the output readable
                 return json_encode($node->value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
             case $node instanceof UnionTypeDefinitionNode:
