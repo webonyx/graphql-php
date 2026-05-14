@@ -42,6 +42,9 @@ class QueryComplexity extends QuerySecurityRule
 
     protected QueryValidationContext $context;
 
+    /** @var array<string, mixed>|null Lazily coerced variable values; reset per document. */
+    private ?array $coercedVariableValues = null;
+
     /** @throws \InvalidArgumentException */
     public function __construct(int $maxQueryComplexity)
     {
@@ -54,6 +57,7 @@ class QueryComplexity extends QuerySecurityRule
         $this->context = $context;
         $this->variableDefs = new NodeList([]);
         $this->fieldNodeAndDefs = new \ArrayObject();
+        $this->coercedVariableValues = null;
 
         return $this->invokeIfNeeded(
             $context,
@@ -181,21 +185,12 @@ class QueryComplexity extends QuerySecurityRule
      */
     protected function directiveExcludesField(FieldNode $node): bool
     {
-        [$errors, $variableValues] = Values::getVariableValues(
-            $this->context->getSchema(),
-            $this->variableDefs,
-            $this->getRawVariableValues()
-        );
-        if ($errors !== null && $errors !== []) {
-            throw new Error(implode("\n\n", array_map(static fn (Error $error): string => $error->getMessage(), $errors)));
-        }
-
         foreach ($node->directives as $directiveNode) {
             if ($directiveNode->name->value === Directive::INCLUDE_NAME) {
                 $includeArguments = Values::getArgumentValues(
                     Directive::includeDirective(),
                     $directiveNode,
-                    $variableValues
+                    $this->getCoercedVariableValues()
                 );
                 assert(is_bool($includeArguments['if']), 'ensured by query validation');
 
@@ -208,7 +203,7 @@ class QueryComplexity extends QuerySecurityRule
                 $skipArguments = Values::getArgumentValues(
                     Directive::skipDirective(),
                     $directiveNode,
-                    $variableValues
+                    $this->getCoercedVariableValues()
                 );
                 assert(is_bool($skipArguments['if']), 'ensured by query validation');
 
@@ -219,6 +214,32 @@ class QueryComplexity extends QuerySecurityRule
         }
 
         return false;
+    }
+
+    /**
+     * Coerce variable values once per document and cache them.
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
+     *
+     * @return array<string, mixed>
+     */
+    private function getCoercedVariableValues(): array
+    {
+        if ($this->coercedVariableValues !== null) {
+            return $this->coercedVariableValues;
+        }
+
+        [$errors, $variableValues] = Values::getVariableValues(
+            $this->context->getSchema(),
+            $this->variableDefs,
+            $this->getRawVariableValues()
+        );
+        if ($errors !== null && $errors !== []) {
+            throw new Error(implode("\n\n", array_map(static fn (Error $error): string => $error->getMessage(), $errors)));
+        }
+
+        return $this->coercedVariableValues = $variableValues ?? [];
     }
 
     /** @return array<string, mixed> */

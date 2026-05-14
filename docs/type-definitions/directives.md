@@ -8,7 +8,7 @@ GraphQL specification includes the following built-in directives:
 
 - **@include(if: Boolean)** Only include this field or fragment in the result if the argument is **true**
 - **@skip(if: Boolean)** Skip this field or fragment if the argument is **true**
-- **@deprecated(reason: String)** Marks a field or enum value as deprecated with an optional reason
+- **@deprecated(reason: String)** Marks a field, argument, input field, or enum value as deprecated with an optional reason
 - **@specifiedBy(url: String!)** Links a custom scalar type to a human-readable specification URL
 - **@oneOf** Marks an input object type as a "oneof" input, requiring exactly one field to be non-null
 

@@ -417,23 +417,25 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * Given a scalar type definition, returns the string value for the specifiedBy URL.
+     * Returns the specifiedBy URL from a scalar type's definition and extension directives,
+     * reading directly from the AST to safely handle custom @specifiedBy directive definitions
+     * with different argument shapes.
      *
-     * Reads the URL directly from the AST to avoid coercing arguments against the
-     * built-in directive definition, which would throw if the schema has overridden
-     * the built-in with a custom directive that uses different arguments.
+     * @param array<ScalarTypeExtensionNode> $extensionNodes
      */
-    private function getSpecifiedByURL(ScalarTypeDefinitionNode $node): ?string
+    private function getSpecifiedByURL(ScalarTypeDefinitionNode $def, array $extensionNodes = []): ?string
     {
-        foreach ($node->directives as $directive) {
-            if ($directive->name->value !== Directive::SPECIFIED_BY_NAME) {
-                continue;
-            }
+        foreach ([$def, ...$extensionNodes] as $node) {
+            foreach ($node->directives as $directive) {
+                if ($directive->name->value !== Directive::SPECIFIED_BY_NAME) {
+                    continue;
+                }
 
-            foreach ($directive->arguments as $argument) {
-                if ($argument->name->value === Directive::URL_ARGUMENT_NAME
-                    && $argument->value instanceof StringValueNode) {
-                    return $argument->value->value;
+                foreach ($directive->arguments as $argument) {
+                    if ($argument->name->value === Directive::URL_ARGUMENT_NAME
+                        && $argument->value instanceof StringValueNode) {
+                        return $argument->value->value;
+                    }
                 }
             }
         }
@@ -558,7 +560,7 @@ class ASTDefinitionBuilder
             'serialize' => static fn ($value) => $value,
             'astNode' => $def,
             'extensionASTNodes' => $extensionASTNodes,
-            'specifiedByURL' => $this->getSpecifiedByURL($def),
+            'specifiedByURL' => $this->getSpecifiedByURL($def, $extensionASTNodes),
         ]);
     }
 
