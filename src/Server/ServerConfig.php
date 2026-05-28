@@ -211,8 +211,14 @@ class ServerConfig
      */
     public function setValidationRules($validationRules): self
     {
-        // @phpstan-ignore-next-line necessary until we can use proper union types
-        if (! is_array($validationRules) && ! is_callable($validationRules) && $validationRules !== null) {
+        if (is_callable($validationRules)) {
+            $this->validationRules = $validationRules;
+
+            return $this;
+        }
+
+        // @phpstan-ignore-next-line the parameter is untyped to preserve BC, so this guard is not dead code at runtime
+        if (! is_array($validationRules) && $validationRules !== null) {
             $invalidValidationRules = Utils::printSafe($validationRules);
             throw new InvariantViolation("Server config expects array of validation rules or callable returning such array, but got {$invalidValidationRules}");
         }
