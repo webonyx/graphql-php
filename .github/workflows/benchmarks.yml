@@ -36,6 +36,7 @@ jobs:
         run: php benchmarks/convert-results.php benchmark.xml > benchmark-results.json
 
       - uses: benchmark-action/github-action-benchmark@v1
+        if: github.repository == 'webonyx/graphql-php'
         with:
           tool: customSmallerIsBetter
           output-file-path: benchmark-results.json
@@ -76,6 +77,7 @@ jobs:
         run: php benchmarks/convert-results.php benchmark.xml > benchmark-results.json
 
       - uses: benchmark-action/github-action-benchmark@v1
+        if: github.repository == 'webonyx/graphql-php'
         with:
           tool: customSmallerIsBetter
           output-file-path: benchmark-results.json
