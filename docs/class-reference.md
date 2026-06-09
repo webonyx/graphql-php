@@ -72,7 +72,8 @@ static function executeQuery(
     ?array $variableValues = null,
     ?string $operationName = null,
     ?callable $fieldResolver = null,
-    ?array $validationRules = null
+    ?array $validationRules = null,
+    ?GraphQL\Validator\ValidationCache $cache = null
 ): GraphQL\Executor\ExecutionResult
 ```
 
@@ -100,7 +101,8 @@ static function promiseToExecute(
     ?array $variableValues = null,
     ?string $operationName = null,
     ?callable $fieldResolver = null,
-    ?array $validationRules = null
+    ?array $validationRules = null,
+    ?GraphQL\Validator\ValidationCache $cache = null
 ): GraphQL\Executor\Promise\Promise
 ```
 
@@ -1998,7 +2000,8 @@ static function validate(
     GraphQL\Type\Schema $schema,
     GraphQL\Language\AST\DocumentNode $ast,
     ?array $rules = null,
-    ?GraphQL\Utils\TypeInfo $typeInfo = null
+    ?GraphQL\Utils\TypeInfo $typeInfo = null,
+    ?GraphQL\Validator\ValidationCache $cache = null
 ): array
 ```
 
