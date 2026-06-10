@@ -54,6 +54,8 @@ class ExecutionContext
 
     public PromiseAdapter $promiseAdapter;
 
+    public bool $trustResult;
+
     /**
      * @param array<string, FragmentDefinitionNode> $fragments
      * @param mixed $rootValue
@@ -73,7 +75,8 @@ class ExecutionContext
         array $errors,
         callable $fieldResolver,
         callable $argsMapper,
-        PromiseAdapter $promiseAdapter
+        PromiseAdapter $promiseAdapter,
+        bool $trustResult = false
     ) {
         $this->schema = $schema;
         $this->fragments = $fragments;
@@ -85,6 +88,7 @@ class ExecutionContext
         $this->fieldResolver = $fieldResolver;
         $this->argsMapper = $argsMapper;
         $this->promiseAdapter = $promiseAdapter;
+        $this->trustResult = $trustResult;
     }
 
     public function addError(Error $error): void
