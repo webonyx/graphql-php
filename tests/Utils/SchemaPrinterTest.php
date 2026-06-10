@@ -831,6 +831,28 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
+    /** @see it('Custom Scalar with specifiedByURL') */
+    public function testCustomScalarWithSpecifiedByURL(): void
+    {
+        $fooType = new CustomScalarType([
+            'name' => 'Foo',
+            'specifiedByURL' => 'https://example.com/foo_spec',
+            'serialize' => static fn () => null,
+        ]);
+
+        $schema = new Schema([
+            'types' => [$fooType],
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
+
+            GRAPHQL,
+            $schema
+        );
+    }
+
     /** @see it('Enum') */
     public function testEnum(): void
     {
@@ -1073,6 +1095,12 @@ final class SchemaPrinterTest extends TestCase
         reason: String = "No longer supported"
       ) on FIELD_DEFINITION | ENUM_VALUE | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
+      "Exposes a URL that specifies the behavior of this scalar."
+      directive @specifiedBy(
+        "The URL that specifies the behavior of this scalar."
+        url: String!
+      ) on SCALAR
+
       "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its fields be provided)."
       directive @oneOf on INPUT_OBJECT
 
@@ -1105,6 +1133,7 @@ final class SchemaPrinterTest extends TestCase
         kind: __TypeKind!
         name: String
         description: String
+        specifiedByURL: String
         fields(includeDeprecated: Boolean! = false): [__Field!]
         interfaces: [__Type!]
         possibleTypes: [__Type!]

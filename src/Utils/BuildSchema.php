@@ -231,6 +231,9 @@ class BuildSchema
         if (! isset($directivesByName['deprecated'])) {
             $directives[] = Directive::deprecatedDirective();
         }
+        if (! isset($directivesByName['specifiedBy'])) {
+            $directives[] = Directive::specifiedByDirective();
+        }
         if (! isset($directivesByName['oneOf'])) {
             $directives[] = Directive::oneOfDirective();
         }
