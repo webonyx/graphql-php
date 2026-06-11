@@ -8,7 +8,9 @@ use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils\Utils;
 
 /**
  * Configuration options for schema construction.
@@ -35,6 +37,7 @@ use GraphQL\Type\Definition\Type;
  *   mutation?: MaybeLazyObjectType,
  *   subscription?: MaybeLazyObjectType,
  *   types?: Types|null,
+ *   scalarOverrides?: array<ScalarType>|null,
  *   directives?: array<Directive>|null,
  *   typeLoader?: TypeLoader|null,
  *   assumeValid?: bool|null,
@@ -61,6 +64,18 @@ class SchemaConfig
      * @phpstan-var Types
      */
     public $types = [];
+
+    /**
+     * Replacements for built-in scalar types, keyed by their name.
+     *
+     * When null, they are discovered by scanning **types**, which requires
+     * resolving it fully even when it is given as a lazy callable.
+     * Pass replacement scalars explicitly (or an empty array for none)
+     * to skip the scan and keep lazy type loading lazy.
+     *
+     * @var array<string, ScalarType>|null
+     */
+    public ?array $scalarOverrides = null;
 
     /** @var array<Directive>|null */
     public ?array $directives = null;
@@ -111,6 +126,10 @@ class SchemaConfig
 
             if (isset($options['types'])) {
                 $config->setTypes($options['types']);
+            }
+
+            if (isset($options['scalarOverrides'])) {
+                $config->setScalarOverrides($options['scalarOverrides']);
             }
 
             if (isset($options['directives'])) {
@@ -248,6 +267,51 @@ class SchemaConfig
     public function setTypes($types): self
     {
         $this->types = $types;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, ScalarType>|null
+     *
+     * @api
+     */
+    public function getScalarOverrides(): ?array
+    {
+        return $this->scalarOverrides;
+    }
+
+    /**
+     * @param array<ScalarType>|null $scalarOverrides
+     *
+     * @throws InvariantViolation
+     *
+     * @api
+     */
+    public function setScalarOverrides(?array $scalarOverrides): self
+    {
+        if ($scalarOverrides === null) {
+            $this->scalarOverrides = null;
+
+            return $this;
+        }
+
+        $this->scalarOverrides = [];
+        foreach ($scalarOverrides as $scalarOverride) {
+            // @phpstan-ignore-next-line not strictly enforceable unless PHP gets generics
+            if (! $scalarOverride instanceof ScalarType) {
+                $scalarTypeClass = ScalarType::class;
+                $notScalarType = Utils::printSafe($scalarOverride);
+                throw new InvariantViolation("Expected instanceof {$scalarTypeClass}, got: {$notScalarType}.");
+            }
+
+            if (! Type::isBuiltInScalarName($scalarOverride->name)) {
+                $builtInScalarNames = implode(', ', Type::BUILT_IN_SCALAR_NAMES);
+                throw new InvariantViolation("Expected scalar override to be named after a built-in scalar ({$builtInScalarNames}), got: {$scalarOverride->name}.");
+            }
+
+            $this->scalarOverrides[$scalarOverride->name] = $scalarOverride;
+        }
 
         return $this;
     }
