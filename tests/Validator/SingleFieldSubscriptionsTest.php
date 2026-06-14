@@ -390,6 +390,41 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
+    /** @see it('valid subscription with inline fragment without type condition') */
+    public function testValidSubscriptionWithInlineFragmentWithoutTypeCondition(): void
+    {
+        $this->expectPassesRule(
+            new SingleFieldSubscription(),
+            '
+      subscription sub {
+        ... {
+          catSubscribe {
+            meows
+          }
+        }
+      }
+        '
+        );
+    }
+
+    /** @see it('ignores fields from non-matching fragment type condition') */
+    public function testIgnoresFieldsFromNonMatchingFragmentTypeCondition(): void
+    {
+        $this->expectPassesRule(
+            new SingleFieldSubscription(),
+            '
+      subscription sub {
+        catSubscribe {
+          meows
+        }
+        ... on Cat {
+          meows
+        }
+      }
+        '
+        );
+    }
+
     /** @see it('skips if not subscription type') */
     public function testSkipsIfNotSubscriptionType(): void
     {
