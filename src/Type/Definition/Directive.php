@@ -22,10 +22,15 @@ class Directive
     public const DEFAULT_DEPRECATION_REASON = 'No longer supported';
 
     public const INCLUDE_NAME = 'include';
-    public const IF_ARGUMENT_NAME = 'if';
     public const SKIP_NAME = 'skip';
+    public const IF_ARGUMENT_NAME = 'if';
+
     public const DEPRECATED_NAME = 'deprecated';
     public const REASON_ARGUMENT_NAME = 'reason';
+
+    public const SPECIFIED_BY_NAME = 'specifiedBy';
+    public const URL_ARGUMENT_NAME = 'url';
+
     public const ONE_OF_NAME = 'oneOf';
 
     /**
@@ -82,6 +87,7 @@ class Directive
             self::INCLUDE_NAME => self::includeDirective(),
             self::SKIP_NAME => self::skipDirective(),
             self::DEPRECATED_NAME => self::deprecatedDirective(),
+            self::SPECIFIED_BY_NAME => self::specifiedByDirective(),
             self::ONE_OF_NAME => self::oneOfDirective(),
         ];
     }
@@ -164,6 +170,23 @@ class Directive
                 DirectiveLocation::INPUT_OBJECT,
             ],
             'args' => [],
+        ]);
+    }
+
+    public static function specifiedByDirective(): Directive
+    {
+        return self::$internalDirectives[self::SPECIFIED_BY_NAME] ??= new self([
+            'name' => self::SPECIFIED_BY_NAME,
+            'description' => 'Exposes a URL that specifies the behavior of this scalar.',
+            'locations' => [
+                DirectiveLocation::SCALAR,
+            ],
+            'args' => [
+                self::URL_ARGUMENT_NAME => [
+                    'type' => Type::nonNull(Type::string()),
+                    'description' => 'The URL that specifies the behavior of this scalar.',
+                ],
+            ],
         ]);
     }
 
