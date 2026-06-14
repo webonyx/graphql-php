@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Fixed
+
+- Fix `SingleFieldSubscription` validation to expand fragments before counting root fields, reject introspection fields, and reject `@skip`/`@include` at the subscription root — completing full compliance with the [October 2021 GraphQL specification](https://spec.graphql.org/October2021/)
+
 ## v15.33.0
 
 ### Added
