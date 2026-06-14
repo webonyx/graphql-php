@@ -361,8 +361,6 @@ abstract class ValidatorTestCase extends TestCase
             'fields' => [
                 'catSubscribe' => ['type' => $Cat],
                 'barkSubscribe' => ['type' => $Dog],
-                'newMessage' => ['type' => Type::string()],
-                'disallowedSecondRootField' => ['type' => Type::string()],
             ],
         ]);
 
