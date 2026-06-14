@@ -14,7 +14,7 @@ use GraphQL\Validator\Rules\SingleFieldSubscription;
  */
 final class SingleFieldSubscriptionsTest extends ValidatorTestCase
 {
-    /** @see it('valid single field subscription') */
+    /** @see it('valid subscription') */
     public function testValidSingleFieldSubscription(): void
     {
         $this->expectPassesRule(
@@ -29,7 +29,6 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('valid single field bulk subscriptions') */
     public function testValidSingleFieldBulkSubscriptions(): void
     {
         $this->expectPassesRule(
@@ -50,7 +49,6 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('valid single field anonymous subscription') */
     public function testValidSingleFieldAnonymousSubscription(): void
     {
         $this->expectPassesRule(
@@ -65,7 +63,6 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('valid single field subscription') */
     public function testValidSingleFieldSubscriptionWithMultipleResultFields(): void
     {
         $this->expectPassesRule(
@@ -120,7 +117,6 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('valid subscription with inline fragment') */
     public function testValidSubscriptionWithInlineFragment(): void
     {
         $this->expectPassesRule(
@@ -137,7 +133,7 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('invalid multiple field subscription') */
+    /** @see it('fails with more than one root field') */
     public function testInvalidMultipleFieldSubscription(): void
     {
         $this->expectFailsRule(
@@ -156,7 +152,7 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('invalid multiple field anonymous subscription') */
+    /** @see it('fails with more than one root field in anonymous subscriptions') */
     public function testInvalidMultipleFieldAnonymousSubscription(): void
     {
         $this->expectFailsRule(
@@ -175,7 +171,7 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('invalid many fields subscription') */
+    /** @see it('fails with many more than one root field') */
     public function testInvalidManyFieldsSubscription(): void
     {
         $this->expectFailsRule(
@@ -197,7 +193,6 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('invalid many fields anonymous subscription') */
     public function testInvalidManyFieldAnonymousSubscription(): void
     {
         $this->expectFailsRule(
@@ -285,7 +280,7 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('fails with introspection field anonymous') */
+    /** @see it('fails with introspection field in anonymous subscription') */
     public function testFailsWithIntrospectionFieldAnonymous(): void
     {
         $this->expectFailsRule(
@@ -342,7 +337,7 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('fails with @skip directive') */
+    /** @see it('fails with @skip or @include directive') */
     public function testFailsWithSkipDirective(): void
     {
         $this->expectFailsRule(
@@ -358,7 +353,6 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('fails with @include directive') */
     public function testFailsWithIncludeDirective(): void
     {
         $this->expectFailsRule(
@@ -374,7 +368,7 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('fails with @skip directive anonymous') */
+    /** @see it('fails with @skip or @include directive in anonymous subscription') */
     public function testFailsWithSkipDirectiveAnonymous(): void
     {
         $this->expectFailsRule(
@@ -390,7 +384,6 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('valid subscription with inline fragment without type condition') */
     public function testValidSubscriptionWithInlineFragmentWithoutTypeCondition(): void
     {
         $this->expectPassesRule(
@@ -407,7 +400,6 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    /** @see it('ignores fields from non-matching fragment type condition') */
     public function testIgnoresFieldsFromNonMatchingFragmentTypeCondition(): void
     {
         $this->expectPassesRule(
