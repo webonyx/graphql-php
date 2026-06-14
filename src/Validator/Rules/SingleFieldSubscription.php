@@ -16,7 +16,10 @@ use GraphQL\Language\AST\SelectionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
+use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Schema;
 use GraphQL\Validator\QueryValidationContext;
 
 class SingleFieldSubscription extends ValidationRule
@@ -69,6 +72,8 @@ class SingleFieldSubscription extends ValidationRule
                         /** @var array<string, true> $visitedFragments */
                         $visitedFragments = [];
                         self::collectFields(
+                            $schema,
+                            $subscriptionType,
                             $node->selectionSet,
                             $fragments,
                             $groupedFieldSet,
@@ -130,8 +135,12 @@ class SingleFieldSubscription extends ValidationRule
      * @param array<string, FragmentDefinitionNode> $fragments
      * @param array<string, array<int, FieldNode>> $groupedFieldSet
      * @param array<string, true> $visitedFragments
+     *
+     * @throws \Exception
      */
     private static function collectFields(
+        Schema $schema,
+        ObjectType $runtimeType,
         SelectionSetNode $selectionSet,
         array $fragments,
         array &$groupedFieldSet,
@@ -146,7 +155,13 @@ class SingleFieldSubscription extends ValidationRule
 
                 $groupedFieldSet[$responseKey][] = $selection;
             } elseif ($selection instanceof InlineFragmentNode) {
+                if (! self::doesFragmentConditionMatch($schema, $selection, $runtimeType)) {
+                    continue;
+                }
+
                 self::collectFields(
+                    $schema,
+                    $runtimeType,
                     $selection->selectionSet,
                     $fragments,
                     $groupedFieldSet,
@@ -165,7 +180,13 @@ class SingleFieldSubscription extends ValidationRule
                 }
 
                 $fragment = $fragments[$fragmentName];
+                if (! self::doesFragmentConditionMatch($schema, $fragment, $runtimeType)) {
+                    continue;
+                }
+
                 self::collectFields(
+                    $schema,
+                    $runtimeType,
                     $fragment->selectionSet,
                     $fragments,
                     $groupedFieldSet,
@@ -173,6 +194,30 @@ class SingleFieldSubscription extends ValidationRule
                 );
             }
         }
+    }
+
+    /**
+     * @param InlineFragmentNode|FragmentDefinitionNode $fragment
+     *
+     * @throws \Exception
+     */
+    private static function doesFragmentConditionMatch(Schema $schema, Node $fragment, ObjectType $type): bool
+    {
+        $typeConditionNode = $fragment->typeCondition;
+        if ($typeConditionNode === null) {
+            return true;
+        }
+
+        $conditionalType = $schema->getType($typeConditionNode->name->value);
+        if ($conditionalType === $type) {
+            return true;
+        }
+
+        if ($conditionalType instanceof AbstractType) {
+            return $schema->isSubType($conditionalType, $type);
+        }
+
+        return false;
     }
 
     public static function multipleFieldsInOperation(?string $operationName): string
