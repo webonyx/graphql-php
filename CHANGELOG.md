@@ -12,7 +12,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 ### Fixed
 
 - Fix `SingleFieldSubscription` validation to expand fragments before counting root fields, reject introspection fields, and reject `@skip`/`@include` at the subscription root https://github.com/webonyx/graphql-php/pull/1930
-- This release completes full compliance with the [October 2021 GraphQL specification](https://spec.graphql.org/October2021/)
+- This release completes full compliance with the [October 2021 GraphQL specification](https://spec.graphql.org/October2021)
 
 ## v15.33.0
 
@@ -988,7 +988,7 @@ This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.
 
 - Support repeatable directives (https://github.com/webonyx/graphql-php/issues/643)
 - Support SDL Validation and other schema validation improvements (e.g. https://github.com/webonyx/graphql-php/issues/492)
-- Added promise adapter for [Amp](https://amphp.org/) (https://github.com/webonyx/graphql-php/issues/551)
+- Added promise adapter for [Amp](https://amphp.org) (https://github.com/webonyx/graphql-php/issues/551)
 - Query plan utility improvements (https://github.com/webonyx/graphql-php/issues/513, https://github.com/webonyx/graphql-php/issues/632)
 - Allow retrieving query complexity once query has been completed (https://github.com/webonyx/graphql-php/issues/316)
 - Allow input types to be passed in from variables using \stdClass instead of associative arrays (https://github.com/webonyx/graphql-php/issues/535)
@@ -996,7 +996,7 @@ This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.
 
 ### Changed
 
-- Compliant with the GraphQL specification [June 2018 Edition](https://spec.graphql.org/June2018/)
+- Compliant with the GraphQL specification [June 2018 Edition](https://spec.graphql.org/June2018)
 - Having an empty string in `deprecationReason` will now print the `@deprecated` directive (only a `null` `deprecationReason` won't print the `@deprecated` directive).
 
 ### Optimized
@@ -1172,19 +1172,19 @@ New features and notable changes:
 - Changed minimum PHP version from 5.4 to 5.5
 - Lazy loading of types without separate build step (see https://github.com/webonyx/graphql-php/issues/69, see [docs](https://webonyx.github.io/graphql-php/type-system/schema/#lazy-loading-of-types))
 - PSR-7 compliant Standard Server (see [docs](https://webonyx.github.io/graphql-php/executing-queries/#using-server))
-- New default error formatting, which does not expose sensitive data (see [docs](https://webonyx.github.io/graphql-php/error-handling/))
+- New default error formatting, which does not expose sensitive data (see [docs](https://webonyx.github.io/graphql-php/error-handling))
 - Ability to define custom error handler to filter/log/re-throw exceptions after execution (see [docs](https://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting))
 - Allow defining schema configuration using objects with fluent setters vs array (see [docs](https://webonyx.github.io/graphql-php/type-system/schema/#using-config-class))
 - Allow serializing AST to array and re-creating AST from array lazily (see [docs](https://webonyx.github.io/graphql-php/reference/#graphqlutilsast))
 - [Apollo-style](https://dev-blog.apollodata.com/query-batching-in-apollo-63acfd859862) query batching support via server (see [docs](https://webonyx.github.io/graphql-php/executing-queries/#query-batching))
 - Schema validation, including validation of interface implementations (see [docs](https://webonyx.github.io/graphql-php/type-system/schema/#schema-validation))
-- Ability to pass custom config formatter when defining schema using [GraphQL type language](http://graphql.org/learn/schema/#type-language) (see [docs](https://webonyx.github.io/graphql-php/type-system/type-language/))
+- Ability to pass custom config formatter when defining schema using [GraphQL type language](http://graphql.org/learn/schema/#type-language) (see [docs](https://webonyx.github.io/graphql-php/type-system/type-language))
 
 Improvements:
 
 - Significantly improved parser performance (see https://github.com/webonyx/graphql-php/issues/137 and https://github.com/webonyx/graphql-php/issues/128)
 - Support for PHP7 exceptions everywhere (see https://github.com/webonyx/graphql-php/issues/127)
-- Improved [documentation](https://webonyx.github.io/graphql-php/) and docblock comments
+- Improved [documentation](https://webonyx.github.io/graphql-php) and docblock comments
 
 Deprecations and breaking changes - see [UPGRADE](UPGRADE.md) document.
 
