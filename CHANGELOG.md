@@ -9,6 +9,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.33.1
+
 ### Fixed
 
 - Fix `SingleFieldSubscription` validation to expand fragments before counting root fields, reject introspection fields, and reject `@skip`/`@include` at the subscription root https://github.com/webonyx/graphql-php/pull/1930
