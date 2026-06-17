@@ -6,6 +6,9 @@
 This is a PHP implementation of the [GraphQL](https://graphql.org) [specification](https://github.com/graphql/graphql-spec)
 based on the [reference implementation in JavaScript](https://github.com/graphql/graphql-js).
 
+Fully compliant with the [October 2021 GraphQL specification](https://spec.graphql.org/October2021).
+[September 2025 specification](https://spec.graphql.org/September2025) compliance is [in progress](https://github.com/webonyx/graphql-php/issues/1931).
+
 ## Sponsors
 
 If you make money using this project, please consider sponsoring [its maintainer on GitHub Sponsors](https://github.com/sponsors/spawnia) or [the project on OpenCollective](https://opencollective.com/webonyx-graphql-php).

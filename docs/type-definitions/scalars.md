@@ -107,6 +107,35 @@ $emailType = new CustomScalarType([
 Keep in mind the passed functions will be called statically, so a passed in `callable`
 such as `[Foo::class, 'bar']` should only reference static class methods.
 
+## Linking a Scalar to Its Specification
+
+The `@specifiedBy` built-in directive lets you attach a URL to a custom scalar that specifies the behavior of that scalar.
+This URL is exposed through introspection and printed in SDL output.
+
+Pass `specifiedByURL` when constructing the type:
+
+```php
+use GraphQL\Type\Definition\CustomScalarType;
+
+$uuidType = new CustomScalarType([
+    'name' => 'UUID',
+    'specifiedByURL' => 'https://tools.ietf.org/html/rfc4122',
+    'serialize' => static function ($value) { /* ... */ },
+    'parseValue' => static function ($value) { /* ... */ },
+    'parseLiteral' => static function ($valueNode, ?array $variables = null) { /* ... */ },
+]);
+
+$uuidType->specifiedByURL; // "https://tools.ietf.org/html/rfc4122"
+```
+
+When building a schema from SDL, `@specifiedBy` is parsed automatically:
+
+```graphql
+scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+```
+
+And `SchemaPrinter` will emit the directive when printing a schema that contains a scalar with a `specifiedByURL`.
+
 ## Overriding Built-in Scalars
 
 You can override built-in scalars (`String`, `Int`, `Float`, `Boolean`, `ID`) on a per-schema basis by passing a custom scalar with the same name through the `types` option.

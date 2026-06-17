@@ -36,6 +36,7 @@ The following elements are part of the stable public API:
 - Keep changes focused and minimal.
 - Run `make stan` and `make test` for behavioral changes.
 - Use `make fix` for style/refactoring consistency when needed.
+- Only add `/** @see it('...') */` to a test when it has a direct counterpart with that exact name in graphql-js.
 
 ## Release Workflow
 
