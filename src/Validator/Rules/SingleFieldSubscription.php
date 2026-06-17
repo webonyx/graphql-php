@@ -10,9 +10,7 @@ use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\OperationDefinitionNode;
-use GraphQL\Language\AST\SelectionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
@@ -44,18 +42,22 @@ class SingleFieldSubscription extends ValidationRule
                             }
                         }
 
-                        // Check for @skip/@include on top-level selections
+                        // Collect fields by expanding fragments, also collecting forbidden directives
+                        /** @var array<string, array<int, FieldNode>> $groupedFieldSet */
+                        $groupedFieldSet = [];
+                        /** @var array<string, true> $visitedFragments */
+                        $visitedFragments = [];
                         /** @var array<int, DirectiveNode> $forbiddenDirectiveNodes */
                         $forbiddenDirectiveNodes = [];
-                        foreach ($node->selectionSet->selections as $selection) {
-                            $directives = self::getDirectives($selection);
-                            foreach ($directives as $directive) {
-                                $directiveName = $directive->name->value;
-                                if ($directiveName === Directive::SKIP_NAME || $directiveName === Directive::INCLUDE_NAME) {
-                                    $forbiddenDirectiveNodes[] = $directive;
-                                }
-                            }
-                        }
+                        self::collectFields(
+                            $schema,
+                            $subscriptionType,
+                            $node->selectionSet,
+                            $fragments,
+                            $groupedFieldSet,
+                            $visitedFragments,
+                            $forbiddenDirectiveNodes
+                        );
 
                         if ($forbiddenDirectiveNodes !== []) {
                             $context->reportError(new Error(
@@ -65,20 +67,6 @@ class SingleFieldSubscription extends ValidationRule
 
                             return Visitor::skipNode();
                         }
-
-                        // Collect fields by expanding fragments
-                        /** @var array<string, array<int, FieldNode>> $groupedFieldSet */
-                        $groupedFieldSet = [];
-                        /** @var array<string, true> $visitedFragments */
-                        $visitedFragments = [];
-                        self::collectFields(
-                            $schema,
-                            $subscriptionType,
-                            $node->selectionSet,
-                            $fragments,
-                            $groupedFieldSet,
-                            $visitedFragments
-                        );
 
                         if (count($groupedFieldSet) > 1) {
                             $keys = array_keys($groupedFieldSet);
@@ -115,26 +103,10 @@ class SingleFieldSubscription extends ValidationRule
     }
 
     /**
-     * @param SelectionNode&Node $selection
-     *
-     * @return NodeList<DirectiveNode>
-     */
-    private static function getDirectives($selection): NodeList
-    {
-        if ($selection instanceof FieldNode
-            || $selection instanceof FragmentSpreadNode
-            || $selection instanceof InlineFragmentNode
-        ) {
-            return $selection->directives;
-        }
-
-        return new NodeList([]);
-    }
-
-    /**
      * @param array<string, FragmentDefinitionNode> $fragments
      * @param array<string, array<int, FieldNode>> $groupedFieldSet
      * @param array<string, true> $visitedFragments
+     * @param array<int, DirectiveNode> $forbiddenDirectiveNodes
      *
      * @throws \Exception
      */
@@ -144,10 +116,18 @@ class SingleFieldSubscription extends ValidationRule
         SelectionSetNode $selectionSet,
         array $fragments,
         array &$groupedFieldSet,
-        array &$visitedFragments
+        array &$visitedFragments,
+        array &$forbiddenDirectiveNodes
     ): void {
         foreach ($selectionSet->selections as $selection) {
             if ($selection instanceof FieldNode) {
+                foreach ($selection->directives as $directive) {
+                    $directiveName = $directive->name->value;
+                    if ($directiveName === Directive::SKIP_NAME || $directiveName === Directive::INCLUDE_NAME) {
+                        $forbiddenDirectiveNodes[] = $directive;
+                    }
+                }
+
                 $responseKey = $selection->alias->value ?? $selection->name->value;
                 if (! isset($groupedFieldSet[$responseKey])) {
                     $groupedFieldSet[$responseKey] = [];
@@ -165,7 +145,8 @@ class SingleFieldSubscription extends ValidationRule
                     $selection->selectionSet,
                     $fragments,
                     $groupedFieldSet,
-                    $visitedFragments
+                    $visitedFragments,
+                    $forbiddenDirectiveNodes
                 );
             } elseif ($selection instanceof FragmentSpreadNode) {
                 $fragmentName = $selection->name->value;
@@ -190,7 +171,8 @@ class SingleFieldSubscription extends ValidationRule
                     $fragment->selectionSet,
                     $fragments,
                     $groupedFieldSet,
-                    $visitedFragments
+                    $visitedFragments,
+                    $forbiddenDirectiveNodes
                 );
             }
         }

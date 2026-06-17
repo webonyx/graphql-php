@@ -384,6 +384,24 @@ final class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
+    public function testFailsWithSkipDirectiveViaFragment(): void
+    {
+        $this->expectFailsRule(
+            new SingleFieldSubscription(),
+            '
+      subscription sub {
+        ...frag
+      }
+      fragment frag on SubscriptionRoot {
+        catSubscribe @include(if: true) {
+          meows
+        }
+      }
+        ',
+            [$this->skipIncludeInOperation('sub', [6, 22])]
+        );
+    }
+
     public function testValidSubscriptionWithInlineFragmentWithoutTypeCondition(): void
     {
         $this->expectPassesRule(
