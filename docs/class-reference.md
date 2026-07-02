@@ -805,6 +805,7 @@ Usage example:
   mutation?: MaybeLazyObjectType,
   subscription?: MaybeLazyObjectType,
   types?: Types|null,
+  scalarOverrides?: array<ScalarType>|null,
   directives?: array<Directive>|null,
   typeLoader?: TypeLoader|null,
   assumeValid?: bool|null,
@@ -909,6 +910,26 @@ function getTypes()
  * @api
  */
 function setTypes($types): self
+```
+
+```php
+/**
+ * @return array<string, ScalarType>|null
+ *
+ * @api
+ */
+function getScalarOverrides(): ?array
+```
+
+```php
+/**
+ * @param array<ScalarType>|null $scalarOverrides
+ *
+ * @throws InvariantViolation
+ *
+ * @api
+ */
+function setScalarOverrides(?array $scalarOverrides): self
 ```
 
 ```php

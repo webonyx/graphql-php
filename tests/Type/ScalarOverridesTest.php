@@ -569,6 +569,130 @@ final class ScalarOverridesTest extends TestCase
     }
 
     /** @see https://github.com/webonyx/graphql-php/issues/1874 */
+    public function testExplicitScalarOverridesKeepLazyTypesUnresolved(): void
+    {
+        $queryType = self::createQueryType();
+        $typesCalled = 0;
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $name === 'Query' ? $queryType : null,
+            'types' => static function () use (&$typesCalled): array {
+                ++$typesCalled;
+
+                return [];
+            },
+            'scalarOverrides' => [],
+        ]);
+
+        self::assertSame(Type::boolean(), $schema->getType(Type::BOOLEAN));
+        self::assertSame(Type::string(), $schema->getType(Type::STRING));
+
+        $result = GraphQL::executeQuery($schema, '{ greeting }');
+
+        self::assertSame(['data' => ['greeting' => 'hello world']], $result->toArray());
+        self::assertSame(0, $typesCalled, 'Expected built-in scalar lookups and query execution to not resolve the lazy types callable');
+    }
+
+    public function testExplicitScalarOverridesAreUsedWithoutResolvingLazyTypes(): void
+    {
+        $uppercaseString = self::createUppercaseString();
+        $queryType = self::createQueryType();
+        $typesCalled = 0;
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $name === 'Query' ? $queryType : null,
+            'types' => static function () use (&$typesCalled): array {
+                ++$typesCalled;
+
+                return [];
+            },
+            'scalarOverrides' => [$uppercaseString],
+        ]);
+
+        self::assertSame($uppercaseString, $schema->getType(Type::STRING));
+
+        $result = GraphQL::executeQuery($schema, '{ greeting }');
+
+        self::assertSame(['data' => ['greeting' => 'HELLO WORLD']], $result->toArray());
+        self::assertSame(0, $typesCalled, 'Expected explicit scalar overrides to not resolve the lazy types callable');
+    }
+
+    public function testExplicitScalarOverridesWorkViaSchemaConfigSetter(): void
+    {
+        $uppercaseString = self::createUppercaseString();
+
+        $config = SchemaConfig::create()
+            ->setQuery(self::createQueryType())
+            ->setScalarOverrides([$uppercaseString]);
+
+        self::assertSame([Type::STRING => $uppercaseString], $config->getScalarOverrides());
+
+        $schema = new Schema($config);
+
+        $schema->assertValid();
+
+        $result = GraphQL::executeQuery($schema, '{ greeting }');
+
+        self::assertSame(['data' => ['greeting' => 'HELLO WORLD']], $result->toArray());
+    }
+
+    public function testExplicitScalarOverridesApplyInTypeMap(): void
+    {
+        $uppercaseString = self::createUppercaseString();
+
+        $schema = new Schema([
+            'query' => self::createQueryType(),
+            'scalarOverrides' => [$uppercaseString],
+        ]);
+
+        self::assertSame($uppercaseString, $schema->getTypeMap()[Type::STRING]);
+    }
+
+    public function testTypeMapStillResolvesLazyTypesWithExplicitScalarOverrides(): void
+    {
+        $extraType = new ObjectType([
+            'name' => 'Extra',
+            'fields' => [
+                'id' => Type::id(),
+            ],
+        ]);
+        $queryType = self::createQueryType();
+
+        $schema = new Schema([
+            'query' => $queryType,
+            'typeLoader' => static fn (string $name): ?Type => $name === 'Query' ? $queryType : null,
+            'types' => static fn (): array => [$extraType],
+            'scalarOverrides' => [],
+        ]);
+
+        self::assertSame($extraType, $schema->getTypeMap()['Extra']);
+    }
+
+    public function testSetScalarOverridesRejectsNonScalarTypes(): void
+    {
+        $config = new SchemaConfig();
+
+        $this->expectException(InvariantViolation::class);
+        // @phpstan-ignore-next-line intentionally wrong
+        $config->setScalarOverrides([self::createQueryType()]);
+    }
+
+    public function testSetScalarOverridesRejectsNonBuiltInScalarNames(): void
+    {
+        $customScalar = new CustomScalarType([
+            'name' => 'DateTime',
+            'serialize' => static fn ($value): string => (string) $value,
+        ]);
+
+        $config = new SchemaConfig();
+
+        $this->expectException(InvariantViolation::class);
+        $config->setScalarOverrides([$customScalar]);
+    }
+
+    /** @see https://github.com/webonyx/graphql-php/issues/1874 */
     public function testTypeLoaderIsNotCalledForBuiltInScalarNames(): void
     {
         $calledWith = [];
