@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783244349366,
+  "lastUpdate": 1783274714497,
   "repoUrl": "https://github.com/webonyx/graphql-php",
   "entries": {
     "Benchmark": [
@@ -13175,6 +13175,195 @@ window.BENCHMARK_DATA = {
           {
             "name": "LexerBench::benchIntrospectionQuery",
             "value": 0.475,
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benedikt@franke.tech",
+            "name": "Benedikt Franke",
+            "username": "spawnia"
+          },
+          "committer": {
+            "email": "benedikt@franke.tech",
+            "name": "Benedikt Franke",
+            "username": "spawnia"
+          },
+          "distinct": true,
+          "id": "c72fd0f82e7b992aaf35516ebf860a4729be206f",
+          "message": "v15.34.0 changelog",
+          "timestamp": "2026-07-05T20:03:26+02:00",
+          "tree_id": "6efd31b7059c2dad186eb3daf00c0aa741efc118",
+          "url": "https://github.com/webonyx/graphql-php/commit/c72fd0f82e7b992aaf35516ebf860a4729be206f"
+        },
+        "date": 1783274714049,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields100",
+            "value": 2.638,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields500",
+            "value": 12.803,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields1000",
+            "value": 25.473,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields2000",
+            "value": 51.372,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields3000",
+            "value": 76.776,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchSchema",
+            "value": 0.005,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchHeroQuery",
+            "value": 0.27,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchNestedQuery",
+            "value": 0.598,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithFragment",
+            "value": 0.632,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithInterfaceFragment",
+            "value": 0.597,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchStarWarsIntrospectionQuery",
+            "value": 5.728,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeave",
+            "value": 0.255,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindMap",
+            "value": 0.249,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindCallable",
+            "value": 0.231,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeaveMap",
+            "value": 0.251,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitNestedWithEnterLeave",
+            "value": 0.059,
+            "unit": "ms"
+          },
+          {
+            "name": "BuildSchemaBench::benchBuildSchema",
+            "value": 21.21,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchSingleDeferred",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchNestedDeferred",
+            "value": 0.002,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain5",
+            "value": 0.005,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain100",
+            "value": 0.07,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyDeferreds",
+            "value": 0.375,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyNestedDeferreds",
+            "value": 11.965,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::bench1000Chains",
+            "value": 3.286,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithoutOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithTypesOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithoutOverride",
+            "value": 0.126,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithTypesOverride",
+            "value": 0.126,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchema",
+            "value": 13.023,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchemaLazy",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQuery",
+            "value": 13.563,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQueryLazy",
+            "value": 14.268,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchIntrospectionQuery",
+            "value": 0.434,
             "unit": "ms"
           }
         ]
