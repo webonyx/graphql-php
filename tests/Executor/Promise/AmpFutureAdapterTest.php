@@ -49,7 +49,7 @@ final class AmpFutureAdapterTest extends TestCase
 
         $promise = $ampAdapter->convertThenable($future);
 
-        self::assertInstanceOf(Future::class, $promise->adoptedPromise);
+        self::assertSame($future, $promise->adoptedPromise);
     }
 
     public function testThen(): void
@@ -67,8 +67,6 @@ final class AmpFutureAdapterTest extends TestCase
             }
         );
 
-        self::assertInstanceOf(Future::class, $resultPromise->adoptedPromise);
-
         $resultPromise->adoptedPromise->await();
 
         self::assertSame(1, $result);
@@ -81,17 +79,13 @@ final class AmpFutureAdapterTest extends TestCase
             $resolve(1);
         });
 
-        self::assertInstanceOf(Future::class, $resolvedPromise->adoptedPromise);
-
         $result = null;
 
         $resultPromise = $resolvedPromise->then(static function ($value) use (&$result): void {
             $result = $value;
         });
 
-        $resultFuture = $resultPromise->adoptedPromise;
-        self::assertInstanceOf(Future::class, $resultFuture);
-        $resultFuture->await();
+        $resultPromise->adoptedPromise->await();
 
         self::assertSame(1, $result);
     }
@@ -101,17 +95,13 @@ final class AmpFutureAdapterTest extends TestCase
         $ampAdapter = new AmpFutureAdapter();
         $fulfilledPromise = $ampAdapter->createFulfilled(1);
 
-        self::assertInstanceOf(Future::class, $fulfilledPromise->adoptedPromise);
-
         $result = null;
 
         $resultPromise = $fulfilledPromise->then(static function ($value) use (&$result): void {
             $result = $value;
         });
 
-        $resultFuture = $resultPromise->adoptedPromise;
-        self::assertInstanceOf(Future::class, $resultFuture);
-        $resultFuture->await();
+        $resultPromise->adoptedPromise->await();
 
         self::assertSame(1, $result);
     }
@@ -120,8 +110,6 @@ final class AmpFutureAdapterTest extends TestCase
     {
         $ampAdapter = new AmpFutureAdapter();
         $rejectedPromise = $ampAdapter->createRejected(new \Exception('I am a bad promise'));
-
-        self::assertInstanceOf(Future::class, $rejectedPromise->adoptedPromise);
 
         $exception = null;
 
@@ -132,9 +120,7 @@ final class AmpFutureAdapterTest extends TestCase
             }
         );
 
-        $resultFuture = $resultPromise->adoptedPromise;
-        self::assertInstanceOf(Future::class, $resultFuture);
-        $resultFuture->await();
+        $resultPromise->adoptedPromise->await();
 
         self::assertInstanceOf(\Throwable::class, $exception);
         self::assertSame('I am a bad promise', $exception->getMessage());
@@ -146,8 +132,6 @@ final class AmpFutureAdapterTest extends TestCase
         $promises = [Future::complete(1), Future::complete(2), Future::complete(3)];
 
         $allPromise = $ampAdapter->all($promises);
-
-        self::assertInstanceOf(Future::class, $allPromise->adoptedPromise);
 
         $result = $allPromise->adoptedPromise->await();
 
@@ -164,9 +148,7 @@ final class AmpFutureAdapterTest extends TestCase
 
         $deferred->complete(3);
 
-        $allFuture = $allPromise->adoptedPromise;
-        self::assertInstanceOf(Future::class, $allFuture);
-        $result = $allFuture->await();
+        $result = $allPromise->adoptedPromise->await();
 
         self::assertSame([1, 2, 3, 4], $result);
     }

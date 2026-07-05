@@ -76,7 +76,6 @@ final class AmpPromiseAdapterTest extends TestCase
         );
 
         self::assertSame(1, $result);
-        self::assertInstanceOf(Promise::class, $resultPromise->adoptedPromise);
     }
 
     public function testCreate(): void
@@ -85,8 +84,6 @@ final class AmpPromiseAdapterTest extends TestCase
         $resolvedPromise = $ampAdapter->create(static function ($resolve): void {
             $resolve(1);
         });
-
-        self::assertInstanceOf(Promise::class, $resolvedPromise->adoptedPromise);
 
         $result = null;
 
@@ -139,8 +136,6 @@ final class AmpPromiseAdapterTest extends TestCase
         $promises = [new Success(1), new Success(2), new Success(3)];
 
         $allPromise = $ampAdapter->all($promises);
-
-        self::assertInstanceOf(Promise::class, $allPromise->adoptedPromise);
 
         $result = null;
 

@@ -15,6 +15,8 @@ use function Amp\Future\await;
  * Allows integration with amphp/amp v3 (fiber-based futures).
  *
  * @see https://amphp.org/amp
+ *
+ * @implements PromiseAdapter<Future<mixed>>
  */
 class AmpFutureAdapter implements PromiseAdapter
 {
@@ -23,17 +25,26 @@ class AmpFutureAdapter implements PromiseAdapter
         return $value instanceof Future;
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     *
+     * @phpstan-return Promise<Future<mixed>>
+     */
     public function convertThenable($thenable): Promise
     {
         return new Promise($thenable, $this);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @phpstan-param Promise<covariant Future<mixed>> $promise
+     *
+     * @throws InvariantViolation
+     *
+     * @phpstan-return Promise<Future<mixed>>
+     */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         $future = $promise->adoptedPromise;
-        assert($future instanceof Future);
 
         $next = async(static function () use ($future, $onFulfilled, $onRejected) {
             try {
@@ -80,6 +91,8 @@ class AmpFutureAdapter implements PromiseAdapter
     /**
      * @throws \Error
      * @throws InvariantViolation
+     *
+     * @phpstan-return Promise<Future<mixed>>
      */
     public function createFulfilled($value = null): Promise
     {
@@ -94,7 +107,11 @@ class AmpFutureAdapter implements PromiseAdapter
         return new Promise(Future::complete($value), $this);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     *
+     * @phpstan-return Promise<Future<mixed>>
+     */
     public function createRejected(\Throwable $reason): Promise
     {
         return new Promise(Future::error($reason), $this);
