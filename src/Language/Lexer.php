@@ -391,18 +391,50 @@ class Lexer
     {
         $start = $this->position;
 
-        // Skip leading quote and read first string char:
-        [$char, $code, $bytes] = $this->moveStringCursor(1, 1)
-            ->readChar();
+        // Skip leading quote
+        $this->moveStringCursor(1, 1);
 
-        $chunk = '';
+        // Bulk-scan runs of bytes that need no special handling via strcspn()
+        // (a single native call) instead of decoding/validating one UTF-8
+        // character at a time.
+        //
+        // The stop-byte set below includes ASCII control characters
+        // (0x00-0x1F), not just backslash/quote/line-terminators, because
+        // assertValidStringCharacterCode() must still reject most of them.
+        // TAB (0x09) is excluded: it is a legal, unescaped SourceCharacter
+        // per the GraphQL spec, so it is scanned through like any other
+        // ordinary character instead of being individually inspected.
+        static $stopBytes;
+        $stopBytes ??= '"\\' . implode('', array_map('chr', array_diff(range(0x00, 0x1F), [0x09])));
+
+        $body = $this->source->body;
+        $bodyLength = strlen($body);
         $value = '';
 
-        while (! in_array($code, [null, 10, 13], true)) { // not LineTerminator
-            if ($code === 34) { // Closing Quote (")
-                $value .= $chunk;
+        while (true) {
+            $byteStart = $this->byteStreamPosition;
+            $runLength = strcspn($body, $stopBytes, $byteStart);
 
-                // Skip quote
+            if ($runLength > 0) {
+                $chunk = substr($body, $byteStart, $runLength);
+                $value .= $chunk;
+                // $this->position counts decoded characters, not bytes: count the
+                // non-continuation bytes (i.e. NOT matching 10xxxxxx) in the chunk to
+                // keep it accurate for multi-byte UTF-8 content.
+                $continuationBytes = preg_match_all('/[\x80-\xBF]/', $chunk);
+                assert(is_int($continuationBytes), 'Pattern is valid, so preg_match_all() cannot fail');
+                $this->position += strlen($chunk) - $continuationBytes;
+                $this->byteStreamPosition = $byteStart + $runLength;
+            }
+
+            $bytePos = $this->byteStreamPosition;
+            if ($bytePos >= $bodyLength) {
+                break; // EOF mid-string
+            }
+
+            $code = ord($body[$bytePos]);
+
+            if ($code === 34) { // Closing Quote (")
                 $this->moveStringCursor(1, 1);
 
                 return new Token(
@@ -416,79 +448,77 @@ class Lexer
                 );
             }
 
-            $this->assertValidStringCharacterCode($code, $this->position);
-            $this->moveStringCursor(1, $bytes);
-
-            if ($code === 92) { // \
-                $value .= $chunk;
-                [, $code] = $this->readChar(true);
-
-                switch ($code) {
-                    case 34:
-                        $value .= '"';
-                        break;
-                    case 47:
-                        $value .= '/';
-                        break;
-                    case 92:
-                        $value .= '\\';
-                        break;
-                    case 98:
-                        $value .= chr(8); // \b (backspace)
-                        break;
-                    case 102:
-                        $value .= "\f";
-                        break;
-                    case 110:
-                        $value .= "\n";
-                        break;
-                    case 114:
-                        $value .= "\r";
-                        break;
-                    case 116:
-                        $value .= "\t";
-                        break;
-                    case 117:
-                        $position = $this->position;
-                        [$hex] = $this->readChars(4);
-                        if (preg_match('/[0-9a-fA-F]{4}/', $hex) !== 1) {
-                            throw new SyntaxError($this->source, $position - 1, "Invalid character escape sequence: \\u{$hex}");
-                        }
-
-                        $code = hexdec($hex);
-                        assert(is_int($code), 'Since only a single char is read');
-
-                        // UTF-16 surrogate pair detection and handling.
-                        $highOrderByte = $code >> 8;
-                        if ($highOrderByte >= 0xD8 && $highOrderByte <= 0xDF) {
-                            [$utf16Continuation] = $this->readChars(6);
-                            if (preg_match('/^\\\u[0-9a-fA-F]{4}$/', $utf16Continuation) !== 1) {
-                                throw new SyntaxError($this->source, $this->position - 5, 'Invalid UTF-16 trailing surrogate: ' . $utf16Continuation);
-                            }
-
-                            $surrogatePairHex = $hex . substr($utf16Continuation, 2, 4);
-                            $value .= mb_convert_encoding(pack('H*', $surrogatePairHex), 'UTF-8', 'UTF-16');
-                            break;
-                        }
-
-                        $this->assertValidStringCharacterCode($code, $position - 2);
-
-                        $value .= Utils::chr($code);
-                        break;
-                        // null means EOF, will delegate to general handling of unterminated strings
-                    case null:
-                        continue 2;
-                    default:
-                        $chr = Utils::chr($code);
-                        throw new SyntaxError($this->source, $this->position - 1, "Invalid character escape sequence: \\{$chr}");
-                }
-
-                $chunk = '';
-            } else {
-                $chunk .= $char;
+            if ($code === 10 || $code === 13) { // LineTerminator
+                break;
             }
 
-            [$char, $code, $bytes] = $this->readChar();
+            // Any other control character reaching here must be invalid
+            // (TAB, the only legal one, is excluded from the stop-byte set).
+            $this->assertValidStringCharacterCode($code, $this->position);
+
+            // $code === 92 (\), i.e. an escape sequence.
+            $this->moveStringCursor(1, 1);
+            [, $code] = $this->readChar(true);
+
+            switch ($code) {
+                case 34:
+                    $value .= '"';
+                    break;
+                case 47:
+                    $value .= '/';
+                    break;
+                case 92:
+                    $value .= '\\';
+                    break;
+                case 98:
+                    $value .= chr(8); // \b (backspace)
+                    break;
+                case 102:
+                    $value .= "\f";
+                    break;
+                case 110:
+                    $value .= "\n";
+                    break;
+                case 114:
+                    $value .= "\r";
+                    break;
+                case 116:
+                    $value .= "\t";
+                    break;
+                case 117:
+                    $position = $this->position;
+                    [$hex] = $this->readChars(4);
+                    if (preg_match('/[0-9a-fA-F]{4}/', $hex) !== 1) {
+                        throw new SyntaxError($this->source, $position - 1, "Invalid character escape sequence: \\u{$hex}");
+                    }
+
+                    $code = hexdec($hex);
+                    assert(is_int($code), 'Since only a single char is read');
+
+                    // UTF-16 surrogate pair detection and handling.
+                    $highOrderByte = $code >> 8;
+                    if ($highOrderByte >= 0xD8 && $highOrderByte <= 0xDF) {
+                        [$utf16Continuation] = $this->readChars(6);
+                        if (preg_match('/^\\\u[0-9a-fA-F]{4}$/', $utf16Continuation) !== 1) {
+                            throw new SyntaxError($this->source, $this->position - 5, 'Invalid UTF-16 trailing surrogate: ' . $utf16Continuation);
+                        }
+
+                        $surrogatePairHex = $hex . substr($utf16Continuation, 2, 4);
+                        $value .= mb_convert_encoding(pack('H*', $surrogatePairHex), 'UTF-8', 'UTF-16');
+                        break;
+                    }
+
+                    $this->assertValidStringCharacterCode($code, $position - 2);
+
+                    $value .= Utils::chr($code);
+                    break;
+                    // null means EOF, will delegate to general handling of unterminated strings
+                case null:
+                    break;
+                default:
+                    $chr = Utils::chr($code);
+                    throw new SyntaxError($this->source, $this->position - 1, "Invalid character escape sequence: \\{$chr}");
+            }
         }
 
         throw new SyntaxError($this->source, $this->position, 'Unterminated string.');

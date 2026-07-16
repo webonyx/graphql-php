@@ -296,6 +296,21 @@ final class LexerTest extends TestCase
         );
     }
 
+    public function testLexesStringsWithUnescapedTabCharacter(): void
+    {
+        $source = '"before' . "\t" . 'after"';
+
+        self::assertArraySubset(
+            [
+                'kind' => Token::STRING,
+                'start' => 0,
+                'end' => strlen($source),
+                'value' => 'before' . "\t" . 'after',
+            ],
+            (array) $this->lexOne($source)
+        );
+    }
+
     /** @see it('lexes block strings') */
     public function testLexesBlockString(): void
     {

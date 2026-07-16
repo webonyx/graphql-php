@@ -383,24 +383,42 @@ class Visitor
         $visitorsCount = count($visitors);
         $skipping = new \SplFixedArray($visitorsCount);
 
+        // extractVisitFn() otherwise re-derives the same enter/leave callable
+        // via array lookups on every single node visited, for every visitor -
+        // O(nodes x visitors) calls - even though its result for a given
+        // (visitor, kind, isLeaving) triple never changes during one
+        // traversal. NodeKind has a small, fixed set of constants, so
+        // precompute the callback per visitor/kind/direction once here
+        // (O(visitors x kinds)) instead.
+        static $allKinds;
+        $allKinds ??= array_values(array_filter((new \ReflectionClass(NodeKind::class))->getConstants(), 'is_string'));
+
+        $enterFns = [];
+        $leaveFns = [];
+        foreach ($visitors as $i => $visitor) {
+            foreach ($allKinds as $kind) {
+                $enterFns[$i][$kind] = self::extractVisitFn($visitor, $kind, false);
+                $leaveFns[$i][$kind] = self::extractVisitFn($visitor, $kind, true);
+            }
+        }
+
         return [
-            'enter' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
+            // Declares node, key, parent, path, and ancestors explicitly to
+            // match Visitor::visit()'s `$visitFn($node, $key, $parent,
+            // $path, $ancestors)` call.
+            'enter' => static function (Node $node, $key, $parent, $path, $ancestors) use ($skipping, $visitorsCount, $enterFns) {
                 for ($i = 0; $i < $visitorsCount; ++$i) {
                     if ($skipping[$i] !== null) {
                         continue;
                     }
 
-                    $fn = self::extractVisitFn(
-                        $visitors[$i],
-                        $node->kind,
-                        false
-                    );
+                    $fn = $enterFns[$i][$node->kind] ?? null;
 
                     if ($fn === null) {
                         continue;
                     }
 
-                    $result = $fn(...func_get_args());
+                    $result = $fn($node, $key, $parent, $path, $ancestors);
 
                     if ($result === null) {
                         continue;
@@ -416,17 +434,13 @@ class Visitor
 
                 return null;
             },
-            'leave' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
+            'leave' => static function (Node $node, $key, $parent, $path, $ancestors) use ($skipping, $visitorsCount, $leaveFns) {
                 for ($i = 0; $i < $visitorsCount; ++$i) {
                     if ($skipping[$i] === null) {
-                        $fn = self::extractVisitFn(
-                            $visitors[$i],
-                            $node->kind,
-                            true
-                        );
+                        $fn = $leaveFns[$i][$node->kind] ?? null;
 
                         if ($fn !== null) {
-                            $result = $fn(...func_get_args());
+                            $result = $fn($node, $key, $parent, $path, $ancestors);
 
                             if ($result === null) {
                                 continue;
