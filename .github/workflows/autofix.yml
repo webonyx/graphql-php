@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -20,7 +20,7 @@ jobs:
           extensions: mbstring
           php-version: "8.3"
 
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@v4
 
       - run: composer normalize
 
@@ -28,7 +28,7 @@ jobs:
 
       - run: composer docs
 
-      - run: npx prettier --write --tab-width=2 '*.md' '**/*.md'
+      - run: npx --yes prettier --write --tab-width=2 '*.md' '**/*.md'
 
       - uses: autofix-ci/action@v1
         with:

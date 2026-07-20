@@ -204,7 +204,6 @@ class BuildSchema
         $definitionBuilder = new ASTDefinitionBuilder(
             $typeDefinitionsMap,
             $typeExtensionsMap,
-            // @phpstan-ignore-next-line TODO add union type when available
             static function (string $typeName): Type {
                 throw self::unknownType($typeName);
             },
@@ -231,6 +230,9 @@ class BuildSchema
         }
         if (! isset($directivesByName['deprecated'])) {
             $directives[] = Directive::deprecatedDirective();
+        }
+        if (! isset($directivesByName['specifiedBy'])) {
+            $directives[] = Directive::specifiedByDirective();
         }
         if (! isset($directivesByName['oneOf'])) {
             $directives[] = Directive::oneOfDirective();

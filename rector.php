@@ -13,12 +13,8 @@ return static function (Rector\Config\RectorConfig $rectorConfig): void {
     $rectorConfig->skip([
         Rector\CodeQuality\Rector\Isset_\IssetOnPropertyObjectToPropertyExistsRector::class, // isset() is nice when moving towards typed properties
         Rector\CodeQuality\Rector\Identical\FlipTypeControlToUseExclusiveTypeRector::class, // Unnecessarily complex with PHPStan
-        Rector\CodeQuality\Rector\Concat\JoinStringConcatRector::class => [
-            __DIR__ . '/tests', // Sometimes more readable for long strings
-        ],
         Rector\CodeQuality\Rector\ClassMethod\LocallyCalledStaticMethodToNonStaticRector::class, // static methods are fine
         Rector\CodeQuality\Rector\Foreach_\UnusedForeachValueToArrayKeysRector::class, // Less efficient
-        Rector\CodeQuality\Rector\Switch_\SwitchTrueToIfRector::class, // More expressive in some cases
         Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector::class, // Sometimes necessary to prove runtime behavior matches defined types
         Rector\DeadCode\Rector\If_\RemoveDeadInstanceOfRector::class, // Sometimes necessary to prove runtime behavior matches defined types
         Rector\DeadCode\Rector\Node\RemoveNonExistingVarAnnotationRector::class, // Sometimes false-positive
@@ -38,6 +34,7 @@ return static function (Rector\Config\RectorConfig $rectorConfig): void {
             __DIR__ . '/tests/TestCaseBase.php', // Array output may differ between tested PHP versions, assertEquals smooths over this
         ],
         Rector\PHPUnit\PHPUnit60\Rector\ClassMethod\AddDoesNotPerformAssertionToNonAssertingTestRector::class, // False-positive
+        Rector\DeadCode\Rector\ClassMethod\RemoveDuplicatedReturnSelfDocblockRector::class, // Overly eager on removing static or $this
     ]);
     $rectorConfig->paths([
         __DIR__ . '/benchmarks',

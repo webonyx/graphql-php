@@ -213,7 +213,6 @@ final class ExecutorLazySchemaTest extends TestCase
             'Query.fields',
             'SomeObject',
             'SomeObject.fields',
-            'String',
         ];
         self::assertSame($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
         self::assertSame($expectedExecutorCalls, $this->calls);
@@ -380,7 +379,6 @@ final class ExecutorLazySchemaTest extends TestCase
                 'Query' => true,
                 'SomeObject' => true,
                 'OtherObject' => true,
-                'String' => true,
             ],
             $this->loadedTypes
         );
@@ -389,7 +387,6 @@ final class ExecutorLazySchemaTest extends TestCase
                 'Query.fields',
                 'SomeObject',
                 'SomeObject.fields',
-                'String',
             ],
             $this->calls
         );

@@ -503,21 +503,27 @@ class Visitor
 
         if ($kindVisitor !== null) {
             if (is_array($kindVisitor)) {
+                // @phpstan-ignore return.type (array values are always callable in valid visitor arrays)
                 return $isLeaving
                     ? $kindVisitor['leave'] ?? null
                     : $kindVisitor['enter'] ?? null;
             }
 
-            if (! $isLeaving) {
-                return $kindVisitor;
-            }
+            return $isLeaving
+                ? null
+                : $kindVisitor;
         }
 
         $specificVisitor = $isLeaving
             ? $visitor['leave'] ?? null
             : $visitor['enter'] ?? null;
 
-        if ($specificVisitor !== null && is_array($specificVisitor)) {
+        if ($specificVisitor === null) {
+            return null;
+        }
+
+        if (is_array($specificVisitor)) {
+            // @phpstan-ignore return.type (array values are always callable in valid visitor arrays)
             return $specificVisitor[$kind] ?? null;
         }
 

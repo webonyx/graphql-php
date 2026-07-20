@@ -3,7 +3,7 @@ it: fix stan test docs ## Run the commonly used targets
 
 .PHONY: help
 help: ## Displays this list of targets with descriptions
-	@grep --extended-regexp '^[a-zA-Z0-9_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}'
+	@grep --extended-regexp '^\.?[a-zA-Z0-9_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: setup
 setup: vendor phpstan.neon ai-sync ## Set up the project
@@ -28,7 +28,7 @@ php-cs-fixer: ## Fix code style
 
 .PHONY: prettier
 prettier: ## Format code with prettier
-	npx prettier --write --tab-width=2 '*.md' '**/*.md'
+	npx --yes prettier --write --tab-width=2 '*.md' '**/*.md'
 
 phpstan.neon:
 	printf "includes:\n  - phpstan.neon.dist" > phpstan.neon
@@ -52,7 +52,7 @@ bench: ## Runs benchmarks with PHPBench
 .PHONY: docs
 docs: ## Generate the class-reference docs
 	php generate-class-reference.php
-	npx prettier --write docs/class-reference.md
+	npx --yes prettier --write docs/class-reference.md
 
 .PHONY: ai-sync
 ai-sync: ## Generate local agent configuration from .ai
