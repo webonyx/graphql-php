@@ -1,5 +1,5 @@
-ARG PHP_VERSION
-FROM php:${PHP_VERSION}-cli
+ARG IMAGE
+FROM ${IMAGE}
 
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends \
@@ -7,7 +7,7 @@ RUN apt-get update \
     unzip \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=composer:2.9 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.10 /usr/bin/composer /usr/bin/composer
 
 COPY composer.json /tmp/
 RUN VERSION=$(grep -oP '"friendsofphp/php-cs-fixer":\s*"\K[^"]+' /tmp/composer.json) \

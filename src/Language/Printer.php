@@ -376,14 +376,14 @@ class Printer
                 );
 
             case $node instanceof SchemaDefinitionNode:
-                return static::join(
+                return static::addDescription($node->description, static::join(
                     [
                         'schema',
                         static::printList($node->directives, ' '),
                         static::printListBlock($node->operationTypes),
                     ],
                     ' '
-                );
+                ));
 
             case $node instanceof SchemaExtensionNode:
                 return static::join(
@@ -403,7 +403,8 @@ class Printer
                     return BlockString::print($node->value);
                 }
 
-                return json_encode($node->value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+                // Do not escape unicode or slashes to keep the output readable
+                return json_encode($node->value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
             case $node instanceof UnionTypeDefinitionNode:
                 $typesStr = static::printList($node->types, ' | ');

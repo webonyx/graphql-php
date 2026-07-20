@@ -1,8 +1,4 @@
 parameters:
-    excludePaths:
-        # PHP 8 attributes
-        - ../src/Type/Definition/Deprecated.php
-        - ../src/Type/Definition/Description.php
     ignoreErrors:
         - path: ../src/Utils/Utils.php
           identifier: return.type

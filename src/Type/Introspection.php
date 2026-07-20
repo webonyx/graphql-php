@@ -30,6 +30,8 @@ use GraphQL\Utils\Utils;
  * @phpstan-type IntrospectionOptions array{
  *     descriptions?: bool,
  *     directiveIsRepeatable?: bool,
+ *     schemaDescription?: bool,
+ *     specifiedByURL?: bool,
  *     typeIsOneOf?: bool,
  * }
  *
@@ -39,6 +41,12 @@ use GraphQL\Utils\Utils;
  *   Default: true
  * - directiveIsRepeatable
  *   Include field `isRepeatable` for directives?
+ *   Default: false
+ * - schemaDescription
+ *   Include `description` on the schema?
+ *   Default: false
+ * - specifiedByURL
+ *   Include field `specifiedByURL` for scalar types?
  *   Default: false
  * - typeIsOneOf
  *   Include field `isOneOf` for types?
@@ -85,6 +93,8 @@ class Introspection
         $optionsWithDefaults = array_merge([
             'descriptions' => true,
             'directiveIsRepeatable' => false,
+            'schemaDescription' => false,
+            'specifiedByURL' => false,
             'typeIsOneOf' => false,
         ], $options);
 
@@ -94,6 +104,12 @@ class Introspection
         $directiveIsRepeatable = $optionsWithDefaults['directiveIsRepeatable']
             ? 'isRepeatable'
             : '';
+        $schemaDescription = $optionsWithDefaults['schemaDescription']
+            ? $descriptions
+            : '';
+        $specifiedByURL = $optionsWithDefaults['specifiedByURL']
+            ? 'specifiedByURL'
+            : '';
         $typeIsOneOf = $optionsWithDefaults['typeIsOneOf']
             ? 'isOneOf'
             : '';
@@ -101,6 +117,7 @@ class Introspection
         return <<<GRAPHQL
   query IntrospectionQuery {
     __schema {
+      {$schemaDescription}
       queryType { name }
       mutationType { name }
       subscriptionType { name }
@@ -123,6 +140,7 @@ class Introspection
     kind
     name
     {$descriptions}
+    {$specifiedByURL}
     {$typeIsOneOf}
     fields(includeDeprecated: true) {
       name
@@ -220,6 +238,8 @@ GRAPHQL;
     {
         $optionsWithDefaults = array_merge([
             'directiveIsRepeatable' => true,
+            'schemaDescription' => true,
+            'specifiedByURL' => true,
             'typeIsOneOf' => true,
         ], $options);
 
@@ -268,6 +288,10 @@ GRAPHQL;
                 . 'the server, as well as the entry points for query, mutation, and '
                 . 'subscription operations.',
             'fields' => [
+                'description' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (Schema $schema): ?string => $schema->description,
+                ],
                 'types' => [
                     'description' => 'A list of all types supported by this server.',
                     'type' => new NonNull(new ListOfType(new NonNull(self::_type()))),
@@ -348,6 +372,12 @@ GRAPHQL;
                     'type' => Type::string(),
                     'resolve' => static fn (Type $type): ?string => $type instanceof NamedType
                         ? $type->description
+                        : null,
+                ],
+                'specifiedByURL' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (Type $type): ?string => $type instanceof ScalarType
+                        ? $type->specifiedByURL
                         : null,
                 ],
                 'fields' => [

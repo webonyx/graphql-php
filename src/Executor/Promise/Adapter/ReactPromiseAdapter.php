@@ -12,6 +12,9 @@ use function React\Promise\all;
 use function React\Promise\reject;
 use function React\Promise\resolve;
 
+/**
+ * @implements PromiseAdapter<ReactPromiseInterface<mixed>>
+ */
 class ReactPromiseAdapter implements PromiseAdapter
 {
     public function isThenable($value): bool
@@ -25,16 +28,25 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($thenable, $this);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @phpstan-param Promise<covariant ReactPromiseInterface<mixed>> $promise
+     *
+     * @throws InvariantViolation
+     *
+     * @phpstan-return Promise<ReactPromiseInterface<mixed>>
+     */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         $reactPromise = $promise->adoptedPromise;
-        assert($reactPromise instanceof ReactPromiseInterface);
 
         return new Promise($reactPromise->then($onFulfilled, $onRejected), $this);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     *
+     * @phpstan-return Promise<ReactPromiseInterface<mixed>>
+     */
     public function create(callable $resolver): Promise
     {
         $reactPromise = new ReactPromise($resolver);
@@ -42,7 +54,11 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($reactPromise, $this);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     *
+     * @phpstan-return Promise<ReactPromiseInterface<mixed>>
+     */
     public function createFulfilled($value = null): Promise
     {
         $reactPromise = resolve($value);
@@ -50,15 +66,24 @@ class ReactPromiseAdapter implements PromiseAdapter
         return new Promise($reactPromise, $this);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     *
+     * @phpstan-return Promise<ReactPromiseInterface<mixed>>
+     */
     public function createRejected(\Throwable $reason): Promise
     {
+        /** @var ReactPromiseInterface<mixed> $reactPromise */
         $reactPromise = reject($reason);
 
         return new Promise($reactPromise, $this);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     *
+     * @phpstan-return Promise<ReactPromiseInterface<mixed>>
+     */
     public function all(iterable $promisesOrValues): Promise
     {
         foreach ($promisesOrValues as &$promiseOrValue) {
@@ -70,6 +95,7 @@ class ReactPromiseAdapter implements PromiseAdapter
         $promisesOrValuesArray = is_array($promisesOrValues)
             ? $promisesOrValues
             : iterator_to_array($promisesOrValues);
+        /** @var ReactPromiseInterface<mixed> $reactPromise */
         $reactPromise = all($promisesOrValuesArray)->then(static fn (array $values): array => array_map(
             static fn ($key) => $values[$key],
             array_keys($promisesOrValuesArray),

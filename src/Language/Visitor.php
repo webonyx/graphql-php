@@ -15,8 +15,8 @@ use GraphQL\Utils\Utils;
  * the visitor's enter function at each node in the traversal, and calling the
  * leave function after visiting that node and all of its child nodes.
  *
- * By returning different values from the `enter` and `leave` functions, the
- * behavior of the visitor can be altered.
+ * By returning different values from the `enter` and `leave` functions, the behavior of the visitor can be altered.
+ *
  * - no return (`void`) or return `null`: no action
  * - `Visitor::skipNode()`: skips over the subtree at the current node of the AST
  * - `Visitor::stop()`: stop the Visitor completely
@@ -27,14 +27,16 @@ use GraphQL\Utils\Utils;
  * a new version of the AST with the changes applied will be returned from the
  * visit function.
  *
- *   $editedAST = Visitor::visit($ast, [
- *       'enter' => function (Node $node, $key, $parent, array $path, array $ancestors) {
- *           // ...
- *       },
- *       'leave' => function (Node $node, $key, $parent, array $path, array $ancestors) {
- *           // ...
- *       }
- *   ]);
+ * ```php
+ * $editedAST = Visitor::visit($ast, [
+ *     'enter' => function (Node $node, $key, $parent, array $path, array $ancestors) {
+ *         // ...
+ *     },
+ *     'leave' => function (Node $node, $key, $parent, array $path, array $ancestors) {
+ *         // ...
+ *     }
+ * ]);
+ * ```
  *
  * Alternatively to providing `enter` and `leave` functions, a visitor can
  * instead provide functions named the same as the [kinds of AST nodes](class-reference.md#graphqllanguageastnodekind),
@@ -43,51 +45,59 @@ use GraphQL\Utils\Utils;
  *
  * 1. Named visitors triggered when entering a node a specific kind.
  *
- *     Visitor::visit($ast, [
- *       NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
- *         // enter the "ObjectTypeDefinition" node
- *       }
- *     ]);
+ *    ```php
+ *    Visitor::visit($ast, [
+ *        NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+ *            // enter the "ObjectTypeDefinition" node
+ *        }
+ *    ]);
+ *    ```
  *
  * 2. Named visitors that trigger upon entering and leaving a node of
  *    a specific kind.
  *
- *     Visitor::visit($ast, [
- *       NodeKind::OBJECT_TYPE_DEFINITION => [
- *         'enter' => function (ObjectTypeDefinitionNode $node) {
- *           // enter the "ObjectTypeDefinition" node
- *         }
- *         'leave' => function (ObjectTypeDefinitionNode $node) {
- *           // leave the "ObjectTypeDefinition" node
- *         }
- *       ]
- *     ]);
+ *    ```php
+ *    Visitor::visit($ast, [
+ *        NodeKind::OBJECT_TYPE_DEFINITION => [
+ *            'enter' => function (ObjectTypeDefinitionNode $node) {
+ *                // enter the "ObjectTypeDefinition" node
+ *            },
+ *            'leave' => function (ObjectTypeDefinitionNode $node) {
+ *                // leave the "ObjectTypeDefinition" node
+ *            }
+ *        ]
+ *    ]);
+ *    ```
  *
  * 3. Generic visitors that trigger upon entering and leaving any node.
  *
- *     Visitor::visit($ast, [
- *       'enter' => function (Node $node) {
- *         // enter any node
- *       },
- *       'leave' => function (Node $node) {
- *         // leave any node
- *       }
- *     ]);
+ *    ```php
+ *    Visitor::visit($ast, [
+ *        'enter' => function (Node $node) {
+ *            // enter any node
+ *        },
+ *        'leave' => function (Node $node) {
+ *            // leave any node
+ *        }
+ *    ]);
+ *    ```
  *
  * 4. Parallel visitors for entering and leaving nodes of a specific kind.
  *
- *     Visitor::visit($ast, [
- *       'enter' => [
- *         NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
- *           // enter the "ObjectTypeDefinition" node
- *         }
- *       },
- *       'leave' => [
- *         NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
- *           // leave the "ObjectTypeDefinition" node
- *         }
- *       ]
- *     ]);
+ *    ```php
+ *    Visitor::visit($ast, [
+ *        'enter' => [
+ *            NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+ *                // enter the "ObjectTypeDefinition" node
+ *            }
+ *        ],
+ *        'leave' => [
+ *            NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $node) {
+ *                // leave the "ObjectTypeDefinition" node
+ *            }
+ *        ]
+ *    ]);
+ *    ```
  *
  * @phpstan-type NodeVisitor callable(Node): (VisitorOperation|Node|NodeList<Node>|null|false|void)
  * @phpstan-type VisitorArray array<string, NodeVisitor>|array<string, array<string, NodeVisitor>>
@@ -131,7 +141,7 @@ class Visitor
         NodeKind::LIST_TYPE => ['type'],
         NodeKind::NON_NULL_TYPE => ['type'],
 
-        NodeKind::SCHEMA_DEFINITION => ['directives', 'operationTypes'],
+        NodeKind::SCHEMA_DEFINITION => ['description', 'directives', 'operationTypes'],
         NodeKind::OPERATION_TYPE_DEFINITION => ['type'],
         NodeKind::SCALAR_TYPE_DEFINITION => ['description', 'name', 'directives'],
         NodeKind::OBJECT_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'],
@@ -255,7 +265,7 @@ class Visitor
 
             $result = null;
             if (! $node instanceof NodeList) {
-                if (! ($node instanceof Node)) {
+                if (! $node instanceof Node) {
                     $notNode = Utils::printSafe($node);
                     throw new \Exception("Invalid AST Node: {$notNode}.");
                 }
@@ -283,7 +293,7 @@ class Visitor
 
                         $edits[] = [$key, $editValue];
                         if (! $isLeaving) {
-                            if (! ($editValue instanceof Node)) {
+                            if (! $editValue instanceof Node) {
                                 array_pop($path);
                                 continue;
                             }
@@ -392,13 +402,14 @@ class Visitor
 
                     $result = $fn(...func_get_args());
 
+                    if ($result === null) {
+                        continue;
+                    }
                     if ($result instanceof VisitorSkipNode) {
                         $skipping[$i] = $node;
                     } elseif ($result instanceof VisitorStop) {
                         $skipping[$i] = $result;
-                    } elseif ($result instanceof VisitorRemoveNode) {
-                        return $result;
-                    } elseif ($result !== null) {
+                    } else {
                         return $result;
                     }
                 }
@@ -417,11 +428,14 @@ class Visitor
                         if ($fn !== null) {
                             $result = $fn(...func_get_args());
 
+                            if ($result === null) {
+                                continue;
+                            }
                             if ($result instanceof VisitorStop) {
                                 $skipping[$i] = $result;
                             } elseif ($result instanceof VisitorRemoveNode) {
                                 return $result;
-                            } elseif ($result !== null) {
+                            } else {
                                 return $result;
                             }
                         }
@@ -487,21 +501,29 @@ class Visitor
     {
         $kindVisitor = $visitor[$kind] ?? null;
 
-        if (is_array($kindVisitor)) {
-            return $isLeaving
-                ? $kindVisitor['leave'] ?? null
-                : $kindVisitor['enter'] ?? null;
-        }
+        if ($kindVisitor !== null) {
+            if (is_array($kindVisitor)) {
+                // @phpstan-ignore return.type (array values are always callable in valid visitor arrays)
+                return $isLeaving
+                    ? $kindVisitor['leave'] ?? null
+                    : $kindVisitor['enter'] ?? null;
+            }
 
-        if ($kindVisitor !== null && ! $isLeaving) {
-            return $kindVisitor;
+            return $isLeaving
+                ? null
+                : $kindVisitor;
         }
 
         $specificVisitor = $isLeaving
             ? $visitor['leave'] ?? null
             : $visitor['enter'] ?? null;
 
+        if ($specificVisitor === null) {
+            return null;
+        }
+
         if (is_array($specificVisitor)) {
+            // @phpstan-ignore return.type (array values are always callable in valid visitor arrays)
             return $specificVisitor[$kind] ?? null;
         }
 

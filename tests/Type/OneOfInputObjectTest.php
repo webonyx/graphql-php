@@ -250,4 +250,111 @@ final class OneOfInputObjectTest extends TestCaseBase
         self::assertCount(1, $nullFieldResult['errors']);
         self::assertEquals('OneOf input object "OneOfInput" field "stringField" must be non-null.', $nullFieldResult['errors'][0]->getMessage());
     }
+
+    /**
+     * When a nullable @oneOf field is passed as null via variables,
+     * no @oneOf validation should trigger.
+     */
+    public function testNullableOneOfFieldPassedAsNullVariable(): void
+    {
+        $schema = $this->buildOneOfSchema();
+
+        $result = GraphQL::executeQuery(
+            $schema,
+            '{ test(input: { oneOfField: null, name: "hello" }) }',
+        );
+
+        self::assertEmpty($result->errors, sprintf(
+            'Expected no errors when passing null for a nullable @oneOf field, got: %s',
+            implode(', ', array_map(static fn ($e) => $e->getMessage(), $result->errors)),
+        ));
+    }
+
+    /**
+     * When a nullable @oneOf field is omitted entirely,
+     * no @oneOf validation should trigger.
+     */
+    public function testNullableOneOfFieldOmittedFromInput(): void
+    {
+        $schema = $this->buildOneOfSchema();
+
+        $result = GraphQL::executeQuery(
+            $schema,
+            '{ test(input: { name: "hello" }) }',
+        );
+
+        self::assertEmpty($result->errors, sprintf(
+            'Expected no errors when omitting a nullable @oneOf field, got: %s',
+            implode(', ', array_map(static fn ($e) => $e->getMessage(), $result->errors)),
+        ));
+    }
+
+    /**
+     * When both @oneOf fields are provided (one non-null, one null), the count
+     * check should take precedence over the null check, producing the more
+     * actionable "must specify exactly one field" error.
+     */
+    public function testOneOfCoercionWithMultipleFieldsReportsCountErrorOverNullError(): void
+    {
+        $oneOfType = new InputObjectType([
+            'name' => 'OneOfInput',
+            'fields' => [
+                'stringField' => Type::string(),
+                'intField' => Type::int(),
+            ],
+            'isOneOf' => true,
+        ]);
+
+        $result = Value::coerceInputValue(['stringField' => 'test', 'intField' => null], $oneOfType);
+        self::assertNotNull($result['errors']);
+        self::assertCount(1, $result['errors']);
+        self::assertEquals('OneOf input object "OneOfInput" must specify exactly one field.', $result['errors'][0]->getMessage());
+    }
+
+    /**
+     * Builds a schema with a regular input type that contains a nullable @oneOf field.
+     *
+     *   input TestInput {
+     *     oneOfField: OneOfInput
+     *     name: String!
+     *   }
+     *   input OneOfInput @oneOf {
+     *     stringField: String
+     *     intField: Int
+     *   }
+     *
+     * @throws \GraphQL\Error\InvariantViolation
+     */
+    private function buildOneOfSchema(): Schema
+    {
+        $oneOfInput = new InputObjectType([
+            'name' => 'OneOfInput',
+            'isOneOf' => true,
+            'fields' => [
+                'stringField' => Type::string(),
+                'intField' => Type::int(),
+            ],
+        ]);
+
+        $testInput = new InputObjectType([
+            'name' => 'TestInput',
+            'fields' => [
+                'oneOfField' => $oneOfInput,
+                'name' => Type::nonNull(Type::string()),
+            ],
+        ]);
+
+        return new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'test' => [
+                        'type' => Type::string(),
+                        'args' => ['input' => Type::nonNull($testInput)],
+                        'resolve' => static fn () => 'test',
+                    ],
+                ],
+            ]),
+        ]);
+    }
 }

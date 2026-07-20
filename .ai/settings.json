@@ -1,7 +1,19 @@
 {
+  "$schema": "https://lnai.sh/schemas/settings.schema.json",
   "permissions": {
     "allow": [
-      "Bash(make:*)",
+      "Bash(make setup)",
+      "Bash(make it)",
+      "Bash(make fix)",
+      "Bash(make stan)",
+      "Bash(make test)",
+      "Bash(make bench)",
+      "Bash(make docs)",
+      "Bash(make help)",
+      "Bash(make rector)",
+      "Bash(make php-cs-fixer)",
+      "Bash(make prettier)",
+      "Bash(make ai-sync)",
       "Bash(vendor/bin/phpunit:*)",
       "Bash(vendor/bin/phpstan:*)",
       "Bash(vendor/bin/phpbench:*)",
@@ -13,7 +25,6 @@
       "Bash(composer bench:*)",
       "Bash(php generate-class-reference.php:*)"
     ],
-    "deny": [],
-    "ask": []
+    "deny": []
   }
 }

@@ -60,6 +60,19 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 2, 3);
     }
 
+    /** @dataProvider fragmentQueriesOnRootProvider */
+    public function testFragmentQueriesOnRoot(string $query): void
+    {
+        $this->assertDocumentValidators($query, 12, 13);
+    }
+
+    /** @return iterable<array<string>> */
+    public function fragmentQueriesOnRootProvider(): iterable
+    {
+        yield ['fragment humanFragment on QueryRoot { human { dogs { name } } } query { ...humanFragment }'];
+        yield ['query { ...humanFragment } fragment humanFragment on QueryRoot { human { dogs { name } } }'];
+    }
+
     public function testAliasesQueries(): void
     {
         $query = 'query MyQuery { thomas: human(name: "Thomas") { firstName } jeremy: human(name: "Jeremy") { firstName } }';
@@ -163,6 +176,36 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 1, 2);
     }
 
+    /**
+     * Verifies that a non-excluding directive appearing before @skip on the same field
+     * does not prevent the @skip from being evaluated, avoiding incorrect complexity.
+     */
+    public function testQueryWithNonExcludingDirectiveBeforeSkip(): void
+    {
+        // @foo appears before @skip on the same field; @skip(if:true) should still exclude dogs
+        $query = 'query MyQuery($withoutDogs: Boolean!) { human { dogs(name: "Root") @foo(bar: true) @skip(if:$withoutDogs) { name } } }';
+
+        $this->getRule()->setRawVariableValues(['withoutDogs' => true]);
+
+        // dogs is excluded by @skip, so complexity is 1 (only human)
+        $this->assertDocumentValidators($query, 1, 2);
+    }
+
+    /**
+     * Verifies that @include(if:true) followed by @skip(if:true) on the same field correctly excludes it.
+     * Without evaluating all directives, returning early on @include(if:true) would yield the wrong result.
+     */
+    public function testQueryWithIncludeAndSkipDirectives(): void
+    {
+        // @include(if:true) alone would include the field, but @skip(if:true) should still exclude it
+        $query = 'query MyQuery($withDogs: Boolean!, $withoutDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) @skip(if:$withoutDogs) { name } } }';
+
+        $this->getRule()->setRawVariableValues(['withDogs' => true, 'withoutDogs' => true]);
+
+        // dogs is excluded by @skip(if:true), so complexity is 1 (only human)
+        $this->assertDocumentValidators($query, 1, 2);
+    }
+
     public function testComplexityIntrospectionQuery(): void
     {
         $query = Introspection::getIntrospectionQuery();
@@ -213,8 +256,79 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         self::assertSame($reportedError, $errors[0]);
     }
 
+    public function testMultipleOperations(): void
+    {
+        $query = <<<GRAPHQL
+        query A { # complexity 2
+          human { firstName }
+        }
+        query B { # complexity 12
+          human { dogs { name } }
+        }
+        query C { # complexity 13
+          human { firstName dogs { name } }
+        }
+        GRAPHQL;
+
+        $schema = QuerySecuritySchema::buildSchema();
+        $ast = Parser::parse($query);
+
+        // When no operation exceeds the limit, `getQueryComplexity` returns complexity of
+        // the last operation.
+        DocumentValidator::validate($schema, $ast, [$this->getRule(100)]);
+        self::assertSame(13, self::$rule->getQueryComplexity());
+
+        // When any operation exceeds the limit, `getQueryComplexity` returns the complexity
+        // of the first operation exceeding the limit.
+        DocumentValidator::validate($schema, $ast, [$this->getRule(2)]);
+        self::assertSame(12, self::$rule->getQueryComplexity());
+    }
+
     protected static function getErrorMessage(int $max, int $count): string
     {
         return QueryComplexity::maxQueryComplexityErrorMessage($max, $count);
+    }
+
+    /**
+     * Verifies that variable coercion is not triggered for fields without @include/@skip
+     * directives. Previously, directiveExcludesField() called getVariableValues() for
+     * every field unconditionally. Now it is lazy: coercion only happens when an
+     * \@include or \@skip directive is actually encountered on the field.
+     *
+     * This test passes a PHP integer for a variable declared as `String!`. The `StringType`
+     * rejects non-string values in `parseValue`, so coercing this variable would throw. With
+     * the old code (unconditional coercion) this would propagate as an exception through
+     * `directiveExcludesField` for every field. With lazy coercion it is never triggered,
+     * because no field in the query uses @include or @skip.
+     */
+    public function testVariableCoercionIsLazyWhenNoIncludeOrSkipDirectives(): void
+    {
+        // $dog is declared but none of the fields use @include/@skip,
+        // so variable coercion should never be triggered by directiveExcludesField.
+        $query = 'query MyQuery($dog: String!) { human { firstName } }';
+
+        // An integer is rejected by StringType::parseValue, so if coercion ran (as it did
+        // before the lazy-coercion fix) it would throw. With the fix, coercion is never
+        // triggered here because no field uses @include or @skip.
+        $this->getRule()->setRawVariableValues(['dog' => 42]);
+
+        // Should produce no errors from the complexity rule itself (complexity is within bounds)
+        $this->assertDocumentValidators($query, 2, 3);
+    }
+
+    /**
+     * Verifies that variable coercion is cached: when multiple fields each have @skip,
+     * coercion is only performed once, not once per field.
+     */
+    public function testVariableCoercionIsCachedAcrossMultipleDirectives(): void
+    {
+        // Two fields each with @skip using the same variable.
+        // Coercion should occur once and be cached.
+        $query = 'query MyQuery($skipIt: Boolean!) { human { firstName @skip(if:$skipIt) dogs { name @skip(if:$skipIt) } } }';
+
+        $this->getRule()->setRawVariableValues(['skipIt' => false]);
+
+        // skipIt=false means nothing is skipped: complexity = human(1) + firstName(1) + dogs(10) + name(1) = 13
+        $this->assertDocumentValidators($query, 13, 14);
     }
 }

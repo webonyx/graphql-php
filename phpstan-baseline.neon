@@ -55,7 +55,7 @@ parameters:
 			path: src/Utils/AST.php
 
 		-
-			message: '#^Variable property access on mixed\.$#'
+			message: '#^Variable property access on (array\|)?object\.$#'
 			identifier: property.dynamicName
 			count: 1
 			path: src/Utils/AST.php
