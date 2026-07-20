@@ -55,29 +55,30 @@ class PhpEnumType extends EnumType
             'values' => $enumDefinitions,
             'description' => $config['description'] ?? $this->extractDescription($reflection),
             'enumClass' => $this->enumClass,
+            'astNode' => $config['astNode'] ?? null,
+            'extensionASTNodes' => $config['extensionASTNodes'] ?? null,
         ]);
     }
 
     public function serialize($value): string
     {
-        $enumClass = $this->enumClass;
-        if ($value instanceof $enumClass) {
+        if ($value instanceof $this->enumClass) {
             return $value->name;
         }
 
-        if (is_a($enumClass, \BackedEnum::class, true)) {
+        if (is_a($this->enumClass, \BackedEnum::class, true)) {
             try {
-                $instance = $enumClass::from($value);
-            } catch (\ValueError|\TypeError $_) {
+                $instance = $this->enumClass::from($value);
+            } catch (\ValueError|\TypeError $error) {
                 $notEnumInstanceOrValue = Utils::printSafe($value);
-                throw new SerializationError("Cannot serialize value as enum: {$notEnumInstanceOrValue}, expected instance or valid value of {$enumClass}.");
+                throw new SerializationError("Cannot serialize value as enum: {$notEnumInstanceOrValue}, expected instance or valid value of {$this->enumClass}.", $error->getCode(), $error);
             }
 
             return $instance->name;
         }
 
         $notEnum = Utils::printSafe($value);
-        throw new SerializationError("Cannot serialize value as enum: {$notEnum}, expected instance of {$enumClass}.");
+        throw new SerializationError("Cannot serialize value as enum: {$notEnum}, expected instance of {$this->enumClass}.");
     }
 
     public function parseValue($value)

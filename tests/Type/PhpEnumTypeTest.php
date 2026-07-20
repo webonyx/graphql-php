@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Type;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\SerializationError;
 use GraphQL\GraphQL;
+use GraphQL\Language\Parser;
 use GraphQL\Tests\TestCaseBase;
 use GraphQL\Tests\Type\PhpEnumType\DocBlockPhpEnum;
 use GraphQL\Tests\Type\PhpEnumType\IntPhpEnum;
@@ -46,6 +47,37 @@ enum MyCustomPhpEnum {
 GRAPHQL, SchemaPrinter::printType($enumType));
     }
 
+    public function testConstructEnumTypeFromPhpEnumWithOverwrittenDefaults(): void
+    {
+        $astNode = Parser::enumTypeDefinition(<<<'GRAPHQL'
+enum MyEnum @directiveA
+GRAPHQL);
+        $extensionASTNode1 = Parser::enumTypeExtension(<<<'GRAPHQL'
+extend enum MyEnum @directiveB
+GRAPHQL);
+        $extensionASTNode2 = Parser::enumTypeExtension(<<<'GRAPHQL'
+extend enum MyEnum @directiveC
+GRAPHQL);
+        $enumType = new PhpEnumType([
+            'enumClass' => MyCustomPhpEnum::class,
+            'name' => 'MyEnum',
+            'description' => 'My description.',
+            'astNode' => $astNode,
+            'extensionASTNodes' => [$extensionASTNode1, $extensionASTNode2],
+        ]);
+        self::assertSame(<<<'GRAPHQL'
+"My description."
+enum MyEnum {
+  "bar"
+  A
+  B @deprecated
+  C @deprecated(reason: "baz")
+}
+GRAPHQL, SchemaPrinter::printType($enumType));
+        self::assertSame($astNode, $enumType->astNode);
+        self::assertSame([$extensionASTNode1, $extensionASTNode2], $enumType->extensionASTNodes);
+    }
+
     public function testConstructEnumTypeFromIntPhpEnum(): void
     {
         $enumType = new PhpEnumType(['enumClass' => IntPhpEnum::class]);
@@ -77,7 +109,7 @@ GRAPHQL, SchemaPrinter::printType($enumType));
     {
         $enumType = new PhpEnumType(['enumClass' => DocBlockPhpEnum::class]);
         self::assertSame(<<<'GRAPHQL'
-"foo"
+"foo."
 enum DocBlockPhpEnum {
   "preferred"
   A
@@ -133,7 +165,7 @@ GRAPHQL, SchemaPrinter::printType($enumType));
                         ],
                         'resolve' => static function ($_, array $args): MyCustomPhpEnum {
                             $bar = $args['bar'];
-                            assert($bar === MyCustomPhpEnum::A);
+                            \PHPUnit\Framework\Assert::assertSame(MyCustomPhpEnum::A, $bar);
 
                             return $bar;
                         },
@@ -191,9 +223,9 @@ GRAPHQL, SchemaPrinter::printType($enumType));
                         ],
                         'resolve' => static function (bool $executeAgain, array $args, $context, ResolveInfo $resolveInfo) use (&$schema): MyCustomPhpEnum {
                             $bar = $args['bar'];
-                            assert($bar === MyCustomPhpEnum::A);
+                            \PHPUnit\Framework\Assert::assertSame(MyCustomPhpEnum::A, $bar);
 
-                            assert($schema instanceof Schema);
+                            self::assertInstanceOf(Schema::class, $schema);
 
                             if ($executeAgain) {
                                 $executionResult = GraphQL::executeQuery(

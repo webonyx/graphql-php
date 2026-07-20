@@ -50,7 +50,7 @@ class InputObjectCircularRefs
         }
 
         $this->visitedTypes[$inputObj->name] = true;
-        $this->fieldPathIndexByTypeName[$inputObj->name] = \count($this->fieldPath);
+        $this->fieldPathIndexByTypeName[$inputObj->name] = count($this->fieldPath);
 
         $fieldMap = $inputObj->getFields();
         foreach ($fieldMap as $field) {
@@ -68,15 +68,15 @@ class InputObjectCircularRefs
                         $this->validate($fieldType);
                     } else {
                         $cycleIndex = $this->fieldPathIndexByTypeName[$fieldType->name];
-                        $cyclePath = \array_slice($this->fieldPath, $cycleIndex);
+                        $cyclePath = array_slice($this->fieldPath, $cycleIndex);
                         $fieldNames = implode(
                             '.',
-                            \array_map(
+                            array_map(
                                 static fn (InputObjectField $field): string => $field->name,
                                 $cyclePath
                             )
                         );
-                        $fieldNodes = \array_map(
+                        $fieldNodes = array_map(
                             static fn (InputObjectField $field): ?InputValueDefinitionNode => $field->astNode,
                             $cyclePath
                         );
@@ -89,7 +89,7 @@ class InputObjectCircularRefs
                 }
             }
 
-            \array_pop($this->fieldPath);
+            array_pop($this->fieldPath);
         }
 
         unset($this->fieldPathIndexByTypeName[$inputObj->name]);

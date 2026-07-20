@@ -264,7 +264,7 @@ final class LexerTest extends TestCase
             (array) $this->lexOne('"unicode яуц"')
         );
 
-        $unicode = \json_decode('"\u1234\u5678\u90AB\uCDEF"');
+        $unicode = json_decode('"\u1234\u5678\u90AB\uCDEF"');
         self::assertArraySubset(
             [
                 'kind' => Token::STRING,
@@ -441,12 +441,12 @@ line"', 'Unterminated string.', self::loc(1, 7)];
         yield ['"""', 'Unterminated string.', self::loc(1, 4)];
         yield ['"""no end quote', 'Unterminated string.', self::loc(1, 16)];
         yield [
-            '"""contains unescaped ' . \json_decode('"\u0007"') . ' control char"""',
+            '"""contains unescaped ' . json_decode('"\u0007"') . ' control char"""',
             'Invalid character within String: "\\u0007"',
             self::loc(1, 23),
         ];
         yield [
-            '"""null-byte is not ' . \json_decode('"\u0000"') . ' end of file"""',
+            '"""null-byte is not ' . json_decode('"\u0000"') . ' end of file"""',
             'Invalid character within String: "\\u0000"',
             self::loc(1, 21),
         ];
@@ -617,8 +617,8 @@ line"', 'Unterminated string.', self::loc(1, 7)];
     {
         yield ['..', 'Cannot parse the unexpected character ".".', self::loc(1, 1)];
         yield ['?', 'Cannot parse the unexpected character "?".', self::loc(1, 1)];
-        yield [\json_decode('"\u203B"'), 'Cannot parse the unexpected character "\\u203b".', self::loc(1, 1)];
-        yield [\json_decode('"\u200b"'), 'Cannot parse the unexpected character "\\u200b".', self::loc(1, 1)];
+        yield [json_decode('"\u203B"'), 'Cannot parse the unexpected character "\\u203b".', self::loc(1, 1)];
+        yield [json_decode('"\u200b"'), 'Cannot parse the unexpected character "\\u200b".', self::loc(1, 1)];
     }
 
     /**
@@ -676,7 +676,7 @@ line"', 'Unterminated string.', self::loc(1, 7)];
         for ($tok = $startToken; $tok; $tok = $tok->next) {
             if ($tokens !== []) {
                 // Tokens are double-linked, prev should point to last seen token.
-                self::assertSame($tokens[\count($tokens) - 1], $tok->prev);
+                self::assertSame($tokens[count($tokens) - 1], $tok->prev);
             }
 
             $tokens[] = $tok;
@@ -691,7 +691,7 @@ line"', 'Unterminated string.', self::loc(1, 7)];
                 '}',
                 '<EOF>',
             ],
-            \array_map(
+            array_map(
                 static fn (Token $tok): string => $tok->kind,
                 $tokens
             )

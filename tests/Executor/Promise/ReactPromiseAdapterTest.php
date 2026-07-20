@@ -22,16 +22,16 @@ final class ReactPromiseAdapterTest extends TestCase
     /** @var class-string<object> */
     private string $classRejectedPromise;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         /** @var class-string<object> $classFulfilledPromise */
-        $classFulfilledPromise = \class_exists('\React\Promise\FulfilledPromise')
+        $classFulfilledPromise = class_exists('\React\Promise\FulfilledPromise')
             ? '\React\Promise\FulfilledPromise'
             : '\React\Promise\Internal\FulfilledPromise';
         $this->classFulfilledPromise = $classFulfilledPromise;
 
         /** @var class-string<object> $classRejectedPromise */
-        $classRejectedPromise = \class_exists('\React\Promise\RejectedPromise')
+        $classRejectedPromise = class_exists('\React\Promise\RejectedPromise')
             ? '\React\Promise\RejectedPromise'
             : '\React\Promise\Internal\RejectedPromise';
         $this->classRejectedPromise = $classRejectedPromise;
@@ -39,8 +39,7 @@ final class ReactPromiseAdapterTest extends TestCase
 
     public function testIsThenableReturnsTrueWhenAReactPromiseIsGiven(): void
     {
-        /** @var callable $reactPromiseSetRejectionHandler */
-        $reactPromiseSetRejectionHandler = \function_exists('\React\Promise\set_rejection_handler')
+        $reactPromiseSetRejectionHandler = function_exists('\React\Promise\set_rejection_handler')
             ? '\React\Promise\set_rejection_handler'
             : fn ($error) => null;
 

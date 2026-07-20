@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Error;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Parser;
@@ -151,7 +152,8 @@ final class ErrorTest extends TestCase
     public function testErrorReadsOverriddenMethods(): void
     {
         $error = new class('msg', null, null, [], null, null, ['foo' => 'bar']) extends Error {
-            public function getExtensions(): ?array
+            /** @return array<string, mixed> */
+            public function getExtensions(): array
             {
                 $extensions = parent::getExtensions();
                 $extensions['subfoo'] = 'subbar';
@@ -164,12 +166,13 @@ final class ErrorTest extends TestCase
                 return [1 => 2];
             }
 
-            public function getSource(): ?Source
+            public function getSource(): Source
             {
                 return new Source('');
             }
 
-            public function getNodes(): ?array
+            /** @return list<Node> */
+            public function getNodes(): array
             {
                 return [];
             }
@@ -183,12 +186,14 @@ final class ErrorTest extends TestCase
         self::assertNotNull($locatedError->getSource());
 
         $error = new class('msg', new NullValueNode([]), null, []) extends Error {
-            public function getNodes(): ?array
+            /** @return list<NullValueNode> */
+            public function getNodes(): array
             {
                 return [new NullValueNode([])];
             }
 
-            public function getPath(): ?array
+            /** @return list<string> */
+            public function getPath(): array
             {
                 return ['path'];
             }

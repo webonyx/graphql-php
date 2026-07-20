@@ -134,7 +134,7 @@ final class VariablesTest extends TestCase
     }
 
     /** @throws InvariantViolation */
-    public function schema(): Schema
+    private function schema(): Schema
     {
         $ComplexScalarType = new ComplexScalar();
 
@@ -160,7 +160,7 @@ final class VariablesTest extends TestCase
             'name' => 'TestEnum',
             'values' => [
                 'NULL' => ['value' => null],
-                'NAN' => ['value' => \acos(8)],
+                'NAN' => ['value' => acos(8)],
                 'FALSE' => ['value' => false],
                 'CUSTOM' => ['value' => 'custom value'],
                 'DEFAULT_VALUE' => [],
@@ -194,7 +194,9 @@ final class VariablesTest extends TestCase
             ],
         ]);
 
-        return new Schema(['query' => $TestType]);
+        return new Schema([
+            'query' => $TestType,
+        ]);
     }
 
     /**
@@ -214,7 +216,7 @@ final class VariablesTest extends TestCase
                     return Utils::printSafeJson($args['input']);
                 }
 
-                if (\array_key_exists('input', $args) && $args['input'] === null) {
+                if (array_key_exists('input', $args) && $args['input'] === null) {
                     return 'null';
                 }
 

@@ -39,7 +39,7 @@ final class NonNullTest extends TestCase
 
     public Schema $schemaWithNonNullArg;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->syncError = new UserError('sync');
         $this->syncNonNullError = new UserError('syncNonNull');
@@ -91,7 +91,7 @@ final class NonNullTest extends TestCase
         $dataType = new ObjectType([
             'name' => 'DataType',
             'fields' => static function () use (&$dataType): array {
-                assert($dataType instanceof ObjectType);
+                self::assertInstanceOf(ObjectType::class, $dataType);
 
                 return [
                     'sync' => ['type' => Type::string()],
@@ -106,7 +106,9 @@ final class NonNullTest extends TestCase
             },
         ]);
 
-        $this->schema = new Schema(['query' => $dataType]);
+        $this->schema = new Schema([
+            'query' => $dataType,
+        ]);
 
         $this->schemaWithNonNullArg = new Schema([
             'query' => new ObjectType([
@@ -119,7 +121,7 @@ final class NonNullTest extends TestCase
                                 'type' => Type::nonNull(Type::string()),
                             ],
                         ],
-                        'resolve' => static fn ($value, array $args): ?string => \is_string($args['cannotBeNull'])
+                        'resolve' => static fn ($value, array $args): ?string => is_string($args['cannotBeNull'])
                             ? "Passed: {$args['cannotBeNull']}"
                             : null,
                     ],
@@ -363,7 +365,7 @@ final class NonNullTest extends TestCase
         self::assertEquals($expectedData, $result['data']);
 
         self::assertArrayHasKey('errors', $result);
-        self::assertCount(\count($expectedErrors), $result['errors']);
+        self::assertCount(count($expectedErrors), $result['errors']);
         foreach ($expectedErrors as $expectedError) {
             $found = false;
             foreach ($result['errors'] as $error) {

@@ -7,6 +7,8 @@ use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
@@ -14,8 +16,9 @@ use GraphQL\Utils\Utils;
 /**
  * Implements the "Evaluating requests" section of the GraphQL specification.
  *
+ * @phpstan-type ArgsMapper callable(array<string, mixed>, FieldDefinition, FieldNode, mixed): mixed
  * @phpstan-type FieldResolver callable(mixed, array<string, mixed>, mixed, ResolveInfo): mixed
- * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable): ExecutorImplementation
+ * @phpstan-type ImplementationFactory callable(PromiseAdapter, Schema, DocumentNode, mixed, mixed, array<mixed>, ?string, callable, callable): ExecutorImplementation
  *
  * @see \GraphQL\Tests\Executor\ExecutorTest
  */
@@ -27,6 +30,13 @@ class Executor
      * @phpstan-var FieldResolver
      */
     private static $defaultFieldResolver = [self::class, 'defaultFieldResolver'];
+
+    /**
+     * @var callable
+     *
+     * @phpstan-var ArgsMapper
+     */
+    private static $defaultArgsMapper = [self::class, 'defaultArgsMapper'];
 
     private static ?PromiseAdapter $defaultPromiseAdapter;
 
@@ -53,13 +63,25 @@ class Executor
         self::$defaultFieldResolver = $fieldResolver;
     }
 
-    public static function getPromiseAdapter(): PromiseAdapter
+    /** @phpstan-return ArgsMapper */
+    public static function getDefaultArgsMapper(): callable
+    {
+        return self::$defaultArgsMapper;
+    }
+
+    /** @phpstan-param ArgsMapper $argsMapper */
+    public static function setDefaultArgsMapper(callable $argsMapper): void
+    {
+        self::$defaultArgsMapper = $argsMapper;
+    }
+
+    public static function getDefaultPromiseAdapter(): PromiseAdapter
     {
         return self::$defaultPromiseAdapter ??= new SyncPromiseAdapter();
     }
 
     /** Set a custom default promise adapter. */
-    public static function setPromiseAdapter(?PromiseAdapter $defaultPromiseAdapter = null): void
+    public static function setDefaultPromiseAdapter(?PromiseAdapter $defaultPromiseAdapter = null): void
     {
         self::$defaultPromiseAdapter = $defaultPromiseAdapter;
     }
@@ -132,6 +154,7 @@ class Executor
      * @param array<string, mixed>|null $variableValues
      *
      * @phpstan-param FieldResolver|null $fieldResolver
+     * @phpstan-param ArgsMapper|null $argsMapper
      *
      * @api
      */
@@ -143,7 +166,8 @@ class Executor
         $contextValue = null,
         ?array $variableValues = null,
         ?string $operationName = null,
-        ?callable $fieldResolver = null
+        ?callable $fieldResolver = null,
+        ?callable $argsMapper = null
     ): Promise {
         $executor = (self::$implementationFactory)(
             $promiseAdapter,
@@ -153,7 +177,8 @@ class Executor
             $contextValue,
             $variableValues ?? [],
             $operationName,
-            $fieldResolver ?? self::$defaultFieldResolver
+            $fieldResolver ?? self::$defaultFieldResolver,
+            $argsMapper ?? self::$defaultArgsMapper,
         );
 
         return $executor->doExecute();
@@ -178,5 +203,17 @@ class Executor
         return $property instanceof \Closure
             ? $property($objectLikeValue, $args, $contextValue, $info)
             : $property;
+    }
+
+    /**
+     * @template T of array<string, mixed>
+     *
+     * @param T $args
+     *
+     * @return T
+     */
+    public static function defaultArgsMapper(array $args): array
+    {
+        return $args;
     }
 }

@@ -33,7 +33,7 @@ final class ResolveTest extends TestCase
     }
 
     /**
-     * @param UnnamedFieldDefinitionConfig $testField
+     * @phpstan-param UnnamedFieldDefinitionConfig $testField
      *
      * @throws InvariantViolation
      */
@@ -51,7 +51,7 @@ final class ResolveTest extends TestCase
     public function testDefaultFunctionCallsClosures(): void
     {
         $schema = $this->buildSchema(['type' => Type::string()]);
-        $_secret = 'secretValue' . \uniqid();
+        $_secret = 'secretValue' . uniqid();
 
         $source = [
             'test' => static fn (): string => $_secret,

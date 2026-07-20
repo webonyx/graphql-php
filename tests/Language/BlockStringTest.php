@@ -9,7 +9,7 @@ final class BlockStringTest extends TestCase
 {
     private static function joinLines(string ...$args): string
     {
-        return \implode("\n", $args);
+        return implode("\n", $args);
     }
 
     /**

@@ -85,10 +85,10 @@ final class StarWarsSchema
             ],
         ]);
 
-        /** @var ObjectType $humanType */
+        /** @var ObjectType|null $humanType */
         $humanType = null;
 
-        /** @var ObjectType $droidType */
+        /** @var ObjectType|null $droidType */
         $droidType = null;
 
         /**
@@ -136,10 +136,14 @@ final class StarWarsSchema
                     ],
                 ];
             },
-            'resolveType' => static function (array $obj) use (&$humanType, &$droidType): ObjectType {
-                return StarWarsData::human($obj['id']) === null
+            'resolveType' => function (array $obj) use (&$humanType, &$droidType): ObjectType {
+                $objectType = StarWarsData::human($obj['id']) === null
                     ? $droidType
                     : $humanType;
+
+                assert($objectType !== null);
+
+                return $objectType;
             },
         ]);
 
@@ -174,8 +178,8 @@ final class StarWarsSchema
                         $fieldSelection = $info->getFieldSelection();
                         $fieldSelection['id'] = true;
 
-                        return \array_map(
-                            static fn ($friend): array => \array_intersect_key($friend, $fieldSelection),
+                        return array_map(
+                            static fn ($friend): array => array_intersect_key($friend, $fieldSelection),
                             StarWarsData::friends($human)
                         );
                     },

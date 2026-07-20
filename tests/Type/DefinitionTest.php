@@ -55,7 +55,7 @@ final class DefinitionTest extends TestCaseBase
 
     public CustomScalarType $scalarType;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->objectType = new ObjectType(['name' => 'Object', 'fields' => ['tmp' => Type::string()]]);
         $this->interfaceType = new InterfaceType(['name' => 'Interface', 'fields' => ['irrelevant' => Type::int()]]);
@@ -154,12 +154,12 @@ final class DefinitionTest extends TestCaseBase
         self::assertSame($blogSchema->getQueryType(), $this->blogQuery);
 
         $articleField = $this->blogQuery->getField('article');
-        self::assertSame($articleField->name, 'article');
+        self::assertSame('article', $articleField->name);
 
         $articleFieldType = $articleField->getType();
         self::assertInstanceOf(ObjectType::class, $articleFieldType);
         self::assertSame($articleFieldType, $this->blogArticle);
-        self::assertSame($articleFieldType->name, 'Article');
+        self::assertSame('Article', $articleFieldType->name);
 
         $titleField = $articleFieldType->getField('title');
         self::assertSame('title', $titleField->name);
@@ -213,8 +213,8 @@ final class DefinitionTest extends TestCaseBase
         $subType = $sub->getType();
         self::assertInstanceOf(ObjectType::class, $subType);
         self::assertEquals($subType, $this->blogArticle);
-        self::assertSame($subType->name, 'Article');
-        self::assertSame($sub->name, 'articleSubscribe');
+        self::assertSame('Article', $subType->name);
+        self::assertSame('articleSubscribe', $sub->name);
     }
 
     /**
@@ -276,7 +276,7 @@ final class DefinitionTest extends TestCaseBase
 
         $actual = $EnumTypeWithNullishValue->getValues();
 
-        self::assertCount(\count($expected), $actual);
+        self::assertCount(count($expected), $actual);
         self::assertArraySubset($expected[0], (array) $actual[0]);
         self::assertArraySubset($expected[1], (array) $actual[1]);
     }
@@ -714,7 +714,9 @@ final class DefinitionTest extends TestCaseBase
             ],
         ]);
 
-        $schema = new Schema(['query' => $query]);
+        $schema = new Schema([
+            'query' => $query,
+        ]);
 
         self::assertSame($interface, $schema->getType('SomeInterface'));
         self::assertTrue($called);
@@ -746,7 +748,9 @@ final class DefinitionTest extends TestCaseBase
             'fields' => ['test' => $interface],
         ]);
 
-        $schema = new Schema(['query' => $query]);
+        $schema = new Schema([
+            'query' => $query,
+        ]);
 
         /** @var InterfaceType $SomeInterface */
         $SomeInterface = $schema->getType('SomeInterface');
@@ -1646,7 +1650,9 @@ final class DefinitionTest extends TestCaseBase
             'Schema must contain unique named types but contains multiple types named "String" '
             . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         );
-        $schema = new Schema(['query' => $QueryType]);
+        $schema = new Schema([
+            'query' => $QueryType,
+        ]);
         $schema->assertValid();
     }
 
@@ -1689,7 +1695,9 @@ final class DefinitionTest extends TestCaseBase
             ],
         ]);
 
-        $schema = new Schema(['query' => $QueryType]);
+        $schema = new Schema([
+            'query' => $QueryType,
+        ]);
 
         $this->expectExceptionObject(new InvariantViolation(
             'Schema must contain unique named types but contains multiple types named "SameName" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
@@ -1724,7 +1732,9 @@ final class DefinitionTest extends TestCaseBase
             ],
         ]);
 
-        $schema = new Schema(['query' => $QueryType]);
+        $schema = new Schema([
+            'query' => $QueryType,
+        ]);
 
         $this->expectExceptionObject(new InvariantViolation(
             'Schema must contain unique named types but contains multiple types named "SameName" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'

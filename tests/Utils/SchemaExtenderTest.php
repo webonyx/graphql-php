@@ -9,6 +9,7 @@ use GraphQL\Error\SerializationError;
 use GraphQL\Error\SyntaxError;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\SchemaDefinitionNode;
@@ -24,6 +25,7 @@ use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NamedType;
@@ -38,9 +40,16 @@ use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Validator\Rules\KnownDirectives;
 
+/**
+ * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ */
 final class SchemaExtenderTest extends TestCaseBase
 {
-    /** @param NamedType|Schema $obj */
+    /**
+     * @param NamedType|Schema $obj
+     *
+     * @throws \JsonException
+     */
     private function printExtensionNodes($obj): string
     {
         assert(isset($obj->extensionASTNodes));
@@ -89,11 +98,13 @@ final class SchemaExtenderTest extends TestCaseBase
     /**
      * graphql-js uses printASTNode() everywhere, but our Schema doesn't have astNode property,
      * hence this helper method that calls getAstNode() instead.
+     *
+     * @throws \JsonException
      */
     private function printASTSchema(Schema $schema): string
     {
         $astNode = $schema->astNode;
-        assert($astNode instanceof SchemaDefinitionNode);
+        self::assertInstanceOf(SchemaDefinitionNode::class, $astNode);
 
         return Printer::doPrint($astNode);
     }
@@ -365,7 +376,7 @@ GRAPHQL,
         ');
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
-        self::assertGreaterThan(0, \count($extendedSchema->validate()));
+        self::assertGreaterThan(0, count($extendedSchema->validate()));
         self::assertSame(
             <<<GRAPHQL
                 union SomeUnion = SomeUnion
@@ -433,7 +444,7 @@ GRAPHQL,
           GRAPHQL;
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
         $someScalar = $extendedSchema->getType('SomeScalar');
-        assert($someScalar instanceof ScalarType);
+        self::assertInstanceOf(ScalarType::class, $someScalar);
 
         self::assertEmpty($extendedSchema->validate());
         self::assertSame(
@@ -445,8 +456,6 @@ GRAPHQL,
     /** @see it('extends scalars by adding specifiedBy directive') */
     public function testExtendsScalarsByAddingSpecifiedByDirective(): void
     {
-        // @phpstan-ignore-next-line
-        $this->markTestSkipped('See https://github.com/webonyx/graphql-php/issues/1140');
         $schema = BuildSchema::build('
           type Query {
             foo: Foo
@@ -460,9 +469,12 @@ GRAPHQL,
           extend scalar Foo @foo
 
           extend scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
+
           GRAPHQL;
+
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
         $foo = $extendedSchema->getType('Foo');
+        self::assertInstanceOf(ScalarType::class, $foo);
 
         self::assertSame('https://example.com/foo_spec', $foo->specifiedByURL);
         self::assertEmpty($extendedSchema->validate());
@@ -470,6 +482,31 @@ GRAPHQL,
             $extensionSDL,
             $this->printExtensionNodes($foo),
         );
+    }
+
+    /**
+     * Verifies that overriding @specifiedBy with a custom directive (no url arg)
+     * and using it in an extension does not throw.
+     */
+    public function testExtendsScalarsWithCustomSpecifiedByOverrideShouldNotThrow(): void
+    {
+        $schema = BuildSchema::build('
+          directive @specifiedBy on SCALAR
+
+          type Query {
+            foo: Foo
+          }
+
+          scalar Foo
+        ');
+        $extendedSchema = SchemaExtender::extend($schema, Parser::parse('
+          extend scalar Foo @specifiedBy
+        '));
+        $foo = $extendedSchema->getType('Foo');
+        self::assertInstanceOf(ScalarType::class, $foo);
+
+        // Custom @specifiedBy without url arg leaves specifiedByURL as null
+        self::assertNull($foo->specifiedByURL);
     }
 
     /** @see it('correctly assign AST nodes to new and extended types') */
@@ -564,40 +601,40 @@ GRAPHQL,
         self::assertSchemaEquals($extendedInOneGoSchema, $extendedTwiceSchema);
 
         $query = $extendedTwiceSchema->getQueryType();
-        assert($query instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $query);
 
         $someScalar = $extendedTwiceSchema->getType('SomeScalar');
-        assert($someScalar instanceof ScalarType);
+        self::assertInstanceOf(ScalarType::class, $someScalar);
 
         $someEnum = $extendedTwiceSchema->getType('SomeEnum');
-        assert($someEnum instanceof EnumType);
+        self::assertInstanceOf(EnumType::class, $someEnum);
 
         $someUnion = $extendedTwiceSchema->getType('SomeUnion');
-        assert($someUnion instanceof UnionType);
+        self::assertInstanceOf(UnionType::class, $someUnion);
 
         $someInput = $extendedTwiceSchema->getType('SomeInput');
-        assert($someInput instanceof InputObjectType);
+        self::assertInstanceOf(InputObjectType::class, $someInput);
 
         $someInterface = $extendedTwiceSchema->getType('SomeInterface');
-        assert($someInterface instanceof InterfaceType);
+        self::assertInstanceOf(InterfaceType::class, $someInterface);
 
         $testInput = $extendedTwiceSchema->getType('TestInput');
-        assert($testInput instanceof InputObjectType);
+        self::assertInstanceOf(InputObjectType::class, $testInput);
 
         $testEnum = $extendedTwiceSchema->getType('TestEnum');
-        assert($testEnum instanceof EnumType);
+        self::assertInstanceOf(EnumType::class, $testEnum);
 
         $testUnion = $extendedTwiceSchema->getType('TestUnion');
-        assert($testUnion instanceof UnionType);
+        self::assertInstanceOf(UnionType::class, $testUnion);
 
         $testInterface = $extendedTwiceSchema->getType('TestInterface');
-        assert($testInterface instanceof InterfaceType);
+        self::assertInstanceOf(InterfaceType::class, $testInterface);
 
         $testType = $extendedTwiceSchema->getType('TestType');
-        assert($testType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $testType);
 
         $testDirective = $extendedTwiceSchema->getDirective('test');
-        assert($testDirective instanceof Directive);
+        self::assertInstanceOf(Directive::class, $testDirective);
 
         self::assertCount(2, $query->extensionASTNodes);
         self::assertCount(2, $someScalar->extensionASTNodes);
@@ -677,7 +714,7 @@ GRAPHQL,
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         $someType = $extendedSchema->getType('SomeObject');
-        assert($someType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $someType);
 
         $deprecatedFieldDef = $someType->getField('deprecatedField');
 
@@ -691,16 +728,16 @@ GRAPHQL,
         self::assertSame('unusable', $deprecatedArgument->deprecationReason);
 
         $someEnum = $extendedSchema->getType('SomeEnum');
-        assert($someEnum instanceof EnumType);
+        self::assertInstanceOf(EnumType::class, $someEnum);
 
         $deprecatedEnumDef = $someEnum->getValue('DEPRECATED_VALUE');
-        assert($deprecatedEnumDef instanceof EnumValueDefinition);
+        self::assertInstanceOf(EnumValueDefinition::class, $deprecatedEnumDef);
 
         self::assertTrue($deprecatedEnumDef->isDeprecated());
         self::assertSame('do not use', $deprecatedEnumDef->deprecationReason);
 
         $someInput = $extendedSchema->getType('SomeInputObject');
-        assert($someInput instanceof InputObjectType);
+        self::assertInstanceOf(InputObjectType::class, $someInput);
 
         $deprecatedInputField = $someInput->getField('deprecatedField');
 
@@ -720,7 +757,7 @@ GRAPHQL,
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         $someType = $extendedSchema->getType('SomeObject');
-        assert($someType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $someType);
 
         $deprecatedFieldDef = $someType->getField('deprecatedField');
 
@@ -740,10 +777,10 @@ GRAPHQL,
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         $someEnum = $extendedSchema->getType('SomeEnum');
-        assert($someEnum instanceof EnumType);
+        self::assertInstanceOf(EnumType::class, $someEnum);
 
         $deprecatedEnumDef = $someEnum->getValue('DEPRECATED_VALUE');
-        assert($deprecatedEnumDef instanceof EnumValueDefinition);
+        self::assertInstanceOf(EnumValueDefinition::class, $deprecatedEnumDef);
 
         self::assertTrue($deprecatedEnumDef->isDeprecated());
         self::assertSame('do not use', $deprecatedEnumDef->deprecationReason);
@@ -1054,9 +1091,9 @@ GRAPHQL,
             self::printSchemaChanges($schema, $schemaWithNewTypes)
         );
 
-        // TODO see https://github.com/webonyx/graphql-php/issues/1140
-        // extend scalar SomeScalar @specifiedBy(url: "http://example.com/foo_spec")
         $extendAST = Parser::parse('
+            extend scalar SomeScalar @specifiedBy(url: "http://example.com/foo_spec")
+
             extend type SomeObject implements NewInterface {
               newField: String
             }
@@ -1089,9 +1126,9 @@ GRAPHQL,
 
         self::assertEmpty($extendedSchema->validate());
         self::assertSame(
-            // TODO see https://github.com/webonyx/graphql-php/issues/1140
-            // scalar SomeScalar @specifiedBy(url: \"http://example.com/foo_spec\")
             <<<GRAPHQL
+                scalar SomeScalar @specifiedBy(url: "http://example.com/foo_spec")
+
                 type SomeObject implements SomeInterface & NewInterface & AnotherNewInterface {
                   oldField: String
                   newField: String
@@ -1225,6 +1262,38 @@ GRAPHQL,
 
               interface NewInterface {
                 newField: String
+              }
+              GRAPHQL,
+            self::printSchemaChanges($schema, $extendedSchema)
+        );
+    }
+
+    /** @see it('extends input but keeps isOneOf') */
+    public function testExtendsInputObjectsAndKeepsIsOneOf(): void
+    {
+        $schema = BuildSchema::build('
+          input Foo @oneOf {
+            barA: String
+            barB: String
+          }
+          type Query {
+            someQuery(args: Foo!): Boolean
+          }
+        ');
+        $extendAST = Parser::parse('
+          extend input Foo {
+            barC: String
+          }
+        ');
+        $extendedSchema = SchemaExtender::extend($schema, $extendAST);
+
+        self::assertEmpty($extendedSchema->validate());
+        self::assertSame(
+            <<<GRAPHQL
+              input Foo @oneOf {
+                barA: String
+                barB: String
+                barC: String
               }
               GRAPHQL,
             self::printSchemaChanges($schema, $extendedSchema)
@@ -1490,7 +1559,7 @@ GRAPHQL,
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
         $queryType = $extendedSchema->getQueryType();
 
-        assert($queryType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $queryType);
         self::assertSame('Foo', $queryType->name);
         self::assertSame($extensionSDL, $this->printASTSchema($extendedSchema));
     }
@@ -1511,7 +1580,7 @@ GRAPHQL,
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
 
         $mutationType = $extendedSchema->getMutationType();
-        assert($mutationType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $mutationType);
         self::assertSame('MutationRoot', $mutationType->name);
         self::assertSame(
             $extensionSDL,
@@ -1555,11 +1624,11 @@ GRAPHQL,
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         $mutationType = $extendedSchema->getMutationType();
-        assert($mutationType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $mutationType);
         self::assertSame('Mutation', $mutationType->name);
 
         $subscriptionType = $extendedSchema->getSubscriptionType();
-        assert($subscriptionType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $subscriptionType);
         self::assertSame('Subscription', $subscriptionType->name);
     }
 
@@ -1581,11 +1650,11 @@ GRAPHQL,
         $extendedSchema = SchemaExtender::extend($schema, $extendAST);
 
         $mutationType = $extendedSchema->getMutationType();
-        assert($mutationType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $mutationType);
         self::assertSame('Mutation', $mutationType->name);
 
         $subscriptionType = $extendedSchema->getSubscriptionType();
-        assert($subscriptionType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $subscriptionType);
         self::assertSame('Subscription', $subscriptionType->name);
     }
 
@@ -1645,7 +1714,9 @@ GRAPHQL,
             ],
         ]);
 
-        $schema = new Schema(['query' => $queryType]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
 
         $documentNode = Parser::parse(/** @lang GraphQL */ '
             extend type Query {
@@ -1655,7 +1726,7 @@ GRAPHQL,
 
         $extendedSchema = SchemaExtender::extend($schema, $documentNode);
         $extendedQueryType = $extendedSchema->getQueryType();
-        assert($extendedQueryType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $extendedQueryType);
 
         $helloResolveFn = $extendedQueryType->getField('hello')->resolveFn;
         self::assertIsCallable($helloResolveFn);
@@ -1679,7 +1750,9 @@ GRAPHQL,
             'resolveField' => static fn (): string => $value,
         ]);
 
-        $schema = new Schema(['query' => $queryType]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
 
         $documentNode = Parser::parse(/** @lang GraphQL */ '
             extend type Query {
@@ -1689,7 +1762,7 @@ GRAPHQL,
 
         $extendedSchema = SchemaExtender::extend($schema, $documentNode);
         $extendedQueryType = $extendedSchema->getQueryType();
-        assert($extendedQueryType instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $extendedQueryType);
 
         $queryResolveFieldFn = $extendedQueryType->resolveFieldFn;
         self::assertIsCallable($queryResolveFieldFn);
@@ -1724,7 +1797,7 @@ GRAPHQL,
         $extendedDocumentNode = Parser::parse($extensionSdl);
         $extendedSchema = SchemaExtender::extend($schema, $extendedDocumentNode);
 
-        static::assertSame(
+        self::assertSame(
             <<<GRAPHQL
             type Query {
               defaultValue: String
@@ -1751,14 +1824,14 @@ GRAPHQL,
         ');
 
         $directive = $schema->getDirective('test');
-        assert($directive instanceof Directive);
+        self::assertInstanceOf(Directive::class, $directive);
 
         self::assertTrue($directive->isRepeatable);
 
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse('scalar Foo'));
 
         $extendedDirective = $extendedSchema->getDirective('test');
-        assert($extendedDirective instanceof Directive);
+        self::assertInstanceOf(Directive::class, $extendedDirective);
 
         self::assertTrue($extendedDirective->isRepeatable);
     }
@@ -1777,7 +1850,9 @@ GRAPHQL,
             'resolveField' => static fn (): string => $helloValue,
         ]);
 
-        $schema = new Schema(['query' => $queryType]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
 
         $documentNode = Parser::parse(/** @lang GraphQL */ '
               type Foo {
@@ -1785,7 +1860,7 @@ GRAPHQL,
               }
 
               extend type Query {
-                defaultValue: String
+                fieldDecorated: String
                 foo: Foo
               }
         ');
@@ -1799,7 +1874,17 @@ GRAPHQL,
             return $typeConfig;
         };
 
-        $extendedSchema = SchemaExtender::extend($schema, $documentNode, [], $typeConfigDecorator);
+        $resolveFn = static fn (): string => 'coming from field decorated resolver';
+        $fieldConfigDecorator = static function (array $typeConfig, FieldDefinitionNode $fieldDefinitionNode) use ($resolveFn) {
+            /** @var UnnamedFieldDefinitionConfig $typeConfig */
+            if ($fieldDefinitionNode->name->value === 'fieldDecorated') {
+                $typeConfig['resolve'] = $resolveFn;
+            }
+
+            return $typeConfig;
+        };
+
+        $extendedSchema = SchemaExtender::extend($schema, $documentNode, [], $typeConfigDecorator, $fieldConfigDecorator);
 
         $query = /** @lang GraphQL */ '
         {
@@ -1807,6 +1892,7 @@ GRAPHQL,
             foo {
               value
             }
+            fieldDecorated
         }
         ';
         $result = GraphQL::executeQuery($extendedSchema, $query);
@@ -1817,6 +1903,7 @@ GRAPHQL,
                 'foo' => [
                     'value' => $fooValue,
                 ],
+                'fieldDecorated' => 'coming from field decorated resolver',
             ],
         ], $result->toArray());
     }
@@ -1832,7 +1919,9 @@ GRAPHQL,
             ],
         ]);
 
-        $schema = new Schema(['query' => $queryType]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
 
         $documentNode = Parser::parse(/** @lang GraphQL */ '
         extend type Query {
@@ -1887,7 +1976,9 @@ GRAPHQL,
             'resolveField' => static fn (): \stdClass => new \stdClass(),
         ]);
 
-        $schema = new Schema(['query' => $QueryType]);
+        $schema = new Schema([
+            'query' => $QueryType,
+        ]);
 
         $documentNode = Parser::parse(/** @lang GraphQL */ '
         extend type Query {
@@ -1975,5 +2066,29 @@ GRAPHQL,
                 'someInterface' => ['__typename' => 'Foo'],
             ],
         ], $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS));
+    }
+
+    public function testKeepSchemaDescription(): void
+    {
+        $schema = BuildSchema::build(<<<GraphQL
+"Sample schema"
+schema {
+    query: Query
+}
+type Query {
+    foo: Foo
+}
+type Foo {
+  foo: String
+}
+GraphQL);
+        $documentNode = Parser::parse(<<<GraphQL
+extend type Foo {
+  bar: String
+}
+GraphQL);
+
+        $extendedSchema = SchemaExtender::extend($schema, $documentNode);
+        self::assertSame('Sample schema', $extendedSchema->description);
     }
 }

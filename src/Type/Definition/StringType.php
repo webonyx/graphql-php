@@ -21,8 +21,8 @@ represent free-form human-readable text.';
     /** @throws SerializationError */
     public function serialize($value): string
     {
-        $canCast = \is_scalar($value)
-            || (\is_object($value) && \method_exists($value, '__toString'))
+        $canCast = is_scalar($value)
+            || (is_object($value) && method_exists($value, '__toString'))
             || $value === null;
 
         if (! $canCast) {
@@ -36,7 +36,7 @@ represent free-form human-readable text.';
     /** @throws Error */
     public function parseValue($value): string
     {
-        if (! \is_string($value)) {
+        if (! is_string($value)) {
             $notString = Utils::printSafeJson($value);
             throw new Error("String cannot represent a non string value: {$notString}");
         }
@@ -44,6 +44,10 @@ represent free-form human-readable text.';
         return $value;
     }
 
+    /**
+     * @throws \JsonException
+     * @throws Error
+     */
     public function parseLiteral(Node $valueNode, ?array $variables = null): string
     {
         if ($valueNode instanceof StringValueNode) {

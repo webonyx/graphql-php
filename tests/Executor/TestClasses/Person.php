@@ -4,8 +4,7 @@ namespace GraphQL\Tests\Executor\TestClasses;
 
 final class Person
 {
-    /** @var string */
-    public $name;
+    public string $name;
 
     /** @var array<Dog|Cat>|null */
     public ?array $pets;

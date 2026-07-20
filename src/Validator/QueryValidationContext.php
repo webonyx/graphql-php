@@ -90,9 +90,9 @@ class QueryValidationContext implements ValidationContext
     }
 
     /**
-     * @phpstan-return array<int, VariableUsage>
-     *
      * @throws \Exception
+     *
+     * @phpstan-return array<int, VariableUsage>
      */
     public function getRecursiveVariableUsages(OperationDefinitionNode $operation): array
     {
@@ -107,7 +107,7 @@ class QueryValidationContext implements ValidationContext
                 $allUsages[] = $this->getVariableUsages($fragment);
             }
 
-            $usages = \array_merge(...$allUsages);
+            $usages = array_merge(...$allUsages);
             $this->recursiveVariableUsages[$operation] = $usages;
         }
 
@@ -117,9 +117,9 @@ class QueryValidationContext implements ValidationContext
     /**
      * @param HasSelectionSet&Node $node
      *
-     * @phpstan-return array<int, VariableUsage>
-     *
      * @throws \Exception
+     *
+     * @phpstan-return array<int, VariableUsage>
      */
     private function getVariableUsages(HasSelectionSet $node): array
     {
@@ -159,7 +159,7 @@ class QueryValidationContext implements ValidationContext
             $collectedNames = [];
             $nodesToVisit = [$operation];
             while ($nodesToVisit !== []) {
-                $node = \array_pop($nodesToVisit);
+                $node = array_pop($nodesToVisit);
                 $spreads = $this->getFragmentSpreads($node);
                 foreach ($spreads as $spread) {
                     $fragName = $spread->name->value;
@@ -198,7 +198,7 @@ class QueryValidationContext implements ValidationContext
 
             $setsToVisit = [$node->getSelectionSet()];
             while ($setsToVisit !== []) {
-                $set = \array_pop($setsToVisit);
+                $set = array_pop($setsToVisit);
 
                 foreach ($set->selections as $selection) {
                     if ($selection instanceof FragmentSpreadNode) {

@@ -29,7 +29,7 @@ final class ExecutorTest extends TestCase
 
     public function tearDown(): void
     {
-        Executor::setPromiseAdapter(null);
+        Executor::setDefaultPromiseAdapter();
     }
 
     // Execute: Handles basic execution tasks
@@ -156,7 +156,9 @@ final class ExecutorTest extends TestCase
                 'deeper' => ['type' => Type::listOf($dataType)],
             ],
         ]);
-        $schema = new Schema(['query' => $dataType]);
+        $schema = new Schema([
+            'query' => $dataType,
+        ]);
 
         self::assertEquals(
             $expected,
@@ -205,7 +207,9 @@ final class ExecutorTest extends TestCase
             },
         ]);
 
-        $schema = new Schema(['query' => $Type]);
+        $schema = new Schema([
+            'query' => $Type,
+        ]);
         $expected = [
             'data' => [
                 'a' => 'Apple',
@@ -230,7 +234,7 @@ final class ExecutorTest extends TestCase
     {
         $ast = Parser::parse('query ($var: String) { result: test }');
 
-        /** @var ResolveInfo $info */
+        /** @var ResolveInfo|null $info */
         $info = null;
         $schema = new Schema([
             'query' => new ObjectType([
@@ -249,6 +253,8 @@ final class ExecutorTest extends TestCase
         $rootValue = ['root' => 'val'];
 
         Executor::execute($schema, $ast, $rootValue, null, ['var' => '123']);
+
+        self::assertNotNull($info);
 
         /** @var OperationDefinitionNode $operationDefinition */
         $operationDefinition = $ast->definitions[0];
@@ -327,7 +333,80 @@ final class ExecutorTest extends TestCase
             ]),
         ]);
         Executor::execute($schema, $docAst, null, null, [], 'Example');
-        self::assertSame($gotHere, true);
+        self::assertTrue($gotHere);
+    }
+
+    public function testArgsMapper(): void
+    {
+        $doc = '
+      {
+        b {
+            testMapper(numArg: 123, stringArg: "foo")
+        }
+      }
+        ';
+
+        $mapperCalledCount = 0;
+        $resolverCalledCount = 0;
+        $lastArgs = null;
+
+        $docAst = Parser::parse($doc);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'b' => [
+                        'type' => Type::listOf(
+                            new ObjectType([
+                                'name' => 'ArgsMapperObject',
+                                'fields' => [
+                                    'testMapper' => [
+                                        'type' => Type::string(),
+                                        'args' => [
+                                            'numArg' => ['type' => Type::int()],
+                                            'stringArg' => ['type' => Type::string()],
+                                        ],
+                                        'argsMapper' => static function (array $args) use (
+                                            &$mapperCalledCount
+                                        ): object {
+                                            ++$mapperCalledCount;
+
+                                            $stdClass = new \stdClass();
+                                            foreach ($args as $name => $value) {
+                                                $stdClass->$name = $value;
+                                            }
+
+                                            return $stdClass;
+                                        },
+                                        'resolve' => static function ($_, \stdClass $args) use (
+                                            &$lastArgs,
+                                            &$resolverCalledCount
+                                        ): string {
+                                            ++$resolverCalledCount;
+
+                                            if ($lastArgs !== null && $lastArgs !== $args) {
+                                                throw new \LogicException('Should receive same args');
+                                            }
+
+                                            $lastArgs = $args;
+                                            self::assertSame(123, $args->numArg);
+                                            self::assertSame('foo', $args->stringArg);
+
+                                            return 'OK';
+                                        },
+                                    ],
+                                ],
+                            ])
+                        ),
+                        'resolve' => static fn (): array => [new \stdClass(), new \stdClass(), new \stdClass()],
+                    ],
+                ],
+            ]),
+        ]);
+        $result = Executor::execute($schema, $docAst);
+        self::assertSame(1, $mapperCalledCount);
+        self::assertSame(3, $resolverCalledCount);
+        self::assertCount(0, $result->errors);
     }
 
     /** @see it('nulls out error subtrees') */
@@ -390,15 +469,7 @@ final class ExecutorTest extends TestCase
                 throw new UserError('Error getting asyncReturnError');
             }),
             'asyncReturnErrorWithExtensions' => static fn (): Deferred => new Deferred(static function (): void {
-                throw new Error(
-                    'Error getting asyncReturnErrorWithExtensions',
-                    null,
-                    null,
-                    [],
-                    null,
-                    null,
-                    ['foo' => 'bar']
-                );
+                throw new Error('Error getting asyncReturnErrorWithExtensions', null, null, [], null, null, ['foo' => 'bar']);
             }),
         ];
 
@@ -759,7 +830,9 @@ final class ExecutorTest extends TestCase
                 'e' => ['type' => Type::string()],
             ],
         ]);
-        $schema = new Schema(['query' => $queryType]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
 
         $expected = [
             'data' => [
@@ -1086,7 +1159,7 @@ final class ExecutorTest extends TestCase
             }
         ');
 
-        $result = Executor::execute($schema, $query, $data, null);
+        $result = Executor::execute($schema, $query, $data);
 
         self::assertEquals(
             [
@@ -1150,7 +1223,7 @@ final class ExecutorTest extends TestCase
                     ],
                     'arrayAccess' => [
                         'type' => $ArrayAccess,
-                        'resolve' => static fn (): \ArrayAccess => new class() implements \ArrayAccess {
+                        'resolve' => static fn (): \ArrayAccess => new class implements \ArrayAccess {
                             /** @param mixed $offset */
                             #[\ReturnTypeWillChange]
                             public function offsetExists($offset): bool
@@ -1198,7 +1271,7 @@ final class ExecutorTest extends TestCase
                     ],
                     'objectField' => [
                         'type' => $ObjectField,
-                        'resolve' => static fn (): \stdClass => new class() extends \stdClass {
+                        'resolve' => static fn (): \stdClass => new class extends \stdClass {
                             public ?int $set = 1;
 
                             public ?int $unset;
@@ -1206,7 +1279,7 @@ final class ExecutorTest extends TestCase
                     ],
                     'objectVirtual' => [
                         'type' => $ObjectVirtual,
-                        'resolve' => static fn (): object => new class() {
+                        'resolve' => static fn (): object => new class {
                             public function __isset(string $name): bool
                             {
                                 switch ($name) {

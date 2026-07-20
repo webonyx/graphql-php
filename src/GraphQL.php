@@ -24,6 +24,7 @@ use GraphQL\Validator\Rules\ValidationRule;
  * This is the primary facade for fulfilling GraphQL operations.
  * See [related documentation](executing-queries.md).
  *
+ * @phpstan-import-type ArgsMapper from Executor
  * @phpstan-import-type FieldResolver from Executor
  *
  * @see \GraphQL\Tests\GraphQLTest
@@ -179,6 +180,8 @@ class GraphQL
     /**
      * Returns directives defined in GraphQL spec.
      *
+     * @deprecated use {@see Directive::builtInDirectives()}
+     *
      * @throws InvariantViolation
      *
      * @return array<string, Directive>
@@ -187,11 +190,13 @@ class GraphQL
      */
     public static function getStandardDirectives(): array
     {
-        return Directive::getInternalDirectives();
+        return Directive::builtInDirectives();
     }
 
     /**
-     * Returns types defined in GraphQL spec.
+     * Returns built-in scalar types defined in GraphQL spec.
+     *
+     * @deprecated use {@see Type::builtInScalars()}
      *
      * @throws InvariantViolation
      *
@@ -201,13 +206,15 @@ class GraphQL
      */
     public static function getStandardTypes(): array
     {
-        return Type::getStandardTypes();
+        return Type::builtInScalars();
     }
 
     /**
      * Replaces standard types with types from this list (matching by name).
      *
      * Standard types not listed here remain untouched.
+     *
+     * @deprecated prefer per-schema scalar overrides via {@see \GraphQL\Type\SchemaConfig::$types} or {@see \GraphQL\Type\SchemaConfig::$typeLoader}
      *
      * @param array<string, ScalarType> $types
      *
@@ -242,5 +249,17 @@ class GraphQL
     public static function setDefaultFieldResolver(callable $fn): void
     {
         Executor::setDefaultFieldResolver($fn);
+    }
+
+    /**
+     * Set default args mapper implementation.
+     *
+     * @phpstan-param ArgsMapper $fn
+     *
+     * @api
+     */
+    public static function setDefaultArgsMapper(callable $fn): void
+    {
+        Executor::setDefaultArgsMapper($fn);
     }
 }

@@ -36,17 +36,17 @@ class HtmlField
             ],
             'resolve' => static function ($rootValue, array $args) use ($resolver): ?string {
                 $html = $resolver($rootValue, $args);
-                $text = \strip_tags($html);
+                $text = strip_tags($html);
 
                 $safeText = isset($args['maxLength'])
-                    ? \mb_substr($text, 0, $args['maxLength'])
+                    ? mb_substr($text, 0, $args['maxLength'])
                     : $text;
 
                 switch ($args['format']) {
                     case ContentFormatType::FORMAT_HTML:
                         if ($safeText !== $text) {
                             // Text was truncated, so just show what's safe:
-                            return \nl2br($safeText);
+                            return nl2br($safeText);
                         }
 
                         return $html;

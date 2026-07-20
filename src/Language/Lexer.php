@@ -60,7 +60,7 @@ class Lexer
     /** @phpstan-param ParserOptions $options */
     public function __construct(Source $source, array $options = [])
     {
-        $startOfFileToken = new Token(Token::SOF, 0, 0, 0, 0, null);
+        $startOfFileToken = new Token(Token::SOF, 0, 0, 0, 0);
 
         $this->source = $source;
         $this->options = $options;
@@ -244,11 +244,7 @@ class Lexer
                     ->readString($line, $col, $prev);
         }
 
-        throw new SyntaxError(
-            $this->source,
-            $position,
-            $this->unexpectedCharacterMessage($code)
-        );
+        throw new SyntaxError($this->source, $position, $this->unexpectedCharacterMessage($code));
     }
 
     /** @throws \JsonException */
@@ -273,21 +269,11 @@ class Lexer
      */
     private function readName(int $line, int $col, Token $prev): Token
     {
-        $value = '';
         $start = $this->position;
-        [$char, $code] = $this->readChar();
-
-        while (
-            $code !== null && (
-                $code === 95 // _
-                || ($code >= 48 && $code <= 57) // 0-9
-                || ($code >= 65 && $code <= 90) // A-Z
-                || ($code >= 97 && $code <= 122) // a-z
-            )
-        ) {
-            $value .= $char;
-            [$char, $code] = $this->moveStringCursor(1, 1)->readChar();
-        }
+        $body = $this->source->body;
+        $length = strspn($body, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_', $this->byteStreamPosition);
+        $value = substr($body, $this->byteStreamPosition, $length);
+        $this->moveStringCursor($length, $length);
 
         return new Token(
             Token::NAME,
@@ -329,11 +315,7 @@ class Lexer
             [$char, $code] = $this->moveStringCursor(1, 1)->readChar();
 
             if ($code >= 48 && $code <= 57) {
-                throw new SyntaxError(
-                    $this->source,
-                    $this->position,
-                    'Invalid number, unexpected digit after 0: ' . Utils::printCharCode($code)
-                );
+                throw new SyntaxError($this->source, $this->position, 'Invalid number, unexpected digit after 0: ' . Utils::printCharCode($code));
             }
         } else {
             $value .= $this->readDigits();
@@ -398,11 +380,7 @@ class Lexer
             $code = null;
         }
 
-        throw new SyntaxError(
-            $this->source,
-            $this->position,
-            'Invalid number, expected digit but got: ' . Utils::printCharCode($code)
-        );
+        throw new SyntaxError($this->source, $this->position, 'Invalid number, expected digit but got: ' . Utils::printCharCode($code));
     }
 
     /**
@@ -420,10 +398,7 @@ class Lexer
         $chunk = '';
         $value = '';
 
-        while (
-            $code !== null
-            && $code !== 10 && $code !== 13 // not LineTerminator
-        ) {
+        while (! in_array($code, [null, 10, 13], true)) { // not LineTerminator
             if ($code === 34) { // Closing Quote (")
                 $value .= $chunk;
 
@@ -459,7 +434,7 @@ class Lexer
                         $value .= '\\';
                         break;
                     case 98:
-                        $value .= \chr(8); // \b (backspace)
+                        $value .= chr(8); // \b (backspace)
                         break;
                     case 102:
                         $value .= "\f";
@@ -476,31 +451,23 @@ class Lexer
                     case 117:
                         $position = $this->position;
                         [$hex] = $this->readChars(4);
-                        if (\preg_match('/[0-9a-fA-F]{4}/', $hex) !== 1) {
-                            throw new SyntaxError(
-                                $this->source,
-                                $position - 1,
-                                "Invalid character escape sequence: \\u{$hex}"
-                            );
+                        if (preg_match('/[0-9a-fA-F]{4}/', $hex) !== 1) {
+                            throw new SyntaxError($this->source, $position - 1, "Invalid character escape sequence: \\u{$hex}");
                         }
 
-                        $code = \hexdec($hex);
+                        $code = hexdec($hex);
                         assert(is_int($code), 'Since only a single char is read');
 
                         // UTF-16 surrogate pair detection and handling.
                         $highOrderByte = $code >> 8;
                         if ($highOrderByte >= 0xD8 && $highOrderByte <= 0xDF) {
                             [$utf16Continuation] = $this->readChars(6);
-                            if (\preg_match('/^\\\u[0-9a-fA-F]{4}$/', $utf16Continuation) !== 1) {
-                                throw new SyntaxError(
-                                    $this->source,
-                                    $this->position - 5,
-                                    'Invalid UTF-16 trailing surrogate: ' . $utf16Continuation
-                                );
+                            if (preg_match('/^\\\u[0-9a-fA-F]{4}$/', $utf16Continuation) !== 1) {
+                                throw new SyntaxError($this->source, $this->position - 5, 'Invalid UTF-16 trailing surrogate: ' . $utf16Continuation);
                             }
 
-                            $surrogatePairHex = $hex . \substr($utf16Continuation, 2, 4);
-                            $value .= \mb_convert_encoding(\pack('H*', $surrogatePairHex), 'UTF-8', 'UTF-16');
+                            $surrogatePairHex = $hex . substr($utf16Continuation, 2, 4);
+                            $value .= mb_convert_encoding(pack('H*', $surrogatePairHex), 'UTF-8', 'UTF-16');
                             break;
                         }
 
@@ -513,11 +480,7 @@ class Lexer
                         continue 2;
                     default:
                         $chr = Utils::chr($code);
-                        throw new SyntaxError(
-                            $this->source,
-                            $this->position - 1,
-                            "Invalid character escape sequence: \\{$chr}"
-                        );
+                        throw new SyntaxError($this->source, $this->position - 1, "Invalid character escape sequence: \\{$chr}");
                 }
 
                 $chunk = '';
@@ -528,11 +491,7 @@ class Lexer
             [$char, $code, $bytes] = $this->readChar();
         }
 
-        throw new SyntaxError(
-            $this->source,
-            $this->position,
-            'Unterminated string.'
-        );
+        throw new SyntaxError($this->source, $this->position, 'Unterminated string.');
     }
 
     /**
@@ -612,11 +571,7 @@ class Lexer
             [$char, $code, $bytes] = $this->readChar();
         }
 
-        throw new SyntaxError(
-            $this->source,
-            $this->position,
-            'Unterminated string.'
-        );
+        throw new SyntaxError($this->source, $this->position, 'Unterminated string.');
     }
 
     /**
@@ -656,7 +611,7 @@ class Lexer
 
             // Skip whitespace
             // tab | space | comma | BOM
-            if ($code === 9 || $code === 32 || $code === 44 || $code === 0xFEFF) {
+            if (in_array($code, [9, 32, 44, 0xFEFF], true)) {
                 $this->moveStringCursor(1, $bytes);
             } elseif ($code === 10) { // new line
                 $this->moveStringCursor(1, $bytes);
@@ -725,7 +680,7 @@ class Lexer
         $positionOffset = 0;
 
         if (isset($this->source->body[$byteStreamPosition])) {
-            $ord = \ord($this->source->body[$byteStreamPosition]);
+            $ord = ord($this->source->body[$byteStreamPosition]);
 
             if ($ord < 128) {
                 $bytes = 1;

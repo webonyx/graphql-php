@@ -88,7 +88,7 @@ class OperationParams
     {
         $instance = new static();
 
-        $params = \array_change_key_case($params, \CASE_LOWER);
+        $params = array_change_key_case($params, \CASE_LOWER);
         $instance->originalInput = $params;
 
         $params += [
@@ -134,12 +134,12 @@ class OperationParams
      */
     protected static function decodeIfJSON($value)
     {
-        if (! \is_string($value)) {
+        if (! is_string($value)) {
             return $value;
         }
 
-        $decoded = \json_decode($value, true);
-        if (\json_last_error() === \JSON_ERROR_NONE) {
+        $decoded = json_decode($value, true);
+        if (json_last_error() === \JSON_ERROR_NONE) {
             return $decoded;
         }
 

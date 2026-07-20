@@ -23,7 +23,7 @@ final class QueryExecutionTest extends ServerTestCase
 
     private ServerConfig $config;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $schema = $this->buildSchema();
         $this->config = ServerConfig::create()
@@ -113,6 +113,8 @@ final class QueryExecutionTest extends ServerTestCase
                     'path' => ['fieldWithSafeException'],
                     'extensions' => [
                         'trace' => [],
+                        'line' => 40,
+                        'file' => __DIR__ . '/ServerTestCase.php',
                     ],
                 ],
             ],
@@ -120,8 +122,6 @@ final class QueryExecutionTest extends ServerTestCase
 
         $result = $this->executeQuery($query)->toArray();
         self::assertArraySubset($expected, $result);
-        self::assertSame(40, $result['errors'][0]['extensions']['line'] ?? null);
-        self::assertStringContainsString('tests/Server/ServerTestCase.php', $result['errors'][0]['extensions']['file'] ?? '');
     }
 
     public function testRethrowUnsafeExceptions(): void
@@ -347,7 +347,7 @@ final class QueryExecutionTest extends ServerTestCase
         $result = (new Helper())->executeBatch($this->config, $batch);
 
         self::assertIsArray($result);
-        self::assertCount(\count($qs), $result);
+        self::assertCount(count($qs), $result);
 
         return $result;
     }

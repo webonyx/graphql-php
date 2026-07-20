@@ -19,17 +19,15 @@ use GraphQL\Utils\Utils;
  * Example:
  *
  *     $AddressType = new ObjectType([
- *       'name' => 'Address',
- *       'fields' => [
- *         'street' => [ 'type' => GraphQL\Type\Definition\Type::string() ],
- *         'number' => [ 'type' => GraphQL\Type\Definition\Type::int() ],
- *         'formatted' => [
- *           'type' => GraphQL\Type\Definition\Type::string(),
- *           'resolve' => function($obj) {
- *             return $obj->number . ' ' . $obj->street;
- *           }
- *         ]
- *       ]
+ *         'name' => 'Address',
+ *         'fields' => [
+ *             'street' => GraphQL\Type\Definition\Type::string(),
+ *             'number' => GraphQL\Type\Definition\Type::int(),
+ *             'formatted' => [
+ *                 'type' => GraphQL\Type\Definition\Type::string(),
+ *                 'resolve' => fn (AddressModel $address): string => "{$address->number} {$address->street}",
+ *             ],
+ *         ],
  *     ]);
  *
  * When two types need to refer to each other, or a type needs to refer to
@@ -40,27 +38,27 @@ use GraphQL\Utils\Utils;
  *
  *     $PersonType = null;
  *     $PersonType = new ObjectType([
- *       'name' => 'Person',
- *       'fields' => function() use (&$PersonType) {
- *          return [
- *              'name' => ['type' => GraphQL\Type\Definition\Type::string() ],
- *              'bestFriend' => [ 'type' => $PersonType ],
- *          ];
- *        }
+ *         'name' => 'Person',
+ *         'fields' => fn (): array => [
+ *             'name' => GraphQL\Type\Definition\Type::string(),
+ *             'bestFriend' => $PersonType,
+ *         ],
  *     ]);
  *
  * @phpstan-import-type FieldResolver from Executor
+ * @phpstan-import-type ArgsMapper from Executor
  *
  * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
  * @phpstan-type ObjectConfig array{
  *   name?: string|null,
  *   description?: string|null,
  *   resolveField?: FieldResolver|null,
+ *   argsMapper?: ArgsMapper|null,
  *   fields: (callable(): iterable<mixed>)|iterable<mixed>,
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
  *   isTypeOf?: (callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): (bool|Deferred|null))|null,
  *   astNode?: ObjectTypeDefinitionNode|null,
- *   extensionASTNodes?: array<int, ObjectTypeExtensionNode>|null
+ *   extensionASTNodes?: array<ObjectTypeExtensionNode>|null
  * }
  */
 class ObjectType extends Type implements OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType
@@ -71,7 +69,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
 
     public ?ObjectTypeDefinitionNode $astNode;
 
-    /** @var array<int, ObjectTypeExtensionNode> */
+    /** @var array<ObjectTypeExtensionNode> */
     public array $extensionASTNodes;
 
     /**
@@ -81,19 +79,27 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      */
     public $resolveFieldFn;
 
+    /**
+     * @var callable|null
+     *
+     * @phpstan-var ArgsMapper|null
+     */
+    public $argsMapper;
+
     /** @phpstan-var ObjectConfig */
     public array $config;
 
     /**
-     * @throws InvariantViolation
-     *
      * @phpstan-param ObjectConfig $config
+     *
+     * @throws InvariantViolation
      */
     public function __construct(array $config)
     {
         $this->name = $config['name'] ?? $this->inferName();
         $this->description = $config['description'] ?? null;
         $this->resolveFieldFn = $config['resolveField'] ?? null;
+        $this->argsMapper = $config['argsMapper'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
 
@@ -107,7 +113,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      */
     public static function assertObjectType($type): self
     {
-        if (! ($type instanceof self)) {
+        if (! $type instanceof self) {
             $notObjectType = Utils::printSafe($type);
             throw new InvariantViolation("Expected {$notObjectType} to be a GraphQL Object type.");
         }
@@ -133,7 +139,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     }
 
     /**
-     * Validates type config and throws if one of type options is invalid.
+     * Validates type config and throws if one of the type options is invalid.
      * Note: this method is shallow, it won't validate object fields and their arguments.
      *
      * @throws Error
@@ -144,8 +150,8 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         Utils::assertValidName($this->name);
 
         $isTypeOf = $this->config['isTypeOf'] ?? null;
-        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
-        if (isset($isTypeOf) && ! \is_callable($isTypeOf)) {
+        // @phpstan-ignore-next-line unnecessary according to types, but can happen during runtime
+        if (isset($isTypeOf) && ! is_callable($isTypeOf)) {
             $notCallable = Utils::printSafe($isTypeOf);
             throw new InvariantViolation("{$this->name} must provide \"isTypeOf\" as null or a callable, but got: {$notCallable}.");
         }
@@ -162,7 +168,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         return $this->astNode;
     }
 
-    /** @return array<int, ObjectTypeExtensionNode> */
+    /** @return array<ObjectTypeExtensionNode> */
     public function extensionASTNodes(): array
     {
         return $this->extensionASTNodes;
