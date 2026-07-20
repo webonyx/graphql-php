@@ -51,12 +51,12 @@ trait ImplementingTypeImplementation
         }
 
         $interfaces = $this->config['interfaces'];
-        if (\is_callable($interfaces)) {
+        if (is_callable($interfaces)) {
             $interfaces = $interfaces();
         }
 
         foreach ($interfaces as $interface) {
-            $this->interfaces[] = Schema::resolveType($interface);
+            $this->interfaces[] = Schema::resolveType($interface); // @phpstan-ignore argument.templateType
         }
     }
 
@@ -68,12 +68,12 @@ trait ImplementingTypeImplementation
         }
 
         $interfaces = $this->config['interfaces'];
-        if (\is_callable($interfaces)) {
+        if (is_callable($interfaces)) {
             $interfaces = $interfaces();
         }
 
         // @phpstan-ignore-next-line should not happen if used correctly
-        if (! \is_iterable($interfaces)) {
+        if (! is_iterable($interfaces)) {
             throw new InvariantViolation("{$this->name} interfaces must be an iterable or a callable which returns an iterable.");
         }
     }

@@ -5,7 +5,10 @@ namespace GraphQL\Tests\Type;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
+use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\Type\PhpEnumType\BackedPhpEnum;
+use GraphQL\Tests\Type\PhpEnumType\PhpEnum;
 use GraphQL\Tests\Type\TestClasses\OtherEnumType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
@@ -13,6 +16,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\BuildSchema;
 use PHPUnit\Framework\TestCase;
 
 final class EnumTypeTest extends TestCase
@@ -29,7 +33,7 @@ final class EnumTypeTest extends TestCase
     /** @var \ArrayObject<string, int> */
     private \ArrayObject $Complex2;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $ColorType = new EnumType([
             'name' => 'Color',
@@ -290,7 +294,7 @@ final class EnumTypeTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed>|null                                            $vars
+     * @param array<string, mixed>|null $vars
      * @param array{message: string, locations: array<int, SourceLocation>}|string $err
      *
      * @throws \Exception
@@ -300,7 +304,7 @@ final class EnumTypeTest extends TestCase
         $result = GraphQL::executeQuery($this->schema, $query, null, null, $vars);
         self::assertCount(1, $result->errors);
 
-        if (\is_array($err)) {
+        if (is_array($err)) {
             self::assertSame(
                 $err['message'],
                 $result->errors[0]->getMessage()
@@ -587,7 +591,7 @@ final class EnumTypeTest extends TestCase
                         'extensions' => [
                             'debugMessage' => 'Expected a value of type SimpleEnum but received: "WRONG". Cannot serialize value as enum: "WRONG"',
                             'trace' => [
-                                ['call' => 'GraphQL\Type\Definition\EnumType::serialize()'],
+                                ['call' => 'GraphQL\Type\Definition\EnumType::serialize(\'WRONG\')'],
                             ],
                         ],
                     ],
@@ -647,7 +651,9 @@ final class EnumTypeTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $QueryType]);
+        $schema = new Schema([
+            'query' => $QueryType,
+        ]);
 
         self::assertSame(0, $called, 'Should not eagerly call enum values during schema construction');
 
@@ -660,5 +666,63 @@ final class EnumTypeTest extends TestCase
 
         // @phpstan-ignore-next-line $called is mutated
         self::assertSame(1, $called, 'Should call enum values callable exactly once');
+    }
+
+    public function testSerializesNativeBackedEnums(): void
+    {
+        if (version_compare(phpversion(), '8.1', '<')) {
+            self::markTestSkipped('Native PHP enums are only available with PHP 8.1');
+        }
+
+        $documentNode = Parser::parse(<<<'SDL'
+            type Query {
+                phpEnum(fromEnum: PhpEnum!): PhpEnum! 
+            }
+         
+            enum PhpEnum {
+                A
+                B
+                C
+            }
+        SDL);
+
+        $this->schema = BuildSchema::build($documentNode);
+        $resolvers = [
+            'phpEnum' => fn (): BackedPhpEnum => BackedPhpEnum::A,
+        ];
+
+        self::assertSame(
+            ['data' => ['phpEnum' => 'A']],
+            GraphQL::executeQuery($this->schema, '{ phpEnum(fromEnum: A) }', $resolvers)->toArray()
+        );
+    }
+
+    public function testSerializesNativeUnitEnums(): void
+    {
+        if (version_compare(phpversion(), '8.1', '<')) {
+            self::markTestSkipped('Native PHP enums are only available with PHP 8.1');
+        }
+
+        $documentNode = Parser::parse(<<<'SDL'
+            type Query {
+                phpEnum(fromEnum: PhpEnum!): PhpEnum! 
+            }
+         
+            enum PhpEnum {
+                A
+                B
+                C
+            }
+        SDL);
+
+        $this->schema = BuildSchema::build($documentNode);
+        $resolvers = [
+            'phpEnum' => fn (): PhpEnum => PhpEnum::B,
+        ];
+
+        self::assertSame(
+            ['data' => ['phpEnum' => 'B']],
+            GraphQL::executeQuery($this->schema, '{ phpEnum(fromEnum: B) }', $resolvers)->toArray()
+        );
     }
 }

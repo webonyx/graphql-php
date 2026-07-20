@@ -25,6 +25,7 @@ use GraphQL\Validator\DocumentValidator;
  * See [schema definition language docs](schema-definition-language.md) for details.
  *
  * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
+ * @phpstan-import-type FieldConfigDecorator from ASTDefinitionBuilder
  *
  * @phpstan-type BuildSchemaOptions array{
  *   assumeValid?: bool,
@@ -32,16 +33,13 @@ use GraphQL\Validator\DocumentValidator;
  * }
  *
  * - assumeValid:
- *     When building a schema from a GraphQL service's introspection result, it
- *     might be safe to assume the schema is valid. Set to true to assume the
- *     produced schema is valid.
- *
- *     Default: false
+ *   When building a schema from a GraphQL service's introspection result, it might be safe to assume the schema is valid.
+ *   Set to true to assume the produced schema is valid.
+ *   Default: false
  *
  * - assumeValidSDL:
- *     Set to true to assume the SDL is valid.
- *
- *     Default: false
+ *   Set to true to assume the SDL is valid.
+ *   Default: false
  *
  * @see \GraphQL\Tests\Utils\BuildSchemaTest
  */
@@ -55,6 +53,13 @@ class BuildSchema
      * @phpstan-var TypeConfigDecorator|null
      */
     private $typeConfigDecorator;
+
+    /**
+     * @var callable|null
+     *
+     * @phpstan-var FieldConfigDecorator|null
+     */
+    private $fieldConfigDecorator;
 
     /**
      * @var array<string, bool>
@@ -71,12 +76,14 @@ class BuildSchema
      */
     public function __construct(
         DocumentNode $ast,
-        callable $typeConfigDecorator = null,
-        array $options = []
+        ?callable $typeConfigDecorator = null,
+        array $options = [],
+        ?callable $fieldConfigDecorator = null
     ) {
         $this->ast = $ast;
         $this->typeConfigDecorator = $typeConfigDecorator;
         $this->options = $options;
+        $this->fieldConfigDecorator = $fieldConfigDecorator;
     }
 
     /**
@@ -84,11 +91,10 @@ class BuildSchema
      * document.
      *
      * @param DocumentNode|Source|string $source
-     *
-     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
-     *
      * @param array<string, bool> $options
      *
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
      * @phpstan-param BuildSchemaOptions $options
      *
      * @api
@@ -101,14 +107,15 @@ class BuildSchema
      */
     public static function build(
         $source,
-        callable $typeConfigDecorator = null,
-        array $options = []
+        ?callable $typeConfigDecorator = null,
+        array $options = [],
+        ?callable $fieldConfigDecorator = null
     ): Schema {
         $doc = $source instanceof DocumentNode
             ? $source
             : Parser::parse($source);
 
-        return self::buildAST($doc, $typeConfigDecorator, $options);
+        return self::buildAST($doc, $typeConfigDecorator, $options, $fieldConfigDecorator);
     }
 
     /**
@@ -119,10 +126,10 @@ class BuildSchema
      * Given that AST it constructs a @see \GraphQL\Type\Schema. The resulting schema
      * has no resolve methods, so execution will use default resolvers.
      *
-     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
-     *
      * @param array<string, bool> $options
      *
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
      * @phpstan-param BuildSchemaOptions $options
      *
      * @api
@@ -134,10 +141,11 @@ class BuildSchema
      */
     public static function buildAST(
         DocumentNode $ast,
-        callable $typeConfigDecorator = null,
-        array $options = []
+        ?callable $typeConfigDecorator = null,
+        array $options = [],
+        ?callable $fieldConfigDecorator = null
     ): Schema {
-        return (new self($ast, $typeConfigDecorator, $options))->buildSchema();
+        return (new self($ast, $typeConfigDecorator, $options, $fieldConfigDecorator))->buildSchema();
     }
 
     /**
@@ -196,14 +204,14 @@ class BuildSchema
         $definitionBuilder = new ASTDefinitionBuilder(
             $typeDefinitionsMap,
             $typeExtensionsMap,
-            // @phpstan-ignore-next-line TODO add union type when available
             static function (string $typeName): Type {
                 throw self::unknownType($typeName);
             },
-            $this->typeConfigDecorator
+            $this->typeConfigDecorator,
+            $this->fieldConfigDecorator
         );
 
-        $directives = \array_map(
+        $directives = array_map(
             [$definitionBuilder, 'buildDirective'],
             $directiveDefs
         );
@@ -223,31 +231,38 @@ class BuildSchema
         if (! isset($directivesByName['deprecated'])) {
             $directives[] = Directive::deprecatedDirective();
         }
+        if (! isset($directivesByName['specifiedBy'])) {
+            $directives[] = Directive::specifiedByDirective();
+        }
+        if (! isset($directivesByName['oneOf'])) {
+            $directives[] = Directive::oneOfDirective();
+        }
 
         // Note: While this could make early assertions to get the correctly
         // typed values below, that would throw immediately while type system
         // validation with validateSchema() will produce more actionable results.
         return new Schema(
             (new SchemaConfig())
+                ->setDescription($schemaDef->description->value ?? null)
             // @phpstan-ignore-next-line
-            ->setQuery(isset($operationTypes['query'])
-                ? $definitionBuilder->maybeBuildType($operationTypes['query'])
-                : null)
+                ->setQuery(isset($operationTypes['query'])
+                    ? $definitionBuilder->maybeBuildType($operationTypes['query'])
+                    : null)
             // @phpstan-ignore-next-line
-            ->setMutation(isset($operationTypes['mutation'])
-                ? $definitionBuilder->maybeBuildType($operationTypes['mutation'])
-                : null)
+                ->setMutation(isset($operationTypes['mutation'])
+                    ? $definitionBuilder->maybeBuildType($operationTypes['mutation'])
+                    : null)
             // @phpstan-ignore-next-line
-            ->setSubscription(isset($operationTypes['subscription'])
-                ? $definitionBuilder->maybeBuildType($operationTypes['subscription'])
-                : null)
-            ->setTypeLoader(static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name))
-            ->setDirectives($directives)
-            ->setAstNode($schemaDef)
-            ->setTypes(fn (): array => \array_map(
-                static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->getName()->value),
-                $typeDefinitionsMap,
-            ))
+                ->setSubscription(isset($operationTypes['subscription'])
+                    ? $definitionBuilder->maybeBuildType($operationTypes['subscription'])
+                    : null)
+                ->setTypeLoader(static fn (string $name): ?Type => $definitionBuilder->maybeBuildType($name))
+                ->setDirectives($directives)
+                ->setAstNode($schemaDef)
+                ->setTypes(fn (): array => array_map(
+                    static fn (TypeDefinitionNode $def): Type => $definitionBuilder->buildType($def->getName()->value),
+                    $typeDefinitionsMap,
+                ))
         );
     }
 

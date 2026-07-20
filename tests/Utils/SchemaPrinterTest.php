@@ -55,7 +55,9 @@ final class SchemaPrinterTest extends TestCase
             'fields' => ['singleField' => $fieldConfig],
         ]);
 
-        return new Schema(['query' => $query]);
+        return new Schema([
+            'query' => $query,
+        ]);
     }
 
     /** @see it('Prints String Field') */
@@ -213,7 +215,9 @@ final class SchemaPrinterTest extends TestCase
             'name' => 'Foo',
             'fields' => ['str' => ['type' => Type::string()]],
         ]);
-        $schema = new Schema(['types' => [$fooType]]);
+        $schema = new Schema([
+            'types' => [$fooType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
@@ -250,7 +254,9 @@ final class SchemaPrinterTest extends TestCase
                 ],
             ],
         ]);
-        $schema = new Schema(['types' => [$fooType]]);
+        $schema = new Schema([
+            'types' => [$fooType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
@@ -487,6 +493,26 @@ final class SchemaPrinterTest extends TestCase
         );
     }
 
+    /** @see it('Prints schema with description') */
+    public function testPrintsSchemaWithDescription(): void
+    {
+        $schema = new Schema([
+            'description' => 'Schema description.',
+            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
+        ]);
+
+        $expected = <<<'GRAPHQL'
+            "Schema description."
+            schema {
+              query: Query
+            }
+
+            type Query
+
+            GRAPHQL;
+        self::assertPrintedSchemaEquals($expected, $schema);
+    }
+
     /** @see it('Prints custom query root types') */
     public function testPrintsCustomQueryRootTypes(): void
     {
@@ -559,7 +585,9 @@ final class SchemaPrinterTest extends TestCase
             'interfaces' => [$fooType],
         ]);
 
-        $schema = new Schema(['types' => [$barType]]);
+        $schema = new Schema([
+            'types' => [$barType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
@@ -598,7 +626,9 @@ final class SchemaPrinterTest extends TestCase
             'interfaces' => [$fooType, $bazType],
         ]);
 
-        $schema = new Schema(['types' => [$barType]]);
+        $schema = new Schema([
+            'types' => [$barType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
@@ -739,11 +769,39 @@ final class SchemaPrinterTest extends TestCase
             'fields' => ['int' => ['type' => Type::int()]],
         ]);
 
-        $schema = new Schema(['types' => [$inputType]]);
+        $schema = new Schema([
+            'types' => [$inputType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
             input InputType {
+              int: Int
+            }
+
+            GRAPHQL,
+            $schema
+        );
+    }
+
+    /** @see it('Print Input Type with @oneOf directive') */
+    public function testInputTypeWithOneOfDirective(): void
+    {
+        $inputType = new InputObjectType([
+            'name' => 'InputType',
+            'isOneOf' => true,
+            'fields' => [
+                'int' => Type::int(),
+            ],
+        ]);
+
+        $schema = new Schema([
+            'types' => [$inputType],
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            input InputType @oneOf {
               int: Int
             }
 
@@ -760,11 +818,35 @@ final class SchemaPrinterTest extends TestCase
             'serialize' => static fn () => null,
         ]);
 
-        $schema = new Schema(['types' => [$oddType]]);
+        $schema = new Schema([
+            'types' => [$oddType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
             scalar Odd
+
+            GRAPHQL,
+            $schema
+        );
+    }
+
+    /** @see it('Custom Scalar with specifiedByURL') */
+    public function testCustomScalarWithSpecifiedByURL(): void
+    {
+        $fooType = new CustomScalarType([
+            'name' => 'Foo',
+            'specifiedByURL' => 'https://example.com/foo_spec',
+            'serialize' => static fn () => null,
+        ]);
+
+        $schema = new Schema([
+            'types' => [$fooType],
+        ]);
+
+        self::assertPrintedSchemaEquals(
+            <<<'GRAPHQL'
+            scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
 
             GRAPHQL,
             $schema
@@ -783,7 +865,9 @@ final class SchemaPrinterTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['types' => [$RGBType]]);
+        $schema = new Schema([
+            'types' => [$RGBType],
+        ]);
 
         self::assertPrintedSchemaEquals(
             <<<'GRAPHQL'
@@ -1007,12 +1091,23 @@ final class SchemaPrinterTest extends TestCase
 
       "Marks an element of a GraphQL schema as no longer supported."
       directive @deprecated(
-        "Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https:\/\/commonmark.org\/)."
+        "Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/)."
         reason: String = "No longer supported"
       ) on FIELD_DEFINITION | ENUM_VALUE | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
+      "Exposes a URL that specifies the behavior of this scalar."
+      directive @specifiedBy(
+        "The URL that specifies the behavior of this scalar."
+        url: String!
+      ) on SCALAR
+
+      "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its fields be provided)."
+      directive @oneOf on INPUT_OBJECT
+
       "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations."
       type __Schema {
+        description: String
+
         "A list of all types supported by this server."
         types: [__Type!]!
 
@@ -1038,12 +1133,14 @@ final class SchemaPrinterTest extends TestCase
         kind: __TypeKind!
         name: String
         description: String
-        fields(includeDeprecated: Boolean = false): [__Field!]
+        specifiedByURL: String
+        fields(includeDeprecated: Boolean! = false): [__Field!]
         interfaces: [__Type!]
         possibleTypes: [__Type!]
-        enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
-        inputFields(includeDeprecated: Boolean = false): [__InputValue!]
+        enumValues(includeDeprecated: Boolean! = false): [__EnumValue!]
+        inputFields(includeDeprecated: Boolean! = false): [__InputValue!]
         ofType: __Type
+        isOneOf: Boolean
       }
 
       "An enum describing what kind of type a given `__Type` is."
@@ -1077,7 +1174,7 @@ final class SchemaPrinterTest extends TestCase
       type __Field {
         name: String!
         description: String
-        args(includeDeprecated: Boolean = false): [__InputValue!]!
+        args(includeDeprecated: Boolean! = false): [__InputValue!]!
         type: __Type!
         isDeprecated: Boolean!
         deprecationReason: String
@@ -1114,7 +1211,7 @@ final class SchemaPrinterTest extends TestCase
         description: String
         isRepeatable: Boolean!
         locations: [__DirectiveLocation!]!
-        args: [__InputValue!]!
+        args(includeDeprecated: Boolean! = false): [__InputValue!]!
       }
 
       "A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies."

@@ -24,7 +24,7 @@ final class ScopedContextTest extends TestCase
     /** @var array<string, MyScopedContext|MySharedContext> */
     private array $contexts = [];
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->contexts = [];
 
@@ -151,12 +151,35 @@ final class ScopedContextTest extends TestCase
                     ],
                 ],
             ]),
+            'mutation' => new ObjectType([
+                'name' => 'Mutation',
+                'fields' => [
+                    'a' => [
+                        'type' => $a,
+                        'resolve' => function ($rootValue, $args, $context) {
+                            $context->path[] = 'a';
+                            $this->contexts['a'] = $context;
+
+                            return $rootValue;
+                        },
+                    ],
+                    'g' => [
+                        'type' => $g,
+                        'resolve' => function ($rootValue, $args, $context) {
+                            $context->path[] = 'g';
+                            $this->contexts['g'] = $context;
+
+                            return $rootValue;
+                        },
+                    ],
+                ],
+            ]),
         ]);
 
         $this->promiseAdapter = new SyncPromiseAdapter();
     }
 
-    public function testContextShouldBeScopedBeforePassingToChildren(): void
+    public function testQueryContextShouldBeScopedBeforePassingToChildren(): void
     {
         $context = new MyScopedContext();
 
@@ -186,9 +209,71 @@ final class ScopedContextTest extends TestCase
             Parser::parse($doc),
             'rootValue',
             $context,
-            [],
-            null,
-            null
+            []
+        );
+
+        $result = $this->promiseAdapter->wait($result);
+
+        self::assertSame([], $context->path);
+        self::assertSame(['a'], $this->contexts['a']->path);
+        self::assertSame(['a', 'b'], $this->contexts['b']->path);
+        self::assertSame(['a', 'b', 'c'], $this->contexts['c']->path);
+        self::assertSame(['a', 'd'], $this->contexts['d']->path);
+        self::assertSame(['a', 'd', 'e'], $this->contexts['e']->path);
+        self::assertSame(['a', 'd', 'e', 'f'], $this->contexts['f']->path);
+        self::assertSame(['g'], $this->contexts['g']->path);
+        self::assertSame(['g', 'h'], $this->contexts['h']->path);
+        self::assertSame(['g', 'h', 'i'], $this->contexts['i']->path);
+        self::assertSame([
+            'a' => [
+                'b' => [
+                    'c' => 'a.b.c',
+                ],
+                'd' => [
+                    'e' => [
+                        'f' => 'a.d.e.f',
+                    ],
+                ],
+            ],
+            'g' => [
+                'h' => [
+                    'i' => 'g.h.i',
+                ],
+            ],
+        ], $result->data);
+    }
+
+    public function testMutationContextShouldBeScopedBeforePassingToChildren(): void
+    {
+        $context = new MyScopedContext();
+
+        $doc = <<<'GRAPHQL'
+            mutation { 
+              a {
+                b {
+                  c
+                }
+                d {
+                  e {
+                    f
+                  }
+                }
+              }
+              g {
+                h {
+                  i
+                }
+              }
+            }
+            GRAPHQL;
+
+        $result = Executor::promiseToExecute(
+            $this->promiseAdapter,
+            $this->schema,
+            Parser::parse($doc),
+            'rootValue',
+            $context,
+            []
         );
 
         $result = $this->promiseAdapter->wait($result);
@@ -252,9 +337,7 @@ final class ScopedContextTest extends TestCase
             Parser::parse($doc),
             'rootValue',
             $context,
-            [],
-            null,
-            null
+            []
         );
 
         $result = $this->promiseAdapter->wait($result);

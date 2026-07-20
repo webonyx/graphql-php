@@ -194,7 +194,7 @@ final class ExecutorLazySchemaTest extends TestCase
     public function testSimpleQuery(): void
     {
         $Query = $this->loadType('Query');
-        assert($Query instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $Query);
 
         $schema = new Schema([
             'query' => $Query,
@@ -262,7 +262,7 @@ final class ExecutorLazySchemaTest extends TestCase
                         $this->calls[] = 'SomeObject.interfaces';
 
                         $someInterface = $this->loadType('SomeInterface');
-                        assert($someInterface instanceof InterfaceType);
+                        self::assertInstanceOf(InterfaceType::class, $someInterface);
 
                         return [
                             $someInterface,
@@ -277,10 +277,10 @@ final class ExecutorLazySchemaTest extends TestCase
                         $this->calls[] = 'OtherObject.fields';
 
                         $someUnion = $this->loadType('SomeUnion');
-                        assert($someUnion instanceof UnionType);
+                        self::assertInstanceOf(UnionType::class, $someUnion);
 
                         $someInterface = $this->loadType('SomeInterface');
-                        assert($someInterface instanceof InterfaceType);
+                        self::assertInstanceOf(InterfaceType::class, $someInterface);
 
                         return [
                             'union' => ['type' => $someUnion],
@@ -312,7 +312,7 @@ final class ExecutorLazySchemaTest extends TestCase
                         $this->calls[] = 'SomeUnion.resolveType';
 
                         $deeperObject = $this->loadType('DeeperObject');
-                        assert($deeperObject instanceof ObjectType);
+                        self::assertInstanceOf(ObjectType::class, $deeperObject);
 
                         return $deeperObject;
                     },
@@ -320,7 +320,7 @@ final class ExecutorLazySchemaTest extends TestCase
                         $this->calls[] = 'SomeUnion.types';
 
                         $deeperObject = $this->loadType('DeeperObject');
-                        assert($deeperObject instanceof ObjectType);
+                        self::assertInstanceOf(ObjectType::class, $deeperObject);
 
                         return [$deeperObject];
                     },
@@ -333,7 +333,7 @@ final class ExecutorLazySchemaTest extends TestCase
                         $this->calls[] = 'SomeInterface.resolveType';
 
                         $someObject = $this->loadType('SomeObject');
-                        assert($someObject instanceof ObjectType);
+                        self::assertInstanceOf(ObjectType::class, $someObject);
 
                         return $someObject;
                     },
@@ -356,7 +356,7 @@ final class ExecutorLazySchemaTest extends TestCase
     public function testDeepQuery(): void
     {
         $Query = $this->loadType('Query');
-        assert($Query instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $Query);
 
         $schema = new Schema([
             'query' => $Query,
@@ -397,7 +397,7 @@ final class ExecutorLazySchemaTest extends TestCase
     public function testResolveUnion(): void
     {
         $Query = $this->loadType('Query');
-        assert($Query instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $Query);
 
         $schema = new Schema([
             'query' => $Query,

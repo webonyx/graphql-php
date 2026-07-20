@@ -16,8 +16,7 @@ use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
 
 final class IsInputTypeStaticMethodTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
-    /** @var TypeSpecifier */
-    private $typeSpecifier;
+    private TypeSpecifier $typeSpecifier;
 
     public function getClass(): string
     {
@@ -37,6 +36,6 @@ final class IsInputTypeStaticMethodTypeSpecifyingExtension implements StaticMeth
 
     public function specifyTypes(MethodReflection $staticMethodReflection, StaticCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
     {
-        return $this->typeSpecifier->create($node->getArgs()[0]->value, new ObjectType(InputType::class), $context);
+        return $this->typeSpecifier->create($node->getArgs()[0]->value, new ObjectType(InputType::class), $context, $scope);
     }
 }

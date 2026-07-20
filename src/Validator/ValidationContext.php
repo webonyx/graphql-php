@@ -10,7 +10,7 @@ interface ValidationContext
 {
     public function reportError(Error $error): void;
 
-    /** @return array<int, Error> */
+    /** @return list<Error> */
     public function getErrors(): array;
 
     public function getDocument(): DocumentNode;

@@ -28,7 +28,7 @@ final class SyncTest extends TestCase
 
     private SyncPromiseAdapter $promiseAdapter;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->schema = new Schema([
             'query' => new ObjectType([
@@ -196,7 +196,7 @@ final class SyncTest extends TestCase
             $doc
         );
         $expected = [
-            'errors' => \array_map(
+            'errors' => array_map(
                 [FormattedError::class, 'createFromException'],
                 $validationErrors
             ),

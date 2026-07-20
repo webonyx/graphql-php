@@ -12,7 +12,7 @@ php -S localhost:8080 graphql.php
 ### Try query
 
 ```
-curl -d '{"query": "query { hello }" }' -H "Content-Type: application/json" http://localhost:8080
+curl --data '{"query": "query { hello }" }' --header "Content-Type: application/json" http://localhost:8080
 ```
 
 The response should be:
@@ -95,7 +95,7 @@ fragment CommentView on Comment {
 
 Use autocomplete (via CTRL+space) to easily create your own query.
 
-Note: GraphQL query requires at least one field per object type (to prevent accidental overfetching).
+Note: GraphQL query requires at least one field per object type (to prevent accidental over-fetching).
 For example, the following query is invalid in GraphQL:
 
 ```graphql

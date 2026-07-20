@@ -64,9 +64,9 @@ fragment MissingOn Type
     }
 
     /**
-     * @see          it('parse provides useful errors')
+     * @see it('parse provides useful errors')
      *
-     * @param list<int>            $expectedPositions
+     * @param list<int> $expectedPositions
      * @param list<SourceLocation> $expectedLocations
      *
      * @dataProvider parseProvidesUsefulErrors
@@ -75,8 +75,8 @@ fragment MissingOn Type
         string $str,
         string $expectedMessage,
         string $stringRepresentation,
-        array $expectedPositions = null,
-        array $expectedLocations = null
+        ?array $expectedPositions = null,
+        ?array $expectedLocations = null
     ): void {
         try {
             Parser::parse($str);
@@ -85,11 +85,11 @@ fragment MissingOn Type
             self::assertSame($expectedMessage, $e->getMessage());
             self::assertSame($stringRepresentation, (string) $e);
 
-            if (\is_array($expectedPositions)) {
+            if (is_array($expectedPositions)) {
                 self::assertEquals($expectedPositions, $e->getPositions());
             }
 
-            if (\is_array($expectedLocations)) {
+            if (is_array($expectedLocations)) {
                 self::assertEquals($expectedLocations, $e->getLocations());
             }
         }
@@ -113,7 +113,7 @@ fragment MissingOn Type
     public function testParsesVariableInlineValues(): void
     {
         Parser::parse('{ field(complex: { a: { b: [ $var ] } }) }');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('parses constant default values') */
@@ -130,7 +130,7 @@ fragment MissingOn Type
     public function testParsesVariableDefinitionDirectives(): void
     {
         Parser::parse('query Foo($x: Boolean = false @bar) { field }');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /**
@@ -264,7 +264,7 @@ GRAPHQL
             mutationField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('parses anonymous subscription operations') */
@@ -275,7 +275,7 @@ GRAPHQL
             subscriptionField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('parses named mutation operations') */
@@ -286,7 +286,7 @@ GRAPHQL
             mutationField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('parses named subscription operations') */
@@ -297,7 +297,7 @@ GRAPHQL
             subscriptionField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /** @see it('creates ast') */
@@ -712,5 +712,101 @@ GRAPHQL
 
         $this->expectException(SyntaxError::class);
         Parser::constValueLiteral('$foo');
+    }
+
+    public function testRejectsDeeplyNestedLists(): void
+    {
+        $depth = 257;
+        $query = '{ field(arg: ' . str_repeat('[', $depth) . '1' . str_repeat(']', $depth) . ') }';
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 256 exceeded');
+        Parser::parse($query);
+    }
+
+    public function testRejectsDeeplyNestedObjects(): void
+    {
+        $depth = 257;
+        $query = '{ field(arg: ' . str_repeat('{a:', $depth) . '1' . str_repeat('}', $depth) . ') }';
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 256 exceeded');
+        Parser::parse($query);
+    }
+
+    public function testRejectsDeeplyNestedSelections(): void
+    {
+        $depth = 257;
+        $query = str_repeat('{ a ', $depth) . str_repeat('}', $depth);
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 256 exceeded');
+        Parser::parse($query);
+    }
+
+    public function testRejectsDeeplyNestedTypes(): void
+    {
+        $depth = 257;
+        $query = 'query ($var: ' . str_repeat('[', $depth) . 'Int' . str_repeat(']', $depth) . ') { field }';
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 256 exceeded');
+        Parser::parse($query);
+    }
+
+    public function testCustomRecursionLimit(): void
+    {
+        $depth = 6;
+        $query = str_repeat('{ a ', $depth) . str_repeat('}', $depth);
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 5 exceeded');
+        Parser::parse($query, ['recursionLimit' => 5]);
+    }
+
+    public function testRecursionLimitZeroDisablesCheck(): void
+    {
+        $depth = 500;
+        $query = 'query ($var: ' . str_repeat('[', $depth) . 'Int' . str_repeat(']', $depth) . ') { field }';
+
+        Parser::parse($query, ['recursionLimit' => 0]);
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testQueryAtExactLimitPasses(): void
+    {
+        $depth = 5;
+        $query = str_repeat('{ a ', $depth) . str_repeat('}', $depth);
+
+        Parser::parse($query, ['recursionLimit' => $depth]);
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testValueLiteralAtExactLimitPasses(): void
+    {
+        $depth = 5;
+        $query = '{ field(arg: ' . str_repeat('[', $depth) . '1' . str_repeat(']', $depth) . ') }';
+
+        Parser::parse($query, ['recursionLimit' => $depth + 2]);
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testTypeReferenceAtExactLimitPasses(): void
+    {
+        $depth = 5;
+        $query = 'query ($var: ' . str_repeat('[', $depth) . 'Int' . str_repeat(']', $depth) . ') { field }';
+
+        Parser::parse($query, ['recursionLimit' => $depth + 2]);
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testSiblingBranchesDontAccumulate(): void
+    {
+        $limit = 5;
+        $innerSelection = str_repeat('{ a ', $limit - 1) . str_repeat('}', $limit - 1);
+        $query = "{ a {$innerSelection} b {$innerSelection} }";
+
+        Parser::parse($query, ['recursionLimit' => $limit]);
+        $this->expectNotToPerformAssertions();
     }
 }

@@ -85,7 +85,7 @@ type Hello {
     /**
      * @param array<string, mixed> $name
      * @param array<string, mixed> $type
-     * @param array<int, mixed>    $args
+     * @param array<int, mixed> $args
      *
      * @phpstan-param LocationArray $loc
      *
@@ -197,6 +197,60 @@ type Hello {
                 ],
             ],
             'loc' => $loc(0, 85),
+        ];
+        self::assertEquals($expected, $doc->toArray());
+
+        // ensure the lexer does not treat multi line comments as one line
+        $tokenAfterMultiLineComment = $doc->loc->startToken->next->next ?? null;
+        self::assertNotNull($tokenAfterMultiLineComment);
+        self::assertSame('Even with comments between them', trim($tokenAfterMultiLineComment->value ?? ''));
+        self::assertSame(5, $tokenAfterMultiLineComment->line);
+
+        $typeToken = $tokenAfterMultiLineComment->next;
+        self::assertNotNull($typeToken);
+        self::assertSame('type', $typeToken->value);
+        self::assertSame(6, $typeToken->line);
+    }
+
+    /** @see it('parses schema with description string') */
+    public function testParsesSchemaWithDescriptionString(): void
+    {
+        $body = '
+"Description"
+schema {
+  query: Foo
+}';
+        $doc = Parser::parse($body);
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
+
+        $expected = [
+            'kind' => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind' => NodeKind::SCHEMA_DEFINITION,
+                    'directives' => [],
+                    'operationTypes' => [
+                        [
+                            'kind' => NodeKind::OPERATION_TYPE_DEFINITION,
+                            'operation' => 'query',
+                            'type' => [
+                                'kind' => NodeKind::NAMED_TYPE,
+                                'name' => $this->nameNode('Foo', $loc(33, 36)),
+                                'loc' => $loc(33, 36),
+                            ],
+                            'loc' => $loc(26, 36),
+                        ],
+                    ],
+                    'loc' => $loc(1, 38),
+                    'description' => [
+                        'kind' => NodeKind::STRING,
+                        'value' => 'Description',
+                        'loc' => $loc(1, 14),
+                        'block' => false,
+                    ],
+                ],
+            ],
+            'loc' => $loc(0, 38),
         ];
         self::assertEquals($expected, $doc->toArray());
     }
@@ -852,7 +906,7 @@ type Hello {
     /**
      * @param array<string, mixed> $name
      * @param array<string, mixed> $type
-     * @param mixed                $defaultValue
+     * @param mixed $defaultValue
      *
      * @phpstan-param LocationArray $loc
      *

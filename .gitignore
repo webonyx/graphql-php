@@ -1,7 +1,18 @@
-.phpunit.result.cache
+.idea
+vendor
+benchmarks/results
 .php-cs-fixer.cache
+.phpbench
+.phpunit.result.cache
 composer.lock
 composer.phar
 phpstan.neon
-vendor
-.idea
+
+# lnai
+.ai/.lnai-manifest.json
+
+# lnai-generated
+.claude/CLAUDE.md
+.claude/settings.json
+AGENTS.md
+# end lnai-generated

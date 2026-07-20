@@ -39,7 +39,7 @@ abstract class ValidatorTestCase extends TestCase
 
     /**
      * @param array<ValidationRule> $rules
-     * @param array<string, mixed>  $options
+     * @param array<string, mixed> $options
      *
      * @throws \Exception
      * @throws \JsonException
@@ -159,7 +159,7 @@ abstract class ValidatorTestCase extends TestCase
             'name' => 'Human',
             'interfaces' => [$Being, $Intelligent],
             'fields' => static function () use (&$Human, $Pet): array {
-                assert($Human instanceof ObjectType);
+                self::assertInstanceOf(ObjectType::class, $Human);
 
                 return [
                     'name' => [
@@ -367,10 +367,7 @@ abstract class ValidatorTestCase extends TestCase
         return new Schema([
             'query' => $queryRoot,
             'subscription' => $subscriptionRoot,
-            'directives' => [
-                Directive::includeDirective(),
-                Directive::skipDirective(),
-                Directive::deprecatedDirective(),
+            'directives' => array_merge(Directive::getInternalDirectives(), [
                 new Directive([
                     'name' => 'directive',
                     'locations' => [DirectiveLocation::FIELD, DirectiveLocation::FRAGMENT_DEFINITION],
@@ -420,13 +417,13 @@ abstract class ValidatorTestCase extends TestCase
                     'name' => 'onVariableDefinition',
                     'locations' => [DirectiveLocation::VARIABLE_DEFINITION],
                 ]),
-            ],
+            ]),
         ]);
     }
 
     /**
      * @param array<int, array<string, mixed>> $errors
-     * @param array<string, mixed>             $options
+     * @param array<string, mixed> $options
      *
      * @throws \Exception
      * @throws \ReflectionException
@@ -444,9 +441,9 @@ abstract class ValidatorTestCase extends TestCase
     }
 
     /**
-     * @param array<ValidationRule>|null       $rules
+     * @param array<ValidationRule>|null $rules
      * @param array<int, array<string, mixed>> $expectedErrors
-     * @param array<string, mixed>             $options
+     * @param array<string, mixed> $options
      *
      * @throws \Exception
      * @throws \JsonException
@@ -459,7 +456,7 @@ abstract class ValidatorTestCase extends TestCase
         $errors = DocumentValidator::validate($schema, Parser::parse($queryString, $options), $rules);
 
         self::assertNotEmpty($errors, 'GraphQL should not validate');
-        self::assertEquals($expectedErrors, \array_map([FormattedError::class, 'createFromException'], $errors));
+        self::assertEquals($expectedErrors, array_map([FormattedError::class, 'createFromException'], $errors));
 
         return $errors;
     }
@@ -526,18 +523,18 @@ abstract class ValidatorTestCase extends TestCase
     protected function expectSDLErrorsFromRule(
         ValidationRule $rule,
         string $sdlString,
-        Schema $schema = null,
+        ?Schema $schema = null,
         array $errors = []
     ): void {
         $actualErrors = DocumentValidator::validateSDL(Parser::parse($sdlString), $schema, [$rule]);
         self::assertEquals(
             $errors,
-            \array_map([FormattedError::class, 'createFromException'], $actualErrors)
+            array_map([FormattedError::class, 'createFromException'], $actualErrors)
         );
     }
 
     /** @throws \Exception */
-    protected function expectValidSDL(ValidationRule $rule, string $sdlString, Schema $schema = null): void
+    protected function expectValidSDL(ValidationRule $rule, string $sdlString, ?Schema $schema = null): void
     {
         $this->expectSDLErrorsFromRule($rule, $sdlString, $schema, []);
     }

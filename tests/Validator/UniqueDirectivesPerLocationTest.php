@@ -17,7 +17,7 @@ final class UniqueDirectivesPerLocationTest extends ValidatorTestCase
      *
      * @throws \Exception
      */
-    private function expectSDLErrors(string $sdlString, Schema $schema = null, array $errors = []): void
+    private function expectSDLErrors(string $sdlString, ?Schema $schema = null, array $errors = []): void
     {
         $this->expectSDLErrorsFromRule(new UniqueDirectivesPerLocation(), $sdlString, $schema, $errors);
     }

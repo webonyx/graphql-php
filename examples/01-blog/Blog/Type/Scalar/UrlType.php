@@ -33,10 +33,10 @@ class UrlType extends ScalarType
         return $value;
     }
 
-    public function parseLiteral(Node $valueNode, array $variables = null): string
+    public function parseLiteral(Node $valueNode, ?array $variables = null): string
     {
         // Throwing GraphQL\Error\Error to benefit from GraphQL error location in query
-        if (! ($valueNode instanceof StringValueNode)) {
+        if (! $valueNode instanceof StringValueNode) {
             throw new Error("Query error: Can only parse strings got: {$valueNode->kind}", [$valueNode]);
         }
 
@@ -55,7 +55,7 @@ class UrlType extends ScalarType
      */
     private function isUrl($value): bool
     {
-        return \is_string($value)
-            && \filter_var($value, \FILTER_VALIDATE_URL) !== false;
+        return is_string($value)
+            && filter_var($value, \FILTER_VALIDATE_URL) !== false;
     }
 }

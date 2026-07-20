@@ -3,7 +3,6 @@
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\DebugFlag;
-use GraphQL\Examples\Blog\Types;
 use GraphQL\Executor\Executor;
 use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
@@ -110,7 +109,7 @@ final class InputObjectTypeTest extends TestCase
             'name' => 'Mutation',
             'fields' => [
                 'action' => [
-                    'type' => Types::boolean(),
+                    'type' => Type::boolean(),
                     'args' => [
                         'input' => [
                             'type' => $input,
@@ -121,7 +120,9 @@ final class InputObjectTypeTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['mutation' => $mutation]);
+        $schema = new Schema([
+            'mutation' => $mutation,
+        ]);
 
         $result = GraphQL::executeQuery(
             $schema,
@@ -193,7 +194,7 @@ final class InputObjectTypeTest extends TestCase
             'name' => 'Mutation',
             'fields' => [
                 'action' => [
-                    'type' => Types::boolean(),
+                    'type' => Type::boolean(),
                     'args' => [
                         'input' => [
                             'type' => $input,
@@ -204,7 +205,9 @@ final class InputObjectTypeTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['mutation' => $mutation]);
+        $schema = new Schema([
+            'mutation' => $mutation,
+        ]);
 
         $result = GraphQL::executeQuery($schema, /** @lang GraphQL */ '
             mutation {
@@ -267,7 +270,7 @@ final class InputObjectTypeTest extends TestCase
             'name' => 'Mutation',
             'fields' => [
                 'action' => [
-                    'type' => Types::boolean(),
+                    'type' => Type::boolean(),
                     'args' => [
                         'input' => [
                             'type' => $input,
@@ -290,7 +293,9 @@ final class InputObjectTypeTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['mutation' => $mutation]);
+        $schema = new Schema([
+            'mutation' => $mutation,
+        ]);
 
         $result = GraphQL::executeQuery(
             $schema,
@@ -339,7 +344,7 @@ final class InputObjectTypeTest extends TestCase
             'name' => 'Mutation',
             'fields' => [
                 'action' => [
-                    'type' => Types::boolean(),
+                    'type' => Type::boolean(),
                     'args' => [
                         'input' => [
                             'type' => $input,
@@ -350,7 +355,9 @@ final class InputObjectTypeTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['mutation' => $mutation]);
+        $schema = new Schema([
+            'mutation' => $mutation,
+        ]);
 
         $result = GraphQL::executeQuery(
             $schema,

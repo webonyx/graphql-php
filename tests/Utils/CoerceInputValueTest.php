@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Error\ClientAware;
 use GraphQL\Error\CoercionError;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\CustomScalarType;
@@ -35,7 +36,7 @@ final class CoerceInputValueTest extends TestCase
     /** @var ListOfType<ListOfType<ScalarType>> */
     private ListOfType $testNestedList;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->testNonNull = Type::nonNull(Type::int());
 
@@ -174,6 +175,34 @@ final class CoerceInputValueTest extends TestCase
             'Enum "TestEnum" cannot represent non-string value: {"field":"value"}.',
             null,
             ['field' => 'value'],
+        )]);
+    }
+
+    public function testPropagatesClientSafeError(): void
+    {
+        $message = 'message';
+        $value = ['value' => 1];
+
+        $clientSafeException = new class($message) extends \Exception implements ClientAware {
+            public function isClientSafe(): bool
+            {
+                return true;
+            }
+        };
+
+        $scalar = new CustomScalarType([
+            'name' => 'TestScalar',
+            'parseValue' => function () use ($clientSafeException) {
+                throw $clientSafeException;
+            },
+            'parseLiteral' => fn () => null,
+        ]);
+
+        $result = Value::coerceInputValue($value, $scalar);
+        $this->expectGraphQLError($result, [CoercionError::make(
+            $message,
+            null,
+            $value,
         )]);
     }
 
@@ -450,7 +479,7 @@ final class CoerceInputValueTest extends TestCase
      * @see it('throw error without path', () => {
      * @see it('throw error with path', () => {
      *
-     * Not necessary because we do not implement the callback variant coerceInputValue.
+     * Unnecessary because we do not implement the callback variant coerceInputValue.
      */
 
     /**

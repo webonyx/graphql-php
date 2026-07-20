@@ -24,7 +24,7 @@ abstract class TypeLoaderTestCaseBase extends TestCaseBase
     /** @var array<int, string> */
     protected array $calls;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->calls = [];
     }
@@ -38,7 +38,7 @@ abstract class TypeLoaderTestCaseBase extends TestCaseBase
             ]),
             'typeLoader' => static fn () => null,
         ]);
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     public function testSchemaRejectsNonCallableTypeLoader(): void

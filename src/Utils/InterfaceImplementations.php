@@ -19,7 +19,7 @@ class InterfaceImplementations
     private $interfaces;
 
     /**
-     * @param array<int, ObjectType>    $objects
+     * @param array<int, ObjectType> $objects
      * @param array<int, InterfaceType> $interfaces
      */
     public function __construct(array $objects, array $interfaces)

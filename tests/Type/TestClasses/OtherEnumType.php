@@ -33,7 +33,7 @@ final class OtherEnumType extends EnumType
         return self::PARSE_VALUE_RESULT;
     }
 
-    public function parseLiteral(Node $valueNode, array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         return self::PARSE_LITERAL_RESULT;
     }

@@ -47,7 +47,7 @@ final class ListsTest extends TestCase
     }
 
     /**
-     * @param mixed                $testData
+     * @param mixed $testData
      * @param array<string, mixed> $expected
      *
      * @throws \Exception
@@ -86,7 +86,9 @@ final class ListsTest extends TestCase
             },
         ]);
 
-        $schema = new Schema(['query' => $dataType]);
+        $schema = new Schema([
+            'query' => $dataType,
+        ]);
 
         $ast = Parser::parse('{ nest { test } }');
 
@@ -215,7 +217,7 @@ final class ListsTest extends TestCase
     }
 
     /**
-     * @param mixed                $testData
+     * @param mixed $testData
      * @param array<string, mixed> $expected
      *
      * @throws \Exception
@@ -351,7 +353,7 @@ final class ListsTest extends TestCase
     }
 
     /**
-     * @param mixed                $testData
+     * @param mixed $testData
      * @param array<string, mixed> $expected
      *
      * @throws \Exception
@@ -496,13 +498,13 @@ final class ListsTest extends TestCase
     }
 
     /**
-     * @param mixed                $testData
+     * @param mixed $testData
      * @param array<string, mixed> $expected
      *
      * @throws \Exception
      * @throws InvariantViolation
      */
-    public function checkHandlesNonNullListOfNonNulls($testData, array $expected, int $debug = DebugFlag::NONE): void
+    private function checkHandlesNonNullListOfNonNulls($testData, array $expected, int $debug = DebugFlag::NONE): void
     {
         $testType = Type::nonNull(Type::listOf(Type::nonNull(Type::int())));
         $this->check($testType, $testData, $expected, $debug);

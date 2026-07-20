@@ -169,7 +169,7 @@ final class NoUndefinedVariablesTest extends ValidatorTestCase
      *     locations?: array<int, array{line: int, column: int}>
      * }
      */
-    private function undefVar(string $varName, int $line, int $column, string $opName = null, int $l2 = null, int $c2 = null): array
+    private function undefVar(string $varName, int $line, int $column, ?string $opName = null, ?int $l2 = null, ?int $c2 = null): array
     {
         $locs = [new SourceLocation($line, $column)];
 

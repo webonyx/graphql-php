@@ -40,7 +40,7 @@ final class ValuesTest extends TestCase
         self::assertEquals(
             $variables,
             $this->runTestCase($variables)[1],
-            'Output variables did not match input variables' . "\n" . \var_export($variables, true) . "\n"
+            'Output variables did not match input variables' . "\n" . var_export($variables, true) . "\n"
         );
     }
 
@@ -157,7 +157,7 @@ final class ValuesTest extends TestCase
     {
         $result = $this->runTestCase($variables);
         self::assertNotNull($result[0]);
-        self::assertGreaterThan(0, \count($result[0]));
+        self::assertGreaterThan(0, count($result[0]));
     }
 
     public function testFloatForIDVariableThrowsError(): void

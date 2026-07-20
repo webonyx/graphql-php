@@ -26,7 +26,10 @@ final class BuildClientSchemaTest extends TestCase
      */
     protected static function assertCycleIntrospection(string $sdl): void
     {
-        $options = ['directiveIsRepeatable' => true];
+        $options = [
+            'directiveIsRepeatable' => true,
+            'typeIsOneOf' => true,
+        ];
 
         $serverSchema = BuildSchema::build($sdl);
         $initialIntrospection = Introspection::fromSchema($serverSchema, $options);
@@ -67,6 +70,7 @@ final class BuildClientSchemaTest extends TestCase
     public function testBuildsASimpleSchema(): void
     {
         self::assertCycleIntrospection('
+        """Simple schema"""
         schema {
           query: Simple
         }
@@ -612,7 +616,7 @@ SDL;
     {
         $introspection = Introspection::fromSchema(self::dummySchema());
 
-        $introspection['__schema']['types'] = \array_filter(
+        $introspection['__schema']['types'] = array_filter(
             $introspection['__schema']['types'],
             static fn (array $type): bool => $type['name'] !== 'Query'
         );
@@ -633,7 +637,7 @@ SDL;
         ');
         $introspection = Introspection::fromSchema($schema);
 
-        $introspection['__schema']['types'] = \array_filter(
+        $introspection['__schema']['types'] = array_filter(
             $introspection['__schema']['types'],
             static fn (array $type): bool => $type['name'] !== 'Float'
         );
@@ -1012,5 +1016,41 @@ SDL;
 
         $this->expectExceptionMessage('Expected Foo to be a GraphQL Object type.');
         $clientSchema->assertValid();
+    }
+
+    public function testCustomScalarValueMixedExecution(): void
+    {
+        $schema = BuildSchema::build('
+        scalar CustomScalar
+    
+        type Query {
+          foo(bar: CustomScalar): CustomScalar
+        }
+        ');
+
+        $introspection = Introspection::fromSchema($schema);
+        $clientSchema = BuildClientSchema::build($introspection);
+
+        $result = GraphQL::executeQuery(
+            $clientSchema,
+            'query CustomScalarObject($v: CustomScalar) { foo(bar: $v) }',
+            ['foo' => ['baz' => 'value']],
+            null,
+            ['v' => 100]
+        );
+
+        self::assertSame(['foo' => ['baz' => 'value']], $result->data);
+    }
+
+    /** @see it('builds a schema with specifiedBy url') */
+    public function testRoundTripPreservesSpecifiedByURL(): void
+    {
+        self::assertCycleIntrospection('
+            scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
+
+            type Query {
+              foo: Foo
+            }
+        ');
     }
 }

@@ -2,13 +2,11 @@
 
 namespace GraphQL\Tests\Type\TestClasses;
 
-final class ObjectIdStub
+final class ObjectIdStub implements \Stringable
 {
-    /** @var int */
-    private $id;
+    private int $id;
 
-    /** @param int $id */
-    public function __construct($id)
+    public function __construct(int $id)
     {
         $this->id = $id;
     }

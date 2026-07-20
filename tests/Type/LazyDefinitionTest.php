@@ -53,7 +53,7 @@ final class LazyDefinitionTest extends TestCaseBase
         $objType = new ObjectType([
             'name' => 'SomeObject',
             'fields' => [
-                'f' => new class() {
+                'f' => new class {
                     /**
                      * @throws InvariantViolation
                      *
@@ -113,7 +113,9 @@ final class LazyDefinitionTest extends TestCaseBase
             ],
         ]);
 
-        $schema = new Schema(['query' => $query]);
+        $schema = new Schema([
+            'query' => $query,
+        ]);
         $result = Executor::execute($schema, Parser::parse('{ f }'));
 
         self::assertSame(['f' => null], $result->data);
@@ -170,16 +172,18 @@ final class LazyDefinitionTest extends TestCaseBase
             },
         ]);
 
-        $blogSchema = new Schema(['query' => $type]);
+        $blogSchema = new Schema([
+            'query' => $type,
+        ]);
 
         self::assertSame($blogSchema->getQueryType(), $type);
 
         $field = $type->getField('url');
-        self::assertSame($field->name, 'url');
+        self::assertSame('url', $field->name);
         self::assertInstanceOf(StringType::class, $field->getType());
 
         $field = $type->getField('width');
-        self::assertSame($field->name, 'width');
+        self::assertSame('width', $field->name);
         self::assertInstanceOf(IntType::class, $field->getType());
     }
 

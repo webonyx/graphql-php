@@ -20,14 +20,14 @@ use GraphQL\Error\FormattedError;
  *   path?: array<int, int|string>,
  *   extensions?: array<string, mixed>
  * }
- * @phpstan-type SerializableErrors array<int, SerializableError>
+ * @phpstan-type SerializableErrors list<SerializableError>
  * @phpstan-type SerializableResult array{
  *     data?: array<string, mixed>,
  *     errors?: SerializableErrors,
  *     extensions?: array<string, mixed>
  * }
  * @phpstan-type ErrorFormatter callable(\Throwable): SerializableError
- * @phpstan-type ErrorsHandler callable(array<Error> $errors, ErrorFormatter $formatter): SerializableErrors
+ * @phpstan-type ErrorsHandler callable(list<Error> $errors, ErrorFormatter $formatter): SerializableErrors
  *
  * @see \GraphQL\Tests\Executor\ExecutionResultTest
  */
@@ -50,7 +50,7 @@ class ExecutionResult implements \JsonSerializable
      *
      * @api
      *
-     * @var array<Error>
+     * @var list<Error>
      */
     public array $errors = [];
 
@@ -79,10 +79,10 @@ class ExecutionResult implements \JsonSerializable
 
     /**
      * @param array<string, mixed>|null $data
-     * @param array<Error>              $errors
-     * @param array<string, mixed>      $extensions
+     * @param list<Error> $errors
+     * @param array<string, mixed> $extensions
      */
-    public function __construct(array $data = null, array $errors = [], array $extensions = [])
+    public function __construct(?array $data = null, array $errors = [], array $extensions = [])
     {
         $this->data = $data;
         $this->errors = $errors;
@@ -159,8 +159,9 @@ class ExecutionResult implements \JsonSerializable
 
         if ($this->errors !== []) {
             $errorsHandler = $this->errorsHandler
-                ?? static fn (array $errors, callable $formatter): array => \array_map($formatter, $errors);
+                ?? static fn (array $errors, callable $formatter): array => array_map($formatter, $errors);
 
+            /** @phpstan-var SerializableErrors */
             $handledErrors = $errorsHandler(
                 $this->errors,
                 FormattedError::prepareFormatter($this->errorFormatter, $debug)

@@ -28,14 +28,14 @@ class SchemaGenerator
     /** @param array<string, int> $config */
     public function __construct(array $config)
     {
-        $this->config = \array_merge($this->config, $config);
+        $this->config = array_merge($this->config, $config);
     }
 
     public function buildSchema(): Schema
     {
         return new Schema(
             (new SchemaConfig())
-            ->setQuery($this->buildQueryType())
+                ->setQuery($this->buildQueryType())
         );
     }
 
@@ -49,13 +49,13 @@ class SchemaGenerator
 
     public function loadType(string $name): ObjectType
     {
-        $tokens = \explode('_', $name);
+        $tokens = explode('_', $name);
         $nestingLevel = (int) $tokens[1];
 
         return $this->createType($nestingLevel, $name);
     }
 
-    protected function createType(int $nestingLevel, string $typeName = null): ObjectType
+    protected function createType(int $nestingLevel, ?string $typeName = null): ObjectType
     {
         if ($this->typeIndex > $this->config['totalTypes']) {
             throw new \Exception("Cannot create new type: there are already {$this->typeIndex} types which exceeds allowed number of {$this->config['totalTypes']} types total");
@@ -63,7 +63,7 @@ class SchemaGenerator
 
         ++$this->typeIndex;
         if ($typeName === null) {
-            $typeName = 'Level_' . $nestingLevel . '_Type' . $this->typeIndex;
+            $typeName = "Level_{$nestingLevel}_Type{$this->typeIndex}";
         }
 
         $type = new ObjectType([
@@ -81,13 +81,13 @@ class SchemaGenerator
     {
         if ($nestingLevel >= $this->config['nestingLevel']) {
             $fieldType = Type::string();
-            $fieldName = 'leafField' . $fieldIndex;
+            $fieldName = "leafField{$fieldIndex}";
         } elseif ($this->typeIndex >= $this->config['totalTypes']) {
-            $fieldType = $this->objectTypes[\array_rand($this->objectTypes)];
-            $fieldName = 'randomTypeField' . $fieldIndex;
+            $fieldType = $this->objectTypes[array_rand($this->objectTypes)];
+            $fieldName = "randomTypeField{$fieldIndex}";
         } else {
             $fieldType = $this->createType($nestingLevel);
-            $fieldName = 'field' . $fieldIndex;
+            $fieldName = "field{$fieldIndex}";
         }
 
         return [$fieldType, $fieldName];
@@ -108,7 +108,7 @@ class SchemaGenerator
 
         for ($index = 0; $index < $this->config['listFieldsPerType']; ++$index) {
             [$type, $name] = $this->getFieldTypeAndName($nestingLevel, $index);
-            $name = 'listOf' . \ucfirst($name);
+            $name = 'listOf' . ucfirst($name);
 
             $fields[] = [
                 'name' => $name,
@@ -136,7 +136,7 @@ class SchemaGenerator
             ],
             'argEnum' => [
                 'type' => new EnumType([
-                    'name' => $typeName . $fieldName . 'Enum',
+                    'name' => "{$typeName}{$fieldName}Enum",
                     'values' => [
                         'ONE',
                         'TWO',
@@ -146,7 +146,7 @@ class SchemaGenerator
             ],
             'argInputObject' => [
                 'type' => new InputObjectType([
-                    'name' => $typeName . $fieldName . 'Input',
+                    'name' => "{$typeName}{$fieldName}Input",
                     'fields' => [
                         'field1' => Type::string(),
                         'field2' => Type::int(),
@@ -157,12 +157,12 @@ class SchemaGenerator
     }
 
     /**
-     * @param mixed                $root
+     * @param mixed $root
      * @param array<string, mixed> $args
-     * @param mixed                $context
+     * @param mixed $context
      */
     public function resolveField($root, array $args, $context, ResolveInfo $resolveInfo): string
     {
-        return $resolveInfo->fieldName . '-value';
+        return "{$resolveInfo->fieldName}-value";
     }
 }

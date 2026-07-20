@@ -9,9 +9,9 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
+use GraphQL\Server\Exception\MissingQueryOrQueryIdParameter;
 use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
-use GraphQL\Server\RequestError;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
@@ -23,7 +23,7 @@ final class QueryExecutionTest extends ServerTestCase
 
     private ServerConfig $config;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $schema = $this->buildSchema();
         $this->config = ServerConfig::create()
@@ -42,12 +42,12 @@ final class QueryExecutionTest extends ServerTestCase
     }
 
     /**
-     * @param array<string, mixed>      $expected
+     * @param array<string, mixed> $expected
      * @param array<string, mixed>|null $variables
      *
      * @throws \Exception
      */
-    private function assertQueryResultEquals(array $expected, string $query, array $variables = null, string $queryId = null): ExecutionResult
+    private function assertQueryResultEquals(array $expected, string $query, ?array $variables = null, ?string $queryId = null): ExecutionResult
     {
         $result = $this->executeQuery($query, $variables, false, $queryId);
         self::assertArraySubset($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
@@ -60,7 +60,7 @@ final class QueryExecutionTest extends ServerTestCase
      *
      * @throws \Exception
      */
-    private function executeQuery(string $query, array $variables = null, bool $readonly = false, string $queryId = null): ExecutionResult
+    private function executeQuery(string $query, ?array $variables = null, bool $readonly = false, ?string $queryId = null): ExecutionResult
     {
         $op = OperationParams::create(
             [
@@ -113,6 +113,8 @@ final class QueryExecutionTest extends ServerTestCase
                     'path' => ['fieldWithSafeException'],
                     'extensions' => [
                         'trace' => [],
+                        'line' => 40,
+                        'file' => __DIR__ . '/ServerTestCase.php',
                     ],
                 ],
             ],
@@ -120,8 +122,6 @@ final class QueryExecutionTest extends ServerTestCase
 
         $result = $this->executeQuery($query)->toArray();
         self::assertArraySubset($expected, $result);
-        self::assertSame(40, $result['errors'][0]['extensions']['line'] ?? null);
-        self::assertStringContainsString('tests/Server/ServerTestCase.php', $result['errors'][0]['extensions']['file'] ?? '');
     }
 
     public function testRethrowUnsafeExceptions(): void
@@ -291,7 +291,7 @@ final class QueryExecutionTest extends ServerTestCase
      *
      * @throws \Exception
      */
-    private function executePersistedQuery(string $queryId, array $variables = null): ExecutionResult
+    private function executePersistedQuery(string $queryId, ?array $variables = null): ExecutionResult
     {
         $op = OperationParams::create([
             'queryId' => $queryId,
@@ -347,7 +347,7 @@ final class QueryExecutionTest extends ServerTestCase
         $result = (new Helper())->executeBatch($this->config, $batch);
 
         self::assertIsArray($result);
-        self::assertCount(\count($qs), $result);
+        self::assertCount(count($qs), $result);
 
         return $result;
     }
@@ -602,7 +602,7 @@ final class QueryExecutionTest extends ServerTestCase
         );
 
         self::assertInstanceOf(
-            RequestError::class,
+            MissingQueryOrQueryIdParameter::class,
             $result->errors[0]->getPrevious()
         );
     }

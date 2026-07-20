@@ -4,16 +4,14 @@
 // php -S localhost:8080 graphql.php
 
 // Try query
-// curl -d '{"query": "query { hello }" }' -H "Content-Type: application/json" http://localhost:8080
+// curl --data '{"query": "query { hello }" }' --header "Content-Type: application/json" http://localhost:8080
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Type\QueryType;
-use GraphQL\Examples\Blog\Types;
 use GraphQL\Server\StandardServer;
-use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 
@@ -24,8 +22,7 @@ DataSource::init();
 // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
 $schema = new Schema(
     (new SchemaConfig())
-    ->setQuery(new QueryType())
-    ->setTypeLoader([Types::class, 'load'])
+        ->setQuery(new QueryType())
 );
 
 // Prepare context that will be available in all field resolvers (as 3rd argument):

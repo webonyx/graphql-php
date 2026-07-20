@@ -22,6 +22,7 @@ use GraphQL\Validator\Rules\NoFragmentCycles;
 use GraphQL\Validator\Rules\NoUndefinedVariables;
 use GraphQL\Validator\Rules\NoUnusedFragments;
 use GraphQL\Validator\Rules\NoUnusedVariables;
+use GraphQL\Validator\Rules\OneOfInputObjectsRule;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
 use GraphQL\Validator\Rules\PossibleTypeExtensions;
@@ -90,15 +91,15 @@ class DocumentValidator
      *
      * @throws \Exception
      *
-     * @return array<int, Error>
+     * @return list<Error>
      *
      * @api
      */
     public static function validate(
         Schema $schema,
         DocumentNode $ast,
-        array $rules = null,
-        TypeInfo $typeInfo = null
+        ?array $rules = null,
+        ?TypeInfo $typeInfo = null
     ): array {
         $rules ??= static::allRules();
 
@@ -138,7 +139,7 @@ class DocumentValidator
     public static function allRules(): array
     {
         if (! self::$initRules) {
-            self::$rules = \array_merge(
+            self::$rules = array_merge(
                 static::defaultRules(),
                 self::securityRules(),
                 self::$rules
@@ -179,6 +180,7 @@ class DocumentValidator
             VariablesInAllowedPosition::class => new VariablesInAllowedPosition(),
             OverlappingFieldsCanBeMerged::class => new OverlappingFieldsCanBeMerged(),
             UniqueInputFieldNames::class => new UniqueInputFieldNames(),
+            OneOfInputObjectsRule::class => new OneOfInputObjectsRule(),
         ];
     }
 
@@ -263,12 +265,12 @@ class DocumentValidator
      *
      * @throws \Exception
      *
-     * @return array<int, Error>
+     * @return list<Error>
      */
     public static function validateSDL(
         DocumentNode $documentAST,
-        Schema $schemaToExtend = null,
-        array $rules = null
+        ?Schema $schemaToExtend = null,
+        ?array $rules = null
     ): array {
         $rules ??= self::sdlRules();
 
@@ -323,6 +325,6 @@ class DocumentValidator
             $messages[] = $error->getMessage();
         }
 
-        return \implode("\n\n", $messages);
+        return implode("\n\n", $messages);
     }
 }

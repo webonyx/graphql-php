@@ -18,7 +18,7 @@ final class BreakingChangesFinderTest extends TestCase
 {
     private ObjectType $queryType;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->queryType = new ObjectType([
             'name' => 'Query',
@@ -1329,16 +1329,21 @@ final class BreakingChangesFinderTest extends TestCase
         $oldSchema = new Schema([]);
 
         $newSchema = new Schema([
-            'directives' => [Directive::skipDirective(), Directive::includeDirective()],
+            'directives' => [Directive::skipDirective(), Directive::includeDirective(), Directive::specifiedByDirective()],
         ]);
 
         $deprecatedDirective = Directive::deprecatedDirective();
+        $oneOfDirective = Directive::oneOfDirective();
 
         self::assertEquals(
             [
                 [
                     'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
                     'description' => "{$deprecatedDirective->name} was removed",
+                ],
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                    'description' => "{$oneOfDirective->name} was removed",
                 ],
             ],
             BreakingChangesFinder::findRemovedDirectives($oldSchema, $newSchema)

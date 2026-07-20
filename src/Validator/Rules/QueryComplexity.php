@@ -5,6 +5,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Values;
+use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
@@ -18,6 +19,7 @@ use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Introspection;
 use GraphQL\Validator\QueryValidationContext;
 
 /**
@@ -40,6 +42,9 @@ class QueryComplexity extends QuerySecurityRule
 
     protected QueryValidationContext $context;
 
+    /** @var array<string, mixed>|null Lazily coerced variable values; reset per document. */
+    private ?array $coercedVariableValues = null;
+
     /** @throws \InvalidArgumentException */
     public function __construct(int $maxQueryComplexity)
     {
@@ -52,6 +57,7 @@ class QueryComplexity extends QuerySecurityRule
         $this->context = $context;
         $this->variableDefs = new NodeList([]);
         $this->fieldNodeAndDefs = new \ArrayObject();
+        $this->coercedVariableValues = null;
 
         return $this->invokeIfNeeded(
             $context,
@@ -70,8 +76,8 @@ class QueryComplexity extends QuerySecurityRule
 
                     return Visitor::skipNode();
                 },
-                NodeKind::OPERATION_DEFINITION => [
-                    'leave' => function (OperationDefinitionNode $operationDefinition) use ($context): void {
+                NodeKind::DOCUMENT => [
+                    'leave' => function (DocumentNode $document) use ($context): void {
                         $errors = $context->getErrors();
 
                         if ($errors !== []) {
@@ -82,18 +88,24 @@ class QueryComplexity extends QuerySecurityRule
                             return;
                         }
 
-                        $this->queryComplexity = $this->fieldComplexity($operationDefinition->selectionSet);
+                        foreach ($document->definitions as $definition) {
+                            if (! $definition instanceof OperationDefinitionNode) {
+                                continue;
+                            }
 
-                        if ($this->queryComplexity <= $this->maxQueryComplexity) {
-                            return;
+                            $this->queryComplexity = $this->fieldComplexity($definition->selectionSet);
+
+                            if ($this->queryComplexity > $this->maxQueryComplexity) {
+                                $context->reportError(
+                                    new Error(static::maxQueryComplexityErrorMessage(
+                                        $this->maxQueryComplexity,
+                                        $this->queryComplexity
+                                    ))
+                                );
+
+                                return;
+                            }
                         }
-
-                        $context->reportError(
-                            new Error(static::maxQueryComplexityErrorMessage(
-                                $this->maxQueryComplexity,
-                                $this->queryComplexity
-                            ))
-                        );
                     },
                 ],
             ]
@@ -117,6 +129,11 @@ class QueryComplexity extends QuerySecurityRule
     {
         switch (true) {
             case $node instanceof FieldNode:
+                // Exclude __schema field and all nested content from complexity calculation
+                if ($node->name->value === Introspection::SCHEMA_FIELD_NAME) {
+                    return 0;
+                }
+
                 if ($this->directiveExcludesField($node)) {
                     return 0;
                 }
@@ -169,49 +186,60 @@ class QueryComplexity extends QuerySecurityRule
     protected function directiveExcludesField(FieldNode $node): bool
     {
         foreach ($node->directives as $directiveNode) {
-            if ($directiveNode->name->value === Directive::DEPRECATED_NAME) {
-                return false;
-            }
-
-            [$errors, $variableValues] = Values::getVariableValues(
-                $this->context->getSchema(),
-                $this->variableDefs,
-                $this->getRawVariableValues()
-            );
-            if ($errors !== null && $errors !== []) {
-                throw new Error(\implode(
-                    "\n\n",
-                    \array_map(
-                        static fn (Error $error): string => $error->getMessage(),
-                        $errors
-                    )
-                ));
-            }
-
             if ($directiveNode->name->value === Directive::INCLUDE_NAME) {
                 $includeArguments = Values::getArgumentValues(
                     Directive::includeDirective(),
                     $directiveNode,
-                    $variableValues
+                    $this->getCoercedVariableValues()
                 );
                 assert(is_bool($includeArguments['if']), 'ensured by query validation');
 
-                return ! $includeArguments['if'];
+                if (! $includeArguments['if']) {
+                    return true;
+                }
             }
 
             if ($directiveNode->name->value === Directive::SKIP_NAME) {
                 $skipArguments = Values::getArgumentValues(
                     Directive::skipDirective(),
                     $directiveNode,
-                    $variableValues
+                    $this->getCoercedVariableValues()
                 );
                 assert(is_bool($skipArguments['if']), 'ensured by query validation');
 
-                return $skipArguments['if'];
+                if ($skipArguments['if']) {
+                    return true;
+                }
             }
         }
 
         return false;
+    }
+
+    /**
+     * Coerce variable values once per document and cache them.
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
+     *
+     * @return array<string, mixed>
+     */
+    private function getCoercedVariableValues(): array
+    {
+        if ($this->coercedVariableValues !== null) {
+            return $this->coercedVariableValues;
+        }
+
+        [$errors, $variableValues] = Values::getVariableValues(
+            $this->context->getSchema(),
+            $this->variableDefs,
+            $this->getRawVariableValues()
+        );
+        if ($errors !== null && $errors !== []) {
+            throw new Error(implode("\n\n", array_map(static fn (Error $error): string => $error->getMessage(), $errors)));
+        }
+
+        return $this->coercedVariableValues = $variableValues ?? [];
     }
 
     /** @return array<string, mixed> */
@@ -221,7 +249,7 @@ class QueryComplexity extends QuerySecurityRule
     }
 
     /** @param array<string, mixed>|null $rawVariableValues */
-    public function setRawVariableValues(array $rawVariableValues = null): void
+    public function setRawVariableValues(?array $rawVariableValues = null): void
     {
         $this->rawVariableValues = $rawVariableValues ?? [];
     }
@@ -248,13 +276,7 @@ class QueryComplexity extends QuerySecurityRule
             );
 
             if (is_array($errors) && $errors !== []) {
-                throw new Error(\implode(
-                    "\n\n",
-                    \array_map(
-                        static fn ($error) => $error->getMessage(),
-                        $errors
-                    )
-                ));
+                throw new Error(implode("\n\n", array_map(static fn ($error) => $error->getMessage(), $errors)));
             }
 
             $args = Values::getArgumentValues($fieldDef, $node, $variableValues);
@@ -268,6 +290,10 @@ class QueryComplexity extends QuerySecurityRule
         return $this->maxQueryComplexity;
     }
 
+    /**
+     * Complexity of the first operation exceeding the defined limit, or, in case no operation
+     * exceeds the limit, complexity of the last defined operation.
+     */
     public function getQueryComplexity(): int
     {
         return $this->queryComplexity;

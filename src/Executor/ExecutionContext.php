@@ -15,6 +15,7 @@ use GraphQL\Type\Schema;
  * and the fragments defined in the query document.
  *
  * @phpstan-import-type FieldResolver from Executor
+ * @phpstan-import-type ArgsMapper from Executor
  */
 class ExecutionContext
 {
@@ -41,17 +42,24 @@ class ExecutionContext
      */
     public $fieldResolver;
 
-    /** @var array<int, Error> */
+    /**
+     * @var callable
+     *
+     * @phpstan-var ArgsMapper
+     */
+    public $argsMapper;
+
+    /** @var list<Error> */
     public array $errors;
 
     public PromiseAdapter $promiseAdapter;
 
     /**
      * @param array<string, FragmentDefinitionNode> $fragments
-     * @param mixed                                 $rootValue
-     * @param mixed                                 $contextValue
-     * @param array<string, mixed>                  $variableValues
-     * @param array<int, Error>                     $errors
+     * @param mixed $rootValue
+     * @param mixed $contextValue
+     * @param array<string, mixed> $variableValues
+     * @param list<Error> $errors
      *
      * @phpstan-param FieldResolver $fieldResolver
      */
@@ -64,6 +72,7 @@ class ExecutionContext
         array $variableValues,
         array $errors,
         callable $fieldResolver,
+        callable $argsMapper,
         PromiseAdapter $promiseAdapter
     ) {
         $this->schema = $schema;
@@ -74,6 +83,7 @@ class ExecutionContext
         $this->variableValues = $variableValues;
         $this->errors = $errors;
         $this->fieldResolver = $fieldResolver;
+        $this->argsMapper = $argsMapper;
         $this->promiseAdapter = $promiseAdapter;
     }
 
