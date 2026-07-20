@@ -14,6 +14,7 @@ use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaExtensionNode;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
@@ -142,7 +143,6 @@ class SchemaExtender
         $this->astBuilder = new ASTDefinitionBuilder(
             $typeDefinitionMap,
             [],
-            // @phpstan-ignore-next-line no idea what is wrong here
             function (string $typeName) use ($schema): Type {
                 $existingType = $schema->getType($typeName);
                 if ($existingType === null) {
@@ -189,6 +189,7 @@ class SchemaExtender
         }
 
         $schemaConfig = (new SchemaConfig())
+            ->setDescription($schemaDef->description->value ?? $schema->description ?? null)
             // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors
             ->setQuery($operationTypes['query'])
             // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors
@@ -226,12 +227,32 @@ class SchemaExtender
         /** @var array<ScalarTypeExtensionNode> $extensionASTNodes */
         $extensionASTNodes = $this->extensionASTNodes($type);
 
+        $specifiedByURL = $type->specifiedByURL;
+        if ($specifiedByURL === null) {
+            foreach ($extensionASTNodes as $extensionNode) {
+                foreach ($extensionNode->directives as $directive) {
+                    if ($directive->name->value !== Directive::SPECIFIED_BY_NAME) {
+                        continue;
+                    }
+
+                    foreach ($directive->arguments as $argument) {
+                        if ($argument->name->value === Directive::URL_ARGUMENT_NAME
+                            && $argument->value instanceof StringValueNode) {
+                            $specifiedByURL = $argument->value->value;
+                            break 3;
+                        }
+                    }
+                }
+            }
+        }
+
         return new CustomScalarType([
             'name' => $type->name,
             'description' => $type->description,
             'serialize' => [$type, 'serialize'],
             'parseValue' => [$type, 'parseValue'],
             'parseLiteral' => [$type, 'parseLiteral'],
+            'specifiedByURL' => $specifiedByURL,
             'astNode' => $type->astNode,
             'extensionASTNodes' => $extensionASTNodes,
         ]);
@@ -285,6 +306,7 @@ class SchemaExtender
             'parseValue' => [$type, 'parseValue'],
             'astNode' => $type->astNode,
             'extensionASTNodes' => $extensionASTNodes,
+            'isOneOf' => $type->isOneOf,
         ]);
     }
 
@@ -373,7 +395,7 @@ class SchemaExtender
      */
     protected function extendUnionPossibleTypes(UnionType $type): array
     {
-        $possibleTypes = \array_map(
+        $possibleTypes = array_map(
             [$this, 'extendNamedType'],
             $type->getTypes()
         );
@@ -404,7 +426,7 @@ class SchemaExtender
      */
     protected function extendImplementedInterfaces(ImplementingType $type): array
     {
-        $interfaces = \array_map(
+        $interfaces = array_map(
             [$this, 'extendNamedType'],
             $type->getInterfaces()
         );
@@ -493,7 +515,7 @@ class SchemaExtender
         $newFieldMap = [];
         $oldFieldMap = $type->getFields();
 
-        foreach (\array_keys($oldFieldMap) as $fieldName) {
+        foreach (array_keys($oldFieldMap) as $fieldName) {
             $field = $oldFieldMap[$fieldName];
 
             $newFieldMap[$fieldName] = [
@@ -564,13 +586,13 @@ class SchemaExtender
     protected function isSpecifiedScalarType(Type $type): bool
     {
         return $type instanceof NamedType
-            && (
-                $type->name === Type::STRING
-                || $type->name === Type::INT
-                || $type->name === Type::FLOAT
-                || $type->name === Type::BOOLEAN
-                || $type->name === Type::ID
-            );
+            && in_array($type->name, [
+                Type::STRING,
+                Type::INT,
+                Type::FLOAT,
+                Type::BOOLEAN,
+                Type::ID,
+            ], true);
     }
 
     /**
@@ -639,7 +661,7 @@ class SchemaExtender
      */
     protected function getMergedDirectives(Schema $schema, array $directiveDefinitions): array
     {
-        $directives = \array_map(
+        $directives = array_map(
             [$this, 'extendDirective'],
             $schema->getDirectives()
         );

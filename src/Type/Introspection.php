@@ -30,14 +30,26 @@ use GraphQL\Utils\Utils;
  * @phpstan-type IntrospectionOptions array{
  *     descriptions?: bool,
  *     directiveIsRepeatable?: bool,
+ *     schemaDescription?: bool,
+ *     specifiedByURL?: bool,
+ *     typeIsOneOf?: bool,
  * }
  *
  * Available options:
  * - descriptions
- *   Whether to include descriptions in the introspection result.
+ *   Include descriptions in the introspection result?
  *   Default: true
  * - directiveIsRepeatable
- *   Whether to include `isRepeatable` flag on directives.
+ *   Include field `isRepeatable` for directives?
+ *   Default: false
+ * - schemaDescription
+ *   Include `description` on the schema?
+ *   Default: false
+ * - specifiedByURL
+ *   Include field `specifiedByURL` for scalar types?
+ *   Default: false
+ * - typeIsOneOf
+ *   Include field `isOneOf` for types?
  *   Default: false
  *
  * @see \GraphQL\Tests\Type\IntrospectionTest
@@ -78,9 +90,12 @@ class Introspection
      */
     public static function getIntrospectionQuery(array $options = []): string
     {
-        $optionsWithDefaults = \array_merge([
+        $optionsWithDefaults = array_merge([
             'descriptions' => true,
             'directiveIsRepeatable' => false,
+            'schemaDescription' => false,
+            'specifiedByURL' => false,
+            'typeIsOneOf' => false,
         ], $options);
 
         $descriptions = $optionsWithDefaults['descriptions']
@@ -89,10 +104,20 @@ class Introspection
         $directiveIsRepeatable = $optionsWithDefaults['directiveIsRepeatable']
             ? 'isRepeatable'
             : '';
+        $schemaDescription = $optionsWithDefaults['schemaDescription']
+            ? $descriptions
+            : '';
+        $specifiedByURL = $optionsWithDefaults['specifiedByURL']
+            ? 'specifiedByURL'
+            : '';
+        $typeIsOneOf = $optionsWithDefaults['typeIsOneOf']
+            ? 'isOneOf'
+            : '';
 
         return <<<GRAPHQL
   query IntrospectionQuery {
     __schema {
+      {$schemaDescription}
       queryType { name }
       mutationType { name }
       subscriptionType { name }
@@ -102,7 +127,7 @@ class Introspection
       directives {
         name
         {$descriptions}
-        args {
+        args(includeDeprecated: true) {
           ...InputValue
         }
         {$directiveIsRepeatable}
@@ -115,6 +140,8 @@ class Introspection
     kind
     name
     {$descriptions}
+    {$specifiedByURL}
+    {$typeIsOneOf}
     fields(includeDeprecated: true) {
       name
       {$descriptions}
@@ -209,7 +236,12 @@ GRAPHQL;
      */
     public static function fromSchema(Schema $schema, array $options = []): array
     {
-        $optionsWithDefaults = \array_merge(['directiveIsRepeatable' => true], $options);
+        $optionsWithDefaults = array_merge([
+            'directiveIsRepeatable' => true,
+            'schemaDescription' => true,
+            'specifiedByURL' => true,
+            'typeIsOneOf' => true,
+        ], $options);
 
         $result = GraphQL::executeQuery(
             $schema,
@@ -228,14 +260,10 @@ GRAPHQL;
     /** @param Type&NamedType $type */
     public static function isIntrospectionType(NamedType $type): bool
     {
-        return \in_array($type->name, self::TYPE_NAMES, true);
+        return in_array($type->name, self::TYPE_NAMES, true);
     }
 
-    /**
-     * @throws InvariantViolation
-     *
-     * @return array<string, Type&NamedType>
-     */
+    /** @return array<string, Type&NamedType> */
     public static function getTypes(): array
     {
         return [
@@ -250,10 +278,9 @@ GRAPHQL;
         ];
     }
 
-    /** @throws InvariantViolation */
     public static function _schema(): ObjectType
     {
-        return self::$cachedInstances[self::SCHEMA_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::SCHEMA_OBJECT_NAME] ??= new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::SCHEMA_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'A GraphQL Schema defines the capabilities of a GraphQL '
@@ -261,6 +288,10 @@ GRAPHQL;
                 . 'the server, as well as the entry points for query, mutation, and '
                 . 'subscription operations.',
             'fields' => [
+                'description' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (Schema $schema): ?string => $schema->description,
+                ],
                 'types' => [
                     'description' => 'A list of all types supported by this server.',
                     'type' => new NonNull(new ListOfType(new NonNull(self::_type()))),
@@ -290,10 +321,9 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function _type(): ObjectType
     {
-        return self::$cachedInstances[self::TYPE_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::TYPE_OBJECT_NAME] ??= new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::TYPE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'The fundamental unit of any GraphQL Schema is the type. There are '
@@ -344,11 +374,17 @@ GRAPHQL;
                         ? $type->description
                         : null,
                 ],
+                'specifiedByURL' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (Type $type): ?string => $type instanceof ScalarType
+                        ? $type->specifiedByURL
+                        : null,
+                ],
                 'fields' => [
                     'type' => Type::listOf(Type::nonNull(self::_field())),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => Type::nonNull(Type::boolean()),
                             'defaultValue' => false,
                         ],
                     ],
@@ -356,8 +392,8 @@ GRAPHQL;
                         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
                             $fields = $type->getVisibleFields();
 
-                            if (! ($args['includeDeprecated'] ?? false)) {
-                                return \array_filter(
+                            if (! $args['includeDeprecated']) {
+                                return array_filter(
                                     $fields,
                                     static fn (FieldDefinition $field): bool => ! $field->isDeprecated()
                                 );
@@ -385,7 +421,7 @@ GRAPHQL;
                     'type' => Type::listOf(Type::nonNull(self::_enumValue())),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => Type::nonNull(Type::boolean()),
                             'defaultValue' => false,
                         ],
                     ],
@@ -393,8 +429,8 @@ GRAPHQL;
                         if ($type instanceof EnumType) {
                             $values = $type->getValues();
 
-                            if (! ($args['includeDeprecated'] ?? false)) {
-                                return \array_filter(
+                            if (! $args['includeDeprecated']) {
+                                return array_filter(
                                     $values,
                                     static fn (EnumValueDefinition $value): bool => ! $value->isDeprecated()
                                 );
@@ -410,7 +446,7 @@ GRAPHQL;
                     'type' => Type::listOf(Type::nonNull(self::_inputValue())),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => Type::nonNull(Type::boolean()),
                             'defaultValue' => false,
                         ],
                     ],
@@ -418,8 +454,8 @@ GRAPHQL;
                         if ($type instanceof InputObjectType) {
                             $fields = $type->getFields();
 
-                            if (! ($args['includeDeprecated'] ?? false)) {
-                                return \array_filter(
+                            if (! $args['includeDeprecated']) {
+                                return array_filter(
                                     $fields,
                                     static fn (InputObjectField $field): bool => ! $field->isDeprecated(),
                                 );
@@ -437,14 +473,19 @@ GRAPHQL;
                         ? $type->getWrappedType()
                         : null,
                 ],
+                'isOneOf' => [
+                    'type' => Type::boolean(),
+                    'resolve' => static fn ($type): ?bool => $type instanceof InputObjectType
+                        ? $type->isOneOf()
+                        : null,
+                ],
             ],
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function _typeKind(): EnumType
     {
-        return self::$cachedInstances[self::TYPE_KIND_ENUM_NAME] ??= new EnumType([
+        return self::$cachedInstances[self::TYPE_KIND_ENUM_NAME] ??= new EnumType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::TYPE_KIND_ENUM_NAME,
             'isIntrospection' => true,
             'description' => 'An enum describing what kind of type a given `__Type` is.',
@@ -485,10 +526,9 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function _field(): ObjectType
     {
-        return self::$cachedInstances[self::FIELD_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::FIELD_OBJECT_NAME] ??= new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::FIELD_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'Object and Interface types are described by a list of Fields, each of '
@@ -506,15 +546,15 @@ GRAPHQL;
                     'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
                     'args' => [
                         'includeDeprecated' => [
-                            'type' => Type::boolean(),
+                            'type' => Type::nonNull(Type::boolean()),
                             'defaultValue' => false,
                         ],
                     ],
                     'resolve' => static function (FieldDefinition $field, $args): array {
                         $values = $field->args;
 
-                        if (! ($args['includeDeprecated'] ?? false)) {
-                            return \array_filter(
+                        if (! $args['includeDeprecated']) {
+                            return array_filter(
                                 $values,
                                 static fn (Argument $value): bool => ! $value->isDeprecated(),
                             );
@@ -539,10 +579,9 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function _inputValue(): ObjectType
     {
-        return self::$cachedInstances[self::INPUT_VALUE_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::INPUT_VALUE_OBJECT_NAME] ??= new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::INPUT_VALUE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'Arguments provided to Fields or Directives and the input fields of an '
@@ -597,10 +636,9 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function _enumValue(): ObjectType
     {
-        return self::$cachedInstances[self::ENUM_VALUE_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::ENUM_VALUE_OBJECT_NAME] ??= new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::ENUM_VALUE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'One possible value for a given Enum. Enum values are unique values, not '
@@ -627,10 +665,9 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function _directive(): ObjectType
     {
-        return self::$cachedInstances[self::DIRECTIVE_OBJECT_NAME] ??= new ObjectType([
+        return self::$cachedInstances[self::DIRECTIVE_OBJECT_NAME] ??= new ObjectType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::DIRECTIVE_OBJECT_NAME,
             'isIntrospection' => true,
             'description' => 'A Directive provides a way to describe alternate runtime execution and '
@@ -660,16 +697,32 @@ GRAPHQL;
                 ],
                 'args' => [
                     'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                    'resolve' => static fn (Directive $directive): array => $directive->args,
+                    'args' => [
+                        'includeDeprecated' => [
+                            'type' => Type::nonNull(Type::boolean()),
+                            'defaultValue' => false,
+                        ],
+                    ],
+                    'resolve' => static function (Directive $directive, $args): array {
+                        $values = $directive->args;
+
+                        if (! $args['includeDeprecated']) {
+                            return array_filter(
+                                $values,
+                                static fn (Argument $value): bool => ! $value->isDeprecated(),
+                            );
+                        }
+
+                        return $values;
+                    },
                 ],
             ],
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function _directiveLocation(): EnumType
     {
-        return self::$cachedInstances[self::DIRECTIVE_LOCATION_ENUM_NAME] ??= new EnumType([
+        return self::$cachedInstances[self::DIRECTIVE_LOCATION_ENUM_NAME] ??= new EnumType([ // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
             'name' => self::DIRECTIVE_LOCATION_ENUM_NAME,
             'isIntrospection' => true,
             'description' => 'A Directive can be adjacent to many parts of the GraphQL language, a '
@@ -755,7 +808,6 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function schemaMetaFieldDef(): FieldDefinition
     {
         return self::$cachedInstances[self::SCHEMA_FIELD_NAME] ??= new FieldDefinition([
@@ -767,7 +819,6 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function typeMetaFieldDef(): FieldDefinition
     {
         return self::$cachedInstances[self::TYPE_FIELD_NAME] ??= new FieldDefinition([
@@ -784,7 +835,6 @@ GRAPHQL;
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function typeNameMetaFieldDef(): FieldDefinition
     {
         return self::$cachedInstances[self::TYPE_NAME_FIELD_NAME] ??= new FieldDefinition([

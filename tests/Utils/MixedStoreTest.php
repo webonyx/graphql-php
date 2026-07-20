@@ -11,37 +11,38 @@ final class MixedStoreTest extends TestCase
     /** @var MixedStore<mixed> */
     private MixedStore $mixedStore;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->mixedStore = new MixedStore();
     }
 
-    public function testAcceptsNullKeys(): void
+    /**
+     * @dataProvider possibleValues
+     *
+     * @param mixed $value anything goes
+     */
+    public function testAcceptsNullKeys($value): void
     {
-        foreach ($this->possibleValues() as $value) {
-            $this->assertAcceptsKeyValue(null, $value);
-        }
+        $this->assertAcceptsKeyValue(null, $value);
     }
 
-    /** @return array<int, mixed> */
-    public function possibleValues(): array
+    /** @return iterable<array{mixed}> */
+    public static function possibleValues(): iterable
     {
+        yield [null];
+        yield [false];
+        yield [true];
+        yield [''];
+        yield ['0'];
+        yield ['1'];
+        yield ['a'];
+        yield [[]];
+        yield [new \stdClass()];
+        yield [static function (): void {}];
+
         /** @var MixedStore<mixed> $mixedStore */
         $mixedStore = new MixedStore();
-
-        return [
-            null,
-            false,
-            true,
-            '',
-            '0',
-            '1',
-            'a',
-            [],
-            new \stdClass(),
-            static function (): void {},
-            $mixedStore,
-        ];
+        yield [$mixedStore];
     }
 
     /**
@@ -83,68 +84,77 @@ final class MixedStoreTest extends TestCase
         self::assertFalse(isset($this->mixedStore[$key]), $err);
         $this->mixedStore[$key] = $value;
         self::assertTrue(isset($this->mixedStore[$key]), $err);
-        self::assertEquals((bool) $value, (bool) $this->mixedStore[$key], $err);
+        self::assertSame((bool) $value, (bool) $this->mixedStore[$key], $err);
         self::assertSame($value, $this->mixedStore[$key], $err);
         unset($this->mixedStore[$key]);
         self::assertFalse(isset($this->mixedStore[$key]), $err);
     }
 
-    public function testAcceptsBoolKeys(): void
+    /**
+     * @dataProvider possibleValues
+     *
+     * @param mixed $value anything goes
+     */
+    public function testAcceptsBoolKeys($value): void
     {
-        foreach ($this->possibleValues() as $value) {
-            $this->assertAcceptsKeyValue(false, $value);
-        }
-
-        foreach ($this->possibleValues() as $value) {
-            $this->assertAcceptsKeyValue(true, $value);
-        }
+        $this->assertAcceptsKeyValue(false, $value);
+        $this->assertAcceptsKeyValue(true, $value);
     }
 
-    public function testAcceptsIntKeys(): void
+    /**
+     * @dataProvider possibleValues
+     *
+     * @param mixed $value anything goes
+     */
+    public function testAcceptsIntKeys($value): void
     {
-        foreach ($this->possibleValues() as $value) {
-            $this->assertAcceptsKeyValue(-100000, $value);
-            $this->assertAcceptsKeyValue(-1, $value);
-            $this->assertAcceptsKeyValue(0, $value);
-            $this->assertAcceptsKeyValue(1, $value);
-            $this->assertAcceptsKeyValue(1000000, $value);
-        }
+        $this->assertAcceptsKeyValue(-100000, $value);
+        $this->assertAcceptsKeyValue(-1, $value);
+        $this->assertAcceptsKeyValue(0, $value);
+        $this->assertAcceptsKeyValue(1, $value);
+        $this->assertAcceptsKeyValue(1000000, $value);
     }
 
-    public function testAcceptsFloatKeys(): void
+    /**
+     * @dataProvider possibleValues
+     *
+     * @param mixed $value anything goes
+     */
+    public function testAcceptsFloatKeys($value): void
     {
-        foreach ($this->possibleValues() as $value) {
-            $this->assertAcceptsKeyValue(-100000.5, $value);
-            $this->assertAcceptsKeyValue(-1.6, $value);
-            $this->assertAcceptsKeyValue(-0.0001, $value);
-            $this->assertAcceptsKeyValue(0.0000, $value);
-            $this->assertAcceptsKeyValue(0.0001, $value);
-            $this->assertAcceptsKeyValue(1.6, $value);
-            $this->assertAcceptsKeyValue(1000000.5, $value);
-        }
+        $this->assertAcceptsKeyValue(-100000.5, $value);
+        $this->assertAcceptsKeyValue(-1.6, $value);
+        $this->assertAcceptsKeyValue(-0.0001, $value);
+        $this->assertAcceptsKeyValue(0.0000, $value);
+        $this->assertAcceptsKeyValue(0.0001, $value);
+        $this->assertAcceptsKeyValue(1.6, $value);
+        $this->assertAcceptsKeyValue(1000000.5, $value);
     }
 
-    public function testAcceptsArrayKeys(): void
+    /**
+     * @dataProvider possibleValues
+     *
+     * @param mixed $value anything goes
+     */
+    public function testAcceptsArrayKeys($value): void
     {
-        foreach ($this->possibleValues() as $value) {
-            $this->assertAcceptsKeyValue([], $value);
-            $this->assertAcceptsKeyValue([null], $value);
-            $this->assertAcceptsKeyValue([[]], $value);
-            $this->assertAcceptsKeyValue([new \stdClass()], $value);
-            $this->assertAcceptsKeyValue(['a', 'b'], $value);
-            $this->assertAcceptsKeyValue(['a' => 'b'], $value);
-        }
+        $this->assertAcceptsKeyValue([], $value);
+        $this->assertAcceptsKeyValue([null], $value);
+        $this->assertAcceptsKeyValue([[]], $value);
+        $this->assertAcceptsKeyValue([new \stdClass()], $value);
+        $this->assertAcceptsKeyValue(['a', 'b'], $value);
+        $this->assertAcceptsKeyValue(['a' => 'b'], $value);
     }
 
-    public function testAcceptsObjectKeys(): void
+    /**
+     * @dataProvider possibleValues
+     *
+     * @param mixed $value anything goes
+     */
+    public function testAcceptsObjectKeys($value): void
     {
-        foreach ($this->possibleValues() as $value) {
-            $this->assertAcceptsKeyValue(new \stdClass(), $value);
-            $this->assertAcceptsKeyValue(new MixedStore(), $value);
-            $this->assertAcceptsKeyValue(
-                static function (): void {},
-                $value
-            );
-        }
+        $this->assertAcceptsKeyValue(new \stdClass(), $value);
+        $this->assertAcceptsKeyValue(new MixedStore(), $value);
+        $this->assertAcceptsKeyValue(static function (): void {}, $value);
     }
 }

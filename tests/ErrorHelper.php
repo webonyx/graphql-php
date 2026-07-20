@@ -22,7 +22,7 @@ final class ErrorHelper
         $formatted = ['message' => $error];
 
         if ($locations !== []) {
-            $formatted['locations'] = \array_map(
+            $formatted['locations'] = array_map(
                 static fn (SourceLocation $loc): array => $loc->toArray(),
                 $locations
             );

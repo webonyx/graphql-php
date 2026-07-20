@@ -4,8 +4,7 @@ namespace GraphQL\Tests\Executor\TestClasses;
 
 final class Human
 {
-    /** @var string */
-    public $name;
+    public string $name;
 
     public function __construct(string $name)
     {

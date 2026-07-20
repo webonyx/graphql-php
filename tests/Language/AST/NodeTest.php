@@ -61,7 +61,7 @@ final class NodeTest extends TestCase
         ]);
 
         self::assertJsonStringEqualsJsonString($json, json_encode($node, JSON_THROW_ON_ERROR));
-        self::assertEquals($node, AST::fromArray(\json_decode($json, true)));
+        self::assertEquals($node, AST::fromArray(json_decode($json, true)));
     }
 
     public function testToString(): void

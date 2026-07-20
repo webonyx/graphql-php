@@ -34,10 +34,10 @@ final class QueryDepthTest extends QuerySecurityTestCase
                 ? $human
                 : $dog;
 
-            $part = \sprintf($part, ($isOdd ? ' owner ' : '') . $template);
+            $part = sprintf($part, ($isOdd ? ' owner ' : '') . $template);
         }
 
-        return \str_replace('%s', '', $part);
+        return str_replace('%s', '', $part);
     }
 
     /**

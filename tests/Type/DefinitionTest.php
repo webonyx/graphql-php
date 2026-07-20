@@ -55,7 +55,7 @@ final class DefinitionTest extends TestCaseBase
 
     public CustomScalarType $scalarType;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->objectType = new ObjectType(['name' => 'Object', 'fields' => ['tmp' => Type::string()]]);
         $this->interfaceType = new InterfaceType(['name' => 'Interface', 'fields' => ['irrelevant' => Type::int()]]);
@@ -276,7 +276,7 @@ final class DefinitionTest extends TestCaseBase
 
         $actual = $EnumTypeWithNullishValue->getValues();
 
-        self::assertCount(\count($expected), $actual);
+        self::assertCount(count($expected), $actual);
         self::assertArraySubset($expected[0], (array) $actual[0]);
         self::assertArraySubset($expected[1], (array) $actual[1]);
     }
@@ -714,7 +714,9 @@ final class DefinitionTest extends TestCaseBase
             ],
         ]);
 
-        $schema = new Schema(['query' => $query]);
+        $schema = new Schema([
+            'query' => $query,
+        ]);
 
         self::assertSame($interface, $schema->getType('SomeInterface'));
         self::assertTrue($called);
@@ -746,7 +748,9 @@ final class DefinitionTest extends TestCaseBase
             'fields' => ['test' => $interface],
         ]);
 
-        $schema = new Schema(['query' => $query]);
+        $schema = new Schema([
+            'query' => $query,
+        ]);
 
         /** @var InterfaceType $SomeInterface */
         $SomeInterface = $schema->getType('SomeInterface');
@@ -1646,7 +1650,9 @@ final class DefinitionTest extends TestCaseBase
             'Schema must contain unique named types but contains multiple types named "String" '
             . '(see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
         );
-        $schema = new Schema(['query' => $QueryType]);
+        $schema = new Schema([
+            'query' => $QueryType,
+        ]);
         $schema->assertValid();
     }
 
@@ -1689,7 +1695,9 @@ final class DefinitionTest extends TestCaseBase
             ],
         ]);
 
-        $schema = new Schema(['query' => $QueryType]);
+        $schema = new Schema([
+            'query' => $QueryType,
+        ]);
 
         $this->expectExceptionObject(new InvariantViolation(
             'Schema must contain unique named types but contains multiple types named "SameName" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'
@@ -1724,7 +1732,9 @@ final class DefinitionTest extends TestCaseBase
             ],
         ]);
 
-        $schema = new Schema(['query' => $QueryType]);
+        $schema = new Schema([
+            'query' => $QueryType,
+        ]);
 
         $this->expectExceptionObject(new InvariantViolation(
             'Schema must contain unique named types but contains multiple types named "SameName" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).'

@@ -212,6 +212,49 @@ type Hello {
         self::assertSame(6, $typeToken->line);
     }
 
+    /** @see it('parses schema with description string') */
+    public function testParsesSchemaWithDescriptionString(): void
+    {
+        $body = '
+"Description"
+schema {
+  query: Foo
+}';
+        $doc = Parser::parse($body);
+        $loc = static fn (int $start, int $end): array => Location::create($start, $end)->toArray();
+
+        $expected = [
+            'kind' => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind' => NodeKind::SCHEMA_DEFINITION,
+                    'directives' => [],
+                    'operationTypes' => [
+                        [
+                            'kind' => NodeKind::OPERATION_TYPE_DEFINITION,
+                            'operation' => 'query',
+                            'type' => [
+                                'kind' => NodeKind::NAMED_TYPE,
+                                'name' => $this->nameNode('Foo', $loc(33, 36)),
+                                'loc' => $loc(33, 36),
+                            ],
+                            'loc' => $loc(26, 36),
+                        ],
+                    ],
+                    'loc' => $loc(1, 38),
+                    'description' => [
+                        'kind' => NodeKind::STRING,
+                        'value' => 'Description',
+                        'loc' => $loc(1, 14),
+                        'block' => false,
+                    ],
+                ],
+            ],
+            'loc' => $loc(0, 38),
+        ];
+        self::assertEquals($expected, $doc->toArray());
+    }
+
     /** @see it('Simple extension') */
     public function testSimpleExtension(): void
     {

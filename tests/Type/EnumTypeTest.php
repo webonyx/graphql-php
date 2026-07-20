@@ -33,7 +33,7 @@ final class EnumTypeTest extends TestCase
     /** @var \ArrayObject<string, int> */
     private \ArrayObject $Complex2;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $ColorType = new EnumType([
             'name' => 'Color',
@@ -304,7 +304,7 @@ final class EnumTypeTest extends TestCase
         $result = GraphQL::executeQuery($this->schema, $query, null, null, $vars);
         self::assertCount(1, $result->errors);
 
-        if (\is_array($err)) {
+        if (is_array($err)) {
             self::assertSame(
                 $err['message'],
                 $result->errors[0]->getMessage()
@@ -651,7 +651,9 @@ final class EnumTypeTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $QueryType]);
+        $schema = new Schema([
+            'query' => $QueryType,
+        ]);
 
         self::assertSame(0, $called, 'Should not eagerly call enum values during schema construction');
 

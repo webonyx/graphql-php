@@ -47,7 +47,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     {
         $item = $this->nodes[$offset];
 
-        if (\is_array($item)) {
+        if (is_array($item)) {
             // @phpstan-ignore-next-line not really possible to express the correctness of this in PHP
             return $this->nodes[$offset] = AST::fromArray($item);
         }
@@ -67,7 +67,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value): void
     {
-        if (\is_array($value)) {
+        if (is_array($value)) {
             /** @phpstan-var T $value */
             $value = AST::fromArray($value);
         }
@@ -98,20 +98,24 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
 
     public function count(): int
     {
-        return \count($this->nodes);
+        return count($this->nodes);
     }
 
     /**
      * Remove a portion of the NodeList and replace it with something else.
      *
-     * @param T|array<T>|null $replacement
+     * @param T|iterable<T>|null $replacement
      *
      * @phpstan-return NodeList<T> the NodeList with the extracted elements
      */
     public function splice(int $offset, int $length, $replacement = null): NodeList
     {
+        if (is_iterable($replacement) && ! is_array($replacement)) {
+            $replacement = iterator_to_array($replacement);
+        }
+
         return new NodeList(
-            \array_splice($this->nodes, $offset, $length, $replacement)
+            array_splice($this->nodes, $offset, $length, $replacement)
         );
     }
 
@@ -122,11 +126,11 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function merge(iterable $list): NodeList
     {
-        if (! \is_array($list)) {
-            $list = \iterator_to_array($list);
+        if (! is_array($list)) {
+            $list = iterator_to_array($list);
         }
 
-        return new NodeList(\array_merge($this->nodes, $list));
+        return new NodeList(array_merge($this->nodes, $list));
     }
 
     /** Resets the keys of the stored nodes to contiguous numeric indexes. */
@@ -145,8 +149,9 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function cloneDeep(): self
     {
-        /** @var static<T> $cloned */
-        $cloned = new static([]);
+        /** @var array<T> $empty */
+        $empty = [];
+        $cloned = new static($empty);
         foreach ($this->getIterator() as $key => $node) {
             $cloned[$key] = $node->cloneDeep();
         }

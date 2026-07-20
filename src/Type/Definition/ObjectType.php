@@ -19,17 +19,15 @@ use GraphQL\Utils\Utils;
  * Example:
  *
  *     $AddressType = new ObjectType([
- *       'name' => 'Address',
- *       'fields' => [
- *         'street' => [ 'type' => GraphQL\Type\Definition\Type::string() ],
- *         'number' => [ 'type' => GraphQL\Type\Definition\Type::int() ],
- *         'formatted' => [
- *           'type' => GraphQL\Type\Definition\Type::string(),
- *           'resolve' => function($obj) {
- *             return $obj->number . ' ' . $obj->street;
- *           }
- *         ]
- *       ]
+ *         'name' => 'Address',
+ *         'fields' => [
+ *             'street' => GraphQL\Type\Definition\Type::string(),
+ *             'number' => GraphQL\Type\Definition\Type::int(),
+ *             'formatted' => [
+ *                 'type' => GraphQL\Type\Definition\Type::string(),
+ *                 'resolve' => fn (AddressModel $address): string => "{$address->number} {$address->street}",
+ *             ],
+ *         ],
  *     ]);
  *
  * When two types need to refer to each other, or a type needs to refer to
@@ -40,13 +38,11 @@ use GraphQL\Utils\Utils;
  *
  *     $PersonType = null;
  *     $PersonType = new ObjectType([
- *       'name' => 'Person',
- *       'fields' => function() use (&$PersonType) {
- *          return [
- *              'name' => ['type' => GraphQL\Type\Definition\Type::string() ],
- *              'bestFriend' => [ 'type' => $PersonType ],
- *          ];
- *        }
+ *         'name' => 'Person',
+ *         'fields' => fn (): array => [
+ *             'name' => GraphQL\Type\Definition\Type::string(),
+ *             'bestFriend' => $PersonType,
+ *         ],
  *     ]);
  *
  * @phpstan-import-type FieldResolver from Executor
@@ -94,9 +90,9 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     public array $config;
 
     /**
-     * @throws InvariantViolation
-     *
      * @phpstan-param ObjectConfig $config
+     *
+     * @throws InvariantViolation
      */
     public function __construct(array $config)
     {
@@ -117,7 +113,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      */
     public static function assertObjectType($type): self
     {
-        if (! ($type instanceof self)) {
+        if (! $type instanceof self) {
             $notObjectType = Utils::printSafe($type);
             throw new InvariantViolation("Expected {$notObjectType} to be a GraphQL Object type.");
         }
@@ -143,7 +139,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     }
 
     /**
-     * Validates type config and throws if one of type options is invalid.
+     * Validates type config and throws if one of the type options is invalid.
      * Note: this method is shallow, it won't validate object fields and their arguments.
      *
      * @throws Error
@@ -154,8 +150,8 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         Utils::assertValidName($this->name);
 
         $isTypeOf = $this->config['isTypeOf'] ?? null;
-        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
-        if (isset($isTypeOf) && ! \is_callable($isTypeOf)) {
+        // @phpstan-ignore-next-line unnecessary according to types, but can happen during runtime
+        if (isset($isTypeOf) && ! is_callable($isTypeOf)) {
             $notCallable = Utils::printSafe($isTypeOf);
             throw new InvariantViolation("{$this->name} must provide \"isTypeOf\" as null or a callable, but got: {$notCallable}.");
         }

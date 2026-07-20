@@ -1,0 +1,32 @@
+{
+  "tools": {
+    "claudeCode": {
+      "enabled": true,
+      "versionControl": false
+    },
+    "opencode": {
+      "enabled": false,
+      "versionControl": false
+    },
+    "cursor": {
+      "enabled": false,
+      "versionControl": false
+    },
+    "copilot": {
+      "enabled": false,
+      "versionControl": false
+    },
+    "windsurf": {
+      "enabled": false,
+      "versionControl": false
+    },
+    "gemini": {
+      "enabled": false,
+      "versionControl": false
+    },
+    "codex": {
+      "enabled": true,
+      "versionControl": false
+    }
+  }
+}
