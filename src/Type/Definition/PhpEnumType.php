@@ -68,9 +68,9 @@ class PhpEnumType extends EnumType
         if (is_a($this->enumClass, \BackedEnum::class, true)) {
             try {
                 $instance = $this->enumClass::from($value);
-            } catch (\ValueError|\TypeError $_) {
+            } catch (\ValueError|\TypeError $error) {
                 $notEnumInstanceOrValue = Utils::printSafe($value);
-                throw new SerializationError("Cannot serialize value as enum: {$notEnumInstanceOrValue}, expected instance or valid value of {$this->enumClass}.");
+                throw new SerializationError("Cannot serialize value as enum: {$notEnumInstanceOrValue}, expected instance or valid value of {$this->enumClass}.", $error->getCode(), $error);
             }
 
             return $instance->name;

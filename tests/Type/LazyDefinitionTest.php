@@ -53,7 +53,7 @@ final class LazyDefinitionTest extends TestCaseBase
         $objType = new ObjectType([
             'name' => 'SomeObject',
             'fields' => [
-                'f' => new class() {
+                'f' => new class {
                     /**
                      * @throws InvariantViolation
                      *

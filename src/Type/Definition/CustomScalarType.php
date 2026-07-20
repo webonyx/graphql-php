@@ -20,6 +20,7 @@ use GraphQL\Utils\Utils;
  *   parseValue: callable(mixed): mixed,
  *   parseLiteral: callable(ValueNode&Node, array<string, mixed>|null): mixed,
  *   directives?: array<DirectiveNode>|null,
+ *   specifiedByURL?: string|null,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }
@@ -30,6 +31,7 @@ use GraphQL\Utils\Utils;
  *   parseValue?: callable(mixed): mixed,
  *   parseLiteral?: callable(ValueNode&Node, array<string, mixed>|null): mixed,
  *   directives?: array<DirectiveNode>|null,
+ *   specifiedByURL?: string|null,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }

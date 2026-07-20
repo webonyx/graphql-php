@@ -33,16 +33,13 @@ use GraphQL\Validator\DocumentValidator;
  * }
  *
  * - assumeValid:
- *     When building a schema from a GraphQL service's introspection result, it
- *     might be safe to assume the schema is valid. Set to true to assume the
- *     produced schema is valid.
- *
- *     Default: false
+ *   When building a schema from a GraphQL service's introspection result, it might be safe to assume the schema is valid.
+ *   Set to true to assume the produced schema is valid.
+ *   Default: false
  *
  * - assumeValidSDL:
- *     Set to true to assume the SDL is valid.
- *
- *     Default: false
+ *   Set to true to assume the SDL is valid.
+ *   Default: false
  *
  * @see \GraphQL\Tests\Utils\BuildSchemaTest
  */
@@ -207,7 +204,6 @@ class BuildSchema
         $definitionBuilder = new ASTDefinitionBuilder(
             $typeDefinitionsMap,
             $typeExtensionsMap,
-            // @phpstan-ignore-next-line TODO add union type when available
             static function (string $typeName): Type {
                 throw self::unknownType($typeName);
             },
@@ -234,6 +230,9 @@ class BuildSchema
         }
         if (! isset($directivesByName['deprecated'])) {
             $directives[] = Directive::deprecatedDirective();
+        }
+        if (! isset($directivesByName['specifiedBy'])) {
+            $directives[] = Directive::specifiedByDirective();
         }
         if (! isset($directivesByName['oneOf'])) {
             $directives[] = Directive::oneOfDirective();

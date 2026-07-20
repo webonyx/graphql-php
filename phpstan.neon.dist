@@ -52,6 +52,31 @@ parameters:
         - message: "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node\\:\\:\\$.+~"
           path: tests/Language/VisitorTest.php
 
+        # Ignore not installed Amp v2 packages and old php version <8.1 for AMP v3 examples
+        - message: "~(Amp\\\\.* (not found|given)|(unknown class|has invalid type|has invalid bound type|invalid return type|Result of method|Method|Cannot instantiate interface) Amp\\\\)~"
+          reportUnmatched: false
+          paths:
+            - tests/Executor/Promise/AmpFutureAdapterTest.php
+            - tests/Executor/Promise/AmpPromiseAdapterTest.php
+            - src/Executor/Promise
+            - examples/04-async-php
+
+        # The v2 AmpPromiseAdapter wraps concrete Amp\Success/Amp\Failure; against the
+        # invariant Amp\Promise<mixed> binding PHPStan reports a return mismatch (as
+        # Amp\Success<mixed> on a v2 install, or bare Amp\Success when v2 is absent on a
+        # v3 install). Tolerate either form / either state.
+        - message: "~Method GraphQL\\\\Executor\\\\Promise\\\\Adapter\\\\AmpPromiseAdapter::create(Fulfilled|Rejected)\\(\\) should return GraphQL\\\\Executor\\\\Promise\\\\Promise<Amp\\\\Promise<mixed>> but returns GraphQL\\\\Executor\\\\Promise\\\\Promise<(Amp\\\\Promise<mixed>\\|)?Amp\\\\(Success|Failure)(<mixed>)?(\\|Amp\\\\Promise<mixed>)?>~"
+          reportUnmatched: false
+          path: src/Executor/Promise/Adapter/AmpPromiseAdapter.php
+
+        # AmpFutureAdapter::createFulfilled()/createRejected() build a concrete Amp\Future
+        # whose generic arg PHPStan infers narrower than the invariant Amp\Future<mixed>
+        # binding. Only reported when amphp/amp v3 is installed (absent under v2), so
+        # tolerate either state.
+        - message: "~Method GraphQL\\\\Executor\\\\Promise\\\\Adapter\\\\AmpFutureAdapter::create(Fulfilled|Rejected)\\(\\) should return GraphQL\\\\Executor\\\\Promise\\\\Promise<Amp\\\\Future<mixed>> but returns GraphQL\\\\Executor\\\\Promise\\\\Promise<Amp\\\\Future(<[a-z]+>)?>~"
+          reportUnmatched: false
+          path: src/Executor/Promise/Adapter/AmpFutureAdapter.php
+
 includes:
     - phpstan-baseline.neon
     - phpstan/include-by-php-version.php

@@ -460,14 +460,14 @@ final class AbstractTest extends TestCase
             ],
         ];
         yield [
-            new class() {
+            new class {
                 public string $__typename = 'Dog';
 
                 public string $name = 'Odie';
 
                 public bool $woofs = true;
             },
-            new class() {
+            new class {
                 public string $__typename = 'Cat';
 
                 public string $name = 'Garfield';

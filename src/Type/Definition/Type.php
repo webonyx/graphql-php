@@ -4,10 +4,11 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Introspection;
+use GraphQL\Type\SchemaConfig;
 use GraphQL\Utils\Utils;
 
 /**
- * Registry of standard GraphQL types and base class for all other types.
+ * Registry of built-in GraphQL types and base class for all other types.
  */
 abstract class Type implements \JsonSerializable
 {
@@ -17,7 +18,8 @@ abstract class Type implements \JsonSerializable
     public const BOOLEAN = 'Boolean';
     public const ID = 'ID';
 
-    public const STANDARD_TYPE_NAMES = [
+    /** @var list<string> */
+    public const BUILT_IN_SCALAR_NAMES = [
         self::INT,
         self::FLOAT,
         self::STRING,
@@ -25,65 +27,79 @@ abstract class Type implements \JsonSerializable
         self::ID,
     ];
 
+    /**
+     * @deprecated use {@see Type::BUILT_IN_SCALAR_NAMES}
+     *
+     * @var list<string>
+     */
+    public const STANDARD_TYPE_NAMES = self::BUILT_IN_SCALAR_NAMES;
+
+    /**
+     * Names of all built-in types: built-in scalars and introspection types.
+     *
+     * @see Type::BUILT_IN_SCALAR_NAMES for just the built-in scalar names.
+     *
+     * @var list<string>
+     */
     public const BUILT_IN_TYPE_NAMES = [
-        ...self::STANDARD_TYPE_NAMES,
+        ...self::BUILT_IN_SCALAR_NAMES,
         ...Introspection::TYPE_NAMES,
     ];
 
     /** @var array<string, ScalarType>|null */
-    protected static ?array $standardTypes;
+    protected static ?array $builtInScalars;
 
     /** @var array<string, Type&NamedType>|null */
     protected static ?array $builtInTypes;
 
     /**
-     * Returns the registered or default standard Int type.
+     * Returns the built-in Int scalar type.
      *
      * @api
      */
     public static function int(): ScalarType
     {
-        return static::$standardTypes[self::INT] ??= new IntType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
+        return static::$builtInScalars[self::INT] ??= new IntType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     /**
-     * Returns the registered or default standard Float type.
+     * Returns the built-in Float scalar type.
      *
      * @api
      */
     public static function float(): ScalarType
     {
-        return static::$standardTypes[self::FLOAT] ??= new FloatType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
+        return static::$builtInScalars[self::FLOAT] ??= new FloatType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     /**
-     * Returns the registered or default standard String type.
+     * Returns the built-in String scalar type.
      *
      * @api
      */
     public static function string(): ScalarType
     {
-        return static::$standardTypes[self::STRING] ??= new StringType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
+        return static::$builtInScalars[self::STRING] ??= new StringType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     /**
-     * Returns the registered or default standard Boolean type.
+     * Returns the built-in Boolean scalar type.
      *
      * @api
      */
     public static function boolean(): ScalarType
     {
-        return static::$standardTypes[self::BOOLEAN] ??= new BooleanType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
+        return static::$builtInScalars[self::BOOLEAN] ??= new BooleanType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     /**
-     * Returns the registered or default standard ID type.
+     * Returns the built-in ID scalar type.
      *
      * @api
      */
     public static function id(): ScalarType
     {
-        return static::$standardTypes[self::ID] ??= new IDType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
+        return static::$builtInScalars[self::ID] ??= new IDType(); // @phpstan-ignore missingType.checkedException (static configuration is known to be correct)
     }
 
     /**
@@ -119,7 +135,9 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * Returns all builtin in types including base scalar and introspection types.
+     * Returns all built-in types: built-in scalars and introspection types.
+     *
+     * @api
      *
      * @return array<string, Type&NamedType>
      */
@@ -127,16 +145,18 @@ abstract class Type implements \JsonSerializable
     {
         return self::$builtInTypes ??= array_merge(
             Introspection::getTypes(),
-            self::getStandardTypes()
+            self::builtInScalars()
         );
     }
 
     /**
-     * Returns all builtin scalar types.
+     * Returns all built-in scalar types.
+     *
+     * @api
      *
      * @return array<string, ScalarType>
      */
-    public static function getStandardTypes(): array
+    public static function builtInScalars(): array
     {
         return [
             self::INT => static::int(),
@@ -148,7 +168,21 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * Allows partially or completely overriding the standard types.
+     * Returns all built-in scalar types.
+     *
+     * @deprecated use {@see Type::builtInScalars()}
+     *
+     * @return array<string, ScalarType>
+     */
+    public static function getStandardTypes(): array
+    {
+        return self::builtInScalars();
+    }
+
+    /**
+     * Allows partially or completely overriding the standard types globally.
+     *
+     * @deprecated prefer per-schema scalar overrides via {@see SchemaConfig::$types} or {@see SchemaConfig::$typeLoader}
      *
      * @param array<ScalarType> $types
      *
@@ -156,7 +190,7 @@ abstract class Type implements \JsonSerializable
      */
     public static function overrideStandardTypes(array $types): void
     {
-        // Reset caches that might contain instances of standard types
+        // Reset caches that might contain instances of built-in scalars
         static::$builtInTypes = null;
         Introspection::resetCachedInstances();
         Directive::resetCachedInstances();
@@ -169,14 +203,38 @@ abstract class Type implements \JsonSerializable
                 throw new InvariantViolation("Expecting instance of {$typeClass}, got {$notType}");
             }
 
-            if (! in_array($type->name, self::STANDARD_TYPE_NAMES, true)) {
-                $standardTypeNames = implode(', ', self::STANDARD_TYPE_NAMES);
+            if (! self::isBuiltInScalarName($type->name)) {
+                $standardTypeNames = implode(', ', self::BUILT_IN_SCALAR_NAMES);
                 $notStandardTypeName = Utils::printSafe($type->name);
                 throw new InvariantViolation("Expecting one of the following names for a standard type: {$standardTypeNames}; got {$notStandardTypeName}");
             }
 
-            static::$standardTypes[$type->name] = $type;
+            static::$builtInScalars[$type->name] = $type;
         }
+    }
+
+    /**
+     * Determines if the given type is a built-in scalar (Int, Float, String, Boolean, ID).
+     *
+     * Does not unwrap NonNull/List wrappers — checks the type instance directly.
+     * ScalarType is a NamedType, so {@see Type::getNamedType()} is unnecessary.
+     *
+     * @param mixed $type
+     *
+     * @phpstan-assert-if-true ScalarType $type
+     *
+     * @api
+     */
+    public static function isBuiltInScalar($type): bool
+    {
+        return $type instanceof ScalarType
+            && self::isBuiltInScalarName($type->name);
+    }
+
+    /** Checks if the given name is one of the built-in scalar type names (ID, String, Int, Float, Boolean). */
+    public static function isBuiltInScalarName(string $name): bool
+    {
+        return in_array($name, self::BUILT_IN_SCALAR_NAMES, true);
     }
 
     /**

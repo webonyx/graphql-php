@@ -13,6 +13,7 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 
 /**
  * @phpstan-type CoercedValue array{errors: null, value: mixed}
@@ -37,7 +38,7 @@ class Value
      *
      * @phpstan-return CoercedValue|CoercedErrors
      */
-    public static function coerceInputValue($value, InputType $type, ?array $path = null): array
+    public static function coerceInputValue($value, InputType $type, ?array $path = null, ?Schema $schema = null): array
     {
         if ($type instanceof NonNull) {
             if ($value === null) {
@@ -47,7 +48,7 @@ class Value
             }
 
             // @phpstan-ignore-next-line wrapped type is known to be input type after schema validation
-            return self::coerceInputValue($value, $type->getWrappedType(), $path);
+            return self::coerceInputValue($value, $type->getWrappedType(), $path, $schema);
         }
 
         if ($value === null) {
@@ -55,10 +56,16 @@ class Value
             return self::ofValue(null);
         }
 
+        // Account for type loader returning a different scalar instance than
+        // the built-in singleton used in field definitions. Resolve the actual
+        // type from the schema to ensure the correct parseValue() is called.
+        if ($schema !== null && Type::isBuiltInScalar($type)) {
+            $schemaType = $schema->getType($type->name);
+            assert($schemaType instanceof ScalarType, "Schema must provide a ScalarType for built-in scalar \"{$type->name}\".");
+            $type = $schemaType;
+        }
+
         if ($type instanceof ScalarType || $type instanceof EnumType) {
-            // Scalars and Enums determine if a input value is valid via parseValue(), which can
-            // throw to indicate failure. If it throws, maintain a reference to
-            // the original error.
             try {
                 return self::ofValue($type->parseValue($value));
             } catch (\Throwable $error) {
@@ -88,7 +95,8 @@ class Value
                     $coercedItem = self::coerceInputValue(
                         $itemValue,
                         $itemType,
-                        [...$path ?? [], $index]
+                        [...$path ?? [], $index],
+                        $schema,
                     );
 
                     if (isset($coercedItem['errors'])) {
@@ -104,7 +112,7 @@ class Value
             }
 
             // Lists accept a non-list value as a list of one.
-            $coercedItem = self::coerceInputValue($value, $itemType);
+            $coercedItem = self::coerceInputValue($value, $itemType, null, $schema);
 
             return isset($coercedItem['errors'])
                 ? $coercedItem
@@ -133,6 +141,7 @@ class Value
                     $fieldValue,
                     $field->getType(),
                     [...$path ?? [], $fieldName],
+                    $schema,
                 );
 
                 if (isset($coercedField['errors'])) {
@@ -173,33 +182,27 @@ class Value
 
         // Validate OneOf constraints if this is a OneOf input type
         if ($type->isOneOf()) {
-            $providedFieldCount = 0;
+            $providedFieldCount = count($coercedValue);
             $nullFieldName = null;
 
-            foreach ($coercedValue as $fieldName => $fieldValue) {
-                if ($fieldValue !== null) {
-                    ++$providedFieldCount;
-                } else {
-                    $nullFieldName = $fieldName;
+            if ($providedFieldCount !== 1) {
+                $errors = self::add(
+                    $errors,
+                    CoercionError::make("OneOf input object \"{$type->name}\" must specify exactly one field.", $path, $value)
+                );
+            } else {
+                foreach ($coercedValue as $fieldName => $fieldValue) {
+                    if ($fieldValue === null) {
+                        $nullFieldName = $fieldName;
+                    }
                 }
-            }
 
-            // Check for null field values first (takes precedence)
-            if ($nullFieldName !== null) {
-                $errors = self::add(
-                    $errors,
-                    CoercionError::make("OneOf input object \"{$type->name}\" field \"{$nullFieldName}\" must be non-null.", $path, $value)
-                );
-            } elseif ($providedFieldCount === 0) {
-                $errors = self::add(
-                    $errors,
-                    CoercionError::make("OneOf input object \"{$type->name}\" must specify exactly one field.", $path, $value)
-                );
-            } elseif ($providedFieldCount > 1) {
-                $errors = self::add(
-                    $errors,
-                    CoercionError::make("OneOf input object \"{$type->name}\" must specify exactly one field.", $path, $value)
-                );
+                if ($nullFieldName !== null) {
+                    $errors = self::add(
+                        $errors,
+                        CoercionError::make("OneOf input object \"{$type->name}\" field \"{$nullFieldName}\" must be non-null.", $path, $value)
+                    );
+                }
             }
         }
 

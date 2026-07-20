@@ -30,6 +30,7 @@ use GraphQL\Utils\Utils;
  *   name?: string|null,
  *   description?: string|null,
  *   directives?: array<DirectiveNode>|null,
+ *   specifiedByURL?: string|null,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }
@@ -39,6 +40,8 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
     use NamedTypeImplementation;
 
     public ?ScalarTypeDefinitionNode $astNode;
+
+    public ?string $specifiedByURL;
 
     /** @var array<ScalarTypeExtensionNode> */
     public array $extensionASTNodes;
@@ -58,6 +61,7 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
     {
         $this->name = $config['name'] ?? $this->inferName();
         $this->description = $config['description'] ?? $this->description ?? null;
+        $this->specifiedByURL = $config['specifiedByURL'] ?? $this->specifiedByURL ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
         $this->directives = $config['directives'] ?? [];
