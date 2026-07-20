@@ -67,8 +67,7 @@ final class AmpPromiseAdapterTest extends TestCase
         $promise = $ampAdapter->convertThenable($ampPromise);
 
         $result = null;
-
-        $resultPromise = $ampAdapter->then(
+        $ampAdapter->then(
             $promise,
             static function ($value) use (&$result): void {
                 $result = $value;
