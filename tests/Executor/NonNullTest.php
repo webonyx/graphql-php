@@ -91,7 +91,7 @@ final class NonNullTest extends TestCase
         $dataType = new ObjectType([
             'name' => 'DataType',
             'fields' => static function () use (&$dataType): array {
-                assert($dataType instanceof ObjectType);
+                self::assertInstanceOf(ObjectType::class, $dataType);
 
                 return [
                     'sync' => ['type' => Type::string()],

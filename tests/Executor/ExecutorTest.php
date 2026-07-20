@@ -1224,7 +1224,7 @@ final class ExecutorTest extends TestCase
                     ],
                     'arrayAccess' => [
                         'type' => $ArrayAccess,
-                        'resolve' => static fn (): \ArrayAccess => new class() implements \ArrayAccess {
+                        'resolve' => static fn (): \ArrayAccess => new class implements \ArrayAccess {
                             public ?int $setProperty = 1;
 
                             /** @param mixed $offset */
@@ -1274,7 +1274,7 @@ final class ExecutorTest extends TestCase
                     ],
                     'objectField' => [
                         'type' => $ObjectField,
-                        'resolve' => static fn (): \stdClass => new class() extends \stdClass {
+                        'resolve' => static fn (): \stdClass => new class extends \stdClass {
                             public ?int $set = 1;
 
                             public ?int $unset;
@@ -1282,7 +1282,7 @@ final class ExecutorTest extends TestCase
                     ],
                     'objectVirtual' => [
                         'type' => $ObjectVirtual,
-                        'resolve' => static fn (): object => new class() {
+                        'resolve' => static fn (): object => new class {
                             public function __isset(string $name): bool
                             {
                                 switch ($name) {

@@ -668,4 +668,287 @@ final class DeferredFieldsTest extends TestCase
             self::assertContains($expectedPath, $this->paths, 'Missing path: ' . json_encode($expectedPath, JSON_THROW_ON_ERROR));
         }
     }
+
+    /**
+     * Test that DataLoader-style batching works correctly with many Deferred objects.
+     *
+     * DataLoaders work by:
+     * 1. Collecting all entity IDs during field resolution (buffering)
+     * 2. Making a single batch query when the queue is processed
+     * 3. Distributing results to waiting promises
+     *
+     * This test verifies that all IDs are collected before any batch is executed,
+     * which is essential for the DataLoader pattern to work correctly.
+     *
+     * The test creates 600 items to exceed any reasonable batch size threshold,
+     * ensuring that incremental processing (if implemented) doesn't break batching.
+     *
+     * @see https://github.com/webonyx/graphql-php/issues/1803
+     * @see https://github.com/webonyx/graphql-php/issues/972
+     */
+    public function testDataLoaderPatternWithManyDeferredObjects(): void
+    {
+        $itemCount = 600;
+
+        $authorData = [];
+        for ($i = 1; $i <= 100; ++$i) {
+            $authorData[$i] = ['id' => $i, 'name' => "Author {$i}"];
+        }
+
+        $bookData = [];
+        for ($i = 1; $i <= $itemCount; ++$i) {
+            $bookData[$i] = [
+                'id' => $i,
+                'title' => "Book {$i}",
+                'authorId' => ($i % 100) + 1,
+            ];
+        }
+
+        $authorBuffer = [];
+        $loadedAuthors = [];
+        $batchLoadCount = 0;
+
+        $loadAuthor = function (int $authorId) use (&$authorBuffer, &$loadedAuthors, &$batchLoadCount, $authorData): Deferred {
+            $authorBuffer[] = $authorId;
+
+            return new Deferred(static function () use ($authorId, &$authorBuffer, &$loadedAuthors, &$batchLoadCount, $authorData): ?array {
+                if ($authorBuffer !== []) {
+                    ++$batchLoadCount;
+                    foreach ($authorBuffer as $id) {
+                        $loadedAuthors[$id] = $authorData[$id] ?? null;
+                    }
+                    $authorBuffer = [];
+                }
+
+                return $loadedAuthors[$authorId] ?? null;
+            });
+        };
+
+        $authorType = new ObjectType([
+            'name' => 'Author',
+            'fields' => [
+                'id' => Type::int(),
+                'name' => Type::string(),
+            ],
+        ]);
+
+        $bookType = new ObjectType([
+            'name' => 'Book',
+            'fields' => [
+                'id' => Type::int(),
+                'title' => Type::string(),
+                'author' => [
+                    'type' => $authorType,
+                    'resolve' => static fn (array $book) => $loadAuthor($book['authorId']),
+                ],
+            ],
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'books' => [
+                    'type' => Type::nonNull(Type::listOf(Type::nonNull($bookType))),
+                    'resolve' => static fn (): array => array_values($bookData),
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $queryType]);
+        $query = Parser::parse('{ books { id title author { id name } } }');
+
+        $result = Executor::execute($schema, $query);
+        $resultArray = $result->toArray();
+
+        self::assertArrayNotHasKey('errors', $resultArray, 'Query should not produce errors');
+        self::assertArrayHasKey('data', $resultArray);
+        self::assertCount($itemCount, $resultArray['data']['books']);
+
+        $nullAuthorCount = 0;
+        foreach ($resultArray['data']['books'] as $book) {
+            if ($book['author'] === null) {
+                ++$nullAuthorCount;
+            }
+        }
+
+        self::assertSame(
+            0,
+            $nullAuthorCount,
+            "Expected 0 null authors, but found {$nullAuthorCount}. "
+            . 'This indicates that batch loading was triggered before all IDs were collected.'
+        );
+
+        self::assertSame(
+            1,
+            $batchLoadCount,
+            "Expected exactly 1 batch load, but got {$batchLoadCount}. "
+            . 'Multiple batch loads indicate that the queue was processed before all Deferred objects were created.'
+        );
+    }
+
+    /**
+     * Test nested Deferred fields with DataLoader pattern.
+     *
+     * Reproduces the bug from https://github.com/webonyx/graphql-php/issues/1803 where nested lists returned null
+     * when using DataLoader-style batching with many items.
+     *
+     * The scenario: eventDays -> event -> eventDays
+     * Each level uses Deferred with buffered batch loading.
+     *
+     * @see https://github.com/webonyx/graphql-php/issues/1803
+     */
+    public function testNestedDataLoaderPattern(): void
+    {
+        $eventCount = 50;
+        $daysPerEvent = 15;
+
+        $events = [];
+        for ($i = 1; $i <= $eventCount; ++$i) {
+            $events[$i] = ['id' => $i, 'name' => "Event {$i}"];
+        }
+
+        $eventDays = [];
+        $dayId = 1;
+        for ($eventId = 1; $eventId <= $eventCount; ++$eventId) {
+            for ($day = 1; $day <= $daysPerEvent; ++$day) {
+                $eventDays[$dayId] = [
+                    'id' => $dayId,
+                    'eventId' => $eventId,
+                    'date' => '2025-01-' . str_pad((string) $day, 2, '0', STR_PAD_LEFT),
+                ];
+                ++$dayId;
+            }
+        }
+
+        $eventBuffer = [];
+        $loadedEvents = [];
+        $eventBatchCount = 0;
+
+        $loadEvent = function (int $eventId) use (&$eventBuffer, &$loadedEvents, &$eventBatchCount, $events): Deferred {
+            $eventBuffer[] = $eventId;
+
+            return new Deferred(static function () use ($eventId, &$eventBuffer, &$loadedEvents, &$eventBatchCount, $events): ?array {
+                if ($eventBuffer !== []) {
+                    ++$eventBatchCount;
+                    foreach ($eventBuffer as $id) {
+                        $loadedEvents[$id] = $events[$id] ?? null;
+                    }
+                    $eventBuffer = [];
+                }
+
+                return $loadedEvents[$eventId] ?? null;
+            });
+        };
+
+        $eventDaysBuffer = [];
+        $loadedEventDays = [];
+        $eventDaysBatchCount = 0;
+
+        $loadEventDays = function (int $eventId) use (&$eventDaysBuffer, &$loadedEventDays, &$eventDaysBatchCount, $eventDays): Deferred {
+            $eventDaysBuffer[] = $eventId;
+
+            return new Deferred(static function () use ($eventId, &$eventDaysBuffer, &$loadedEventDays, &$eventDaysBatchCount, $eventDays): array {
+                if ($eventDaysBuffer !== []) {
+                    ++$eventDaysBatchCount;
+                    foreach ($eventDaysBuffer as $eId) {
+                        $loadedEventDays[$eId] = array_values(array_filter(
+                            $eventDays,
+                            static fn (array $day): bool => $day['eventId'] === $eId
+                        ));
+                    }
+                    $eventDaysBuffer = [];
+                }
+
+                return $loadedEventDays[$eventId] ?? [];
+            });
+        };
+
+        $eventType = null;
+
+        $eventDayType = new ObjectType([
+            'name' => 'EventDay',
+            'fields' => function () use (&$eventType, $loadEvent): array {
+                return [
+                    'id' => Type::int(),
+                    'date' => Type::string(),
+                    'event' => [
+                        'type' => $eventType,
+                        'resolve' => static fn (array $day) => $loadEvent($day['eventId']),
+                    ],
+                ];
+            },
+        ]);
+
+        $eventType = new ObjectType([
+            'name' => 'Event',
+            'fields' => fn (): array => [
+                'id' => Type::int(),
+                'name' => Type::string(),
+                'eventDays' => [
+                    'type' => Type::nonNull(Type::listOf(Type::nonNull($eventDayType))),
+                    'resolve' => static fn (array $event) => $loadEventDays($event['id']),
+                ],
+            ],
+        ]);
+
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'eventDays' => [
+                    'type' => Type::nonNull(Type::listOf(Type::nonNull($eventDayType))),
+                    'resolve' => static fn (): array => array_values($eventDays),
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $queryType]);
+        $query = Parser::parse('
+            {
+                eventDays {
+                    id
+                    date
+                    event {
+                        id
+                        name
+                        eventDays {
+                            id
+                            date
+                        }
+                    }
+                }
+            }
+        ');
+
+        $result = Executor::execute($schema, $query);
+        $resultArray = $result->toArray();
+
+        self::assertArrayNotHasKey('errors', $resultArray, 'Query should not produce errors');
+        self::assertArrayHasKey('data', $resultArray);
+        self::assertCount($eventCount * $daysPerEvent, $resultArray['data']['eventDays']);
+
+        $nullEventCount = 0;
+        $nullNestedDaysCount = 0;
+
+        foreach ($resultArray['data']['eventDays'] as $day) {
+            if ($day['event'] === null) {
+                ++$nullEventCount;
+            } elseif ($day['event']['eventDays'] === null) {
+                ++$nullNestedDaysCount;
+            }
+        }
+
+        self::assertSame(
+            0,
+            $nullEventCount,
+            "Expected 0 null events, but found {$nullEventCount}. "
+            . 'This indicates premature batch processing broke DataLoader batching.'
+        );
+
+        self::assertSame(
+            0,
+            $nullNestedDaysCount,
+            "Expected 0 null nested eventDays, but found {$nullNestedDaysCount}. "
+            . 'This indicates premature batch processing broke nested DataLoader batching.'
+        );
+    }
 }

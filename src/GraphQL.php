@@ -180,6 +180,8 @@ class GraphQL
     /**
      * Returns directives defined in GraphQL spec.
      *
+     * @deprecated use {@see Directive::builtInDirectives()}
+     *
      * @throws InvariantViolation
      *
      * @return array<string, Directive>
@@ -188,11 +190,13 @@ class GraphQL
      */
     public static function getStandardDirectives(): array
     {
-        return Directive::getInternalDirectives();
+        return Directive::builtInDirectives();
     }
 
     /**
-     * Returns types defined in GraphQL spec.
+     * Returns built-in scalar types defined in GraphQL spec.
+     *
+     * @deprecated use {@see Type::builtInScalars()}
      *
      * @throws InvariantViolation
      *
@@ -202,13 +206,15 @@ class GraphQL
      */
     public static function getStandardTypes(): array
     {
-        return Type::getStandardTypes();
+        return Type::builtInScalars();
     }
 
     /**
      * Replaces standard types with types from this list (matching by name).
      *
      * Standard types not listed here remain untouched.
+     *
+     * @deprecated prefer per-schema scalar overrides via {@see \GraphQL\Type\SchemaConfig::$types} or {@see \GraphQL\Type\SchemaConfig::$typeLoader}
      *
      * @param array<string, ScalarType> $types
      *

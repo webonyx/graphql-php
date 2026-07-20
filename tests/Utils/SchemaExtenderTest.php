@@ -40,7 +40,9 @@ use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Validator\Rules\KnownDirectives;
 
-/** @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition */
+/**
+ * @phpstan-import-type UnnamedFieldDefinitionConfig from FieldDefinition
+ */
 final class SchemaExtenderTest extends TestCaseBase
 {
     /**
@@ -454,8 +456,6 @@ GRAPHQL,
     /** @see it('extends scalars by adding specifiedBy directive') */
     public function testExtendsScalarsByAddingSpecifiedByDirective(): void
     {
-        // @phpstan-ignore-next-line
-        $this->markTestSkipped('See https://github.com/webonyx/graphql-php/issues/1140');
         $schema = BuildSchema::build('
           type Query {
             foo: Foo
@@ -469,9 +469,12 @@ GRAPHQL,
           extend scalar Foo @foo
 
           extend scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
+
           GRAPHQL;
+
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
         $foo = $extendedSchema->getType('Foo');
+        self::assertInstanceOf(ScalarType::class, $foo);
 
         self::assertSame('https://example.com/foo_spec', $foo->specifiedByURL);
         self::assertEmpty($extendedSchema->validate());
@@ -479,6 +482,31 @@ GRAPHQL,
             $extensionSDL,
             $this->printExtensionNodes($foo),
         );
+    }
+
+    /**
+     * Verifies that overriding @specifiedBy with a custom directive (no url arg)
+     * and using it in an extension does not throw.
+     */
+    public function testExtendsScalarsWithCustomSpecifiedByOverrideShouldNotThrow(): void
+    {
+        $schema = BuildSchema::build('
+          directive @specifiedBy on SCALAR
+
+          type Query {
+            foo: Foo
+          }
+
+          scalar Foo
+        ');
+        $extendedSchema = SchemaExtender::extend($schema, Parser::parse('
+          extend scalar Foo @specifiedBy
+        '));
+        $foo = $extendedSchema->getType('Foo');
+        self::assertInstanceOf(ScalarType::class, $foo);
+
+        // Custom @specifiedBy without url arg leaves specifiedByURL as null
+        self::assertNull($foo->specifiedByURL);
     }
 
     /** @see it('correctly assign AST nodes to new and extended types') */
@@ -1063,9 +1091,9 @@ GRAPHQL,
             self::printSchemaChanges($schema, $schemaWithNewTypes)
         );
 
-        // TODO see https://github.com/webonyx/graphql-php/issues/1140
-        // extend scalar SomeScalar @specifiedBy(url: "http://example.com/foo_spec")
         $extendAST = Parser::parse('
+            extend scalar SomeScalar @specifiedBy(url: "http://example.com/foo_spec")
+
             extend type SomeObject implements NewInterface {
               newField: String
             }
@@ -1098,9 +1126,9 @@ GRAPHQL,
 
         self::assertEmpty($extendedSchema->validate());
         self::assertSame(
-            // TODO see https://github.com/webonyx/graphql-php/issues/1140
-            // scalar SomeScalar @specifiedBy(url: \"http://example.com/foo_spec\")
             <<<GRAPHQL
+                scalar SomeScalar @specifiedBy(url: "http://example.com/foo_spec")
+
                 type SomeObject implements SomeInterface & NewInterface & AnotherNewInterface {
                   oldField: String
                   newField: String
@@ -2038,5 +2066,29 @@ GRAPHQL,
                 'someInterface' => ['__typename' => 'Foo'],
             ],
         ], $result->toArray(DebugFlag::RETHROW_INTERNAL_EXCEPTIONS));
+    }
+
+    public function testKeepSchemaDescription(): void
+    {
+        $schema = BuildSchema::build(<<<GraphQL
+"Sample schema"
+schema {
+    query: Query
+}
+type Query {
+    foo: Foo
+}
+type Foo {
+  foo: String
+}
+GraphQL);
+        $documentNode = Parser::parse(<<<GraphQL
+extend type Foo {
+  bar: String
+}
+GraphQL);
+
+        $extendedSchema = SchemaExtender::extend($schema, $documentNode);
+        self::assertSame('Sample schema', $extendedSchema->description);
     }
 }

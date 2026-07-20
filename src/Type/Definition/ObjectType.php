@@ -113,7 +113,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      */
     public static function assertObjectType($type): self
     {
-        if (! ($type instanceof self)) {
+        if (! $type instanceof self) {
             $notObjectType = Utils::printSafe($type);
             throw new InvariantViolation("Expected {$notObjectType} to be a GraphQL Object type.");
         }

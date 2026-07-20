@@ -51,7 +51,8 @@ composer test
 ```
 
 Some tests have an annotation such as `@see it('<description>')`.
-It references a matching test in the [graphql-js implementation](https://github.com/graphql/graphql-js).
+It references a test with the exact same name in the [graphql-js reference implementation](https://github.com/graphql/graphql-js).
+Only add `@see it(...)` when the test has a direct counterpart in graphql-js with that exact name.
 
 When porting tests that utilize [the `dedent()` test utility from `graphql-js`](https://github.com/graphql/graphql-js/blob/99d6079434/src/__testUtils__/dedent.js),
 we instead use [the PHP native `nowdoc` syntax](https://www.php.net/manual/en/language.types.string.php#language.types.string.syntax.nowdoc).

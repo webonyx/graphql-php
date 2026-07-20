@@ -466,10 +466,13 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         $variableValues = $this->exeContext->variableValues;
 
+        $schema = $this->exeContext->schema;
+
         $skip = Values::getDirectiveValues(
             Directive::skipDirective(),
             $node,
-            $variableValues
+            $variableValues,
+            $schema,
         );
         if (isset($skip['if']) && $skip['if'] === true) {
             return false;
@@ -478,7 +481,8 @@ class ReferenceExecutor implements ExecutorImplementation
         $include = Values::getDirectiveValues(
             Directive::includeDirective(),
             $node,
-            $variableValues
+            $variableValues,
+            $schema,
         );
 
         return ! isset($include['if']) || $include['if'] !== false;
@@ -738,7 +742,8 @@ class ReferenceExecutor implements ExecutorImplementation
             $args = $this->fieldArgsCache[$fieldDef][$fieldNode] ??= $argsMapper(Values::getArgumentValues(
                 $fieldDef,
                 $fieldNode,
-                $this->exeContext->variableValues
+                $this->exeContext->variableValues,
+                $this->exeContext->schema,
             ), $fieldDef, $fieldNode, $contextValue);
 
             return $resolveFn($rootValue, $args, $contextValue, $info);
@@ -864,7 +869,7 @@ class ReferenceExecutor implements ExecutorImplementation
         ResolveInfo $info,
         array $path,
         array $unaliasedPath,
-        &$result,
+        $result,
         $contextValue
     ) {
         // If result is an Error, throw a located error.
@@ -911,11 +916,18 @@ class ReferenceExecutor implements ExecutorImplementation
         // Account for invalid schema definition when typeLoader returns different
         // instance than `resolveType` or $field->getType() or $arg->getType()
         assert(
-            $returnType === $this->exeContext->schema->getType($returnType->name),
+            $returnType === $this->exeContext->schema->getType($returnType->name)
+            || Type::isBuiltInScalar($returnType),
             SchemaValidationContext::duplicateType($this->exeContext->schema, "{$info->parentType}.{$info->fieldName}", $returnType->name)
         );
 
         if ($returnType instanceof LeafType) {
+            if (Type::isBuiltInScalar($returnType)) {
+                $schemaType = $this->exeContext->schema->getType($returnType->name);
+                assert($schemaType instanceof LeafType, "Schema must provide a LeafType for built-in scalar \"{$returnType->name}\".");
+                $returnType = $schemaType;
+            }
+
             return $this->completeLeafValue($returnType, $result);
         }
 
@@ -1007,7 +1019,7 @@ class ReferenceExecutor implements ExecutorImplementation
         ResolveInfo $info,
         array $path,
         array $unaliasedPath,
-        iterable &$results,
+        iterable $results,
         $contextValue
     ) {
         $itemType = $returnType->getWrappedType();
@@ -1045,7 +1057,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @return mixed
      */
-    protected function completeLeafValue(LeafType $returnType, &$result)
+    protected function completeLeafValue(LeafType $returnType, $result)
     {
         try {
             return $returnType->serialize($result);
@@ -1079,7 +1091,7 @@ class ReferenceExecutor implements ExecutorImplementation
         ResolveInfo $info,
         array $path,
         array $unaliasedPath,
-        &$result,
+        $result,
         $contextValue
     ) {
         $result = $returnType->resolveValue($result, $contextValue, $info);
@@ -1213,7 +1225,7 @@ class ReferenceExecutor implements ExecutorImplementation
         ResolveInfo $info,
         array $path,
         array $unaliasedPath,
-        &$result,
+        $result,
         $contextValue
     ) {
         // If there is an isTypeOf predicate function, call it with the
@@ -1229,7 +1241,7 @@ class ReferenceExecutor implements ExecutorImplementation
                     $fieldNodes,
                     $path,
                     $unaliasedPath,
-                    &$result
+                    $result
                 ) {
                     if (! $isTypeOfResult) {
                         throw $this->invalidReturnTypeError($returnType, $result, $fieldNodes);
@@ -1296,7 +1308,7 @@ class ReferenceExecutor implements ExecutorImplementation
         \ArrayObject $fieldNodes,
         array $path,
         array $unaliasedPath,
-        &$result,
+        $result,
         $contextValue
     ) {
         $subFieldNodes = $this->collectSubFields($returnType, $fieldNodes);
@@ -1444,7 +1456,7 @@ class ReferenceExecutor implements ExecutorImplementation
         $runtimeTypeOrName,
         AbstractType $returnType,
         ResolveInfo $info,
-        &$result
+        $result
     ): ObjectType {
         $runtimeType = is_string($runtimeTypeOrName)
             ? $this->exeContext->schema->getType($runtimeTypeOrName)

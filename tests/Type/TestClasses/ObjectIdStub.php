@@ -2,7 +2,7 @@
 
 namespace GraphQL\Tests\Type\TestClasses;
 
-final class ObjectIdStub
+final class ObjectIdStub implements \Stringable
 {
     private int $id;
 
