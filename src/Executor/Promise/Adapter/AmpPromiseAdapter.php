@@ -12,6 +12,9 @@ use GraphQL\Executor\Promise\PromiseAdapter;
 
 use function Amp\Promise\all;
 
+/**
+ * @implements PromiseAdapter<AmpPromise<mixed>>
+ */
 class AmpPromiseAdapter implements PromiseAdapter
 {
     public function isThenable($value): bool
@@ -25,7 +28,13 @@ class AmpPromiseAdapter implements PromiseAdapter
         return new Promise($thenable, $this);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @phpstan-param Promise<covariant AmpPromise<mixed>> $promise
+     *
+     * @throws InvariantViolation
+     *
+     * @phpstan-return Promise<AmpPromise<mixed>>
+     */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         $deferred = new Deferred();
@@ -41,10 +50,8 @@ class AmpPromiseAdapter implements PromiseAdapter
             }
         };
 
-        $adoptedPromise = $promise->adoptedPromise;
-        assert($adoptedPromise instanceof AmpPromise);
-
-        $adoptedPromise->onResolve($onResolve);
+        $ampPromise = $promise->adoptedPromise;
+        $ampPromise->onResolve($onResolve);
 
         return new Promise($deferred->promise(), $this);
     }
@@ -69,6 +76,8 @@ class AmpPromiseAdapter implements PromiseAdapter
     /**
      * @throws \Error
      * @throws InvariantViolation
+     *
+     * @phpstan-return Promise<AmpPromise<mixed>>
      */
     public function createFulfilled($value = null): Promise
     {
@@ -77,7 +86,11 @@ class AmpPromiseAdapter implements PromiseAdapter
         return new Promise($promise, $this);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws InvariantViolation
+     *
+     * @phpstan-return Promise<AmpPromise<mixed>>
+     */
     public function createRejected(\Throwable $reason): Promise
     {
         $promise = new Failure($reason);

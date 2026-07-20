@@ -44,7 +44,7 @@ final class PrinterTest extends TestCaseBase
     /** @see it('produces helpful error messages', () => { */
     public function testProducesHelpfulErrorMessages(): void
     {
-        self::markTestSkipped('Not necessary because our class based AST makes it impossible to pass bad data.');
+        self::markTestSkipped('Unnecessary because our class based AST makes it impossible to pass bad data.');
     }
 
     /** @see it('correctly prints non-query operations without name', () => { */
@@ -290,5 +290,30 @@ GRAPHQL, Printer::doPrint($ast));
     {
         self::assertASTMatches('3', AST::astFromValue(3, Type::int()));
         self::assertASTMatches('3.14', AST::astFromValue(3.14, Type::float()));
+    }
+
+    public function testDoNotEscapeForwardSlash(): void
+    {
+        $ast = Parser::parse(
+            <<<'GRAPHQL'
+query {
+    search(query: "repo: webonyx/graphql-php") {
+        id
+    }
+}
+GRAPHQL
+        );
+
+        self::assertSame(
+            <<<'GRAPHQL'
+{
+  search(query: "repo: webonyx/graphql-php") {
+    id
+  }
+}
+
+GRAPHQL,
+            Printer::doPrint($ast),
+        );
     }
 }

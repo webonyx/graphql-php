@@ -33,7 +33,7 @@ final class EnumTypeTest extends TestCase
     /** @var \ArrayObject<string, int> */
     private \ArrayObject $Complex2;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $ColorType = new EnumType([
             'name' => 'Color',
@@ -651,7 +651,9 @@ final class EnumTypeTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $QueryType]);
+        $schema = new Schema([
+            'query' => $QueryType,
+        ]);
 
         self::assertSame(0, $called, 'Should not eagerly call enum values during schema construction');
 

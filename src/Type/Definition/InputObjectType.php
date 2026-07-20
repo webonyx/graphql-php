@@ -14,11 +14,13 @@ use GraphQL\Utils\Utils;
  * @phpstan-type EagerFieldConfig InputObjectField|(Type&InputType)|UnnamedInputObjectFieldConfig
  * @phpstan-type LazyFieldConfig callable(): EagerFieldConfig
  * @phpstan-type FieldConfig EagerFieldConfig|LazyFieldConfig
+ * @phpstan-type ParseValueFn callable(array<string, mixed>): mixed
  * @phpstan-type InputObjectConfig array{
  *   name?: string|null,
  *   description?: string|null,
+ *   isOneOf?: bool|null,
  *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
- *   parseValue?: callable(array<string, mixed>): mixed,
+ *   parseValue?: ParseValueFn|null,
  *   astNode?: InputObjectTypeDefinitionNode|null,
  *   extensionASTNodes?: array<InputObjectTypeExtensionNode>|null
  * }
@@ -26,6 +28,18 @@ use GraphQL\Utils\Utils;
 class InputObjectType extends Type implements InputType, NullableType, NamedType
 {
     use NamedTypeImplementation;
+
+    public bool $isOneOf;
+
+    /**
+     * Lazily initialized.
+     *
+     * @var array<string, InputObjectField>
+     */
+    private array $fields;
+
+    /** @var ParseValueFn|null */
+    private $parseValue;
 
     public ?InputObjectTypeDefinitionNode $astNode;
 
@@ -36,23 +50,18 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     public array $config;
 
     /**
-     * Lazily initialized.
-     *
-     * @var array<string, InputObjectField>
-     */
-    private array $fields;
-
-    /**
-     * @throws InvariantViolation
-     *
      * @phpstan-param InputObjectConfig $config
      *
+     * @throws InvariantViolation
      * @throws InvariantViolation
      */
     public function __construct(array $config)
     {
         $this->name = $config['name'] ?? $this->inferName();
         $this->description = $config['description'] ?? null;
+        $this->isOneOf = $config['isOneOf'] ?? false;
+        // $this->fields is initialized lazily
+        $this->parseValue = $config['parseValue'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
 
@@ -89,6 +98,12 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         }
 
         return isset($this->fields[$name]);
+    }
+
+    /** Returns true if this is a oneOf input object type. */
+    public function isOneOf(): bool
+    {
+        return $this->isOneOf;
     }
 
     /**
@@ -155,7 +170,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     /**
      * Parses an externally provided value (query variable) to use as an input.
      *
-     * Should throw an exception with a client friendly message on invalid values, @see ClientAware.
+     * Should throw an exception with a client-friendly message on invalid values, @see ClientAware.
      *
      * @param array<string, mixed> $value
      *
@@ -163,15 +178,15 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      */
     public function parseValue(array $value)
     {
-        if (isset($this->config['parseValue'])) {
-            return $this->config['parseValue']($value);
+        if (isset($this->parseValue)) {
+            return ($this->parseValue)($value);
         }
 
         return $value;
     }
 
     /**
-     * Validates type config and throws if one of type options is invalid.
+     * Validates type config and throws if one of the type options is invalid.
      * Note: this method is shallow, it won't validate object fields and their arguments.
      *
      * @throws Error
@@ -181,7 +196,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     {
         Utils::assertValidName($this->name);
 
-        $fields = $this->config['fields'] ?? null;
+        $fields = $this->config['fields'] ?? null; // @phpstan-ignore nullCoalesce.initializedProperty (unnecessary according to types, but can happen during runtime)
         if (is_callable($fields)) {
             $fields = $fields();
         }
@@ -195,6 +210,39 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
         foreach ($resolvedFields as $field) {
             $field->assertValid($this);
+        }
+
+        // Additional validation for oneOf input objects
+        if ($this->isOneOf()) {
+            $this->validateOneOfConstraints($resolvedFields);
+        }
+    }
+
+    /**
+     * Validates that oneOf input object constraints are met.
+     *
+     * @param array<string, InputObjectField> $fields
+     *
+     * @throws InvariantViolation
+     */
+    private function validateOneOfConstraints(array $fields): void
+    {
+        if (count($fields) === 0) {
+            throw new InvariantViolation("OneOf input object type {$this->name} must define one or more fields.");
+        }
+
+        foreach ($fields as $fieldName => $field) {
+            $fieldType = $field->getType();
+
+            // OneOf fields must be nullable (not wrapped in NonNull)
+            if ($fieldType instanceof NonNull) {
+                throw new InvariantViolation("OneOf input object type {$this->name} field {$fieldName} must be nullable.");
+            }
+
+            // OneOf fields cannot have default values
+            if ($field->defaultValueExists()) {
+                throw new InvariantViolation("OneOf input object type {$this->name} field {$fieldName} cannot have a default value.");
+            }
         }
     }
 

@@ -24,6 +24,7 @@ use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\AST\TypeNode;
@@ -50,7 +51,7 @@ use GraphQL\Type\Definition\UnionType;
  * @phpstan-import-type InputObjectFieldConfig from InputObjectField
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
  *
- * @phpstan-type ResolveType callable(string, Node|null): Type&NamedType
+ * @phpstan-type ResolveType callable(string, Node|null): (Type&NamedType)
  * @phpstan-type TypeConfigDecorator callable(array<string, mixed>, Node&TypeDefinitionNode, array<string, Node&TypeDefinitionNode>): array<string, mixed>
  * @phpstan-type FieldConfigDecorator callable(UnnamedFieldDefinitionConfig, FieldDefinitionNode, ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode): UnnamedFieldDefinitionConfig
  */
@@ -349,9 +350,9 @@ class ASTDefinitionBuilder
     /**
      * @param array<ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode> $nodes
      *
-     * @phpstan-return array<string, UnnamedFieldDefinitionConfig>
-     *
      * @throws \Exception
+     *
+     * @phpstan-return array<string, UnnamedFieldDefinitionConfig>
      */
     private function makeFieldDefMap(array $nodes): array
     {
@@ -403,7 +404,6 @@ class ASTDefinitionBuilder
      * @param EnumValueDefinitionNode|FieldDefinitionNode|InputValueDefinitionNode $node
      *
      * @throws \Exception
-     * @throws \ReflectionException
      * @throws InvariantViolation
      */
     private function getDeprecationReason(Node $node): ?string
@@ -414,6 +414,33 @@ class ASTDefinitionBuilder
         );
 
         return $deprecated['reason'] ?? null;
+    }
+
+    /**
+     * Returns the specifiedBy URL from a scalar type's definition and extension directives,
+     * reading directly from the AST to safely handle custom @specifiedBy directive definitions
+     * with different argument shapes.
+     *
+     * @param array<ScalarTypeExtensionNode> $extensionNodes
+     */
+    private function getSpecifiedByURL(ScalarTypeDefinitionNode $def, array $extensionNodes = []): ?string
+    {
+        foreach ([$def, ...$extensionNodes] as $node) {
+            foreach ($node->directives as $directive) {
+                if ($directive->name->value !== Directive::SPECIFIED_BY_NAME) {
+                    continue;
+                }
+
+                foreach ($directive->arguments as $argument) {
+                    if ($argument->name->value === Directive::URL_ARGUMENT_NAME
+                        && $argument->value instanceof StringValueNode) {
+                        return $argument->value->value;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -533,19 +560,40 @@ class ASTDefinitionBuilder
             'serialize' => static fn ($value) => $value,
             'astNode' => $def,
             'extensionASTNodes' => $extensionASTNodes,
+            'specifiedByURL' => $this->getSpecifiedByURL($def, $extensionASTNodes),
         ]);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @throws \Exception
+     * @throws \ReflectionException
+     * @throws InvariantViolation
+     */
     private function makeInputObjectDef(InputObjectTypeDefinitionNode $def): InputObjectType
     {
         $name = $def->name->value;
         /** @var array<InputObjectTypeExtensionNode> $extensionASTNodes (proven by schema validation) */
         $extensionASTNodes = $this->typeExtensionsMap[$name] ?? [];
 
+        $oneOfDirective = Directive::oneOfDirective();
+
+        // Check for @oneOf directive in the definition node
+        $isOneOf = Values::getDirectiveValues($oneOfDirective, $def) !== null;
+
+        // Check for @oneOf directive in extension nodes
+        if (! $isOneOf) {
+            foreach ($extensionASTNodes as $extensionNode) {
+                if (Values::getDirectiveValues($oneOfDirective, $extensionNode) !== null) {
+                    $isOneOf = true;
+                    break;
+                }
+            }
+        }
+
         return new InputObjectType([
             'name' => $name,
             'description' => $def->description->value ?? null,
+            'isOneOf' => $isOneOf,
             'fields' => fn (): array => $this->makeInputFields([$def, ...$extensionASTNodes]),
             'astNode' => $def,
             'extensionASTNodes' => $extensionASTNodes,

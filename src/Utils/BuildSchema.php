@@ -33,16 +33,13 @@ use GraphQL\Validator\DocumentValidator;
  * }
  *
  * - assumeValid:
- *     When building a schema from a GraphQL service's introspection result, it
- *     might be safe to assume the schema is valid. Set to true to assume the
- *     produced schema is valid.
- *
- *     Default: false
+ *   When building a schema from a GraphQL service's introspection result, it might be safe to assume the schema is valid.
+ *   Set to true to assume the produced schema is valid.
+ *   Default: false
  *
  * - assumeValidSDL:
- *     Set to true to assume the SDL is valid.
- *
- *     Default: false
+ *   Set to true to assume the SDL is valid.
+ *   Default: false
  *
  * @see \GraphQL\Tests\Utils\BuildSchemaTest
  */
@@ -94,12 +91,10 @@ class BuildSchema
      * document.
      *
      * @param DocumentNode|Source|string $source
+     * @param array<string, bool> $options
      *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
      * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
-     *
-     * @param array<string, bool> $options
-     *
      * @phpstan-param BuildSchemaOptions $options
      *
      * @api
@@ -131,11 +126,10 @@ class BuildSchema
      * Given that AST it constructs a @see \GraphQL\Type\Schema. The resulting schema
      * has no resolve methods, so execution will use default resolvers.
      *
-     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
-     * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
-     *
      * @param array<string, bool> $options
      *
+     * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
      * @phpstan-param BuildSchemaOptions $options
      *
      * @api
@@ -210,7 +204,6 @@ class BuildSchema
         $definitionBuilder = new ASTDefinitionBuilder(
             $typeDefinitionsMap,
             $typeExtensionsMap,
-            // @phpstan-ignore-next-line TODO add union type when available
             static function (string $typeName): Type {
                 throw self::unknownType($typeName);
             },
@@ -238,12 +231,19 @@ class BuildSchema
         if (! isset($directivesByName['deprecated'])) {
             $directives[] = Directive::deprecatedDirective();
         }
+        if (! isset($directivesByName['specifiedBy'])) {
+            $directives[] = Directive::specifiedByDirective();
+        }
+        if (! isset($directivesByName['oneOf'])) {
+            $directives[] = Directive::oneOfDirective();
+        }
 
         // Note: While this could make early assertions to get the correctly
         // typed values below, that would throw immediately while type system
         // validation with validateSchema() will produce more actionable results.
         return new Schema(
             (new SchemaConfig())
+                ->setDescription($schemaDef->description->value ?? null)
             // @phpstan-ignore-next-line
                 ->setQuery(isset($operationTypes['query'])
                     ? $definitionBuilder->maybeBuildType($operationTypes['query'])

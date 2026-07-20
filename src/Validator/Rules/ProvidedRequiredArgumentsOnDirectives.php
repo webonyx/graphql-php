@@ -44,13 +44,13 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
     }
 
     /**
-     * @phpstan-return VisitorArray
-     *
      * @throws \Exception
      * @throws \InvalidArgumentException
      * @throws \ReflectionException
      * @throws Error
      * @throws InvariantViolation
+     *
+     * @phpstan-return VisitorArray
      */
     public function getASTVisitor(ValidationContext $context): array
     {

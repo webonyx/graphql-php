@@ -59,7 +59,9 @@ final class Issue396Test extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $exampleType]);
+        $schema = new Schema([
+            'query' => $exampleType,
+        ]);
 
         $query = '
             query {

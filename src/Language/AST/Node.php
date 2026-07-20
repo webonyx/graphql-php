@@ -62,17 +62,17 @@ abstract class Node implements \JsonSerializable
      *
      * @phpstan-param TCloneable $value
      *
-     * @phpstan-return TCloneable
-     *
      * @throws \JsonException
      * @throws InvariantViolation
+     *
+     * @phpstan-return TCloneable
      */
     protected static function cloneValue($value)
     {
         if ($value instanceof self) {
             $cloned = clone $value;
             foreach (get_object_vars($cloned) as $prop => $propValue) {
-                $cloned->{$prop} = static::cloneValue($propValue);
+                $cloned->{$prop} = static::cloneValue($propValue); // @phpstan-ignore argument.templateType
             }
 
             return $cloned;

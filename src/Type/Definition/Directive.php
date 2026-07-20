@@ -2,7 +2,6 @@
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 
@@ -23,10 +22,16 @@ class Directive
     public const DEFAULT_DEPRECATION_REASON = 'No longer supported';
 
     public const INCLUDE_NAME = 'include';
-    public const IF_ARGUMENT_NAME = 'if';
     public const SKIP_NAME = 'skip';
+    public const IF_ARGUMENT_NAME = 'if';
+
     public const DEPRECATED_NAME = 'deprecated';
     public const REASON_ARGUMENT_NAME = 'reason';
+
+    public const SPECIFIED_BY_NAME = 'specifiedBy';
+    public const URL_ARGUMENT_NAME = 'url';
+
+    public const ONE_OF_NAME = 'oneOf';
 
     /**
      * Lazily initialized.
@@ -75,21 +80,28 @@ class Directive
         $this->config = $config;
     }
 
-    /**
-     * @throws InvariantViolation
-     *
-     * @return array<string, Directive>
-     */
-    public static function getInternalDirectives(): array
+    /** @return array<string, Directive> */
+    public static function builtInDirectives(): array
     {
         return [
             self::INCLUDE_NAME => self::includeDirective(),
             self::SKIP_NAME => self::skipDirective(),
             self::DEPRECATED_NAME => self::deprecatedDirective(),
+            self::SPECIFIED_BY_NAME => self::specifiedByDirective(),
+            self::ONE_OF_NAME => self::oneOfDirective(),
         ];
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @deprecated use {@see Directive::builtInDirectives()}
+     *
+     * @return array<string, Directive>
+     */
+    public static function getInternalDirectives(): array
+    {
+        return self::builtInDirectives();
+    }
+
     public static function includeDirective(): Directive
     {
         return self::$internalDirectives[self::INCLUDE_NAME] ??= new self([
@@ -109,7 +121,6 @@ class Directive
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function skipDirective(): Directive
     {
         return self::$internalDirectives[self::SKIP_NAME] ??= new self([
@@ -129,7 +140,6 @@ class Directive
         ]);
     }
 
-    /** @throws InvariantViolation */
     public static function deprecatedDirective(): Directive
     {
         return self::$internalDirectives[self::DEPRECATED_NAME] ??= new self([
@@ -151,10 +161,44 @@ class Directive
         ]);
     }
 
-    /** @throws InvariantViolation */
+    public static function oneOfDirective(): Directive
+    {
+        return self::$internalDirectives[self::ONE_OF_NAME] ??= new self([
+            'name' => self::ONE_OF_NAME,
+            'description' => 'Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its fields be provided).',
+            'locations' => [
+                DirectiveLocation::INPUT_OBJECT,
+            ],
+            'args' => [],
+        ]);
+    }
+
+    public static function specifiedByDirective(): Directive
+    {
+        return self::$internalDirectives[self::SPECIFIED_BY_NAME] ??= new self([
+            'name' => self::SPECIFIED_BY_NAME,
+            'description' => 'Exposes a URL that specifies the behavior of this scalar.',
+            'locations' => [
+                DirectiveLocation::SCALAR,
+            ],
+            'args' => [
+                self::URL_ARGUMENT_NAME => [
+                    'type' => Type::nonNull(Type::string()),
+                    'description' => 'The URL that specifies the behavior of this scalar.',
+                ],
+            ],
+        ]);
+    }
+
+    public static function isBuiltInDirective(self $directive): bool
+    {
+        return array_key_exists($directive->name, self::builtInDirectives());
+    }
+
+    /** @deprecated use {@see Directive::isBuiltInDirective()} */
     public static function isSpecifiedDirective(Directive $directive): bool
     {
-        return array_key_exists($directive->name, self::getInternalDirectives());
+        return self::isBuiltInDirective($directive);
     }
 
     public static function resetCachedInstances(): void

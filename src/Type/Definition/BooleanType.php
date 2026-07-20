@@ -36,6 +36,10 @@ class BooleanType extends ScalarType
         throw new Error("Boolean cannot represent a non boolean value: {$notBoolean}");
     }
 
+    /**
+     * @throws \JsonException
+     * @throws Error
+     */
     public function parseLiteral(Node $valueNode, ?array $variables = null): bool
     {
         if ($valueNode instanceof BooleanValueNode) {

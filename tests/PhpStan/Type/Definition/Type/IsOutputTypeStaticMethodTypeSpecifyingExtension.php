@@ -16,8 +16,7 @@ use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
 
 final class IsOutputTypeStaticMethodTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
-    /** @var TypeSpecifier */
-    private $typeSpecifier;
+    private TypeSpecifier $typeSpecifier;
 
     public function getClass(): string
     {

@@ -56,7 +56,7 @@ trait ImplementingTypeImplementation
         }
 
         foreach ($interfaces as $interface) {
-            $this->interfaces[] = Schema::resolveType($interface);
+            $this->interfaces[] = Schema::resolveType($interface); // @phpstan-ignore argument.templateType
         }
     }
 

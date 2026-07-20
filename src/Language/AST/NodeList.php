@@ -104,12 +104,16 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * Remove a portion of the NodeList and replace it with something else.
      *
-     * @param T|array<T>|null $replacement
+     * @param T|iterable<T>|null $replacement
      *
      * @phpstan-return NodeList<T> the NodeList with the extracted elements
      */
     public function splice(int $offset, int $length, $replacement = null): NodeList
     {
+        if (is_iterable($replacement) && ! is_array($replacement)) {
+            $replacement = iterator_to_array($replacement);
+        }
+
         return new NodeList(
             array_splice($this->nodes, $offset, $length, $replacement)
         );

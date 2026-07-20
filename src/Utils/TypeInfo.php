@@ -11,6 +11,7 @@ use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
@@ -386,39 +387,43 @@ class TypeInfo
 
     public function leave(Node $node): void
     {
-        switch (true) {
-            case $node instanceof SelectionSetNode:
+        switch ($node->kind) {
+            case NodeKind::SELECTION_SET:
                 array_pop($this->parentTypeStack);
                 break;
 
-            case $node instanceof FieldNode:
+            case NodeKind::FIELD:
                 array_pop($this->fieldDefStack);
                 array_pop($this->typeStack);
                 break;
 
-            case $node instanceof DirectiveNode:
+            case NodeKind::DIRECTIVE:
                 $this->directive = null;
                 break;
 
-            case $node instanceof OperationDefinitionNode:
-            case $node instanceof InlineFragmentNode:
-            case $node instanceof FragmentDefinitionNode:
+            case NodeKind::OPERATION_DEFINITION:
+            case NodeKind::INLINE_FRAGMENT:
+            case NodeKind::FRAGMENT_DEFINITION:
                 array_pop($this->typeStack);
                 break;
-            case $node instanceof VariableDefinitionNode:
+
+            case NodeKind::VARIABLE_DEFINITION:
                 array_pop($this->inputTypeStack);
                 break;
-            case $node instanceof ArgumentNode:
+
+            case NodeKind::ARGUMENT:
                 $this->argument = null;
                 array_pop($this->defaultValueStack);
                 array_pop($this->inputTypeStack);
                 break;
-            case $node instanceof ListValueNode:
-            case $node instanceof ObjectFieldNode:
+
+            case NodeKind::LST:
+            case NodeKind::OBJECT_FIELD:
                 array_pop($this->defaultValueStack);
                 array_pop($this->inputTypeStack);
                 break;
-            case $node instanceof EnumValueNode:
+
+            case NodeKind::ENUM:
                 $this->enumValue = null;
                 break;
         }

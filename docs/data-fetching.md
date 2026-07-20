@@ -123,8 +123,9 @@ To override the default resolver, pass it as an argument to [executeQuery](execu
 
 ## Default Field Resolver per Type
 
-Sometimes it might be convenient to set default field resolver per type. You can do so by providing
-[resolveField option in type config](type-definitions/object-types.md#configuration-options). For example:
+Sometimes it might be convenient to set a default field resolver per type.
+You can do so by providing [the **resolveField** option in the type config](type-definitions/object-types.md#configuration-options).
+For example:
 
 ```php
 use GraphQL\Type\Definition\Type;
@@ -137,7 +138,7 @@ $userType = new ObjectType([
         'name' => Type::string(),
         'email' => Type::string()
     ],
-    'resolveField' => function (User $user, array $args, $context, ResolveInfo $info) {
+    'resolveField' => function (User $user, array $args, $context, ResolveInfo $info): ?string {
         switch ($info->fieldName) {
             case 'name': return $user->getName();
             case 'email': return $user->getEmail();
@@ -173,7 +174,7 @@ $queryType = new ObjectType([
                 // Fictitious API, use whatever database access your application/framework provides
                 $builder = Story::builder();
                 foreach ($resolveInfo->getFieldSelection() as $field => $_) {
-                  $builder->addSelect($field);
+                    $builder->addSelect($field);
                 }
 
                 return $builder->last();
@@ -188,7 +189,7 @@ $queryType = new ObjectType([
 Since: 0.9.0
 
 One of the most annoying problems with data fetching is a so-called
-[N+1 problem](https://secure.phabricator.com/book/phabcontrib/article/n_plus_one/). <br>
+[N+1 problem](https://secure.phabricator.com/book/phabcontrib/article/n_plus_one). <br>
 Consider following GraphQL query:
 
 ```graphql
@@ -261,7 +262,7 @@ If your project runs in an environment that supports async operations
 you can leverage the power of your platform to resolve some fields asynchronously.
 
 The only requirement: your platform must support the concept of Promises compatible with
-[Promises A+](https://promisesaplus.com/) specification.
+[Promises A+](https://promisesaplus.com) specification.
 
 To start using this feature, switch facade method for query execution from
 **executeQuery** to **promiseToExecute**:
@@ -292,7 +293,7 @@ Where **$promiseAdapter** is an instance of:
 - For [AMPHP](https://github.com/amphp/amp): <br>
   `GraphQL\Executor\Promise\Adapter\AmpPromiseAdapter`
 
-- For [Swoole](https://swoole.com/) or [OpenSwoole](https://openswoole.com/): <br>
+- For [Swoole](https://swoole.com) or [OpenSwoole](https://openswoole.com): <br>
   You can use an external library: [Resonance](https://resonance.distantmagic.com/docs/features/graphql/standalone-promise-adapter.html)
 
 - Other platforms: write your own class implementing interface: <br>
