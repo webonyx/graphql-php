@@ -36,3 +36,19 @@ The following elements are part of the stable public API:
 - Keep changes focused and minimal.
 - Run `make stan` and `make test` for behavioral changes.
 - Use `make fix` for style/refactoring consistency when needed.
+- Only add `/** @see it('...') */` to a test when it has a direct counterpart with that exact name in graphql-js.
+
+## Release Workflow
+
+After merging a PR and releasing:
+
+1. Merge the PR via `gh pr merge` (use `--merge` for a merge commit)
+2. Pull latest master: `git pull`
+3. Update CHANGELOG.md: move the entry from `## Unreleased` into a new versioned section (e.g. `## v15.32.0`), add the PR URL as a reference, leave an empty `## Unreleased` at the top
+4. Commit and push the CHANGELOG update to master
+5. Create the release: `gh release create vX.Y.Z --repo webonyx/graphql-php --title "vX.Y.Z" --notes "..."`
+6. Comment on the PR thanking the author and linking the release: `gh pr comment <number> --repo webonyx/graphql-php --body "Thanks @<author>! Released as [vX.Y.Z](<url>)."`
+
+Version bump rules (semver):
+- New feature → minor bump (v15.31.x → v15.32.0)
+- Bug fix / change → patch bump (v15.31.x → v15.31.x+1)

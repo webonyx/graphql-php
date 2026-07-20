@@ -122,17 +122,12 @@ class Schema
     public function getTypeMap(): array
     {
         if (! $this->fullyLoaded) {
-            $types = $this->config->types;
-            if (is_callable($types)) {
-                $types = $types();
-            }
-
             // Reset order of user provided types, since calls to getType() may have loaded them
             $this->resolvedTypes = [];
 
             $scalarOverrides = $this->getScalarOverrides();
 
-            foreach ($types as $typeOrLazyType) {
+            foreach ($this->materializeTypes() as $typeOrLazyType) {
                 /** @var Type|callable(): Type $typeOrLazyType */
                 $type = self::resolveType($typeOrLazyType);
                 assert($type instanceof NamedType);
@@ -380,20 +375,8 @@ class Schema
         if ($this->scalarOverrides === null) {
             $this->scalarOverrides = [];
 
-            $types = $this->config->types;
-            if (is_callable($types)) {
-                $types = $types();
-            }
-
-            // Materialize the iterable in case it is a generator, so that
-            // getTypeMap() can still iterate config->types later.
-            if (! is_array($types)) {
-                $types = iterator_to_array($types);
-                $this->config->types = $types;
-            }
-
             $builtInScalars = Type::builtInScalars();
-            foreach ($types as $typeOrLazyType) {
+            foreach ($this->materializeTypes() as $typeOrLazyType) {
                 /** @var Type|callable(): Type $typeOrLazyType */
                 $type = self::resolveType($typeOrLazyType);
                 if ($type instanceof ScalarType
@@ -406,6 +389,26 @@ class Schema
         }
 
         return $this->scalarOverrides;
+    }
+
+    /**
+     * Resolve config->types to an array, materializing callables and generators.
+     *
+     * @return array<Type|callable(): Type>
+     */
+    private function materializeTypes(): array
+    {
+        $types = $this->config->types;
+        if (is_callable($types)) {
+            $types = $types();
+        }
+
+        if (! is_array($types)) {
+            $types = iterator_to_array($types);
+            $this->config->types = $types;
+        }
+
+        return $types;
     }
 
     /**

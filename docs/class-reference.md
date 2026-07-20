@@ -1157,7 +1157,8 @@ Parses string containing GraphQL query language or [schema definition language](
   noLocation?: bool,
   allowLegacySDLEmptyFields?: bool,
   allowLegacySDLImplementsInterfaces?: bool,
-  experimentalFragmentVariables?: bool
+  experimentalFragmentVariables?: bool,
+  recursionLimit?: int<0, max>
 }
 ```
 
@@ -1187,6 +1188,11 @@ Parses string containing GraphQL query language or [schema definition language](
   ```
 
   Note: this feature is experimental and may change or be removed in the future.
+
+- **recursionLimit**:
+  Limits the depth of recursion during parsing to prevent stack overflows from deeply nested queries.
+  The counter is shared across `parseSelectionSet`, `parseValueLiteral`, and `parseTypeReference`.
+  Defaults to 256. Set to 0 to disable the limit.
 
 Those magic functions allow partial parsing:
 
@@ -1799,6 +1805,8 @@ function toArray(int $debug = 'GraphQL\\Error\\DebugFlag::NONE'): array
 
 Provides a means for integration of async PHP platforms ([related docs](data-fetching.md#async-php)).
 
+@template TAdopted = mixed
+
 ### GraphQL\Executor\Promise\PromiseAdapter Methods
 
 ```php
@@ -1818,6 +1826,8 @@ function isThenable($value): bool
  *
  * @param mixed $thenable
  *
+ * @phpstan-return Promise<TAdopted>
+ *
  * @api
  */
 function convertThenable($thenable): GraphQL\Executor\Promise\Promise
@@ -1827,6 +1837,10 @@ function convertThenable($thenable): GraphQL\Executor\Promise\Promise
 /**
  * Accepts our Promise wrapper, extracts adopted promise out of it and executes actual `then` logic described
  * in Promises/A+ specs. Then returns new wrapped instance of GraphQL\Executor\Promise\Promise.
+ *
+ * @phpstan-param Promise<covariant TAdopted> $promise
+ *
+ * @phpstan-return Promise<TAdopted>
  *
  * @api
  */
@@ -1843,6 +1857,8 @@ function then(
  *
  * @param callable(callable $resolve, callable $reject): void $resolver
  *
+ * @phpstan-return Promise<TAdopted>
+ *
  * @api
  */
 function create(callable $resolver): GraphQL\Executor\Promise\Promise
@@ -1854,6 +1870,8 @@ function create(callable $resolver): GraphQL\Executor\Promise\Promise
  *
  * @param mixed $value
  *
+ * @phpstan-return Promise<TAdopted>
+ *
  * @api
  */
 function createFulfilled($value = null): GraphQL\Executor\Promise\Promise
@@ -1861,9 +1879,9 @@ function createFulfilled($value = null): GraphQL\Executor\Promise\Promise
 
 ```php
 /**
- * Creates a rejected promise for a reason if the reason is not a promise.
+ * Return a promise rejected with the given reason.
  *
- * If the provided reason is a promise, then it is returned as-is.
+ * @phpstan-return Promise<TAdopted>
  *
  * @api
  */
@@ -1876,6 +1894,8 @@ function createRejected(Throwable $reason): GraphQL\Executor\Promise\Promise
  * items in the iterable are fulfilled.
  *
  * @param iterable<Promise|mixed> $promisesOrValues
+ *
+ * @phpstan-return Promise<TAdopted>
  *
  * @api
  */

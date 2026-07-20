@@ -1,6 +1,6 @@
 ## Server Integrations
 
-- [Standard Server](executing-queries.md#using-server) – Out of the box integration with any PSR-7 compatible framework (like [Slim](https://slimframework.com) or [Laminas Mezzio](https://docs.mezzio.dev/mezzio/))
+- [Standard Server](executing-queries.md#using-server) – Out of the box integration with any PSR-7 compatible framework (like [Slim](https://slimframework.com) or [Laminas Mezzio](https://docs.mezzio.dev/mezzio))
 - [Lighthouse](https://github.com/nuwave/lighthouse) – Laravel package, SDL-first
 - [Laravel GraphQL](https://github.com/rebing/graphql-laravel) - Laravel package, code-first
 - [OverblogGraphQLBundle](https://github.com/overblog/GraphQLBundle) – Symfony bundle
@@ -19,7 +19,7 @@
 - [GraphQL Batch Processor](https://github.com/vasily-kartashov/graphql-batch-processing) – Provides a builder interface for defining collection, querying, filtering, and post-processing logic of batched data fetches
 - [GraphQL Utils](https://github.com/simPod/GraphQL-Utils) – Objective schema definition builders (no need for arrays anymore)
 - [Relay Library](https://github.com/ivome/graphql-relay-php) – Helps construct Relay related schema definitions
-- [Resonance/GraphQL](https://resonance.distantmagic.com/docs/features/graphql/) – Integrates with Swoole for parallelism. Define your schema code-first with annotations.
+- [Resonance/GraphQL](https://resonance.distantmagic.com/docs/features/graphql) – Integrates with Swoole for parallelism. Define your schema code-first with annotations.
 - [GraphQL PHP Validation Toolkit](https://github.com/shmax/graphql-php-validation-toolkit) - Small library for validation of user input
 - [MLL Scalars](https://github.com/mll-lab/graphql-php-scalars) - Collection of custom scalar types
 - [X GraphQL](https://github.com/x-graphql) - Provides set of libraries for building http schema, schema gateway, transforming schema, generating PHP code from execution definition, and more.

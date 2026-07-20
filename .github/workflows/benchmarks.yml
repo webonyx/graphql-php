@@ -17,14 +17,14 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
           coverage: none
           php-version: "8.3"
 
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@v4
 
       - name: Run PHPBench
         run: |
@@ -36,6 +36,7 @@ jobs:
         run: php benchmarks/convert-results.php benchmark.xml > benchmark-results.json
 
       - uses: benchmark-action/github-action-benchmark@v1
+        if: github.repository == 'webonyx/graphql-php'
         with:
           tool: customSmallerIsBetter
           output-file-path: benchmark-results.json
@@ -57,14 +58,14 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
           coverage: none
           php-version: "8.3"
 
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@v4
 
       - name: Run PHPBench
         run: |
@@ -76,6 +77,7 @@ jobs:
         run: php benchmarks/convert-results.php benchmark.xml > benchmark-results.json
 
       - uses: benchmark-action/github-action-benchmark@v1
+        if: github.repository == 'webonyx/graphql-php'
         with:
           tool: customSmallerIsBetter
           output-file-path: benchmark-results.json
