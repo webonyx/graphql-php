@@ -21,7 +21,7 @@ trait NamedTypeImplementation
     /** @throws InvariantViolation */
     protected function inferName(): string
     {
-        if (isset($this->name)) {
+        if (isset($this->name)) { // @phpstan-ignore-line property might be uninitialized
             return $this->name;
         }
 

@@ -6,17 +6,16 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
 /**
- * Note: named OtherCustom vs OtherCustomType intentionally.
+ * Named OtherCustom vs. OtherCustomType intentionally.
  */
 final class OtherCustom extends ObjectType
 {
     public function __construct()
     {
-        $config = [
+        parent::__construct([
             'fields' => [
                 'b' => Type::string(),
             ],
-        ];
-        parent::__construct($config);
+        ]);
     }
 }

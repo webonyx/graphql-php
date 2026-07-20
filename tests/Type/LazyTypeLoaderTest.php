@@ -29,7 +29,7 @@ final class LazyTypeLoaderTest extends TypeLoaderTestCaseBase
     /** @var array<string, Type> */
     private array $loadedTypes = [];
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

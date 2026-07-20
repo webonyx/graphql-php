@@ -65,43 +65,42 @@ use GraphQL\Language\AST\VariableNode;
  *   noLocation?: bool,
  *   allowLegacySDLEmptyFields?: bool,
  *   allowLegacySDLImplementsInterfaces?: bool,
- *   experimentalFragmentVariables?: bool
+ *   experimentalFragmentVariables?: bool,
+ *   recursionLimit?: int<0, max>
  * }
  *
- * noLocation:
- *   (By default, the parser creates AST nodes that know the location
- *   in the source that they correspond to. This configuration flag
- *   disables that behavior for performance or testing.)
+ * - **noLocation**:
+ *   By default, the parser creates AST nodes that know the location in the source.
+ *   This configuration flag disables that behavior for performance or testing.
  *
- * allowLegacySDLEmptyFields:
- *   If enabled, the parser will parse empty fields sets in the Schema
- *   Definition Language. Otherwise, the parser will follow the current
- *   specification.
+ * - **allowLegacySDLEmptyFields**:
+ *   If enabled, the parser will parse empty fields sets in the Schema Definition Language.
+ *   Otherwise, the parser will follow the current specification.
+ *   This option is provided to ease adoption of the final SDL specification and will be removed in a future major release.
  *
- *   This option is provided to ease adoption of the final SDL specification
- *   and will be removed in a future major release.
+ * - **allowLegacySDLImplementsInterfaces**:
+ *   If enabled, the parser will parse implemented interfaces with no `&` character between each interface.
+ *   Otherwise, the parser will follow the current specification.
+ *   This option is provided to ease adoption of the final SDL specification and will be removed in a future major release.
  *
- * allowLegacySDLImplementsInterfaces:
- *   If enabled, the parser will parse implemented interfaces with no `&`
- *   character between each interface. Otherwise, the parser will follow the
- *   current specification.
- *
- *   This option is provided to ease adoption of the final SDL specification
- *   and will be removed in a future major release.
- *
- * experimentalFragmentVariables:
- *   (If enabled, the parser will understand and parse variable definitions
- *   contained in a fragment definition. They'll be represented in the
- *   `variableDefinitions` field of the FragmentDefinitionNode.
- *
+ * - **experimentalFragmentVariables**:
+ *   If enabled, the parser will understand and parse variable definitions contained in a fragment definition.
+ *   They'll be represented in the `variableDefinitions` field of the FragmentDefinitionNode.
  *   The syntax is identical to normal, query-defined variables. For example:
  *
- *     fragment A($var: Boolean = false) on T  {
- *       ...
- *     }
+ *   ```graphql
+ *   fragment A($var: Boolean = false) on T {
+ *     ...
+ *   }
+ *   ```
  *
- *   Note: this feature is experimental and may change or be removed in the
- *   future.)
+ *   Note: this feature is experimental and may change or be removed in the future.
+ *
+ * - **recursionLimit**:
+ *   Limits the depth of recursion during parsing to prevent stack overflows from deeply nested queries.
+ *   The counter is shared across `parseSelectionSet`, `parseValueLiteral`, and `parseTypeReference`.
+ *   Defaults to 256. Set to 0 to disable the limit.
+ *
  * Those magic functions allow partial parsing:
  *
  * @method static NameNode name(Source|string $source, ParserOptions $options = [])
@@ -174,6 +173,9 @@ use GraphQL\Language\AST\VariableNode;
  */
 class Parser
 {
+    /** @api */
+    public const DEFAULT_RECURSION_LIMIT = 256;
+
     /**
      * Given a GraphQL source, parses it into a `GraphQL\Language\AST\DocumentNode`.
      *
@@ -324,6 +326,10 @@ class Parser
 
     private Lexer $lexer;
 
+    private int $recursionDepth = 0;
+
+    private int $recursionLimit;
+
     /**
      * @param Source|string $source
      *
@@ -335,6 +341,7 @@ class Parser
             ? $source
             : new Source($source);
         $this->lexer = new Lexer($sourceObj, $options);
+        $this->recursionLimit = $options['recursionLimit'] ?? self::DEFAULT_RECURSION_LIMIT;
     }
 
     /**
@@ -348,6 +355,16 @@ class Parser
         }
 
         return null;
+    }
+
+    /** @throws SyntaxError */
+    private function increaseRecursionDepth(): void
+    {
+        if ($this->recursionLimit > 0 && $this->recursionDepth >= $this->recursionLimit) {
+            throw new SyntaxError($this->lexer->source, $this->lexer->token->start, "Recursion depth limit of {$this->recursionLimit} exceeded");
+        }
+
+        ++$this->recursionDepth;
     }
 
     /** Determines if the next token is of a given kind. */
@@ -708,18 +725,24 @@ class Parser
      */
     private function parseSelectionSet(): SelectionSetNode
     {
-        $start = $this->lexer->token;
+        $this->increaseRecursionDepth();
 
-        return new SelectionSetNode(
-            [
-                'selections' => $this->many(
-                    Token::BRACE_L,
-                    fn (): SelectionNode => $this->parseSelection(),
-                    Token::BRACE_R
-                ),
-                'loc' => $this->loc($start),
-            ]
-        );
+        try {
+            $start = $this->lexer->token;
+
+            return new SelectionSetNode(
+                [
+                    'selections' => $this->many(
+                        Token::BRACE_L,
+                        fn (): SelectionNode => $this->parseSelection(),
+                        Token::BRACE_R
+                    ),
+                    'loc' => $this->loc($start),
+                ]
+            );
+        } finally {
+            --$this->recursionDepth;
+        }
     }
 
     /**
@@ -918,67 +941,73 @@ class Parser
      */
     private function parseValueLiteral(bool $isConst): ValueNode
     {
-        $token = $this->lexer->token;
-        switch ($token->kind) {
-            case Token::BRACKET_L:
-                return $this->parseArray($isConst);
+        $this->increaseRecursionDepth();
 
-            case Token::BRACE_L:
-                return $this->parseObject($isConst);
+        try {
+            $token = $this->lexer->token;
+            switch ($token->kind) {
+                case Token::BRACKET_L:
+                    return $this->parseArray($isConst);
 
-            case Token::INT:
-                $this->lexer->advance();
+                case Token::BRACE_L:
+                    return $this->parseObject($isConst);
 
-                return new IntValueNode([
-                    'value' => $token->value,
-                    'loc' => $this->loc($token),
-                ]);
-
-            case Token::FLOAT:
-                $this->lexer->advance();
-
-                return new FloatValueNode([
-                    'value' => $token->value,
-                    'loc' => $this->loc($token),
-                ]);
-
-            case Token::STRING:
-            case Token::BLOCK_STRING:
-                return $this->parseStringLiteral();
-
-            case Token::NAME:
-                if ($token->value === 'true' || $token->value === 'false') {
+                case Token::INT:
                     $this->lexer->advance();
 
-                    return new BooleanValueNode([
-                        'value' => $token->value === 'true',
+                    return new IntValueNode([
+                        'value' => $token->value,
                         'loc' => $this->loc($token),
                     ]);
-                }
 
-                if ($token->value === 'null') {
+                case Token::FLOAT:
                     $this->lexer->advance();
 
-                    return new NullValueNode([
+                    return new FloatValueNode([
+                        'value' => $token->value,
                         'loc' => $this->loc($token),
                     ]);
-                }
-                $this->lexer->advance();
 
-                return new EnumValueNode([
-                    'value' => $token->value,
-                    'loc' => $this->loc($token),
-                ]);
+                case Token::STRING:
+                case Token::BLOCK_STRING:
+                    return $this->parseStringLiteral();
 
-            case Token::DOLLAR:
-                if (! $isConst) {
-                    return $this->parseVariable();
-                }
+                case Token::NAME:
+                    if ($token->value === 'true' || $token->value === 'false') {
+                        $this->lexer->advance();
 
-                break;
+                        return new BooleanValueNode([
+                            'value' => $token->value === 'true',
+                            'loc' => $this->loc($token),
+                        ]);
+                    }
+
+                    if ($token->value === 'null') {
+                        $this->lexer->advance();
+
+                        return new NullValueNode([
+                            'loc' => $this->loc($token),
+                        ]);
+                    }
+                    $this->lexer->advance();
+
+                    return new EnumValueNode([
+                        'value' => $token->value,
+                        'loc' => $this->loc($token),
+                    ]);
+
+                case Token::DOLLAR:
+                    if (! $isConst) {
+                        return $this->parseVariable();
+                    }
+
+                    break;
+            }
+
+            throw $this->unexpected();
+        } finally {
+            --$this->recursionDepth;
         }
-
-        throw $this->unexpected();
     }
 
     /**
@@ -1115,27 +1144,33 @@ class Parser
      */
     private function parseTypeReference(): TypeNode
     {
-        $start = $this->lexer->token;
+        $this->increaseRecursionDepth();
 
-        if ($this->skip(Token::BRACKET_L)) {
-            $type = $this->parseTypeReference();
-            $this->expect(Token::BRACKET_R);
-            $type = new ListTypeNode([
-                'type' => $type,
-                'loc' => $this->loc($start),
-            ]);
-        } else {
-            $type = $this->parseNamedType();
+        try {
+            $start = $this->lexer->token;
+
+            if ($this->skip(Token::BRACKET_L)) {
+                $type = $this->parseTypeReference();
+                $this->expect(Token::BRACKET_R);
+                $type = new ListTypeNode([
+                    'type' => $type,
+                    'loc' => $this->loc($start),
+                ]);
+            } else {
+                $type = $this->parseNamedType();
+            }
+
+            if ($this->skip(Token::BANG)) {
+                return new NonNullTypeNode([
+                    'type' => $type,
+                    'loc' => $this->loc($start),
+                ]);
+            }
+
+            return $type;
+        } finally {
+            --$this->recursionDepth;
         }
-
-        if ($this->skip(Token::BANG)) {
-            return new NonNullTypeNode([
-                'type' => $type,
-                'loc' => $this->loc($start),
-            ]);
-        }
-
-        return $type;
     }
 
     /**
@@ -1223,6 +1258,7 @@ class Parser
     private function parseSchemaDefinition(): SchemaDefinitionNode
     {
         $start = $this->lexer->token;
+        $description = $this->parseDescription();
         $this->expectKeyword('schema');
         $directives = $this->parseDirectives(true);
 
@@ -1236,6 +1272,7 @@ class Parser
             'directives' => $directives,
             'operationTypes' => $operationTypes,
             'loc' => $this->loc($start),
+            'description' => $description,
         ]);
     }
 

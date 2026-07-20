@@ -69,6 +69,10 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         return (int) $value;
     }
 
+    /**
+     * @throws \JsonException
+     * @throws Error
+     */
     public function parseLiteral(Node $valueNode, ?array $variables = null): int
     {
         if ($valueNode instanceof IntValueNode) {

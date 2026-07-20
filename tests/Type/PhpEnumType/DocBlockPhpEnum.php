@@ -4,10 +4,14 @@ namespace GraphQL\Tests\Type\PhpEnumType;
 
 use GraphQL\Type\Definition\Description;
 
-/** foo */
+/**
+ * foo.
+ */
 enum DocBlockPhpEnum
 {
-    /** ignored */
+    /**
+     * ignored.
+     */
     #[Description(description: 'preferred')]
     case A;
     /**

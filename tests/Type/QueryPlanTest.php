@@ -270,7 +270,9 @@ final class QueryPlanTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $blogQuery]);
+        $schema = new Schema([
+            'query' => $blogQuery,
+        ]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
         self::assertSame(['data' => ['article' => null]], $result);
@@ -328,7 +330,9 @@ final class QueryPlanTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $blogQuery]);
+        $schema = new Schema([
+            'query' => $blogQuery,
+        ]);
         GraphQL::executeQuery($schema, $doc);
 
         self::assertInstanceOf(QueryPlan::class, $queryPlan);
@@ -462,7 +466,9 @@ final class QueryPlanTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $petsQuery]);
+        $schema = new Schema([
+            'query' => $petsQuery,
+        ]);
         GraphQL::executeQuery($schema, /** @lang GraphQL */ '
         {
           pets {
@@ -760,7 +766,9 @@ final class QueryPlanTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $blogQuery]);
+        $schema = new Schema([
+            'query' => $blogQuery,
+        ]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
         self::assertNotNull($queryPlan);
@@ -1080,7 +1088,9 @@ GRAPHQL;
             ]
         );
 
-        $schema = new Schema(['query' => $query]);
+        $schema = new Schema([
+            'query' => $query,
+        ]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
         self::assertTrue($hasCalled);

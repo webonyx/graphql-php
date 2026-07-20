@@ -36,7 +36,7 @@ final class CoerceInputValueTest extends TestCase
     /** @var ListOfType<ListOfType<ScalarType>> */
     private ListOfType $testNestedList;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->testNonNull = Type::nonNull(Type::int());
 
@@ -479,7 +479,7 @@ final class CoerceInputValueTest extends TestCase
      * @see it('throw error without path', () => {
      * @see it('throw error with path', () => {
      *
-     * Not necessary because we do not implement the callback variant coerceInputValue.
+     * Unnecessary because we do not implement the callback variant coerceInputValue.
      */
 
     /**

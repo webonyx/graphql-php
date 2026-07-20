@@ -31,7 +31,7 @@ interface LeafType
     /**
      * Parses an externally provided value (query variable) to use as an input.
      *
-     * Should throw an exception with a client friendly message on invalid values, @see ClientAware.
+     * Should throw an exception with a client-friendly message on invalid values, @see ClientAware.
      *
      * @param mixed $value
      *
@@ -44,7 +44,7 @@ interface LeafType
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
      *
-     * Should throw an exception with a client friendly message on invalid value nodes, @see ClientAware.
+     * Should throw an exception with a client-friendly message on invalid value nodes, @see ClientAware.
      *
      * @param ValueNode&Node $valueNode
      * @param array<string, mixed>|null $variables

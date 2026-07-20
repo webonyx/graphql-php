@@ -60,7 +60,7 @@ class Lexer
     /** @phpstan-param ParserOptions $options */
     public function __construct(Source $source, array $options = [])
     {
-        $startOfFileToken = new Token(Token::SOF, 0, 0, 0, 0, null);
+        $startOfFileToken = new Token(Token::SOF, 0, 0, 0, 0);
 
         $this->source = $source;
         $this->options = $options;
@@ -269,21 +269,11 @@ class Lexer
      */
     private function readName(int $line, int $col, Token $prev): Token
     {
-        $value = '';
         $start = $this->position;
-        [$char, $code] = $this->readChar();
-
-        while (
-            $code !== null && (
-                $code === 95 // _
-                || ($code >= 48 && $code <= 57) // 0-9
-                || ($code >= 65 && $code <= 90) // A-Z
-                || ($code >= 97 && $code <= 122) // a-z
-            )
-        ) {
-            $value .= $char;
-            [$char, $code] = $this->moveStringCursor(1, 1)->readChar();
-        }
+        $body = $this->source->body;
+        $length = strspn($body, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_', $this->byteStreamPosition);
+        $value = substr($body, $this->byteStreamPosition, $length);
+        $this->moveStringCursor($length, $length);
 
         return new Token(
             Token::NAME,
@@ -408,10 +398,7 @@ class Lexer
         $chunk = '';
         $value = '';
 
-        while (
-            $code !== null
-            && $code !== 10 && $code !== 13 // not LineTerminator
-        ) {
+        while (! in_array($code, [null, 10, 13], true)) { // not LineTerminator
             if ($code === 34) { // Closing Quote (")
                 $value .= $chunk;
 
@@ -624,7 +611,7 @@ class Lexer
 
             // Skip whitespace
             // tab | space | comma | BOM
-            if ($code === 9 || $code === 32 || $code === 44 || $code === 0xFEFF) {
+            if (in_array($code, [9, 32, 44, 0xFEFF], true)) {
                 $this->moveStringCursor(1, $bytes);
             } elseif ($code === 10) { // new line
                 $this->moveStringCursor(1, $bytes);

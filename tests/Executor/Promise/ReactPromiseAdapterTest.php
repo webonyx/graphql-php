@@ -22,7 +22,7 @@ final class ReactPromiseAdapterTest extends TestCase
     /** @var class-string<object> */
     private string $classRejectedPromise;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         /** @var class-string<object> $classFulfilledPromise */
         $classFulfilledPromise = class_exists('\React\Promise\FulfilledPromise')

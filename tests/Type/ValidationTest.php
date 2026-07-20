@@ -55,7 +55,7 @@ final class ValidationTest extends TestCaseBase
 
     public float $Number;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->Number = 1;
 
@@ -601,7 +601,9 @@ final class ValidationTest extends TestCaseBase
                 ],
             ],
         ]);
-        $schema = new Schema(['query' => $QueryType]);
+        $schema = new Schema([
+            'query' => $QueryType,
+        ]);
 
         $this->assertMatchesValidationMessage(
             $schema->validate(),
@@ -2726,7 +2728,7 @@ final class ValidationTest extends TestCaseBase
         };
 
         $query = $typeLoader('Query');
-        assert($query instanceof ObjectType);
+        self::assertInstanceOf(ObjectType::class, $query);
 
         $schema = new Schema([
             'query' => $query,

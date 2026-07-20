@@ -29,7 +29,7 @@ final class ExecutorTest extends TestCase
 
     public function tearDown(): void
     {
-        Executor::setDefaultPromiseAdapter(null);
+        Executor::setDefaultPromiseAdapter();
     }
 
     // Execute: Handles basic execution tasks
@@ -156,7 +156,9 @@ final class ExecutorTest extends TestCase
                 'deeper' => ['type' => Type::listOf($dataType)],
             ],
         ]);
-        $schema = new Schema(['query' => $dataType]);
+        $schema = new Schema([
+            'query' => $dataType,
+        ]);
 
         self::assertEquals(
             $expected,
@@ -205,7 +207,9 @@ final class ExecutorTest extends TestCase
             },
         ]);
 
-        $schema = new Schema(['query' => $Type]);
+        $schema = new Schema([
+            'query' => $Type,
+        ]);
         $expected = [
             'data' => [
                 'a' => 'Apple',
@@ -826,7 +830,9 @@ final class ExecutorTest extends TestCase
                 'e' => ['type' => Type::string()],
             ],
         ]);
-        $schema = new Schema(['query' => $queryType]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
 
         $expected = [
             'data' => [
@@ -1153,7 +1159,7 @@ final class ExecutorTest extends TestCase
             }
         ');
 
-        $result = Executor::execute($schema, $query, $data, null);
+        $result = Executor::execute($schema, $query, $data);
 
         self::assertEquals(
             [
@@ -1217,7 +1223,7 @@ final class ExecutorTest extends TestCase
                     ],
                     'arrayAccess' => [
                         'type' => $ArrayAccess,
-                        'resolve' => static fn (): \ArrayAccess => new class() implements \ArrayAccess {
+                        'resolve' => static fn (): \ArrayAccess => new class implements \ArrayAccess {
                             /** @param mixed $offset */
                             #[\ReturnTypeWillChange]
                             public function offsetExists($offset): bool
@@ -1265,7 +1271,7 @@ final class ExecutorTest extends TestCase
                     ],
                     'objectField' => [
                         'type' => $ObjectField,
-                        'resolve' => static fn (): \stdClass => new class() extends \stdClass {
+                        'resolve' => static fn (): \stdClass => new class extends \stdClass {
                             public ?int $set = 1;
 
                             public ?int $unset;
@@ -1273,7 +1279,7 @@ final class ExecutorTest extends TestCase
                     ],
                     'objectVirtual' => [
                         'type' => $ObjectVirtual,
-                        'resolve' => static fn (): object => new class() {
+                        'resolve' => static fn (): object => new class {
                             public function __isset(string $name): bool
                             {
                                 switch ($name) {

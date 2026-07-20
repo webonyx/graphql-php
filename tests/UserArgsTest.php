@@ -58,6 +58,8 @@ final class UserArgsTest extends TestCase
             ],
         ]);
 
-        return new Schema(['query' => $query]);
+        return new Schema([
+            'query' => $query,
+        ]);
     }
 }

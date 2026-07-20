@@ -8,7 +8,9 @@ use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Utils\PhpDoc;
 use GraphQL\Utils\Utils;
 
-/** @phpstan-import-type PartialEnumValueConfig from EnumType */
+/**
+ * @phpstan-import-type PartialEnumValueConfig from EnumType
+ */
 class PhpEnumType extends EnumType
 {
     public const MULTIPLE_DESCRIPTIONS_DISALLOWED = 'Using more than 1 Description attribute is not supported.';
@@ -66,9 +68,9 @@ class PhpEnumType extends EnumType
         if (is_a($this->enumClass, \BackedEnum::class, true)) {
             try {
                 $instance = $this->enumClass::from($value);
-            } catch (\ValueError|\TypeError $_) {
+            } catch (\ValueError|\TypeError $error) {
                 $notEnumInstanceOrValue = Utils::printSafe($value);
-                throw new SerializationError("Cannot serialize value as enum: {$notEnumInstanceOrValue}, expected instance or valid value of {$this->enumClass}.");
+                throw new SerializationError("Cannot serialize value as enum: {$notEnumInstanceOrValue}, expected instance or valid value of {$this->enumClass}.", $error->getCode(), $error);
             }
 
             return $instance->name;
