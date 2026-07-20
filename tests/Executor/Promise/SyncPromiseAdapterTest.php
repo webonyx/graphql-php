@@ -37,7 +37,7 @@ final class SyncPromiseAdapterTest extends TestCase
         $dfd = new Deferred(static function (): void {});
         $result = $this->promises->convertThenable($dfd);
 
-        self::assertInstanceOf(SyncPromise::class, $result->adoptedPromise);
+        self::assertSame($dfd, $result->adoptedPromise);
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Expected instance of GraphQL\Deferred, got (empty string)');
@@ -51,14 +51,12 @@ final class SyncPromiseAdapterTest extends TestCase
 
         $result = $this->promises->then($promise);
 
-        self::assertInstanceOf(SyncPromise::class, $result->adoptedPromise);
+        self::assertNotSame($promise, $result);
     }
 
     public function testCreatePromise(): void
     {
-        $promise = $this->promises->create(static function ($resolve, $reject): void {});
-
-        self::assertInstanceOf(SyncPromise::class, $promise->adoptedPromise);
+        $this->promises->create(static function ($resolve, $reject): void {});
 
         $promise = $this->promises->create(static function ($resolve, $reject): void {
             $resolve('A');
@@ -200,13 +198,9 @@ final class SyncPromiseAdapterTest extends TestCase
         // until all pending promises are resolved
         self::assertSame(2, $result);
 
-        $p3AdoptedPromise = $p3->adoptedPromise;
-        self::assertInstanceOf(SyncPromise::class, $p3AdoptedPromise);
-        self::assertSame(SyncPromise::FULFILLED, $p3AdoptedPromise->state);
+        self::assertSame(SyncPromise::FULFILLED, $p3->adoptedPromise->state);
 
-        $allAdoptedPromise = $all->adoptedPromise;
-        self::assertInstanceOf(SyncPromise::class, $allAdoptedPromise);
-        self::assertSame(SyncPromise::FULFILLED, $allAdoptedPromise->state);
+        self::assertSame(SyncPromise::FULFILLED, $all->adoptedPromise->state);
 
         self::assertSame([1, 2, 3, 4], $called);
 

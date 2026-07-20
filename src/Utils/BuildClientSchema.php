@@ -111,7 +111,7 @@ class BuildClientSchema
         $schemaIntrospection = $this->introspection['__schema'];
 
         $builtInTypes = array_merge(
-            Type::getStandardTypes(),
+            Type::builtInScalars(),
             Introspection::getTypes()
         );
 
@@ -314,7 +314,7 @@ class BuildClientSchema
     }
 
     /**
-     * @param array<string, string> $scalar
+     * @param array<string, string|null> $scalar
      *
      * @throws InvariantViolation
      */
@@ -323,6 +323,7 @@ class BuildClientSchema
         return new CustomScalarType([
             'name' => $scalar['name'],
             'description' => $scalar['description'],
+            'specifiedByURL' => $scalar['specifiedByURL'] ?? null,
             'serialize' => static fn ($value) => $value,
         ]);
     }

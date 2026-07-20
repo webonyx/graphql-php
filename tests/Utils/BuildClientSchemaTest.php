@@ -1073,4 +1073,16 @@ SDL;
 
         self::assertSame(['foo' => ['baz' => 'value']], $result->data);
     }
+
+    /** @see it('builds a schema with specifiedBy url') */
+    public function testRoundTripPreservesSpecifiedByURL(): void
+    {
+        self::assertCycleIntrospection('
+            scalar Foo @specifiedBy(url: "https://example.com/foo_spec")
+
+            type Query {
+              foo: Foo
+            }
+        ');
+    }
 }

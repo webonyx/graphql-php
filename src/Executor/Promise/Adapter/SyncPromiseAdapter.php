@@ -11,6 +11,8 @@ use GraphQL\Utils\Utils;
 /**
  * Allows changing order of field resolution even in sync environments
  * (by leveraging queue of deferreds and promises).
+ *
+ * @implements PromiseAdapter<SyncPromise>
  */
 class SyncPromiseAdapter implements PromiseAdapter
 {
@@ -32,11 +34,16 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($thenable, $this);
     }
 
-    /** @throws InvariantViolation */
+    /**
+     * @phpstan-param Promise<covariant SyncPromise> $promise
+     *
+     * @throws InvariantViolation
+     *
+     * @phpstan-return Promise<SyncPromise>
+     */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null): Promise
     {
         $syncPromise = $promise->adoptedPromise;
-        assert($syncPromise instanceof SyncPromise);
 
         return new Promise($syncPromise->then($onFulfilled, $onRejected), $this);
     }

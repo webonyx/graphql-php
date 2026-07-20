@@ -32,6 +32,7 @@ use GraphQL\Utils\Utils;
  *     directiveIsRepeatable?: bool,
  *     includeDeprecated?: bool,
  *     schemaDescription?: bool,
+ *     specifiedByURL?: bool,
  *     typeIsOneOf?: bool,
  * }
  *
@@ -48,6 +49,12 @@ use GraphQL\Utils\Utils;
  *   Default: true
  *
  *   @see https://graphql-ruby.org/api-doc/1.12.1/GraphQL/Introspection.html
+ * - schemaDescription
+ *   Include `description` on the schema?
+ *   Default: false
+ * - specifiedByURL
+ *   Include field `specifiedByURL` for scalar types?
+ *   Default: false
  * - typeIsOneOf
  *   Include field `isOneOf` for types?
  *   Default: false
@@ -95,6 +102,7 @@ class Introspection
             'directiveIsRepeatable' => false,
             'includeDeprecated' => true,
             'schemaDescription' => false,
+            'specifiedByURL' => false,
             'typeIsOneOf' => false,
         ], $options);
 
@@ -106,6 +114,9 @@ class Introspection
             : '';
         $schemaDescription = $optionsWithDefaults['schemaDescription']
             ? $descriptions
+            : '';
+        $specifiedByURL = $optionsWithDefaults['specifiedByURL']
+            ? 'specifiedByURL'
             : '';
         $typeIsOneOf = $optionsWithDefaults['typeIsOneOf']
             ? 'isOneOf'
@@ -144,6 +155,7 @@ class Introspection
     kind
     name
     {$descriptions}
+    {$specifiedByURL}
     {$typeIsOneOf}
     fields{$includeDeprecatedArg} {
       name
@@ -239,6 +251,7 @@ GRAPHQL;
         $optionsWithDefaults = array_merge([
             'directiveIsRepeatable' => true,
             'schemaDescription' => true,
+            'specifiedByURL' => true,
             'typeIsOneOf' => true,
         ], $options);
 
@@ -371,6 +384,12 @@ GRAPHQL;
                     'type' => Type::string(),
                     'resolve' => static fn (Type $type): ?string => $type instanceof NamedType
                         ? $type->description
+                        : null,
+                ],
+                'specifiedByURL' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (Type $type): ?string => $type instanceof ScalarType
+                        ? $type->specifiedByURL
                         : null,
                 ],
                 'fields' => [

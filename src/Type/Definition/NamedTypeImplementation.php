@@ -4,7 +4,9 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 
-/** @see NamedType */
+/**
+ * @see NamedType
+ */
 trait NamedTypeImplementation
 {
     public string $name;
