@@ -58,7 +58,6 @@ use GraphQL\Utils\Utils;
  * - typeIsOneOf
  *   Include field `isOneOf` for types?
  *   Default: false
- *
  * @see \GraphQL\Tests\Type\IntrospectionTest
  */
 class Introspection
