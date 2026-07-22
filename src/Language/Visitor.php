@@ -383,24 +383,51 @@ class Visitor
         $visitorsCount = count($visitors);
         $skipping = new \SplFixedArray($visitorsCount);
 
+        // extractVisitFn() otherwise re-derives the same enter/leave callable
+        // via array lookups on every single node visited, for every visitor -
+        // O(nodes x visitors) calls - even though its result for a given
+        // (visitor, kind, isLeaving) triple never changes during one
+        // traversal. Cache it per visitor/kind on first encounter instead,
+        // using `false` as a "no callback" sentinel so a plain `??` lookup
+        // can tell "not cached yet" (missing key -> null) apart from
+        // "cached, nothing to call" (`false`). A Node's kind isn't required
+        // to be a NodeKind constant (custom Node subclasses are supported),
+        // so this works for arbitrary kinds, not just the built-in ones.
+        // Enter and leave are cached independently in their own dispatcher.
+        /** @var array<int, array<string, NodeVisitor|false>> $enterFns Cache of extractVisitFn() results, keyed by visitor index then node kind; `false` means "no enter callback for this visitor/kind". */
+        $enterFns = [];
+        /** @var array<int, array<string, NodeVisitor|false>> $leaveFns Cache of extractVisitFn() results, keyed by visitor index then node kind; `false` means "no leave callback for this visitor/kind". */
+        $leaveFns = [];
+
         return [
-            'enter' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
+            /**
+             * Declares node, key, parent, path, and ancestors explicitly to
+             * match Visitor::visit()'s `$visitFn($node, $key, $parent,
+             * $path, $ancestors)` call.
+             *
+             * @phpstan-param string|int|null $key
+             * @phpstan-param Node|NodeList<Node>|null $parent
+             * @phpstan-param array<int, int|string> $path
+             * @phpstan-param array<int, Node|NodeList<Node>> $ancestors
+             */
+            'enter' => static function (Node $node, $key, $parent, array $path, array $ancestors) use ($visitors, $skipping, $visitorsCount, &$enterFns) {
                 for ($i = 0; $i < $visitorsCount; ++$i) {
                     if ($skipping[$i] !== null) {
                         continue;
                     }
 
-                    $fn = self::extractVisitFn(
-                        $visitors[$i],
-                        $node->kind,
-                        false
-                    );
+                    $kind = $node->kind;
+                    $fn = $enterFns[$i][$kind] ?? null;
 
                     if ($fn === null) {
+                        $fn = $enterFns[$i][$kind] = self::extractVisitFn($visitors[$i], $kind, false) ?? false;
+                    }
+
+                    if ($fn === false) {
                         continue;
                     }
 
-                    $result = $fn(...func_get_args());
+                    $result = $fn($node, $key, $parent, $path, $ancestors);
 
                     if ($result === null) {
                         continue;
@@ -416,17 +443,24 @@ class Visitor
 
                 return null;
             },
-            'leave' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
+            /**
+             * @phpstan-param string|int|null $key
+             * @phpstan-param Node|NodeList<Node>|null $parent
+             * @phpstan-param array<int, int|string> $path
+             * @phpstan-param array<int, Node|NodeList<Node>> $ancestors
+             */
+            'leave' => static function (Node $node, $key, $parent, array $path, array $ancestors) use ($visitors, $skipping, $visitorsCount, &$leaveFns) {
                 for ($i = 0; $i < $visitorsCount; ++$i) {
                     if ($skipping[$i] === null) {
-                        $fn = self::extractVisitFn(
-                            $visitors[$i],
-                            $node->kind,
-                            true
-                        );
+                        $kind = $node->kind;
+                        $fn = $leaveFns[$i][$kind] ?? null;
 
-                        if ($fn !== null) {
-                            $result = $fn(...func_get_args());
+                        if ($fn === null) {
+                            $fn = $leaveFns[$i][$kind] = self::extractVisitFn($visitors[$i], $kind, true) ?? false;
+                        }
+
+                        if ($fn !== false) {
+                            $result = $fn($node, $key, $parent, $path, $ancestors);
 
                             if ($result === null) {
                                 continue;
