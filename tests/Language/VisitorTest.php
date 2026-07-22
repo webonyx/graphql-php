@@ -1945,7 +1945,7 @@ final class VisitorTest extends ValidatorTestCase
         );
     }
 
-    /** Same as above, but for a visitor keyed specifically by the custom kind. */
+    /** Same as testVisitInParallelCallsGenericVisitorsForCustomKind, but for a visitor keyed specifically by the custom kind. */
     public function testVisitInParallelCallsKindSpecificVisitorForCustomKind(): void
     {
         $customNode = new class([]) extends Node {

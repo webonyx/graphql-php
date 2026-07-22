@@ -34,6 +34,15 @@ class Lexer
     private const TOKEN_PIPE = 124;
     private const TOKEN_BRACE_R = 125;
 
+    /**
+     * Bytes that must be individually inspected while scanning a string body:
+     * the closing quote ("), the escape character (\), and all C0 control
+     * characters (0x00-0x1F) except TAB (0x09), which is a legal, unescaped
+     * SourceCharacter per the GraphQL spec and is scanned through like any
+     * other ordinary character.
+     */
+    private const STRING_STOP_BYTES = "\"\\\x00\x01\x02\x03\x04\x05\x06\x07\x08\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f";
+
     public Source $source;
 
     /** @phpstan-var ParserOptions */
@@ -398,14 +407,10 @@ class Lexer
         // (a single native call) instead of decoding/validating one UTF-8
         // character at a time.
         //
-        // The stop-byte set below includes ASCII control characters
-        // (0x00-0x1F), not just backslash/quote/line-terminators, because
+        // The stop-byte set includes ASCII control characters (0x00-0x1F),
+        // not just backslash/quote/line-terminators, because
         // assertValidStringCharacterCode() must still reject most of them.
-        // TAB (0x09) is excluded: it is a legal, unescaped SourceCharacter
-        // per the GraphQL spec, so it is scanned through like any other
-        // ordinary character instead of being individually inspected.
-        static $stopBytes;
-        $stopBytes ??= '"\\' . implode('', array_map('chr', array_diff(range(0x00, 0x1F), [0x09])));
+        // See self::STRING_STOP_BYTES for details on the excluded TAB (0x09).
 
         $body = $this->source->body;
         $bodyLength = strlen($body);
@@ -413,7 +418,7 @@ class Lexer
 
         while (true) {
             $byteStart = $this->byteStreamPosition;
-            $runLength = strcspn($body, $stopBytes, $byteStart);
+            $runLength = strcspn($body, self::STRING_STOP_BYTES, $byteStart);
 
             if ($runLength > 0) {
                 $chunk = substr($body, $byteStart, $runLength);

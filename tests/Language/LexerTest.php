@@ -298,14 +298,16 @@ final class LexerTest extends TestCase
 
     public function testLexesStringsWithUnescapedTabCharacter(): void
     {
-        $source = '"before' . "\t" . 'after"';
+        $source = <<<'GRAPHQL'
+        "before	after"
+        GRAPHQL;
 
         self::assertArraySubset(
             [
                 'kind' => Token::STRING,
                 'start' => 0,
                 'end' => strlen($source),
-                'value' => 'before' . "\t" . 'after',
+                'value' => substr($source, 1, -1), // strip the surrounding quotes
             ],
             (array) $this->lexOne($source)
         );

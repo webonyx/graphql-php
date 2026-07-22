@@ -396,14 +396,23 @@ class Visitor
         // to be a NodeKind constant (custom Node subclasses are supported),
         // so this works for arbitrary kinds, not just the built-in ones.
         // Enter and leave are cached independently in their own dispatcher.
+        /** @var array<int, array<string, NodeVisitor|false>> $enterFns Cache of extractVisitFn() results, keyed by visitor index then node kind; `false` means "no enter callback for this visitor/kind". */
         $enterFns = [];
+        /** @var array<int, array<string, NodeVisitor|false>> $leaveFns Cache of extractVisitFn() results, keyed by visitor index then node kind; `false` means "no leave callback for this visitor/kind". */
         $leaveFns = [];
 
         return [
-            // Declares node, key, parent, path, and ancestors explicitly to
-            // match Visitor::visit()'s `$visitFn($node, $key, $parent,
-            // $path, $ancestors)` call.
-            'enter' => static function (Node $node, $key, $parent, $path, $ancestors) use ($visitors, $skipping, $visitorsCount, &$enterFns) {
+            /**
+             * Declares node, key, parent, path, and ancestors explicitly to
+             * match Visitor::visit()'s `$visitFn($node, $key, $parent,
+             * $path, $ancestors)` call.
+             *
+             * @phpstan-param string|int|null $key
+             * @phpstan-param Node|NodeList<Node>|null $parent
+             * @phpstan-param array<int, int|string> $path
+             * @phpstan-param array<int, Node|NodeList<Node>> $ancestors
+             */
+            'enter' => static function (Node $node, $key, $parent, array $path, array $ancestors) use ($visitors, $skipping, $visitorsCount, &$enterFns) {
                 for ($i = 0; $i < $visitorsCount; ++$i) {
                     if ($skipping[$i] !== null) {
                         continue;
@@ -436,7 +445,13 @@ class Visitor
 
                 return null;
             },
-            'leave' => static function (Node $node, $key, $parent, $path, $ancestors) use ($visitors, $skipping, $visitorsCount, &$leaveFns) {
+            /**
+             * @phpstan-param string|int|null $key
+             * @phpstan-param Node|NodeList<Node>|null $parent
+             * @phpstan-param array<int, int|string> $path
+             * @phpstan-param array<int, Node|NodeList<Node>> $ancestors
+             */
+            'leave' => static function (Node $node, $key, $parent, array $path, array $ancestors) use ($visitors, $skipping, $visitorsCount, &$leaveFns) {
                 for ($i = 0; $i < $visitorsCount; ++$i) {
                     if ($skipping[$i] === null) {
                         $kind = $node->kind;
