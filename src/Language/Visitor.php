@@ -319,9 +319,7 @@ class Visitor
                 ];
                 $inList = $node instanceof NodeList;
 
-                // Nodes with a kind not present in $visitorKeys (e.g. a custom
-                // Node subclass) are treated as leaves, i.e. no children.
-                $keys = $inList ? $node : ($visitorKeys[$node->kind] ?? []);
+                $keys = ($inList ? $node : $visitorKeys[$node->kind]) ?? [];
                 $index = -1;
                 $edits = [];
                 if ($parent !== null) {
