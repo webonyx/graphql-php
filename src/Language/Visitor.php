@@ -394,9 +394,9 @@ class Visitor
         // to be a NodeKind constant (custom Node subclasses are supported),
         // so this works for arbitrary kinds, not just the built-in ones.
         // Enter and leave are cached independently in their own dispatcher.
-        /** @var array<int, array<string, NodeVisitor|false>> $enterFns Cache of extractVisitFn() results, keyed by visitor index then node kind; `false` means "no enter callback for this visitor/kind". */
+        /** @var array<int, array<string, callable|false>> $enterFns Cache of extractVisitFn() results, keyed by visitor index then node kind; `false` means "no enter callback for this visitor/kind". */
         $enterFns = [];
-        /** @var array<int, array<string, NodeVisitor|false>> $leaveFns Cache of extractVisitFn() results, keyed by visitor index then node kind; `false` means "no leave callback for this visitor/kind". */
+        /** @var array<int, array<string, callable|false>> $leaveFns Cache of extractVisitFn() results, keyed by visitor index then node kind; `false` means "no leave callback for this visitor/kind". */
         $leaveFns = [];
 
         return [
