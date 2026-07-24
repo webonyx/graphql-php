@@ -440,6 +440,7 @@ line"', 'Unterminated string.', self::loc(1, 7)];
         yield ['"bad \\uD835\\uXXXX esc"', 'Invalid UTF-16 trailing surrogate: \\uXXXX', self::loc(1, 13)];
         yield ['"bad \\uD835\\uFXXX esc"', 'Invalid UTF-16 trailing surrogate: \\uFXXX', self::loc(1, 13)];
         yield ['"bad \\uD835\\uXXXF esc"', 'Invalid UTF-16 trailing surrogate: \\uXXXF', self::loc(1, 13)];
+        yield ['"bad \\' . "\0" . ' esc"', 'Invalid character escape sequence: \\' . "\0", self::loc(1, 7)];
     }
 
     /**

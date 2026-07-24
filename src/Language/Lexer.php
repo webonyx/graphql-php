@@ -465,6 +465,11 @@ class Lexer
             $this->moveStringCursor(1, 1);
             [, $code] = $this->readChar(true);
 
+            // null means EOF; checked separately since switch is not a strict comparison.
+            if ($code === null) {
+                break;
+            }
+
             switch ($code) {
                 case 34:
                     $value .= '"';
@@ -516,9 +521,6 @@ class Lexer
                     $this->assertValidStringCharacterCode($code, $position - 2);
 
                     $value .= Utils::chr($code);
-                    break;
-                    // null means EOF, will delegate to general handling of unterminated strings
-                case null:
                     break;
                 default:
                     $chr = Utils::chr($code);
