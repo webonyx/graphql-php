@@ -306,8 +306,8 @@ final class LexerTest extends TestCase
             [
                 'kind' => Token::STRING,
                 'start' => 0,
-                'end' => strlen($source),
-                'value' => substr($source, 1, -1), // strip the surrounding quotes
+                'end' => 14,
+                'value' => "before\tafter",
             ],
             (array) $this->lexOne($source)
         );

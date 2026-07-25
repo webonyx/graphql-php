@@ -423,12 +423,9 @@ class Lexer
             if ($runLength > 0) {
                 $chunk = substr($body, $byteStart, $runLength);
                 $value .= $chunk;
-                // $this->position counts decoded characters, not bytes: count the
-                // non-continuation bytes (i.e. NOT matching 10xxxxxx) in the chunk to
-                // keep it accurate for multi-byte UTF-8 content.
-                $continuationBytes = preg_match_all('/[\x80-\xBF]/', $chunk);
-                assert(is_int($continuationBytes), 'Pattern is valid, so preg_match_all() cannot fail');
-                $this->position += strlen($chunk) - $continuationBytes;
+                // $this->position counts decoded characters, not bytes: use
+                // mb_strlen() to get the codepoint count for multi-byte UTF-8 content.
+                $this->position += mb_strlen($chunk, 'UTF-8');
                 $this->byteStreamPosition = $byteStart + $runLength;
             }
 
