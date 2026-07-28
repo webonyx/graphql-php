@@ -26,3 +26,4 @@
 /rector.php export-ignore
 /renovate.json export-ignore
 /UPGRADE.md export-ignore
+/.worktreeinclude export-ignore
