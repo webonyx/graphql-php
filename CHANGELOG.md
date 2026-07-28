@@ -11,7 +11,25 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ### Changed
 
-- Respect `Warning` suppression settings before calling custom warning handler
+- Respect settings in `GraphQL\Error\Warning` before calling custom `$warningHandler`
+
+## v15.36.0
+
+### Changed
+
+- Optimize `Lexer::readString()` to bulk-scan ordinary bytes with `strcspn()` instead of decoding one UTF-8 character at a time https://github.com/webonyx/graphql-php/pull/1948
+
+## v15.35.0
+
+### Added
+
+- Allow setting per-schema built-in scalar overrides explicitly via `SchemaConfig` option `scalarOverrides`, avoiding the resolution of lazily provided `types` on built-in scalar lookups https://github.com/webonyx/graphql-php/pull/1927
+
+## v15.34.1
+
+### Fixed
+
+- Preserve `deprecationReason` when rebuilding input values from introspection in `BuildClientSchema` https://github.com/webonyx/graphql-php/pull/1945
 
 ## v15.34.0
 

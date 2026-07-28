@@ -77,6 +77,30 @@ class SchemaValidationContext
         $this->schema->getSubscriptionType();
     }
 
+    public function validateScalarOverrides(): void
+    {
+        $scalarOverrides = $this->schema->getConfig()->scalarOverrides;
+        if ($scalarOverrides === null) {
+            return;
+        }
+
+        foreach ($scalarOverrides as $scalarOverride) {
+            // @phpstan-ignore-next-line not strictly enforceable unless PHP gets generics
+            if (! $scalarOverride instanceof ScalarType) {
+                $scalarTypeClass = ScalarType::class;
+                $notScalarType = Utils::printSafe($scalarOverride);
+                $this->reportError("Expected scalar override to be instanceof {$scalarTypeClass}, got: {$notScalarType}.");
+
+                continue;
+            }
+
+            if (! Type::isBuiltInScalarName($scalarOverride->name)) {
+                $builtInScalarNames = implode(', ', Type::BUILT_IN_SCALAR_NAMES);
+                $this->reportError("Expected scalar override to be named after a built-in scalar ({$builtInScalarNames}), got: {$scalarOverride->name}.", $scalarOverride->astNode);
+            }
+        }
+    }
+
     /** @param array<Node|null>|Node|null $nodes */
     public function reportError(string $message, $nodes = null): void
     {
