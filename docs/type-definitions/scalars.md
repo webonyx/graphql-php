@@ -161,4 +161,17 @@ $schema = new Schema([
 The custom scalar replaces the built-in one throughout the entire schema, affecting both serialization of results and coercion of inputs.
 
 > **Note:** The `typeLoader` is never called for built-in scalar names.
-> Always use `types` to override them.
+> Always use `types` or `scalarOverrides` to override them.
+
+Discovering overrides requires scanning `types`.
+When `types` is a lazy callable, the scan resolves it on the first lookup of a built-in scalar - typically the first executed query.
+To avoid this in schemas that use [lazy loading of types](../schema-definition.md#lazy-loading-of-types), pass overrides explicitly through the `scalarOverrides` option instead - or pass an empty array to declare there are none:
+
+```php
+$schema = new Schema([
+    'query' => $queryType,
+    'typeLoader' => $myTypeLoader,
+    'types' => $myLazyTypes,
+    'scalarOverrides' => [$uppercaseString], // or [] for none
+]);
+```
