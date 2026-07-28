@@ -522,6 +522,7 @@ class BuildClientSchema
 
         $inputValue = [
             'description' => $inputValueIntrospection['description'],
+            'deprecationReason' => $inputValueIntrospection['deprecationReason'] ?? null,
             'type' => $type,
         ];
 
