@@ -521,13 +521,19 @@ SDL;
             """So sickening"""
             MAUVE @deprecated(reason: "No longer in fashion")
           }
-    
+
+          input ColorInput {
+            oldColor: String @deprecated(reason: "Use color")
+            color: String
+          }
+     
           type Query {
             """This is a shiny string field"""
             shinyString: String
-    
+     
             """This is a deprecated string field"""
             deprecatedString: String @deprecated(reason: "Use shinyString")
+            paint(oldColor: String @deprecated(reason: "Use color"), color: String, input: ColorInput): Color
             color: Color
           }
         ');

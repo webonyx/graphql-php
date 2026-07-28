@@ -805,6 +805,7 @@ Usage example:
   mutation?: MaybeLazyObjectType,
   subscription?: MaybeLazyObjectType,
   types?: Types|null,
+  scalarOverrides?: array<ScalarType>|null,
   directives?: array<Directive>|null,
   schemaDirectives?: array<DirectiveNode>|null,
   typeLoader?: TypeLoader|null,
@@ -910,6 +911,27 @@ function getTypes()
  * @api
  */
 function setTypes($types): self
+```
+
+```php
+/**
+ * @return array<string, ScalarType>|null
+ *
+ * @api
+ */
+function getScalarOverrides(): ?array
+```
+
+```php
+/**
+ * Deeper validation (that each override is a ScalarType named after a built-in scalar)
+ * runs during schema validation, see SchemaValidationContext::validateScalarOverrides().
+ *
+ * @param array<ScalarType>|null $scalarOverrides
+ *
+ * @api
+ */
+function setScalarOverrides(?array $scalarOverrides): self
 ```
 
 ```php
