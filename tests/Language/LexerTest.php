@@ -125,6 +125,14 @@ final class LexerTest extends TestCase
 
         $example3 = ',,,foo,,,';
         self::assertArraySubset($expected, (array) $this->lexOne($example3));
+
+        self::assertArraySubset(
+            [
+                'kind' => Token::NAME,
+                'value' => 'foo',
+            ],
+            (array) $this->lexOne("#comment with 2-byte ü and 4-byte 😀\nfoo")
+        );
     }
 
     /** @see it('errors respect whitespace') */
@@ -293,6 +301,19 @@ final class LexerTest extends TestCase
                 'value' => '𝕌𝕋𝔽-16',
             ],
             (array) $this->lexOne('"\ud835\udd4C\ud835\udd4B\ud835\udd3d-16"')
+        );
+    }
+
+    public function testLexesStringSingleCharEscapeSequences(): void
+    {
+        self::assertArraySubset(
+            [
+                'kind' => Token::STRING,
+                'start' => 0,
+                'end' => 22,
+                'value' => "\" / \x08 \f \n \r \t",
+            ],
+            (array) $this->lexOne('"\\" \\/ \\b \\f \\n \\r \\t"')
         );
     }
 
@@ -583,6 +604,10 @@ line"', 'Unterminated string.', self::loc(1, 7)];
         self::assertArraySubset(
             ['kind' => Token::DOLLAR, 'start' => 0, 'end' => 1, 'value' => null],
             (array) $this->lexOne('$')
+        );
+        self::assertArraySubset(
+            ['kind' => Token::AMP, 'start' => 0, 'end' => 1, 'value' => null],
+            (array) $this->lexOne('&')
         );
         self::assertArraySubset(
             ['kind' => Token::PAREN_L, 'start' => 0, 'end' => 1, 'value' => null],
