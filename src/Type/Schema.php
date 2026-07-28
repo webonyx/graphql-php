@@ -373,6 +373,13 @@ class Schema
     private function getScalarOverrides(): array
     {
         if ($this->scalarOverrides === null) {
+            // When overrides are given explicitly, the scan of types is unnecessary.
+            // This keeps a lazily provided types callable unresolved, see https://github.com/nuwave/lighthouse/issues/2771.
+            $explicitScalarOverrides = $this->config->scalarOverrides;
+            if ($explicitScalarOverrides !== null) {
+                return $this->scalarOverrides = $explicitScalarOverrides;
+            }
+
             $this->scalarOverrides = [];
 
             $builtInScalars = Type::builtInScalars();
@@ -613,6 +620,7 @@ class Schema
         // Validate the schema, producing a list of errors.
         $context = new SchemaValidationContext($this);
         $context->validateRootTypes();
+        $context->validateScalarOverrides();
         $context->validateDirectives();
         $context->validateTypes();
 
