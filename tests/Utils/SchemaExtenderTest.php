@@ -474,7 +474,7 @@ GRAPHQL,
 
         $extendedSchema = SchemaExtender::extend($schema, Parser::parse($extensionSDL));
         $foo = $extendedSchema->getType('Foo');
-        assert($foo instanceof ScalarType);
+        self::assertInstanceOf(ScalarType::class, $foo);
 
         self::assertSame('https://example.com/foo_spec', $foo->specifiedByURL);
         self::assertEmpty($extendedSchema->validate());
@@ -503,7 +503,7 @@ GRAPHQL,
           extend scalar Foo @specifiedBy
         '));
         $foo = $extendedSchema->getType('Foo');
-        assert($foo instanceof ScalarType);
+        self::assertInstanceOf(ScalarType::class, $foo);
 
         // Custom @specifiedBy without url arg leaves specifiedByURL as null
         self::assertNull($foo->specifiedByURL);
