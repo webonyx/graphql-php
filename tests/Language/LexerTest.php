@@ -125,6 +125,14 @@ final class LexerTest extends TestCase
 
         $example3 = ',,,foo,,,';
         self::assertArraySubset($expected, (array) $this->lexOne($example3));
+
+        self::assertArraySubset(
+            [
+                'kind' => Token::NAME,
+                'value' => 'foo',
+            ],
+            (array) $this->lexOne("#comment with 2-byte ü and 4-byte 😀\nfoo")
+        );
     }
 
     /** @see it('errors respect whitespace') */
@@ -296,6 +304,36 @@ final class LexerTest extends TestCase
         );
     }
 
+    public function testLexesStringSingleCharEscapeSequences(): void
+    {
+        self::assertArraySubset(
+            [
+                'kind' => Token::STRING,
+                'start' => 0,
+                'end' => 22,
+                'value' => "\" / \x08 \f \n \r \t",
+            ],
+            (array) $this->lexOne('"\\" \\/ \\b \\f \\n \\r \\t"')
+        );
+    }
+
+    public function testLexesStringsWithUnescapedTabCharacter(): void
+    {
+        $source = <<<'GRAPHQL'
+        "before	after"
+        GRAPHQL;
+
+        self::assertArraySubset(
+            [
+                'kind' => Token::STRING,
+                'start' => 0,
+                'end' => 14,
+                'value' => "before\tafter",
+            ],
+            (array) $this->lexOne($source)
+        );
+    }
+
     /** @see it('lexes block strings') */
     public function testLexesBlockString(): void
     {
@@ -423,6 +461,7 @@ line"', 'Unterminated string.', self::loc(1, 7)];
         yield ['"bad \\uD835\\uXXXX esc"', 'Invalid UTF-16 trailing surrogate: \\uXXXX', self::loc(1, 13)];
         yield ['"bad \\uD835\\uFXXX esc"', 'Invalid UTF-16 trailing surrogate: \\uFXXX', self::loc(1, 13)];
         yield ['"bad \\uD835\\uXXXF esc"', 'Invalid UTF-16 trailing surrogate: \\uXXXF', self::loc(1, 13)];
+        yield ['"bad \\' . "\0" . ' esc"', 'Invalid character escape sequence: \\' . "\0", self::loc(1, 7)];
     }
 
     /**
@@ -565,6 +604,10 @@ line"', 'Unterminated string.', self::loc(1, 7)];
         self::assertArraySubset(
             ['kind' => Token::DOLLAR, 'start' => 0, 'end' => 1, 'value' => null],
             (array) $this->lexOne('$')
+        );
+        self::assertArraySubset(
+            ['kind' => Token::AMP, 'start' => 0, 'end' => 1, 'value' => null],
+            (array) $this->lexOne('&')
         );
         self::assertArraySubset(
             ['kind' => Token::PAREN_L, 'start' => 0, 'end' => 1, 'value' => null],
