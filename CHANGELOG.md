@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.37.1
+
+### Fixed
+
+- Revert reading properties of objects that implement `\ArrayAccess` because it exposed internal object state as field values https://github.com/webonyx/graphql-php/pull/1958
+
 ## v15.37.0
 
 ### Added
