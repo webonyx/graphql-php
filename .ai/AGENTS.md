@@ -42,7 +42,7 @@ The following elements are part of the stable public API:
 
 After merging a PR and releasing:
 
-1. Merge the PR via `gh pr merge` (use `--merge` for a merge commit)
+1. Merge the PR via `gh pr merge --squash`, or `--rebase` when the commit history is already clean (merge commits are disabled)
 2. Pull latest master: `git pull`
 3. Update CHANGELOG.md: move the entry from `## Unreleased` into a new versioned section (e.g. `## v15.32.0`), add the PR URL as a reference, leave an empty `## Unreleased` at the top
 4. Commit and push the CHANGELOG update to master
@@ -52,3 +52,4 @@ After merging a PR and releasing:
 Version bump rules (semver):
 - New feature → minor bump (v15.31.x → v15.32.0)
 - Bug fix / change → patch bump (v15.31.x → v15.31.x+1)
+- Breaking change → major bump: label the PR `breaking change` and leave it open for the next major release instead of merging
