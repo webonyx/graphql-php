@@ -33,7 +33,7 @@ $queryType = new ObjectType([
             'resolve' => function ($rootValue, array $args) {
                 $deferred = new \React\Promise\Deferred();
                 $promise = $deferred->promise();
-                $promise = $promise = $promise->then(static fn (): string => $rootValue['prefix'] . $args['message']);
+                $promise = $promise->then(static fn (): string => $rootValue['prefix'] . $args['message']);
                 $deferred->resolve(null);
 
                 return $promise;
