@@ -1376,8 +1376,8 @@ final class ExecutorTest extends TestCase
                                 'property' => Type::int(),
                             ],
                         ]),
-                        // Eloquent models implement \ArrayAccess to expose their attributes,
-                        // their properties hold internal state that must stay hidden
+                        // Eloquent models implement \ArrayAccess to expose their attributes.
+                        // Their properties hold internal state that must stay hidden.
                         // https://github.com/webonyx/graphql-php/pull/1531
                         'resolve' => static fn (): \ArrayAccess => new class implements \ArrayAccess {
                             public ?int $property = 1;
