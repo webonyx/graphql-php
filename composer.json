@@ -9,7 +9,7 @@
   ],
   "homepage": "https://github.com/webonyx/graphql-php",
   "require": {
-    "php": "^7.4 || ^8",
+    "php": "^8",
     "ext-json": "*",
     "ext-mbstring": "*"
   },
