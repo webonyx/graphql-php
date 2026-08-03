@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Added
+
+- If an object implements `\ArrayAccess`, check both array value and property https://github.com/webonyx/graphql-php/pull/1960
+
 ## v15.37.1
 
 ### Fixed
