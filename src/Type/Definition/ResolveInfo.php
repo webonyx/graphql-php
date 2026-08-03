@@ -98,7 +98,7 @@ class ResolveInfo
      *
      * @var array<string, FragmentDefinitionNode>
      */
-    public array $fragments = [];
+    public array $fragments;
 
     /**
      * Root value passed to query execution.
@@ -123,7 +123,7 @@ class ResolveInfo
      *
      * @var array<string, mixed>
      */
-    public array $variableValues = [];
+    public array $variableValues;
 
     /**
      * @param \ArrayObject<int, FieldNode> $fieldNodes
