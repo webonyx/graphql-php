@@ -16,9 +16,24 @@ class LexerBench
 {
     private Source $introQuery;
 
+    private Source $deeplyIndentedQuery;
+
     public function setUp(): void
     {
         $this->introQuery = new Source(Introspection::getIntrospectionQuery());
+        $this->deeplyIndentedQuery = new Source($this->buildDeeplyIndentedQuery());
+    }
+
+    /** Query dominated by long runs of leading-tab indentation, to weigh the whitespace-skipping path. */
+    private function buildDeeplyIndentedQuery(): string
+    {
+        $indent = str_repeat("\t", 16);
+        $fields = [];
+        for ($i = 0; $i < 200; ++$i) {
+            $fields[] = "{$indent}field{$i}(arg: \"{$i}\")";
+        }
+
+        return "query DeepIndent {\n" . implode("\n", $fields) . "\n}\n";
     }
 
     /**
@@ -31,6 +46,22 @@ class LexerBench
     public function benchIntrospectionQuery(): void
     {
         $lexer = new Lexer($this->introQuery);
+
+        do {
+            $token = $lexer->advance();
+        } while ($token->kind !== Token::EOF);
+    }
+
+    /**
+     * @Warmup(2)
+     *
+     * @Revs(100)
+     *
+     * @Iterations(5)
+     */
+    public function benchDeeplyIndentedQuery(): void
+    {
+        $lexer = new Lexer($this->deeplyIndentedQuery);
 
         do {
             $token = $lexer->advance();
