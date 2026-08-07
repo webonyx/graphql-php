@@ -55,6 +55,30 @@ $schema = BuildSchema::build($contents, $typeConfigDecorator);
 
 You can learn more about using `$typeConfigDecorator` in [examples/05-type-config-decorator](https://github.com/webonyx/graphql-php/blob/master/examples/05-type-config-decorator).
 
+## Custom scalar and enum types
+
+When building a schema from SDL, scalar types are stubs — they serialize and parse values as-is.
+To attach real behavior (validation, coercion, PHP-backed enum values), pass pre-built type instances via the `types` parameter:
+
+```php
+use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Utils\BuildSchema;
+
+$dateType = new CustomScalarType([
+    'name' => 'Date',
+    'serialize' => static fn ($value) => $value->format('Y-m-d'),
+    'parseValue' => static fn ($value) => new DateTimeImmutable($value),
+]);
+
+$schema = BuildSchema::build(
+    file_get_contents('schema.graphql'),
+    types: [$dateType],
+);
+```
+
+Types whose names match SDL definitions replace the SDL-built stubs.
+Types whose names are absent from the SDL are registered as extras and remain reachable via `$schema->getType()`.
+
 ## Performance considerations
 
 Method **BuildSchema::build()** produces a [lazy schema](schema-definition.md#lazy-loading-of-types) automatically,
