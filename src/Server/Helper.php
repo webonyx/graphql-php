@@ -299,7 +299,8 @@ class Helper
                 $op->variables,
                 $op->operation,
                 $config->getFieldResolver(),
-                $this->resolveValidationRules($config, $op, $doc, $operationType)
+                $this->resolveValidationRules($config, $op, $doc, $operationType),
+                $config->getTrustResult()
             );
         } catch (RequestError $e) {
             $result = $promiseAdapter->createFulfilled(
