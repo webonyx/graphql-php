@@ -43,6 +43,9 @@ class Lexer
      */
     private const STRING_STOP_BYTES = "\"\\\x00\x01\x02\x03\x04\x05\x06\x07\x08\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f";
 
+    /** Ignored single-byte characters that never start or end a line, so runs of them can be skipped in bulk. */
+    private const HORIZONTAL_WHITESPACE_BYTES = "\t ,";
+
     public Source $source;
 
     /** @phpstan-var ParserOptions */
@@ -640,12 +643,20 @@ class Lexer
      */
     private function positionAfterWhitespace(): void
     {
+        $body = $this->source->body;
+
         while ($this->position < $this->source->length) {
+            // Tab, space, and comma runs carry no line/column bookkeeping, so
+            // an entire run can be consumed in one native scan instead of one
+            // readChar()/moveStringCursor() call per character.
+            $run = strspn($body, self::HORIZONTAL_WHITESPACE_BYTES, $this->byteStreamPosition);
+            if ($run > 0) {
+                $this->moveStringCursor($run, $run);
+            }
+
             [, $code, $bytes] = $this->readChar();
 
-            // Skip whitespace
-            // tab | space | comma | BOM
-            if (in_array($code, [9, 32, 44, 0xFEFF], true)) {
+            if ($code === 0xFEFF) { // BOM
                 $this->moveStringCursor(1, $bytes);
             } elseif ($code === 10) { // new line
                 $this->moveStringCursor(1, $bytes);
