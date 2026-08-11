@@ -166,6 +166,38 @@ SDL;
         );
     }
 
+    public function testBuildsSchemaFromIntrospectionWithoutDeprecatedFields(): void
+    {
+        $sdl = '
+          type Query {
+            active: String
+            legacy: String @deprecated(reason: "Use active")
+          }
+
+          enum Status {
+            OK
+            OLD @deprecated(reason: "Use OK")
+          }
+        ';
+
+        $schema = BuildSchema::build($sdl);
+        $introspection = Introspection::fromSchema($schema, [
+            'includeDeprecated' => false,
+        ]);
+
+        $clientSchema = BuildClientSchema::build($introspection);
+
+        $queryType = $clientSchema->getQueryType();
+        self::assertNotNull($queryType);
+        self::assertArrayHasKey('active', $queryType->getFields());
+        self::assertArrayNotHasKey('legacy', $queryType->getFields());
+
+        $statusEnum = $clientSchema->getType('Status');
+        self::assertInstanceOf(EnumType::class, $statusEnum);
+        self::assertNotNull($statusEnum->getValue('OK'));
+        self::assertNull($statusEnum->getValue('OLD'));
+    }
+
     /** it('includes standard types only if they are used', () => {. */
     public function testIncludesStandardTypesOnlyIfTheyAreUsed(): void
     {
