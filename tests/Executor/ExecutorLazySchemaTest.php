@@ -129,16 +129,18 @@ final class ExecutorLazySchemaTest extends TestCase
         $result = Executor::execute($schema, Parser::parse($query));
         self::assertEquals($expected, $result);
 
+        $warnings = [];
+        Warning::setWarningHandler(function ($warning) use (&$warnings): void {
+            $warnings[] = $warning;
+        });
         Warning::enable(Warning::WARNING_FULL_SCHEMA_SCAN);
         $result = Executor::execute($schema, Parser::parse($query));
         self::markTestIncomplete('No longer works with PHPUnit 10, reintroduce with https://github.com/webonyx/graphql-php/pull/1393');
-        self::assertCount(1, $result->errors);
-        $error = $result->errors[0] ?? null;
-        self::assertInstanceOf(Error::class, $error);
-        self::assertSame(
+        self::assertEquals($expected, $result);
+
+        self::assertSame([
             'GraphQL Interface Type `Pet` returned `null` from its `resolveType` function for value: instance of GraphQL\Tests\Executor\TestClasses\Dog. Switching to slow resolution method using `isTypeOf` of all possible implementations. It requires full schema scan and degrades query performance significantly. Make sure your `resolveType` function always returns a valid implementation or throws.',
-            $error->getMessage()
-        );
+        ], $warnings);
     }
 
     public function testHintsOnConflictingTypeInstancesInDefinitions(): void
