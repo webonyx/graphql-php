@@ -14,13 +14,13 @@ use GraphQL\Type\Introspection;
  */
 class LexerBench
 {
-    private Source $introQuery;
+    private Source $introspectionQuery;
 
     private Source $deeplyIndentedQuery;
 
     public function setUp(): void
     {
-        $this->introQuery = new Source(Introspection::getIntrospectionQuery());
+        $this->introspectionQuery = new Source(Introspection::getIntrospectionQuery());
         $this->deeplyIndentedQuery = new Source($this->buildDeeplyIndentedQuery());
     }
 
@@ -34,6 +34,7 @@ class LexerBench
         }
 
         return "query DeepIndent {\n" . implode("\n", $fields) . "\n}\n";
+        $this->introspectionQuery = new Source(Introspection::getIntrospectionQuery());
     }
 
     /**
@@ -45,7 +46,7 @@ class LexerBench
      */
     public function benchIntrospectionQuery(): void
     {
-        $lexer = new Lexer($this->introQuery);
+        $lexer = new Lexer($this->introspectionQuery);
 
         do {
             $token = $lexer->advance();
