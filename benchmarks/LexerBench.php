@@ -34,7 +34,6 @@ class LexerBench
         }
 
         return "query DeepIndent {\n" . implode("\n", $fields) . "\n}\n";
-        $this->introspectionQuery = new Source(Introspection::getIntrospectionQuery());
     }
 
     /**
