@@ -1,0 +1,1056 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="PHP implementation of the GraphQL specification">
+      
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../scalars/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Object Types - graphql-php</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#object-type-definition" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="graphql-php" class="md-header__button md-logo" aria-label="graphql-php" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            graphql-php
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Object Types
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/webonyx/graphql-php" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    webonyx/graphql-php
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="graphql-php" class="md-nav__button md-logo" aria-label="graphql-php" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    graphql-php
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/webonyx/graphql-php" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    webonyx/graphql-php
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/" class="md-nav__link">
+        Concepts
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../complementary-tools/" class="md-nav__link">
+        Complementary Tools
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../schema-definition/" class="md-nav__link">
+        Schema Definition
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_6" type="checkbox" id="__nav_6" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" tabindex="0" aria-expanded="true">
+          Type Definitions
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Type Definitions" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Type Definitions
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Object Types
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Object Types
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#writing-object-types" class="md-nav__link">
+    Writing Object Types
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    Configuration options
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#field-configuration-options" class="md-nav__link">
+    Field configuration options
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#field-argument-configuration-options" class="md-nav__link">
+    Field argument configuration options
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shorthand-field-definitions" class="md-nav__link">
+    Shorthand field definitions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recurring-and-circular-types" class="md-nav__link">
+    Recurring and circular types
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#field-resolution" class="md-nav__link">
+    Field Resolution
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-metadata" class="md-nav__link">
+    Custom Metadata
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalars/" class="md-nav__link">
+        Scalars
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../enums/" class="md-nav__link">
+        Enums
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lists-and-nonnulls/" class="md-nav__link">
+        Lists and Non-Nulls
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../interfaces/" class="md-nav__link">
+        Interfaces
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unions/" class="md-nav__link">
+        Unions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../inputs/" class="md-nav__link">
+        Inputs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../directives/" class="md-nav__link">
+        Directives
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../schema-definition-language/" class="md-nav__link">
+        Schema Definition Language
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../executing-queries/" class="md-nav__link">
+        Executing Queries
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data-fetching/" class="md-nav__link">
+        Fetching Data
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../error-handling/" class="md-nav__link">
+        Handling Errors
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        Security
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../class-reference/" class="md-nav__link">
+        Class Reference
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#writing-object-types" class="md-nav__link">
+    Writing Object Types
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    Configuration options
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#field-configuration-options" class="md-nav__link">
+    Field configuration options
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#field-argument-configuration-options" class="md-nav__link">
+    Field argument configuration options
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shorthand-field-definitions" class="md-nav__link">
+    Shorthand field definitions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recurring-and-circular-types" class="md-nav__link">
+    Recurring and circular types
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#field-resolution" class="md-nav__link">
+    Field Resolution
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-metadata" class="md-nav__link">
+    Custom Metadata
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="object-type-definition">Object Type Definition<a class="headerlink" href="#object-type-definition" title="Permanent link">&para;</a></h1>
+<p>Object Type is the most frequently used primitive in a typical GraphQL application.</p>
+<p>Conceptually Object Type is a collection of Fields. Each field, in turn,
+has its own type which allows building complex hierarchies.</p>
+<h2 id="writing-object-types">Writing Object Types<a class="headerlink" href="#writing-object-types" title="Permanent link">&para;</a></h2>
+<p>In <strong>graphql-php</strong> object type is an instance of <code>GraphQL\Type\Definition\ObjectType</code>
+(or one of its subclasses) which accepts a configuration array in its constructor:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ObjectType</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Type\Definition\Type</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Examples\Blog\Data\DataSource</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Examples\Blog\Data\Story</span><span class="p">;</span>
+
+<span class="nv">$userType</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ObjectType</span><span class="p">([</span>
+    <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;User&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Our blog visitor&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;fields&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;firstName&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">string</span><span class="p">(),</span>
+            <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;User first name&#39;</span>
+        <span class="p">],</span>
+        <span class="s1">&#39;email&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">string</span><span class="p">()</span>
+    <span class="p">]</span>
+<span class="p">]);</span>
+
+<span class="nv">$blogStory</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ObjectType</span><span class="p">([</span>
+    <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Story&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;fields&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;body&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">string</span><span class="p">(),</span>
+        <span class="s1">&#39;author&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nv">$userType</span><span class="p">,</span>
+            <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Story author&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;resolve&#39;</span> <span class="o">=&gt;</span> <span class="nx">fn</span> <span class="p">(</span><span class="nx">Story</span> <span class="nv">$blogStory</span><span class="p">)</span><span class="o">:</span> <span class="o">?</span><span class="nx">User</span> <span class="o">=&gt;</span> <span class="nx">DataSource</span><span class="o">::</span><span class="na">findUser</span><span class="p">(</span><span class="nv">$blogStory</span><span class="o">-&gt;</span><span class="na">authorId</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="s1">&#39;likes&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">listOf</span><span class="p">(</span><span class="nv">$userType</span><span class="p">),</span>
+            <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;List of users who liked the story&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;args&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+                <span class="s1">&#39;limit&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+                    <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">int</span><span class="p">(),</span>
+                    <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Limit the number of recent likes returned&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;defaultValue&#39;</span> <span class="o">=&gt;</span> <span class="mi">10</span>
+                <span class="p">]</span>
+            <span class="p">],</span>
+            <span class="s1">&#39;resolve&#39;</span> <span class="o">=&gt;</span> <span class="nx">fn</span> <span class="p">(</span><span class="nx">Story</span> <span class="nv">$blogStory</span><span class="p">,</span> <span class="k">array</span> <span class="nv">$args</span><span class="p">)</span><span class="o">:</span> <span class="k">array</span> <span class="o">=&gt;</span> <span class="nx">DataSource</span><span class="o">::</span><span class="na">findLikes</span><span class="p">(</span><span class="nv">$blogStory</span><span class="o">-&gt;</span><span class="na">id</span><span class="p">,</span> <span class="nv">$args</span><span class="p">[</span><span class="s1">&#39;limit&#39;</span><span class="p">]),</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+<span class="p">]);</span>
+</code></pre></div>
+<p>This example uses <strong>inline</strong> style for Object Type definitions, but you can also use<br />
+<a href="../#definition-styles">inheritance or schema definition language</a>.</p>
+<h2 id="configuration-options">Configuration options<a class="headerlink" href="#configuration-options" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td><code>string</code></td>
+<td><strong>Required.</strong> Unique name of this object type within Schema</td>
+</tr>
+<tr>
+<td>fields</td>
+<td><code>array</code> or <code>callable</code></td>
+<td><strong>Required</strong>. An array describing object fields or callable returning such an array. See <a href="#field-configuration-options">field configuration options</a> section below for expected structure of each array entry. See also the section on <a href="#recurring-and-circular-types">Circular types</a> for an explanation of when to use callable for this option.</td>
+</tr>
+<tr>
+<td>description</td>
+<td><code>string</code></td>
+<td>Plain-text description of this type for clients (e.g. used by <a href="https://github.com/graphql/graphiql">GraphiQL</a> for auto-generated documentation)</td>
+</tr>
+<tr>
+<td>interfaces</td>
+<td><code>array</code> or <code>callable</code></td>
+<td>List of interfaces implemented by this type or callable returning such a list. See <a href="../interfaces/">Interface Types</a> for details. See also the section on <a href="#recurring-and-circular-types">Circular types</a> for an explanation of when to use callable for this option.</td>
+</tr>
+<tr>
+<td>isTypeOf</td>
+<td><code>callable</code></td>
+<td><strong>function ($value, $context, <a href="../../class-reference/#graphqltypedefinitionresolveinfo">ResolveInfo</a> $info): bool</strong><br> Expected to return <strong>true</strong> if <strong>$value</strong> qualifies for this type (see section about <a href="../interfaces/#interface-role-in-data-fetching">Abstract Type Resolution</a> for explanation).</td>
+</tr>
+<tr>
+<td>resolveField</td>
+<td><code>callable</code></td>
+<td><strong>function ($value, array $args, $context, <a href="../../class-reference/#graphqltypedefinitionresolveinfo">ResolveInfo</a> $info): mixed</strong><br> Given the <strong>$value</strong> of this type, it is expected to return value for a field defined in <strong>$info-&gt;fieldName</strong>. A good place to define a type-specific strategy for field resolution. See <a href="../../data-fetching/">Data Fetching</a> for details.</td>
+</tr>
+<tr>
+<td>argsMapper</td>
+<td><code>callable</code></td>
+<td><strong>function (array $args, FieldDefinition, FieldNode): mixed</strong><br> Called once, when Executor resolves arguments for given field. Could be used to validate args and/or to map them to DTO/Object.</td>
+</tr>
+<tr>
+<td>visible</td>
+<td><code>bool</code> or <code>callable</code></td>
+<td>Defaults to <code>true</code>. The given callable receives no arguments and is expected to return a <code>bool</code>, it is called once when the field may be accessed. The field is treated as if it were not defined at all when this is <code>false</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="field-configuration-options">Field configuration options<a class="headerlink" href="#field-configuration-options" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td><code>string</code></td>
+<td><strong>Required.</strong> Name of the field. When not set - inferred from <strong>fields</strong> array key (read about <a href="#shorthand-field-definitions">shorthand field definition</a> below)</td>
+</tr>
+<tr>
+<td>type</td>
+<td><code>Type</code></td>
+<td><strong>Required.</strong> An instance of internal or custom type. Note: type must be represented by a single instance within one schema (see also <a href="../../schema-definition/#lazy-loading-of-types">lazy loading of types</a>)</td>
+</tr>
+<tr>
+<td>args</td>
+<td><code>array</code></td>
+<td>An array describing any number of possible field arguments, each element being an array. See <a href="#field-argument-configuration-options">field argument configuration options</a>.</td>
+</tr>
+<tr>
+<td>resolve</td>
+<td><code>callable</code></td>
+<td><strong>function ($objectValue, array $args, $context, <a href="../../class-reference/#graphqltypedefinitionresolveinfo">ResolveInfo</a> $info): mixed</strong><br> Given the <strong>$objectValue</strong> of this type, it is expected to return actual value of the current field. See section on <a href="../../data-fetching/">Data Fetching</a> for details</td>
+</tr>
+<tr>
+<td>complexity</td>
+<td><code>callable</code></td>
+<td><strong>function (int $childrenComplexity, array $args): int</strong><br> Used to restrict query complexity. The feature is disabled by default, read about <a href="../../security/#query-complexity-analysis">Security</a> to use it.</td>
+</tr>
+<tr>
+<td>description</td>
+<td><code>string</code></td>
+<td>Plain-text description of this field for clients (e.g. used by <a href="https://github.com/graphql/graphiql">GraphiQL</a> for auto-generated documentation)</td>
+</tr>
+<tr>
+<td>deprecationReason</td>
+<td><code>string</code></td>
+<td>Text describing why this field is deprecated. When not empty - field will not be returned by introspection queries (unless forced)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="field-argument-configuration-options">Field argument configuration options<a class="headerlink" href="#field-argument-configuration-options" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td><code>string</code></td>
+<td><strong>Required.</strong> Name of the argument. When not set - inferred from <strong>args</strong> array key</td>
+</tr>
+<tr>
+<td>type</td>
+<td><code>Type</code></td>
+<td><strong>Required.</strong> Instance of one of <a href="../inputs/">Input Types</a> (<strong>scalar</strong>, <strong>enum</strong>, <strong>InputObjectType</strong> + any combination of those with <strong>nonNull</strong> and <strong>listOf</strong> modifiers)</td>
+</tr>
+<tr>
+<td>description</td>
+<td><code>string</code></td>
+<td>Plain-text description of this argument for clients (e.g. used by <a href="https://github.com/graphql/graphiql">GraphiQL</a> for auto-generated documentation)</td>
+</tr>
+<tr>
+<td>defaultValue</td>
+<td><code>scalar</code></td>
+<td>Default value for this argument. Use the internal value if specifying a default for an <strong>enum</strong> type</td>
+</tr>
+</tbody>
+</table>
+<h2 id="shorthand-field-definitions">Shorthand field definitions<a class="headerlink" href="#shorthand-field-definitions" title="Permanent link">&para;</a></h2>
+<p>Fields can be also defined in <strong>shorthand</strong> notation (with only <strong>name</strong> and <strong>type</strong> options):</p>
+<div class="highlight"><pre><span></span><code><span class="s1">&#39;fields&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+    <span class="s1">&#39;id&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">id</span><span class="p">(),</span>
+    <span class="s1">&#39;fieldName&#39;</span> <span class="o">=&gt;</span> <span class="nv">$fieldType</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>which is equivalent of:</p>
+<div class="highlight"><pre><span></span><code><span class="s1">&#39;fields&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+    <span class="s1">&#39;id&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">id</span><span class="p">()],</span>
+    <span class="s1">&#39;fieldName&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nv">$fieldName</span><span class="p">]</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>which is in turn equivalent of the full form:</p>
+<div class="highlight"><pre><span></span><code><span class="s1">&#39;fields&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+    <span class="p">[</span><span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">id</span><span class="p">()],</span>
+    <span class="p">[</span><span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;fieldName&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nv">$fieldName</span><span class="p">]</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>Same shorthand notation applies to field arguments as well.</p>
+<h2 id="recurring-and-circular-types">Recurring and circular types<a class="headerlink" href="#recurring-and-circular-types" title="Permanent link">&para;</a></h2>
+<p>Almost all real-world applications contain recurring or circular types.
+Think user friends or nested comments for example.</p>
+<p><strong>graphql-php</strong> allows such types, but you have to use <code>callable</code> in
+option <strong>fields</strong> (and/or <strong>interfaces</strong>).</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\Type\Definition\Type</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ObjectType</span><span class="p">;</span>
+
+<span class="nv">$userType</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ObjectType</span><span class="p">([</span>
+    <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;User&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;fields&#39;</span> <span class="o">=&gt;</span> <span class="k">function</span> <span class="p">()</span> <span class="k">use</span> <span class="p">(</span><span class="o">&amp;</span><span class="nv">$userType</span><span class="p">)</span><span class="o">:</span> <span class="k">array</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s1">&#39;email&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+                <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">string</span><span class="p">()</span>
+            <span class="p">],</span>
+            <span class="s1">&#39;friends&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+                <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">listOf</span><span class="p">(</span><span class="nv">$userType</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">];</span>
+    <span class="p">},</span>
+<span class="p">]);</span>
+</code></pre></div>
+<p>Same example for <a href="../#definition-styles">inheritance style of type definitions</a>
+using a type registry (see <a href="../../schema-definition/#lazy-loading-of-types">lazy loading of types</a>):</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ListOfType</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ScalarType</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Type\Definition\Type</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ObjectType</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">UserType</span> <span class="k">extends</span> <span class="nx">ObjectType</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="fm">__construct</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">parent</span><span class="o">::</span><span class="na">__construct</span><span class="p">([</span>
+            <span class="s1">&#39;fields&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+                <span class="s1">&#39;email&#39;</span> <span class="o">=&gt;</span> <span class="nx">fn</span> <span class="p">()</span><span class="o">:</span> <span class="nx">ScalarType</span> <span class="o">=&gt;</span> <span class="nx">MyTypes</span><span class="o">::</span><span class="na">string</span><span class="p">(),</span>
+                <span class="s1">&#39;friends&#39;</span> <span class="o">=&gt;</span> <span class="nx">fn</span> <span class="p">()</span><span class="o">:</span> <span class="nx">ListOfType</span> <span class="o">=&gt;</span> <span class="nx">MyTypes</span><span class="o">::</span><span class="na">listOf</span><span class="p">(</span><span class="nx">MyTypes</span><span class="o">::</span><span class="na">user</span><span class="p">())</span>
+            <span class="p">],</span>
+        <span class="p">]);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">MyTypes</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="k">static</span> <span class="nx">UserType</span> <span class="nv">$user</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">static</span> <span class="k">function</span> <span class="nf">user</span><span class="p">()</span><span class="o">:</span> <span class="nx">UserType</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">self</span><span class="o">::</span><span class="nv">$user</span> <span class="o">??=</span> <span class="k">new</span> <span class="nx">UserType</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">static</span> <span class="k">function</span> <span class="nf">string</span><span class="p">()</span><span class="o">:</span> <span class="nx">ScalarType</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">Type</span><span class="o">::</span><span class="na">string</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">static</span> <span class="k">function</span> <span class="nf">listOf</span><span class="p">(</span><span class="nv">$type</span><span class="p">)</span><span class="o">:</span> <span class="nx">ListOfType</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">Type</span><span class="o">::</span><span class="na">listOf</span><span class="p">(</span><span class="nv">$type</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="field-resolution">Field Resolution<a class="headerlink" href="#field-resolution" title="Permanent link">&para;</a></h2>
+<p>Field resolution is the primary mechanism in <strong>graphql-php</strong> for returning actual data for your fields.
+It is implemented using a <strong>resolveField</strong> callable in type definitions,
+or a <strong>resolve</strong> callable in field definitions (the latter has precedence).</p>
+<p>Read the section on <a href="../../data-fetching/">Data Fetching</a> for a complete description of this process.</p>
+<h2 id="custom-metadata">Custom Metadata<a class="headerlink" href="#custom-metadata" title="Permanent link">&para;</a></h2>
+<p>All types in <strong>graphql-php</strong> accept a configuration array.
+In some cases, you may be interested in passing your own metadata for type or field definition.</p>
+<p><strong>graphql-php</strong> preserves the original configuration array in every type or field instance in a public property <strong>$config</strong>.
+You may use it for custom implementations that are not natively supported by this library.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>
