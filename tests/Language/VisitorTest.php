@@ -1905,4 +1905,70 @@ final class VisitorTest extends ValidatorTestCase
             ]
         );
     }
+
+    /**
+     * visit() must correctly invoke generic enter/leave visitors for a Node
+     * whose kind is not one of the built-in NodeKind constants (e.g. a
+     * custom Node subclass defined by a consumer).
+     */
+    public function testVisitCallsGenericVisitorsForCustomKind(): void
+    {
+        $customNode = new class([]) extends Node {
+            public string $kind = 'CustomKind';
+        };
+
+        $visited = [];
+
+        Visitor::visit(
+            $customNode,
+            [
+                'enter' => static function (Node $node) use (&$visited): void {
+                    $visited[] = ['enter', $node->kind];
+                },
+                'leave' => static function (Node $node) use (&$visited): void {
+                    $visited[] = ['leave', $node->kind];
+                },
+            ]
+        );
+
+        self::assertSame(
+            [
+                ['enter', 'CustomKind'],
+                ['leave', 'CustomKind'],
+            ],
+            $visited
+        );
+    }
+
+    /** Same as testVisitCallsGenericVisitorsForCustomKind, but for a visitor keyed specifically by the custom kind. */
+    public function testVisitCallsKindSpecificVisitorForCustomKind(): void
+    {
+        $customNode = new class([]) extends Node {
+            public string $kind = 'CustomKind';
+        };
+
+        $visited = [];
+
+        Visitor::visit(
+            $customNode,
+            [
+                'CustomKind' => [
+                    'enter' => static function (Node $node) use (&$visited): void {
+                        $visited[] = ['enter', $node->kind];
+                    },
+                    'leave' => static function (Node $node) use (&$visited): void {
+                        $visited[] = ['leave', $node->kind];
+                    },
+                ],
+            ]
+        );
+
+        self::assertSame(
+            [
+                ['enter', 'CustomKind'],
+                ['leave', 'CustomKind'],
+            ],
+            $visited
+        );
+    }
 }
