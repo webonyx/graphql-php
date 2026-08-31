@@ -3,6 +3,7 @@
 namespace GraphQL\Type;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaExtensionNode;
 use GraphQL\Type\Definition\Directive;
@@ -39,6 +40,7 @@ use GraphQL\Utils\Utils;
  *   types?: Types|null,
  *   scalarOverrides?: array<ScalarType>|null,
  *   directives?: array<Directive>|null,
+ *   schemaDirectives?: array<DirectiveNode>|null,
  *   typeLoader?: TypeLoader|null,
  *   assumeValid?: bool|null,
  *   astNode?: SchemaDefinitionNode|null,
@@ -79,6 +81,9 @@ class SchemaConfig
 
     /** @var array<Directive>|null */
     public ?array $directives = null;
+
+    /** @var array<DirectiveNode> */
+    public array $schemaDirectives = [];
 
     /**
      * @var callable|null
@@ -134,6 +139,10 @@ class SchemaConfig
 
             if (isset($options['directives'])) {
                 $config->setDirectives($options['directives']);
+            }
+
+            if (isset($options['schemaDirectives'])) {
+                $config->setSchemaDirectives($options['schemaDirectives']);
             }
 
             if (isset($options['typeLoader'])) {
@@ -330,6 +339,28 @@ class SchemaConfig
     public function setDirectives(?array $directives): self
     {
         $this->directives = $directives;
+
+        return $this;
+    }
+
+    /**
+     * @return array<DirectiveNode>
+     *
+     * @api
+     */
+    public function getSchemaDirectives(): array
+    {
+        return $this->schemaDirectives;
+    }
+
+    /**
+     * @param array<DirectiveNode>|null $directives
+     *
+     * @api
+     */
+    public function setSchemaDirectives(?array $directives): self
+    {
+        $this->schemaDirectives = $directives ?? [];
 
         return $this;
     }
