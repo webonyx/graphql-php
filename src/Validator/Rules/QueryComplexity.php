@@ -45,6 +45,13 @@ class QueryComplexity extends QuerySecurityRule
     /** @var array<string, mixed>|null Lazily coerced variable values; reset per document. */
     private ?array $coercedVariableValues = null;
 
+    /**
+     * Did variable coercion fail for this document?
+     *
+     * The errors have been reported to the context, so complexity analysis is abandoned.
+     */
+    private bool $variableCoercionFailed = false;
+
     /** @throws \InvalidArgumentException */
     public function __construct(int $maxQueryComplexity)
     {
@@ -58,6 +65,7 @@ class QueryComplexity extends QuerySecurityRule
         $this->variableDefs = new NodeList([]);
         $this->fieldNodeAndDefs = new \ArrayObject();
         $this->coercedVariableValues = null;
+        $this->variableCoercionFailed = false;
 
         return $this->invokeIfNeeded(
             $context,
@@ -95,6 +103,16 @@ class QueryComplexity extends QuerySecurityRule
 
                             $this->queryComplexity = $this->fieldComplexity($definition->selectionSet);
 
+                            // Without usable variable values the computed complexity is
+                            // meaningless: it is a partial sum of whatever was visited
+                            // before coercion failed. Reset it so `getQueryComplexity()`
+                            // does not expose it. The coercion errors were reported.
+                            if ($this->variableCoercionFailed) {
+                                $this->queryComplexity = 0;
+
+                                return;
+                            }
+
                             if ($this->queryComplexity > $this->maxQueryComplexity) {
                                 $context->reportError(
                                     new Error(static::maxQueryComplexityErrorMessage(
@@ -118,6 +136,10 @@ class QueryComplexity extends QuerySecurityRule
         $complexity = 0;
 
         foreach ($selectionSet->selections as $selection) {
+            if ($this->variableCoercionFailed) {
+                return 0;
+            }
+
             $complexity += $this->nodeComplexity($selection);
         }
 
@@ -145,6 +167,10 @@ class QueryComplexity extends QuerySecurityRule
                 $fieldDef = $this->fieldDefinition($node);
                 if ($fieldDef instanceof FieldDefinition && $fieldDef->complexityFn !== null) {
                     $fieldArguments = $this->buildFieldArguments($node);
+
+                    if ($this->variableCoercionFailed) {
+                        return 0;
+                    }
 
                     return ($fieldDef->complexityFn)($childrenComplexity, $fieldArguments);
                 }
@@ -187,10 +213,15 @@ class QueryComplexity extends QuerySecurityRule
     {
         foreach ($node->directives as $directiveNode) {
             if ($directiveNode->name->value === Directive::INCLUDE_NAME) {
+                $variableValues = $this->getCoercedVariableValues();
+                if ($variableValues === null) {
+                    return false;
+                }
+
                 $includeArguments = Values::getArgumentValues(
                     Directive::includeDirective(),
                     $directiveNode,
-                    $this->getCoercedVariableValues()
+                    $variableValues
                 );
                 assert(is_bool($includeArguments['if']), 'ensured by query validation');
 
@@ -200,10 +231,15 @@ class QueryComplexity extends QuerySecurityRule
             }
 
             if ($directiveNode->name->value === Directive::SKIP_NAME) {
+                $variableValues = $this->getCoercedVariableValues();
+                if ($variableValues === null) {
+                    return false;
+                }
+
                 $skipArguments = Values::getArgumentValues(
                     Directive::skipDirective(),
                     $directiveNode,
-                    $this->getCoercedVariableValues()
+                    $variableValues
                 );
                 assert(is_bool($skipArguments['if']), 'ensured by query validation');
 
@@ -219,13 +255,20 @@ class QueryComplexity extends QuerySecurityRule
     /**
      * Coerce variable values once per document and cache them.
      *
+     * Returns `null` when coercion failed, in which case the coercion errors have been
+     * reported to the validation context.
+     *
      * @throws \Exception
      * @throws InvariantViolation
      *
-     * @return array<string, mixed>
+     * @return array<string, mixed>|null
      */
-    private function getCoercedVariableValues(): array
+    private function getCoercedVariableValues(): ?array
     {
+        if ($this->variableCoercionFailed) {
+            return null;
+        }
+
         if ($this->coercedVariableValues !== null) {
             return $this->coercedVariableValues;
         }
@@ -236,7 +279,13 @@ class QueryComplexity extends QuerySecurityRule
             $this->getRawVariableValues()
         );
         if ($errors !== null && $errors !== []) {
-            throw new Error(implode("\n\n", array_map(static fn (Error $error): string => $error->getMessage(), $errors)));
+            $this->variableCoercionFailed = true;
+
+            foreach ($errors as $error) {
+                $this->context->reportError($error);
+            }
+
+            return null;
         }
 
         return $this->coercedVariableValues = $variableValues ?? [];
@@ -256,27 +305,21 @@ class QueryComplexity extends QuerySecurityRule
 
     /**
      * @throws \Exception
-     * @throws Error
+     * @throws InvariantViolation
      *
      * @return array<string, mixed>
      */
     protected function buildFieldArguments(FieldNode $node): array
     {
-        $rawVariableValues = $this->getRawVariableValues();
         $fieldDef = $this->fieldDefinition($node);
 
         /** @var array<string, mixed> $args */
         $args = [];
 
         if ($fieldDef instanceof FieldDefinition) {
-            [$errors, $variableValues] = Values::getVariableValues(
-                $this->context->getSchema(),
-                $this->variableDefs,
-                $rawVariableValues
-            );
-
-            if (is_array($errors) && $errors !== []) {
-                throw new Error(implode("\n\n", array_map(static fn ($error) => $error->getMessage(), $errors)));
+            $variableValues = $this->getCoercedVariableValues();
+            if ($variableValues === null) {
+                return $args;
             }
 
             $args = Values::getArgumentValues($fieldDef, $node, $variableValues);
