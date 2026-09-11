@@ -855,6 +855,48 @@ final class BreakingChangesFinderTest extends TestCase
         );
     }
 
+    public function testShouldDetectIfANonNullFieldArgumentWasAddedToAFieldWithNoPriorArgs(): void
+    {
+        $oldType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [],
+                ],
+            ],
+        ]);
+        $newType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'newRequiredArg' => Type::nonNull(Type::string()),
+                    ],
+                ],
+            ],
+        ]);
+        $oldSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$oldType],
+        ]);
+        $newSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$newType],
+        ]);
+
+        self::assertSame(
+            [
+                [
+                    'type' => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_ARG_ADDED,
+                    'description' => 'A required arg newRequiredArg on Type1.field1 was added',
+                ],
+            ],
+            BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']
+        );
+    }
+
     /** @see it('should not flag args with the same type signature as breaking') */
     public function testShouldNotFlagArgsWithTheSameTypeSignatureAsBreaking(): void
     {

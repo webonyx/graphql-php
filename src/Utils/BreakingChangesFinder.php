@@ -535,33 +535,34 @@ class BreakingChangesFinder
                             'description' => "{$typeName}.{$fieldName} arg {$oldArgDef->name} was removed",
                         ];
                     }
+                }
 
-                    // Check if arg was added to the field
-                    foreach ($newTypeFields[$fieldName]->args as $newTypeFieldArgDef) {
-                        $oldArgDef = null;
-                        foreach ($oldTypeFields[$fieldName]->args as $oldArg) {
-                            if ($oldArg->name === $newTypeFieldArgDef->name) {
-                                $oldArgDef = $oldArg;
-                            }
+                // Check if arg was added to the field. This must run even when the old
+                // field had zero args, so it lives outside the loop over $oldField->args.
+                foreach ($newTypeFields[$fieldName]->args as $newTypeFieldArgDef) {
+                    $oldArgDef = null;
+                    foreach ($oldTypeFields[$fieldName]->args as $oldArg) {
+                        if ($oldArg->name === $newTypeFieldArgDef->name) {
+                            $oldArgDef = $oldArg;
                         }
+                    }
 
-                        if ($oldArgDef !== null) {
-                            continue;
-                        }
+                    if ($oldArgDef !== null) {
+                        continue;
+                    }
 
-                        $newTypeName = $newType->name;
-                        $newArgName = $newTypeFieldArgDef->name;
-                        if ($newTypeFieldArgDef->isRequired()) {
-                            $breakingChanges[] = [
-                                'type' => self::BREAKING_CHANGE_REQUIRED_ARG_ADDED,
-                                'description' => "A required arg {$newArgName} on {$newTypeName}.{$fieldName} was added",
-                            ];
-                        } else {
-                            $dangerousChanges[] = [
-                                'type' => self::DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED,
-                                'description' => "An optional arg {$newArgName} on {$newTypeName}.{$fieldName} was added",
-                            ];
-                        }
+                    $newTypeName = $newType->name;
+                    $newArgName = $newTypeFieldArgDef->name;
+                    if ($newTypeFieldArgDef->isRequired()) {
+                        $breakingChanges[] = [
+                            'type' => self::BREAKING_CHANGE_REQUIRED_ARG_ADDED,
+                            'description' => "A required arg {$newArgName} on {$newTypeName}.{$fieldName} was added",
+                        ];
+                    } else {
+                        $dangerousChanges[] = [
+                            'type' => self::DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED,
+                            'description' => "An optional arg {$newArgName} on {$newTypeName}.{$fieldName} was added",
+                        ];
                     }
                 }
             }
