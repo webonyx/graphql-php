@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Added
+
+- Add `ResolveInfo::getFieldSelectionRespectingDirectives()` to omit selections disabled through `@skip` or `@include`
+
 ## v15.37.2
 
 ### Changed
