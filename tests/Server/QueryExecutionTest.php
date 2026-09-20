@@ -13,6 +13,9 @@ use GraphQL\Server\Exception\MissingQueryOrQueryIdParameter;
 use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\ServerConfig;
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\ValidationContext;
@@ -39,6 +42,27 @@ final class QueryExecutionTest extends ServerTestCase
         ];
 
         $this->assertQueryResultEquals($expected, $query);
+    }
+
+    public function testTrustResult(): void
+    {
+        $this->config = ServerConfig::create()
+            ->setSchema(new Schema([
+                'query' => new ObjectType([
+                    'name' => 'Query',
+                    'fields' => [
+                        'scalarNumber' => [
+                            'type' => Type::int(),
+                            // returns a string where the declared type is Int
+                            'resolve' => static fn (): string => '123',
+                        ],
+                    ],
+                ]),
+            ]))
+            ->setTrustResult(true);
+
+        // the resolver result is trusted and not serialized through the scalar type
+        $this->assertQueryResultEquals(['data' => ['scalarNumber' => '123']], '{ scalarNumber }');
     }
 
     /**

@@ -111,6 +111,8 @@ class Executor
      * @param mixed $rootValue
      * @param mixed $contextValue
      * @param array<string, mixed>|null $variableValues
+     * @param bool $trustResult trust resolver results and skip validating them for performance.
+     *                          When enabled, the custom implementation factory is not used
      *
      * @phpstan-param FieldResolver|null $fieldResolver
      *
@@ -125,7 +127,8 @@ class Executor
         $contextValue = null,
         ?array $variableValues = null,
         ?string $operationName = null,
-        ?callable $fieldResolver = null
+        ?callable $fieldResolver = null,
+        bool $trustResult = false
     ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
@@ -137,7 +140,9 @@ class Executor
             $contextValue,
             $variableValues,
             $operationName,
-            $fieldResolver
+            $fieldResolver,
+            null,
+            $trustResult
         );
 
         return $promiseAdapter->wait($result);
@@ -152,6 +157,9 @@ class Executor
      * @param mixed $rootValue
      * @param mixed $contextValue
      * @param array<string, mixed>|null $variableValues
+     * @param bool $trustResult trust resolver results and skip validating them for performance,
+     *                          see {@see TrustingExecutor}. When enabled, the custom implementation
+     *                          factory set through {@see Executor::setImplementationFactory()} is not used
      *
      * @phpstan-param FieldResolver|null $fieldResolver
      * @phpstan-param ArgsMapper|null $argsMapper
@@ -167,9 +175,15 @@ class Executor
         ?array $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null,
-        ?callable $argsMapper = null
+        ?callable $argsMapper = null,
+        bool $trustResult = false
     ): Promise {
-        $executor = (self::$implementationFactory)(
+        /** @phpstan-var ImplementationFactory $implementationFactory */
+        $implementationFactory = $trustResult
+            ? [TrustingExecutor::class, 'create']
+            : self::$implementationFactory;
+
+        $executor = $implementationFactory(
             $promiseAdapter,
             $schema,
             $documentNode,

@@ -36,6 +36,7 @@ final class ServerConfigTest extends TestCase
         self::assertNull($config->getPersistedQueryLoader());
         self::assertSame(DebugFlag::NONE, $config->getDebugFlag());
         self::assertFalse($config->getQueryBatching());
+        self::assertFalse($config->getTrustResult());
     }
 
     public function testAllowsSettingSchema(): void
@@ -203,6 +204,7 @@ final class ServerConfigTest extends TestCase
             'persistedQueryLoader' => static function (): void {},
             'debugFlag' => DebugFlag::INCLUDE_DEBUG_MESSAGE,
             'queryBatching' => true,
+            'trustResult' => true,
         ];
 
         $config = ServerConfig::create($arr);
@@ -217,6 +219,17 @@ final class ServerConfigTest extends TestCase
         self::assertSame($arr['persistedQueryLoader'], $config->getPersistedQueryLoader());
         self::assertSame(DebugFlag::INCLUDE_DEBUG_MESSAGE, $config->getDebugFlag());
         self::assertTrue($config->getQueryBatching());
+        self::assertTrue($config->getTrustResult());
+    }
+
+    public function testAllowsSettingTrustResult(): void
+    {
+        $config = ServerConfig::create()
+            ->setTrustResult(true);
+        self::assertTrue($config->getTrustResult());
+
+        $config->setTrustResult(false);
+        self::assertFalse($config->getTrustResult());
     }
 
     public function testThrowsOnInvalidArrayKey(): void

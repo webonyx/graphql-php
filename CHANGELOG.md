@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Added
+
+- Add `trustResult` option to skip validating resolver results during execution for a performance gain, see [`TrustingExecutor`](https://webonyx.github.io/graphql-php/class-reference/#graphqlexecutortrustingexecutor) https://github.com/webonyx/graphql-php/issues/1493
+
 ## v15.37.2
 
 ### Changed
