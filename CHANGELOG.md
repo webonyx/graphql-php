@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Fixed
+
+- Report variable coercion errors from `QueryComplexity` through the validation context instead of throwing them out of `DocumentValidator::validate()` https://github.com/webonyx/graphql-php/issues/1967
+
 ## v15.37.2
 
 ### Changed
