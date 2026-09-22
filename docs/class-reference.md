@@ -52,6 +52,9 @@ See [related documentation](executing-queries.md).
  *    A set of rules for query validation step. Default value is all available rules.
  *    Empty array would allow to skip query validation (may be convenient for persisted
  *    queries which are validated before persisting and assumed valid during execution)
+ * trustResult:
+ *    Trust resolver results and skip validating them for performance, see
+ *    {@see \GraphQL\Executor\TrustingExecutor}. Disabled by default
  *
  * @param string|DocumentNode $source
  * @param mixed $rootValue
@@ -72,7 +75,8 @@ static function executeQuery(
     ?array $variableValues = null,
     ?string $operationName = null,
     ?callable $fieldResolver = null,
-    ?array $validationRules = null
+    ?array $validationRules = null,
+    bool $trustResult = false
 ): GraphQL\Executor\ExecutionResult
 ```
 
@@ -86,6 +90,8 @@ static function executeQuery(
  * @param mixed $context
  * @param array<string, mixed>|null $variableValues
  * @param array<ValidationRule>|null $validationRules Defaults to using all available rules
+ * @param bool $trustResult trust resolver results and skip validating them for
+ *                          performance, see {@see \GraphQL\Executor\TrustingExecutor}. Disabled by default
  *
  * @api
  *
@@ -100,7 +106,8 @@ static function promiseToExecute(
     ?array $variableValues = null,
     ?string $operationName = null,
     ?callable $fieldResolver = null,
-    ?array $validationRules = null
+    ?array $validationRules = null,
+    bool $trustResult = false
 ): GraphQL\Executor\Promise\Promise
 ```
 
@@ -1651,6 +1658,8 @@ Implements the "Evaluating requests" section of the GraphQL specification.
  * @param mixed $rootValue
  * @param mixed $contextValue
  * @param array<string, mixed>|null $variableValues
+ * @param bool $trustResult trust resolver results and skip validating them for performance.
+ *                          When enabled, the custom implementation factory is not used
  *
  * @phpstan-param FieldResolver|null $fieldResolver
  *
@@ -1665,7 +1674,8 @@ static function execute(
     $contextValue = null,
     ?array $variableValues = null,
     ?string $operationName = null,
-    ?callable $fieldResolver = null
+    ?callable $fieldResolver = null,
+    bool $trustResult = false
 ): GraphQL\Executor\ExecutionResult
 ```
 
@@ -1679,6 +1689,9 @@ static function execute(
  * @param mixed $rootValue
  * @param mixed $contextValue
  * @param array<string, mixed>|null $variableValues
+ * @param bool $trustResult trust resolver results and skip validating them for performance,
+ *                          see {@see TrustingExecutor}. When enabled, the custom implementation
+ *                          factory set through {@see Executor::setImplementationFactory()} is not used
  *
  * @phpstan-param FieldResolver|null $fieldResolver
  * @phpstan-param ArgsMapper|null $argsMapper
@@ -1694,7 +1707,8 @@ static function promiseToExecute(
     ?array $variableValues = null,
     ?string $operationName = null,
     ?callable $fieldResolver = null,
-    ?callable $argsMapper = null
+    ?callable $argsMapper = null,
+    bool $trustResult = false
 ): GraphQL\Executor\Promise\Promise
 ```
 
@@ -2558,6 +2572,16 @@ function setDebugFlag(int $debugFlag = 'GraphQL\\Error\\DebugFlag::INCLUDE_DEBUG
  * @api
  */
 function setQueryBatching(bool $enableBatching): self
+```
+
+```php
+/**
+ * Trust resolver results and skip validating them for performance,
+ * see {@see \GraphQL\Executor\TrustingExecutor}. Disabled by default.
+ *
+ * @api
+ */
+function setTrustResult(bool $trustResult): self
 ```
 
 ## GraphQL\Server\Helper

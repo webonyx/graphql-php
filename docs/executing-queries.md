@@ -17,7 +17,8 @@ $result = GraphQL::executeQuery(
     $variableValues = null,
     $operationName = null,
     $fieldResolver = null,
-    $validationRules = null
+    $validationRules = null,
+    $trustResult = false
 );
 ```
 
@@ -47,6 +48,33 @@ Description of **executeQuery** method arguments:
 | operationName   | `string`                                                      | Allows the caller to specify which operation in queryString will be run, in cases where queryString contains multiple top-level operations.                                                                                                                                                                                                                                                                                              |
 | fieldResolver   | `callable`                                                    | A resolver function to use when one is not provided by the schema. If not provided, the [default field resolver is used](data-fetching.md#default-field-resolver).                                                                                                                                                                                                                                                                       |
 | validationRules | `array`                                                       | A set of rules for query validation step. The default value is all available rules. Empty array would allow skipping query validation (may be convenient for persisted queries which are validated before persisting and assumed valid during execution)                                                                                                                                                                                 |
+| trustResult     | `bool`                                                        | Trust resolver results and skip validating them for performance, see [trusting resolver results](#trusting-resolver-results). Defaults to **false**                                                                                                                                                                                                                                                                                                                                                    |
+
+### Trusting resolver results
+
+By default, the executor validates every value a resolver returns: leaf values are
+serialized through their scalar or enum type, object values are checked with `isTypeOf`
+and runtime types of abstract types are validated. This catches resolver bugs early,
+but costs a small amount of time on every field in the response.
+
+When you are confident your resolvers return correct values - for example because
+their return types are enforced by static analysis - you may skip this validation
+by passing `trustResult`:
+
+```php
+$result = GraphQL::executeQuery(
+    $schema,
+    $queryString,
+    trustResult: true
+);
+```
+
+This is a performance tradeoff: resolvers must return response-ready values.
+When a scalar's `serialize` normally transforms the internal representation - e.g. a
+`DateTime` to a string - resolvers have to return the serialized value directly.
+Invalid resolver output produces malformed responses or `TypeError`s instead of
+spec-compliant errors. Structural checks stay in place: `null` still propagates to
+the parent field for non-nullable types and list fields still require iterables.
 
 ## Using Server
 
@@ -109,6 +137,7 @@ PSR-7 is useful when you want to integrate the server into existing framework:
 | errorFormatter       | `callable`                                                                  | Custom error formatter. See [error handling docs](error-handling.md#custom-error-handling-and-formatting).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | errorsHandler        | `callable`                                                                  | Custom errors handler. See [error handling docs](error-handling.md#custom-error-handling-and-formatting).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | promiseAdapter       | [`PromiseAdapter`](class-reference.md#graphqlexecutorpromisepromiseadapter) | Required for [Async PHP](data-fetching.md#async-php) only.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| trustResult          | `bool`                                                                      | Trust resolver results and skip validating them for performance, see [trusting resolver results](#trusting-resolver-results).<br><br> Defaults to **false**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 #### Using config class
 
