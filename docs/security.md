@@ -82,6 +82,32 @@ $type = new ObjectType([
 ]);
 ```
 
+### Complexity Without Variable Values
+
+Evaluating `@include`/`@skip` and the arguments passed to **complexity** functions requires
+the variable values of the operation. When those are not available, such as when validating
+a manifest of persisted operations ahead of time, the rule can compute the worst-case
+complexity instead of failing:
+
+```php
+use GraphQL\Validator\Rules\QueryComplexity;
+
+$rule = new QueryComplexity(100);
+$rule->assumeWorstCaseForUnprovidedVariables = true;
+```
+
+Variables that were not provided a value are then considered unknown:
+
+- Fields with `@include(if: $var)` or `@skip(if: $var)` count as included,
+  only literal `@include(if: false)` and `@skip(if: true)` exclude a field.
+- Field arguments that depend on such a variable are omitted from the arguments passed to
+  **complexity** functions, even when their definition has a default value, because the
+  value used at runtime is unknown. Those functions should thus account for missing
+  arguments, for example by using the worst case as a fallback: `$args['limit'] ?? 100`.
+
+Variables that were provided a value are always used as given, and providing an invalid
+value still results in an error.
+
 ## Limiting Query Depth
 
 This is a port of [Limiting Query Depth in Sangria](https://sangria-graphql.github.io/learn#limiting-query-depth).
