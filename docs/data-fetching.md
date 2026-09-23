@@ -173,7 +173,7 @@ $queryType = new ObjectType([
             'resolve' => function ($root, array $args, $context, ResolveInfo $resolveInfo): Story {
                 // Fictitious API, use whatever database access your application/framework provides
                 $builder = Story::builder();
-                foreach ($resolveInfo->getFieldSelection() as $field => $_) {
+                foreach ($resolveInfo->getFieldSelectionRespectingDirectives() as $field => $_) {
                     $builder->addSelect($field);
                 }
 
@@ -183,6 +183,9 @@ $queryType = new ObjectType([
     ]
 ]);
 ```
+
+Use `getFieldSelectionRespectingDirectives()` when the query can conditionally omit fields through `@skip` or `@include`.
+Use `getFieldSelection()` when the resolver must inspect all selections regardless of those directives.
 
 ## Solving N+1 Problem
 
