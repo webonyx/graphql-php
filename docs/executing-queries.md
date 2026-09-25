@@ -210,3 +210,150 @@ $server = new StandardServer([
     'validationRules' => $myValidationRules
 ]);
 ```
+
+## Validation Caching
+
+Validation is a required step in GraphQL execution, but it can become a performance bottleneck.
+In production environments, queries are often static or pre-generated (e.g. persisted queries or queries emitted by client libraries).
+This means that many queries will be identical and their validation results can be reused.
+
+To optimize for this, `graphql-php` allows skipping validation for known valid queries.
+Leverage pluggable validation caching by passing an implementation of the `GraphQL\Validator\ValidationCache` interface to `GraphQL::executeQuery()`:
+
+```php
+use GraphQL\Validator\ValidationCache;
+use GraphQL\GraphQL;
+
+$validationCache = new MyPsrValidationCacheAdapter();
+
+$result = GraphQL::executeQuery(
+    $schema,
+    $queryString,
+    $rootValue,
+    $context,
+    $variableValues,
+    $operationName,
+    $fieldResolver,
+    $validationRules,
+    $validationCache
+);
+```
+
+### Key Generation Tips
+
+You are responsible for generating cache keys that are unique and dependent on the following inputs:
+
+- the client-given query
+- the current schema
+- the passed validation rules and their implementation
+- the implementation of `graphql-php`
+
+Here are some tips:
+
+- Using `serialize()` directly on the schema object may error due to closures or circular references.
+  Instead, use `GraphQL\Utils\SchemaPrinter::doPrint($schema)` to get a stable string representation of the schema.
+- If using custom validation rules, be sure to account for them in your key (e.g., by serializing or listing their class names and versioning them).
+- Include the version number of the `webonyx/graphql-php` package to account for implementation changes in the library.
+- Use a stable hash function like `md5()` or `sha256()` to generate the key from the schema, AST, and rules.
+- Improve performance even further by hashing inputs known before deploying such as the schema or the installed package version.
+  You may store the hash in an environment variable or a constant to avoid recalculating it on every request.
+- If you have access to the original query string before parsing, hashing it directly (`hash('sha256', $queryString)`) is more efficient than `serialize($ast)`.
+- Frameworks may pass pre-computed schema and query hashes to the cache implementation via the constructor to avoid redundant computation.
+
+### Sample Implementation
+
+```php
+use GraphQL\Validator\ValidationCache;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Type\Schema;
+use GraphQL\Utils\SchemaPrinter;
+use Psr\SimpleCache\CacheInterface;
+use Composer\InstalledVersions;
+
+/**
+ * Reference implementation of ValidationCache using PSR-16 cache.
+ *
+ * @see GraphQl\Tests\PsrValidationCacheAdapter
+ */
+class MyPsrValidationCacheAdapter implements ValidationCache
+{
+    private CacheInterface $cache;
+
+    private int $ttlSeconds;
+
+    public function __construct(
+        CacheInterface $cache,
+        int $ttlSeconds = 300
+    ) {
+        $this->cache = $cache;
+        $this->ttlSeconds = $ttlSeconds;
+    }
+
+    public function isValidated(Schema $schema, DocumentNode $ast, ?array $rules = null): bool
+    {
+        $key = $this->buildKey($schema, $ast);
+        return $this->cache->has($key);
+    }
+
+    public function markValidated(Schema $schema, DocumentNode $ast, ?array $rules = null): void
+    {
+        $key = $this->buildKey($schema, $ast);
+        $this->cache->set($key, true, $this->ttlSeconds);
+    }
+
+    private function buildKey(Schema $schema, DocumentNode $ast, ?array $rules = null): string
+    {
+        // Include package version to account for implementation changes
+        $libraryVersion = \Composer\InstalledVersions::getVersion('webonyx/graphql-php')
+            ?? throw new \RuntimeException('webonyx/graphql-php version not found. Ensure the package is installed.');
+
+        // Use a stable hash for the schema
+        $schemaHash = md5(SchemaPrinter::doPrint($schema));
+
+        // Serialize AST and rules — both are predictable and safe in this context
+        $astHash = md5(serialize($ast));
+        $rulesHash = md5(serialize($rules));
+
+        return "graphql_validation_{$libraryVersion}_{$schemaHash}_{$astHash}_{$rulesHash}";
+    }
+}
+```
+
+An optimized version of `buildKey` might leverage a key prefix for inputs known before deployment.
+For example, you may run the following once during deployment and save the output in an environment variable `GRAPHQL_VALIDATION_KEY_PREFIX`:
+
+```php
+$libraryVersion = \Composer\InstalledVersions::getVersion('webonyx/graphql-php')
+    ?? throw new \RuntimeException('webonyx/graphql-php version not found. Ensure the package is installed.');
+
+$schemaHash = md5(SchemaPrinter::doPrint($schema));
+
+echo "{$libraryVersion}_{$schemaHash}";
+```
+
+Then use the environment variable in your key generation:
+
+```php
+    private function buildKey(Schema $schema, DocumentNode $ast, ?array $rules = null): string
+    {
+        $keyPrefix = getenv('GRAPHQL_VALIDATION_KEY_PREFIX')
+            ?? throw new \RuntimeException('Environment variable GRAPHQL_VALIDATION_KEY_PREFIX is not set.');
+        $astHash = md5(serialize($ast));
+        $rulesHash = md5(serialize($rules));
+
+        return "graphql_validation_{$keyPrefix}_{$astHash}_{$rulesHash}";
+    }
+```
+
+### Special Considerations for QueryComplexity
+
+The `QueryComplexity` validation rule requires access to variable values, unlike most validation rules that depend only on the schema and query string.
+This means **caching results for `QueryComplexity` is unsafe** — different variable values can produce different complexity scores and different validation outcomes.
+
+If you use `QueryComplexity` with validation caching, consider one of these approaches:
+
+1. **Exclude from caching**: Run `QueryComplexity` separately without caching, then cache all other rules.
+2. **Two-phase validation**: First validate and cache "cacheable" rules (everything except `QueryComplexity`), then always run `QueryComplexity` separately.
+3. **Skip caching entirely for affected queries**: If the query uses `QueryComplexity`, don't use the cache for that request.
+
+Frameworks like [Lighthouse](https://lighthouse-php.com) implement two-phase validation automatically.
