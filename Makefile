@@ -16,7 +16,7 @@ rector: vendor ## Automatic code fixes with Rector
 	composer rector
 
 define run-php-cs-fixer
-	docker build --progress=plain --tag="graphql-php-cs-fixer-$(1)" --build-arg="IMAGE=$(1)" --file=.php-cs-fixer.dockerfile .
+	docker build --quiet --tag="graphql-php-cs-fixer-$(1)" --build-arg="IMAGE=$(1)" --file=.php-cs-fixer.dockerfile .
 	docker run --rm --volume="$(PWD):/app" "graphql-php-cs-fixer-$(1)" $(2)
 endef
 
