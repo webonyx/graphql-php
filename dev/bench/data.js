@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790078726911,
+  "lastUpdate": 1790502269539,
   "repoUrl": "https://github.com/webonyx/graphql-php",
   "entries": {
     "Benchmark": [
@@ -20213,6 +20213,200 @@ window.BENCHMARK_DATA = {
           {
             "name": "LexerBench::benchDeeplyIndentedQuery",
             "value": 1.397,
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c267619015d48d5e044902c4b5049a38dd7475bb",
+          "message": "Update dependency phpstan/phpstan to v2.2.9 (#1973)\n\nThis PR contains the following updates:\n\n| Package | Change |\n[Age](https://docs.renovatebot.com/merge-confidence/) |\n[Confidence](https://docs.renovatebot.com/merge-confidence/) |\n|---|---|---|---|\n|\n[phpstan/phpstan](https://redirect.github.com/phpstan/phpstan-phar-composer-source)\n| `2.2.8` → `2.2.16` |\n![age](https://developer.mend.io/api/mc/badges/age/packagist/phpstan%2fphpstan/2.2.16?slim=true)\n|\n![confidence](https://developer.mend.io/api/mc/badges/confidence/packagist/phpstan%2fphpstan/2.2.8/2.2.16?slim=true)\n|\n|\n[phpstan/phpstan-phpunit](https://redirect.github.com/phpstan/phpstan-phpunit)\n| `2.0.18` → `2.0.19` |\n![age](https://developer.mend.io/api/mc/badges/age/packagist/phpstan%2fphpstan-phpunit/2.0.19?slim=true)\n|\n![confidence](https://developer.mend.io/api/mc/badges/confidence/packagist/phpstan%2fphpstan-phpunit/2.0.18/2.0.19?slim=true)\n|\n\n---\n\n### Release Notes\n\n<details>\n<summary>phpstan/phpstan-phar-composer-source\n(phpstan/phpstan)</summary>\n\n###\n[`v2.2.16`](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.15...2.2.16)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.15...2.2.16)\n\n###\n[`v2.2.15`](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.14...2.2.15)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.14...2.2.15)\n\n###\n[`v2.2.14`](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.13...2.2.14)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.13...2.2.14)\n\n###\n[`v2.2.13`](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.12...2.2.13)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.12...2.2.13)\n\n###\n[`v2.2.12`](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.11...2.2.12)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.11...2.2.12)\n\n###\n[`v2.2.11`](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.10...2.2.11)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.10...2.2.11)\n\n###\n[`v2.2.10`](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.9...2.2.10)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.9...2.2.10)\n\n###\n[`v2.2.9`](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.8...2.2.9)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.8...2.2.9)\n\n</details>\n\n<details>\n<summary>phpstan/phpstan-phpunit (phpstan/phpstan-phpunit)</summary>\n\n###\n[`v2.0.19`](https://redirect.github.com/phpstan/phpstan-phpunit/releases/tag/2.0.19)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phpunit/compare/2.0.18...2.0.19)\n\n-\n[33a190a](http://github.com/phpstan/phpstan-phpunit/commit/33a190a5e8e69fd18308443a80d4f43f42d43604)\n- Resolve nested PHPDoc unions in linear time\n-\n[3791bb7](http://github.com/phpstan/phpstan-phpunit/commit/3791bb714c9b2a7677b023f348e27d91a05a6d9c)\n- Fix build\n([#&#8203;331](https://redirect.github.com/phpstan/phpstan-phpunit/issues/331))\n-\n[588639f](http://github.com/phpstan/phpstan-phpunit/commit/588639f2abef3abc107a05a3043086ec5c3501f5)\n- Update github-actions\n([#&#8203;330](https://redirect.github.com/phpstan/phpstan-phpunit/issues/330))\n-\n[4aed86d](http://github.com/phpstan/phpstan-phpunit/commit/4aed86d1be16c0c9bd103bd131439fc5a6499618)\n- Fix PHPParser ArgPlaceholder compat\n([#&#8203;329](https://redirect.github.com/phpstan/phpstan-phpunit/issues/329))\n-\n[48c4b05](http://github.com/phpstan/phpstan-phpunit/commit/48c4b053e367f1cff70716b41e8356fc585f5d98)\n- Update github-actions\n([#&#8203;326](https://redirect.github.com/phpstan/phpstan-phpunit/issues/326))\n-\n[8282cc8](http://github.com/phpstan/phpstan-phpunit/commit/8282cc8329ec744ad3b80d718b276ae4b671bec5)\n- CI: Fix PHP7.4 build\n([#&#8203;327](https://redirect.github.com/phpstan/phpstan-phpunit/issues/327))\n-\n[203970d](http://github.com/phpstan/phpstan-phpunit/commit/203970d1401d7779db2dda0d3bd7b441821ab5b5)\n- Update github-actions\n([#&#8203;324](https://redirect.github.com/phpstan/phpstan-phpunit/issues/324))\n-\n[acd7f64](http://github.com/phpstan/phpstan-phpunit/commit/acd7f64264f92084f34a9b8dd49d821dfe9be2d5)\n- Update github-actions\n([#&#8203;323](https://redirect.github.com/phpstan/phpstan-phpunit/issues/323))\n-\n[af0694d](http://github.com/phpstan/phpstan-phpunit/commit/af0694df9fc5b64fdd4e1e911e7304d6f665fcf3)\n- Update github-actions\n([#&#8203;322](https://redirect.github.com/phpstan/phpstan-phpunit/issues/322))\n-\n[ad72cfa](http://github.com/phpstan/phpstan-phpunit/commit/ad72cfab6bb0b04e128b9581393ad1750cb882fd)\n- Update TypedDevs/bashunit action to v0.43.0\n([#&#8203;319](https://redirect.github.com/phpstan/phpstan-phpunit/issues/319))\n-\n[6b665e3](http://github.com/phpstan/phpstan-phpunit/commit/6b665e33e3a4c0f9e1c40f90861f5ac543aafc3c)\n- Update github-actions\n([#&#8203;314](https://redirect.github.com/phpstan/phpstan-phpunit/issues/314))\n-\n[a5e179b](http://github.com/phpstan/phpstan-phpunit/commit/a5e179b6640b4a46174b76890fa3eabddc86d285)\n- AttributeVersionRequirementHelper: Improve error messages\n-\n[2297f6c](http://github.com/phpstan/phpstan-phpunit/commit/2297f6c4cc1a05ba45eb9d297ed352a44a7a9364)\n- Fix PHPVersion based checks\n([#&#8203;315](https://redirect.github.com/phpstan/phpstan-phpunit/issues/315))\n\n</details>\n\n---\n\n### Configuration\n\n📅 **Schedule**: (UTC)\n\n- Branch creation\n  - At any time (no schedule defined)\n- Automerge\n  - At any time (no schedule defined)\n\n🚦 **Automerge**: Enabled.\n\n♻ **Rebasing**: Whenever PR is behind base branch, or you tick the\nrebase/retry checkbox.\n\n👻 **Immortal**: This PR will be recreated if closed unmerged. Get\n[config\nhelp](https://redirect.github.com/renovatebot/renovate/discussions) if\nthat's undesired.\n\n---\n\n- [ ] <!-- rebase-check -->If you want to rebase/retry this PR, check\nthis box\n\n---\n\nThis PR was generated by [Mend Renovate](https://mend.io/renovate/).\nView the [repository job\nlog](https://developer.mend.io/github/webonyx/graphql-php).\n\n<!--renovate-debug:eyJjcmVhdGVkSW5WZXIiOiI0NC40OS4wIiwidXBkYXRlZEluVmVyIjoiNDQuMTEyLjAiLCJ0YXJnZXRCcmFuY2giOiJtYXN0ZXIiLCJsYWJlbHMiOlsiZGVwZW5kZW5jaWVzIl19-->\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Benedikt Franke <benedikt.franke@mll.com>",
+          "timestamp": "2026-09-27T09:37:52Z",
+          "tree_id": "7fbc7dcb118206068afaace3f6ae84fb81eea6f7",
+          "url": "https://github.com/webonyx/graphql-php/commit/c267619015d48d5e044902c4b5049a38dd7475bb"
+        },
+        "date": 1790502268652,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "BuildSchemaBench::benchBuildSchema",
+            "value": 25.363,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields100",
+            "value": 3.273,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields500",
+            "value": 15.69,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields1000",
+            "value": 31.643,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields2000",
+            "value": 63.597,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields3000",
+            "value": 95.949,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeave",
+            "value": 0.301,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindMap",
+            "value": 0.301,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindCallable",
+            "value": 0.275,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeaveMap",
+            "value": 0.306,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitNestedWithEnterLeave",
+            "value": 0.07,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithoutOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithTypesOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithoutOverride",
+            "value": 0.164,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithTypesOverride",
+            "value": 0.163,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchSchema",
+            "value": 0.005,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchHeroQuery",
+            "value": 0.328,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchNestedQuery",
+            "value": 0.714,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithFragment",
+            "value": 0.76,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithInterfaceFragment",
+            "value": 0.722,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchStarWarsIntrospectionQuery",
+            "value": 7.27,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchema",
+            "value": 13.073,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchemaLazy",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQuery",
+            "value": 15.059,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQueryLazy",
+            "value": 15.99,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchIntrospectionQuery",
+            "value": 0.295,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchDeeplyIndentedQuery",
+            "value": 1.912,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchSingleDeferred",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchNestedDeferred",
+            "value": 0.003,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain5",
+            "value": 0.005,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain100",
+            "value": 0.082,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyDeferreds",
+            "value": 0.449,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyNestedDeferreds",
+            "value": 15.468,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::bench1000Chains",
+            "value": 3.51,
             "unit": "ms"
           }
         ]
