@@ -7,20 +7,25 @@
   "rangeStrategy": "replace",
   "packageRules": [
     {
-      "matchPackageNames": ["/phpstan/", "friendsofphp/php-cs-fixer", "mll-lab/php-cs-fixer-config"],
-      "groupName": "dev tools",
-      "groupSlug": "dev-tools",
+      "matchPackageNames": ["/phpstan/"],
+      "groupName": "phpstan packages",
+      "groupSlug": "phpstan",
+      "rangeStrategy": "pin",
       "schedule": ["before 4am on monday"],
       "automerge": true,
       "automergeType": "branch"
     },
     {
-      "matchPackageNames": ["/phpstan/"],
-      "rangeStrategy": "pin"
-    },
-    {
       "matchPackageNames": ["phpstan/extension-installer"],
       "rangeStrategy": "replace"
+    },
+    {
+      "matchPackageNames": ["friendsofphp/php-cs-fixer", "mll-lab/php-cs-fixer-config"],
+      "groupName": "php-cs-fixer packages",
+      "groupSlug": "php-cs-fixer",
+      "schedule": ["before 4am on monday"],
+      "automerge": true,
+      "automergeType": "branch"
     }
   ],
   "assignees": [
