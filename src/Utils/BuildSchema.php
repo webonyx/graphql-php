@@ -217,10 +217,17 @@ class BuildSchema
         /** @var array<string, Type&NamedType> $extraTypesMap */
         $extraTypesMap = [];
         foreach ($this->types as $type) {
-            if (isset($typeDefinitionsMap[$type->name])) {
-                $typeOverrides[$type->name] = $type;
+            $typeName = $type->name;
+            $knownType = $typeOverrides[$typeName] ?? $extraTypesMap[$typeName] ?? $type;
+            assert(
+                $knownType === $type,
+                "Schema must contain unique named types but contains multiple types named \"{$typeName}\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).",
+            );
+
+            if (isset($typeDefinitionsMap[$typeName])) {
+                $typeOverrides[$typeName] = $type;
             } else {
-                $extraTypesMap[$type->name] = $type;
+                $extraTypesMap[$typeName] = $type;
             }
         }
 

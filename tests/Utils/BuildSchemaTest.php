@@ -1593,6 +1593,24 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame(['user' => ['name' => 'resolved in PHP']], $result->data);
     }
 
+    public function testBuildSchemaAllowsSameTypeInstanceTwice(): void
+    {
+        $date = new CustomScalarType(['name' => 'Date']);
+
+        $schema = BuildSchema::build('type Query { date: Date } scalar Date', null, [], null, [$date, $date]);
+
+        self::assertSame($date, $schema->getType('Date'));
+    }
+
+    public function testBuildSchemaAssertsUniqueTypeNamesAtDevelopmentTime(): void
+    {
+        $this->expectException(\AssertionError::class);
+        BuildSchema::build('type Query { id: ID }', null, [], null, [
+            new CustomScalarType(['name' => 'Date']),
+            new CustomScalarType(['name' => 'Date']),
+        ]);
+    }
+
     public function testCreatesTypesLazily(): void
     {
         $sdl = '
