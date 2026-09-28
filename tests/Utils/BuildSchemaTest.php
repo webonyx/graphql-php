@@ -1562,6 +1562,37 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame(['value' => 'serialized:hello'], $result->data);
     }
 
+    public function testBuildSchemaWithObjectTypeOverride(): void
+    {
+        $sdl = '
+            type Query {
+              user: User
+            }
+
+            type User
+        ';
+
+        $user = new ObjectType([
+            'name' => 'User',
+            'fields' => [
+                'name' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (): string => 'resolved in PHP',
+                ],
+            ],
+        ]);
+
+        $schema = BuildSchema::build($sdl, null, [], null, [$user]);
+        $schema->assertValid();
+
+        $result = GraphQL::executeQuery(
+            $schema,
+            '{ user { name } }',
+            ['user' => []]
+        );
+        self::assertSame(['user' => ['name' => 'resolved in PHP']], $result->data);
+    }
+
     public function testCreatesTypesLazily(): void
     {
         $sdl = '

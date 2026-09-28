@@ -76,7 +76,8 @@ $schema = BuildSchema::build(
 );
 ```
 
-Types whose names match SDL definitions replace the SDL-built stubs.
+Types whose names match SDL definitions replace them entirely, including their extensions.
+This works for any kind of type, so SDL can reference code-first types by declaring a stub such as `type User`.
 Types whose names are absent from the SDL are registered as extras and remain reachable via `$schema->getType()`.
 
 ## Performance considerations
