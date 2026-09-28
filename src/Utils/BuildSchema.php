@@ -217,6 +217,7 @@ class BuildSchema
         /** @var array<string, Type&NamedType> $extraTypesMap */
         $extraTypesMap = [];
         foreach ($this->types as $type) {
+            // @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue (unnecessary according to types, but can happen during runtime)
             assert($type instanceof NamedType, 'Types passed to BuildSchema must be named types, got: ' . Utils::printSafe($type) . '.');
             $typeName = $type->name;
             $knownType = $typeOverrides[$typeName] ?? $extraTypesMap[$typeName] ?? $type;
