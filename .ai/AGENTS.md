@@ -22,6 +22,13 @@ make bench          # Run PHPBench benchmarks
 make docs           # Generate class reference docs
 ```
 
+Run tests via `make test` (or `composer test`), never bare `vendor/bin/phpunit` — the composer script sets ini options (`zend.assertions`, `assert.exception`, `zend.exception_ignore_args`) that tests rely on, so a bare run fails on tests that pass under `make test`.
+
+`make stan` prints nothing when analysis succeeds; judge it by exit code, not output.
+
+`composer.lock` is gitignored, so there is no lock file to install from — use `composer update` to sync dependencies after switching to a branch that changes `composer.json`.
+CI does the same via `ramsey/composer-install` with `dependency-versions: highest`/`lowest`.
+
 ## Public API
 
 The following elements are part of the stable public API:
