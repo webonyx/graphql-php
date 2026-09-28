@@ -1637,6 +1637,23 @@ final class SchemaPrinterTest extends TestCase
         self::assertStringContainsString('type Query @onObject @onObjectExtension {', $printed);
     }
 
+    public function testPrintWithDirectivesPrintsSpecifiedByOnce(): void
+    {
+        $schema = BuildSchema::build(<<<'GRAPHQL'
+            directive @onScalar on SCALAR
+
+            scalar Foo @specifiedBy(url: "https://example.com/foo_spec") @onScalar
+
+            type Query {
+              foo: Foo
+            }
+            GRAPHQL);
+
+        $printed = SchemaPrinter::doPrint($schema, ['includeAppliedDirectives' => true]);
+
+        self::assertStringContainsString('scalar Foo @specifiedBy(url: "https://example.com/foo_spec") @onScalar', $printed);
+    }
+
     public function testPrintDeprecatedFieldArg(): void
     {
         $schema = $this->buildSingleFieldSchema([

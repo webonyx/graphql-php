@@ -407,7 +407,7 @@ class SchemaPrinter
         return static::printDescription($options, $type)
             . "scalar {$type->name}"
             . static::printSpecifiedBy($type)
-            . self::printAppliedDirectivesIfEnabled($options, $type);
+            . self::printAppliedDirectivesIfEnabled($options, $type, $type->specifiedByURL === null ? [] : ['specifiedBy']);
     }
 
     /**
