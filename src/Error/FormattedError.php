@@ -161,7 +161,7 @@ class FormattedError
         }
 
         if ($debugFlag !== DebugFlag::NONE) {
-            $formattedError = self::addDebugEntries($formattedError, $exception, $debugFlag);
+            return self::addDebugEntries($formattedError, $exception, $debugFlag);
         }
 
         return $formattedError;
