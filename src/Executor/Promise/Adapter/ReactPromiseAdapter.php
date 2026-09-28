@@ -73,7 +73,6 @@ class ReactPromiseAdapter implements PromiseAdapter
      */
     public function createRejected(\Throwable $reason): Promise
     {
-        /** @var ReactPromiseInterface<mixed> $reactPromise */
         $reactPromise = reject($reason);
 
         return new Promise($reactPromise, $this);
@@ -95,7 +94,6 @@ class ReactPromiseAdapter implements PromiseAdapter
         $promisesOrValuesArray = is_array($promisesOrValues)
             ? $promisesOrValues
             : iterator_to_array($promisesOrValues);
-        /** @var ReactPromiseInterface<mixed> $reactPromise */
         $reactPromise = all($promisesOrValuesArray)->then(static fn (array $values): array => array_map(
             static fn ($key) => $values[$key],
             array_keys($promisesOrValuesArray),
