@@ -425,7 +425,7 @@ class BuildClientSchema
         foreach ($enum['enumValues'] as $value) {
             $values[$value['name']] = [
                 'description' => $value['description'],
-                'deprecationReason' => $value['deprecationReason'],
+                'deprecationReason' => $value['deprecationReason'] ?? null,
             ];
         }
 
@@ -480,7 +480,7 @@ class BuildClientSchema
 
             $map[$field['name']] = [
                 'description' => $field['description'],
-                'deprecationReason' => $field['deprecationReason'],
+                'deprecationReason' => $field['deprecationReason'] ?? null,
                 'type' => $this->getOutputType($field['type']),
                 'args' => $this->buildInputValueDefMap($field['args']),
             ];
