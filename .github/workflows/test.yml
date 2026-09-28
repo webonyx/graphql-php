@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master
+      - renovate/**
   schedule:
     - cron: 42 3 * * *
 
