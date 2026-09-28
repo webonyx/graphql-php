@@ -4,6 +4,7 @@ namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\Warning;
+use GraphQL\Executor\ArrayAccessPropertyFallback;
 use GraphQL\Language\AST\Node;
 
 class Utils
@@ -268,14 +269,14 @@ class Utils
      */
     public static function extractKey($objectLikeValue, string $key)
     {
-        if (is_array($objectLikeValue)) {
-            return $objectLikeValue[$key] ?? null;
+        if ($objectLikeValue instanceof ArrayAccessPropertyFallback) {
+            return $objectLikeValue[$key]
+                ?? $objectLikeValue->{$key} // @phpstan-ignore-line Variable property access is what the implementor opted into
+                ?? null;
         }
 
-        if ($objectLikeValue instanceof \ArrayAccess) {
-            return $objectLikeValue[$key]
-                ?? $objectLikeValue->{$key} // @phpstan-ignore-line Variable property access on ArrayAccess is fine here, we do the same for arbitrary objects
-                ?? null;
+        if (is_array($objectLikeValue) || $objectLikeValue instanceof \ArrayAccess) {
+            return $objectLikeValue[$key] ?? null;
         }
 
         if (is_object($objectLikeValue)) {
