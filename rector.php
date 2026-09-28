@@ -21,7 +21,6 @@ return static function (Rector\Config\RectorConfig $rectorConfig): void {
         Rector\DeadCode\Rector\ClassMethod\RemoveParentDelegatingConstructorRector::class => [
             __DIR__ . '/src/Type/Definition/CustomScalarType.php', // Refines PHPDoc types
         ],
-        Rector\DeadCode\Rector\Property\RemoveDefaultValueFromAssignedPropertyRector::class, // TODO reintroduce in v16 https://github.com/webonyx/graphql-php/pull/1959 - dropping defaults from public properties breaks reading them when the constructor is bypassed
         Rector\DeadCode\Rector\Property\RemoveUnusedPrivatePropertyRector::class, // TODO reintroduce when https://github.com/rectorphp/rector-src/pull/4491 is released
         Rector\DeadCode\Rector\StmtsAwareInterface\RemoveDeadInstanceOfAssertRector::class, // Sometimes necessary to prove runtime behavior matches defined types
         Rector\PHPUnit\CodeQuality\Rector\Class_\NarrowUnusedSetUpDefinedPropertyRector::class, // Sometimes nicer for symmetry
