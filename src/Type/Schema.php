@@ -78,7 +78,7 @@ class Schema
     public ?SchemaDefinitionNode $astNode;
 
     /** @var array<SchemaExtensionNode> */
-    public array $extensionASTNodes = [];
+    public array $extensionASTNodes;
 
     /**
      * @param SchemaConfig|array<string, mixed> $config

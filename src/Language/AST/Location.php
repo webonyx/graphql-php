@@ -20,13 +20,13 @@ class Location
     public int $end;
 
     /** The Token at which this Node begins. */
-    public ?Token $startToken = null;
+    public ?Token $startToken;
 
     /** The Token at which this Node ends. */
-    public ?Token $endToken = null;
+    public ?Token $endToken;
 
     /** The Source document the AST represents. */
-    public ?Source $source = null;
+    public ?Source $source;
 
     public static function create(int $start, int $end): self
     {
