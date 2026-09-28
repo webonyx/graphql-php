@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master
+      - renovate/**
 
 jobs:
   static-analysis-phpstan:

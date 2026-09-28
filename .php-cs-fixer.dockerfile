@@ -1,7 +1,11 @@
 ARG IMAGE
 FROM ${IMAGE}
 
-RUN apt-get update \
+# Debian 11 reached end of life and moved to archive.debian.org
+RUN if grep -q VERSION_CODENAME=bullseye /etc/os-release; then \
+    echo "deb http://archive.debian.org/debian bullseye main" > /etc/apt/sources.list; \
+  fi \
+  && apt-get update \
   && apt-get install --yes --no-install-recommends \
     git \
     unzip \
