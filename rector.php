@@ -11,7 +11,6 @@ return static function (Rector\Config\RectorConfig $rectorConfig): void {
         Rector\CodeQuality\Rector\Isset_\IssetOnPropertyObjectToPropertyExistsRector::class, // isset() is nice when moving towards typed properties
         Rector\CodeQuality\Rector\Identical\FlipTypeControlToUseExclusiveTypeRector::class, // Unnecessarily complex with PHPStan
         Rector\CodeQuality\Rector\ClassMethod\LocallyCalledStaticMethodToNonStaticRector::class, // static methods are fine
-        Rector\CodeQuality\Rector\Foreach_\UnusedForeachValueToArrayKeysRector::class, // Less efficient
         Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector::class, // Sometimes necessary to prove runtime behavior matches defined types
         Rector\DeadCode\Rector\If_\RemoveDeadInstanceOfRector::class, // Sometimes necessary to prove runtime behavior matches defined types
         Rector\DeadCode\Rector\Node\RemoveNonExistingVarAnnotationRector::class, // Sometimes false-positive
