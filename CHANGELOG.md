@@ -9,6 +9,12 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.37.2
+
+### Changed
+
+- Speed up `Lexer` by skipping runs of horizontal whitespace in one scan https://github.com/webonyx/graphql-php/pull/1963
+
 ## v15.37.1
 
 ### Fixed
