@@ -391,7 +391,7 @@ class ASTDefinitionBuilder
         ];
 
         if ($this->fieldConfigDecorator !== null) {
-            $config = ($this->fieldConfigDecorator)($config, $field, $node);
+            return ($this->fieldConfigDecorator)($config, $field, $node);
         }
 
         return $config;
