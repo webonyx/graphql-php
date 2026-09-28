@@ -578,6 +578,26 @@ function getFieldSelection(int $depth = 0): array
 
 ```php
 /**
+ * Returns names of all fields selected in query for `$this->fieldName` up to `$depth` levels,
+ * excluding selections disabled through `@skip` or `@include`.
+ *
+ * This method does not consider conditional typed fragments.
+ * Use it with care for fields of interface and union types.
+ *
+ * @param int $depth How many levels to include in the output beyond the first
+ *
+ * @throws \Exception
+ * @throws Error
+ *
+ * @return array<string, mixed>
+ *
+ * @api
+ */
+function getFieldSelectionRespectingDirectives(int $depth = 0): array
+```
+
+```php
+/**
  * Returns names and args of all fields selected in query for `$this->fieldName` up to `$depth` levels, including aliases.
  *
  * The result maps original field names to a map of selections for that field, including aliases.
