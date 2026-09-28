@@ -1602,6 +1602,15 @@ final class BuildSchemaTest extends TestCaseBase
         self::assertSame($date, $schema->getType('Date'));
     }
 
+    public function testBuildSchemaAssertsNamedTypesAtDevelopmentTime(): void
+    {
+        $this->expectException(\AssertionError::class);
+        // @phpstan-ignore-next-line intentionally wrong
+        BuildSchema::build('type Query { date: Date } scalar Date', null, [], null, [
+            Type::nonNull(new CustomScalarType(['name' => 'Date'])),
+        ]);
+    }
+
     public function testBuildSchemaAssertsUniqueTypeNamesAtDevelopmentTime(): void
     {
         $this->expectException(\AssertionError::class);
