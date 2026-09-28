@@ -9,6 +9,30 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.37.2
+
+### Changed
+
+- Speed up `Lexer` by skipping runs of horizontal whitespace in one scan https://github.com/webonyx/graphql-php/pull/1963
+
+## v15.37.1
+
+### Fixed
+
+- Revert reading properties of objects that implement `\ArrayAccess` because it exposed internal object state as field values https://github.com/webonyx/graphql-php/pull/1958
+
+## v15.37.0
+
+### Added
+
+- If an object implements `\ArrayAccess`, check both array value and property https://github.com/webonyx/graphql-php/pull/1531
+
+## v15.36.1
+
+### Fixed
+
+- Avoid creating an AMPHP Fiber for each `AmpFutureAdapter` continuation and aggregate https://github.com/webonyx/graphql-php/pull/1954
+
 ## v15.36.0
 
 ### Changed

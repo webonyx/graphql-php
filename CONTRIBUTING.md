@@ -6,6 +6,9 @@ If your contribution requires significant or breaking changes, or if you plan to
 we recommend you to [create an issue](https://github.com/webonyx/graphql-php/issues/new)
 with a brief proposal and discuss it with us first.
 
+Breaking changes are collected for the next major release.
+Maintainers mark such pull requests with the [`breaking change`](https://github.com/webonyx/graphql-php/labels/breaking%20change) label, which may keep them open for a while.
+
 For smaller contributions use this workflow:
 
 1. Fork the project.
