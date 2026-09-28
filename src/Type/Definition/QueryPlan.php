@@ -266,15 +266,13 @@ class QueryPlan
                 ),
             ];
 
-            $fields = $this->arrayMergeDeep(
+            return $this->arrayMergeDeep(
                 $fields,
                 array_intersect_key($subfields, $fields)
             );
-        } else {
-            $fields = $this->arrayMergeDeep($subfields, $fields);
         }
 
-        return $fields;
+        return $this->arrayMergeDeep($subfields, $fields);
     }
 
     /**
