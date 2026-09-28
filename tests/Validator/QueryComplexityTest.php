@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Validator;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Parser;
+use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Introspection;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
@@ -330,5 +331,170 @@ final class QueryComplexityTest extends QuerySecurityTestCase
 
         // skipIt=false means nothing is skipped: complexity = human(1) + firstName(1) + dogs(10) + name(1) = 13
         $this->assertDocumentValidators($query, 13, 14);
+    }
+
+    /**
+     * Variable coercion errors must be reported through the validation context rather
+     * than thrown, so that `DocumentValidator::validate()` returns them like any other
+     * validation error.
+     *
+     * @see https://github.com/webonyx/graphql-php/issues/1967
+     *
+     * @dataProvider variableCoercionFailureProvider
+     *
+     * @param array<string, mixed> $rawVariableValues
+     */
+    public function testReportsVariableCoercionErrorsInsteadOfThrowing(
+        string $query,
+        array $rawVariableValues,
+        string $expectedMessage
+    ): void {
+        $rule = $this->getRule(1);
+        $rule->setRawVariableValues($rawVariableValues);
+
+        $errors = DocumentValidator::validate(
+            QuerySecuritySchema::buildSchema(),
+            Parser::parse($query),
+            [$rule]
+        );
+
+        self::assertCount(1, $errors);
+        self::assertSame($expectedMessage, $errors[0]->getMessage());
+
+        // The complexity limit of 1 is not reported: without usable variable values the
+        // computed complexity is meaningless.
+        self::assertStringNotContainsString('Max query complexity', $errors[0]->getMessage());
+        self::assertSame(0, $rule->getQueryComplexity());
+    }
+
+    /** @return iterable<string, array{string, array<string, mixed>, string}> */
+    public static function variableCoercionFailureProvider(): iterable
+    {
+        yield 'missing required variable used by @include' => [
+            'query MyQuery($withDogs: Boolean!) { human { dogs(name: "Root") @include(if: $withDogs) { name } } }',
+            [],
+            'Variable "$withDogs" of required type "Boolean!" was not provided.',
+        ];
+
+        yield 'missing required variable used by @skip' => [
+            'query MyQuery($withoutDogs: Boolean!) { human { dogs(name: "Root") @skip(if: $withoutDogs) { name } } }',
+            [],
+            'Variable "$withoutDogs" of required type "Boolean!" was not provided.',
+        ];
+
+        yield 'missing required variable used as a field argument' => [
+            'query MyQuery($dog: String!) { human { dogs(name: $dog) { name } } }',
+            [],
+            'Variable "$dog" of required type "String!" was not provided.',
+        ];
+
+        yield 'invalid variable value used as a field argument' => [
+            'query MyQuery($dog: String!) { human { dogs(name: $dog) { name } } }',
+            ['dog' => 42],
+            'Variable "$dog" got invalid value 42; String cannot represent a non string value: 42',
+        ];
+    }
+
+    /** Every failing variable is reported, not just the first. */
+    public function testReportsAllVariableCoercionErrors(): void
+    {
+        $rule = $this->getRule(1);
+        $rule->setRawVariableValues([]);
+
+        $errors = DocumentValidator::validate(
+            QuerySecuritySchema::buildSchema(),
+            Parser::parse('query MyQuery($withDogs: Boolean!, $dog: String!) { human { dogs(name: $dog) @include(if: $withDogs) { name } } }'),
+            [$rule]
+        );
+
+        self::assertSame(
+            [
+                'Variable "$withDogs" of required type "Boolean!" was not provided.',
+                'Variable "$dog" of required type "String!" was not provided.',
+            ],
+            array_map(static fn (Error $error): string => $error->getMessage(), $errors)
+        );
+    }
+
+    /**
+     * Variable coercion errors carry the location of the offending variable definition,
+     * which the previously thrown error lost by concatenating messages.
+     */
+    public function testVariableCoercionErrorsHaveLocations(): void
+    {
+        $rule = $this->getRule(1);
+        $rule->setRawVariableValues([]);
+
+        $errors = DocumentValidator::validate(
+            QuerySecuritySchema::buildSchema(),
+            Parser::parse('query MyQuery($withDogs: Boolean!) { human { dogs(name: "Root") @include(if: $withDogs) { name } } }'),
+            [$rule]
+        );
+
+        self::assertCount(1, $errors);
+        self::assertEquals([new SourceLocation(1, 15)], $errors[0]->getLocations());
+    }
+
+    /**
+     * Coercion is only attempted once per document, even though the rule short-circuits
+     * the rest of the traversal after it fails.
+     */
+    public function testVariableCoercionFailureIsReportedOncePerDocument(): void
+    {
+        $query = <<<'GRAPHQL'
+        query MyQuery($withoutDogs: Boolean!) {
+          human {
+            firstName @skip(if: $withoutDogs)
+            dogs(name: "Root") @skip(if: $withoutDogs) { name }
+          }
+        }
+        GRAPHQL;
+
+        $rule = $this->getRule(1);
+        $rule->setRawVariableValues([]);
+
+        $errors = DocumentValidator::validate(
+            QuerySecuritySchema::buildSchema(),
+            Parser::parse($query),
+            [$rule]
+        );
+
+        self::assertCount(1, $errors);
+    }
+
+    /**
+     * A coercion failure leaves `fieldComplexity()` holding a partial sum of whatever
+     * was visited before it failed — here `human` is counted but `dogs` short-circuits
+     * to 0. That number must not reach `getQueryComplexity()`.
+     */
+    public function testDoesNotExposePartialComplexityAfterVariableCoercionFailure(): void
+    {
+        $rule = $this->getRule(100);
+        $rule->setRawVariableValues([]);
+
+        $errors = DocumentValidator::validate(
+            QuerySecuritySchema::buildSchema(),
+            Parser::parse('query MyQuery($dog: String!) { human { dogs(name: $dog) { name } } }'),
+            [$rule]
+        );
+
+        self::assertCount(1, $errors);
+        self::assertSame(0, $rule->getQueryComplexity());
+    }
+
+    /** A failed document must not leak its failure into the next one. */
+    public function testVariableCoercionFailureIsResetBetweenDocuments(): void
+    {
+        $query = 'query MyQuery($withoutDogs: Boolean!) { human { dogs(name: "Root") @skip(if: $withoutDogs) { name } } }';
+        $schema = QuerySecuritySchema::buildSchema();
+        $ast = Parser::parse($query);
+
+        $rule = $this->getRule(100);
+        $rule->setRawVariableValues([]);
+        self::assertCount(1, DocumentValidator::validate($schema, $ast, [$rule]));
+
+        $rule->setRawVariableValues(['withoutDogs' => false]);
+        self::assertSame([], DocumentValidator::validate($schema, $ast, [$rule]));
+        self::assertSame(3, $rule->getQueryComplexity());
     }
 }
