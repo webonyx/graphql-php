@@ -1704,6 +1704,17 @@ When the object passed as `$contextValue` to GraphQL execution implements this,
 its `clone()` method will be called before passing the context down to a field.
 This allows passing information to child fields in the query tree without affecting sibling or parent fields.
 
+## GraphQL\Executor\ArrayAccessPropertyFallback
+
+When a value implementing this is resolved by the default field resolver,
+a key that is not set by array access is read from the property of the same name.
+Plain `\ArrayAccess` values only use array access, so their properties stay hidden.
+
+@template TKey
+@template TValue
+
+@extends \ArrayAccess<TKey, TValue>
+
 ## GraphQL\Executor\ExecutionResult
 
 Returned after [query execution](executing-queries.md).
