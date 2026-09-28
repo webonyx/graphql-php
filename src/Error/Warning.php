@@ -46,7 +46,7 @@ final class Warning
     }
 
     /**
-     * Suppress warning by id (has no effect when custom warning handler is set).
+     * Suppress warning by id, also for a custom warning handler.
      *
      * @param bool|int $suppress
      *
@@ -72,7 +72,7 @@ final class Warning
     }
 
     /**
-     * Re-enable previously suppressed warning by id (has no effect when custom warning handler is set).
+     * Re-enable previously suppressed warning by id, also for a custom warning handler.
      *
      * @param bool|int $enable
      *
