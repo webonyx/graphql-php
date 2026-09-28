@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790516222011,
+  "lastUpdate": 1790586988555,
   "repoUrl": "https://github.com/webonyx/graphql-php",
   "entries": {
     "Benchmark": [
@@ -20795,6 +20795,200 @@ window.BENCHMARK_DATA = {
           {
             "name": "DeferredBench::bench1000Chains",
             "value": 3.421,
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benedikt@franke.tech",
+            "name": "Benedikt Franke",
+            "username": "spawnia"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "49077c9af3ce0ad6de00351a507531e62c14b581",
+          "message": "Fix rector.php for rector-phpunit 2.x set removal (#1982)\n\n## Summary\n\n- Fixes `make fix` on master: `rector/rector` `^2.0` resolves to 2.6.7\n(released 2026-09-13), whose bundled `rector-phpunit` dropped the\nper-version `PHPUnitSetList` constants (`PHPUNIT_60`/`70`/`80`/`90`) in\nfavor of `PHPUNIT_CODE_QUALITY` only. Since `composer.lock` is not\ncommitted, every fresh `composer update` hits `Undefined constant\nRector\\PHPUnit\\Set\\PHPUnitSetList::PHPUNIT_60`.\n- Updates `rector.php` to drop the removed set constants, keeping\n`PHPUNIT_CODE_QUALITY`.\n- Drops the now-unregistered skip for\n`Rector\\PHPUnit\\PHPUnit60\\Rector\\ClassMethod\\AddDoesNotPerformAssertionToNonAssertingTestRector`,\nwhich belonged to a removed set (rector itself warns this skip is never\nregistered).\n- Applies the rewrites `rector` then produces with the corrected config\n(early-return simplifications in 5 files), and removes two now-stale\n`@phpstan-var` annotations in `Parser.php` that the rewrite left behind\nand that PHPStan flagged.\n\nCI does not catch this because `.github/workflows/autofix.yml` never\nruns rector — see\nhttps://github.com/webonyx/graphql-php/actions/runs/36389623728. Not\nadding rector to CI here; that's a separate decision.\n\n## Test plan\n\n- [x] `make fix` runs clean, no errors, no further changes on rerun\n- [x] `make stan` passes\n- [x] `make test` passes (2014 tests, pre-existing warnings/deprecations\nunrelated to this change)\n\n🤖 Generated with Claude Code",
+          "timestamp": "2026-09-28T11:11:56+02:00",
+          "tree_id": "47ce9ebebd1e6825128a768971588970d320c3d5",
+          "url": "https://github.com/webonyx/graphql-php/commit/49077c9af3ce0ad6de00351a507531e62c14b581"
+        },
+        "date": 1790586987875,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "BuildSchemaBench::benchBuildSchema",
+            "value": 25.037,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields100",
+            "value": 3.256,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields500",
+            "value": 15.581,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields1000",
+            "value": 31.12,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields2000",
+            "value": 63.091,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields3000",
+            "value": 95.648,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeave",
+            "value": 0.3,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindMap",
+            "value": 0.298,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindCallable",
+            "value": 0.279,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeaveMap",
+            "value": 0.303,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitNestedWithEnterLeave",
+            "value": 0.069,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithoutOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithTypesOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithoutOverride",
+            "value": 0.161,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithTypesOverride",
+            "value": 0.163,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchSchema",
+            "value": 0.005,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchHeroQuery",
+            "value": 0.327,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchNestedQuery",
+            "value": 0.707,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithFragment",
+            "value": 0.756,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithInterfaceFragment",
+            "value": 0.716,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchStarWarsIntrospectionQuery",
+            "value": 7.148,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchema",
+            "value": 12.935,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchemaLazy",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQuery",
+            "value": 14.542,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQueryLazy",
+            "value": 15.629,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchIntrospectionQuery",
+            "value": 0.297,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchDeeplyIndentedQuery",
+            "value": 1.918,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchSingleDeferred",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchNestedDeferred",
+            "value": 0.003,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain5",
+            "value": 0.005,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain100",
+            "value": 0.082,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyDeferreds",
+            "value": 0.45,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyNestedDeferreds",
+            "value": 12.384,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::bench1000Chains",
+            "value": 3.447,
             "unit": "ms"
           }
         ]
