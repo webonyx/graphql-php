@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Added
+
+- Add `QueryComplexity::$assumeWorstCaseForUnprovidedVariables` to compute query complexity without variable values https://github.com/webonyx/graphql-php/pull/1970
+
 ## v15.37.2
 
 ### Changed

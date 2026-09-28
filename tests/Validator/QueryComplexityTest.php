@@ -317,6 +317,145 @@ final class QueryComplexityTest extends QuerySecurityTestCase
     }
 
     /**
+     * Persisted operation manifests contain only the operation text, so there are no
+     * variable values to validate them with.
+     */
+    public function testUnprovidedVariableValuesForConditionsFailByDefault(): void
+    {
+        $query = 'query MyQuery($withDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name } } }';
+
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Variable "$withDogs" of required type "Boolean!" was not provided.');
+
+        DocumentValidator::validate(
+            QuerySecuritySchema::buildSchema(),
+            Parser::parse($query),
+            [new QueryComplexity(100)]
+        );
+    }
+
+    /** @dataProvider unprovidedVariableConditionProvider */
+    public function testUnprovidedVariableConditionsCountAsIncluded(string $query): void
+    {
+        // dogs is counted as if it were included: human(1) + dogs(1, given the literal name) + name(1)
+        self::assertSame(3, $this->complexityWithoutVariableValues($query));
+    }
+
+    /** @return iterable<array{string}> */
+    public static function unprovidedVariableConditionProvider(): iterable
+    {
+        yield ['query MyQuery($withDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name } } }'];
+        yield ['query MyQuery($withoutDogs: Boolean!) { human { dogs(name: "Root") @skip(if:$withoutDogs) { name } } }'];
+        yield ['query MyQuery($withDogs: Boolean!, $withoutDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) @skip(if:$withoutDogs) { name } } }'];
+    }
+
+    /** @dataProvider literalConditionProvider */
+    public function testLiteralConditionsStillExcludeFields(string $query): void
+    {
+        // dogs is excluded, so only human(1) is counted
+        self::assertSame(1, $this->complexityWithoutVariableValues($query));
+    }
+
+    /** @return iterable<array{string}> */
+    public static function literalConditionProvider(): iterable
+    {
+        yield ['query MyQuery { human { dogs(name: "Root") @include(if:false) { name } } }'];
+        yield ['query MyQuery { human { dogs(name: "Root") @skip(if:true) { name } } }'];
+        yield ['query MyQuery($withDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) @skip(if:true) { name } } }'];
+    }
+
+    public function testVariableConditionsFallBackToTheirDefaultValue(): void
+    {
+        $query = 'query MyQuery($withDogs: Boolean = false) { human { dogs(name: "Root") @include(if:$withDogs) { name } } }';
+
+        self::assertSame(1, $this->complexityWithoutVariableValues($query));
+    }
+
+    public function testProvidedVariableValuesAreStillUsedForConditions(): void
+    {
+        $query = 'query MyQuery($withDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name } } }';
+
+        self::assertSame(1, $this->complexityWithoutVariableValues($query, ['withDogs' => false]));
+        self::assertSame(3, $this->complexityWithoutVariableValues($query, ['withDogs' => true]));
+    }
+
+    public function testInvalidProvidedVariableValuesStillFail(): void
+    {
+        $query = 'query MyQuery($withDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name } } }';
+
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Variable "$withDogs" got invalid value "not a boolean"; Boolean cannot represent a non boolean value: "not a boolean"');
+
+        $this->complexityWithoutVariableValues($query, ['withDogs' => 'not a boolean']);
+    }
+
+    /** @dataProvider unprovidedVariableArgumentProvider */
+    public function testArgumentsDependingOnUnprovidedVariablesAreOmitted(string $query): void
+    {
+        // The complexity function of dogs falls back to 10 when it is not passed a name:
+        // human(1) + dogs(10) + name(1)
+        self::assertSame(12, $this->complexityWithoutVariableValues($query));
+    }
+
+    /** @return iterable<array{string}> */
+    public static function unprovidedVariableArgumentProvider(): iterable
+    {
+        yield ['query MyQuery($name: String!) { human { dogs(name: $name) { name } } }'];
+        yield ['query MyQuery($name: String!) { human { dogs(names: [$name]) { name } } }'];
+        yield ['query MyQuery($name: String!) { human { dogs(filter: {name: $name}) { name } } }'];
+    }
+
+    public function testRequiredArgumentsDependingOnUnprovidedVariablesAreOmitted(): void
+    {
+        $query = 'query MyQuery($first: Int!) { human { pets(first: $first) { name } } }';
+
+        // first is unknown, so the complexity function of pets falls back to 100, while
+        // last still gets the default value of its definition:
+        // human(1) + name(1) + first(100) + last(5)
+        self::assertSame(107, $this->complexityWithoutVariableValues($query));
+    }
+
+    public function testArgumentDefaultValuesDoNotHideUnprovidedVariables(): void
+    {
+        $query = 'query MyQuery($last: Int) { human { pets(first: 2, last: $last) { name } } }';
+
+        // last is unknown, so the default value of its definition must not be used,
+        // which makes the complexity function of pets fall back to 1000:
+        // human(1) + name(1) + first(2) + last(1000)
+        self::assertSame(1004, $this->complexityWithoutVariableValues($query));
+    }
+
+    public function testProvidedVariableValuesAreStillUsedForArguments(): void
+    {
+        $query = 'query MyQuery($name: String!) { human { dogs(name: $name) { name } } }';
+
+        // Passing a name makes the complexity function of dogs return 1: human(1) + dogs(1) + name(1)
+        self::assertSame(3, $this->complexityWithoutVariableValues($query, ['name' => 'Root']));
+    }
+
+    /**
+     * @param array<string, mixed> $rawVariableValues
+     *
+     * @throws \Exception
+     * @throws \GraphQL\Error\SyntaxError
+     */
+    private function complexityWithoutVariableValues(string $query, array $rawVariableValues = []): int
+    {
+        $rule = new QueryComplexity(PHP_INT_MAX);
+        $rule->assumeWorstCaseForUnprovidedVariables = true;
+        $rule->setRawVariableValues($rawVariableValues);
+
+        $errors = DocumentValidator::validate(
+            QuerySecuritySchema::buildSchema(),
+            Parser::parse($query),
+            [$rule]
+        );
+        self::assertSame([], $errors);
+
+        return $rule->getQueryComplexity();
+    }
+
+    /**
      * Verifies that variable coercion is cached: when multiple fields each have @skip,
      * coercion is only performed once, not once per field.
      */
