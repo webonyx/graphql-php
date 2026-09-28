@@ -1379,20 +1379,16 @@ class Parser
             $this->lexer->advance();
             $this->lexer->advance();
 
-            /** @phpstan-var NodeList<FieldDefinitionNode> $nodeList */
-            $nodeList = new NodeList([]);
-        } else {
-            /** @phpstan-var NodeList<FieldDefinitionNode> $nodeList */
-            $nodeList = $this->peek(Token::BRACE_L)
-                ? $this->many(
-                    Token::BRACE_L,
-                    fn (): FieldDefinitionNode => $this->parseFieldDefinition(),
-                    Token::BRACE_R
-                )
-                : new NodeList([]);
+            return new NodeList([]);
         }
 
-        return $nodeList;
+        return $this->peek(Token::BRACE_L)
+            ? $this->many(
+                Token::BRACE_L,
+                fn (): FieldDefinitionNode => $this->parseFieldDefinition(),
+                Token::BRACE_R
+            )
+            : new NodeList([]);
     }
 
     /**
