@@ -2185,7 +2185,7 @@ static function setWarningHandler(?callable $warningHandler = null): void
 
 ```php
 /**
- * Suppress warning by id (has no effect when custom warning handler is set).
+ * Suppress warning by id, also for a custom warning handler.
  *
  * @param bool|int $suppress
  *
@@ -2200,7 +2200,7 @@ static function suppress($suppress = true): void
 
 ```php
 /**
- * Re-enable previously suppressed warning by id (has no effect when custom warning handler is set).
+ * Re-enable previously suppressed warning by id, also for a custom warning handler.
  *
  * @param bool|int $enable
  *
