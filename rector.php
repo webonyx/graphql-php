@@ -4,17 +4,13 @@ return static function (Rector\Config\RectorConfig $rectorConfig): void {
     $rectorConfig->sets([
         Rector\Set\ValueObject\SetList::CODE_QUALITY,
         Rector\Set\ValueObject\SetList::DEAD_CODE,
-        Rector\PHPUnit\Set\PHPUnitSetList::PHPUNIT_60,
-        Rector\PHPUnit\Set\PHPUnitSetList::PHPUNIT_70,
-        Rector\PHPUnit\Set\PHPUnitSetList::PHPUNIT_80,
-        Rector\PHPUnit\Set\PHPUnitSetList::PHPUNIT_90,
         Rector\PHPUnit\Set\PHPUnitSetList::PHPUNIT_CODE_QUALITY,
+        Rector\PHPUnit\Set\PHPUnitSetList::COMPOSER_BASED,
     ]);
     $rectorConfig->skip([
         Rector\CodeQuality\Rector\Isset_\IssetOnPropertyObjectToPropertyExistsRector::class, // isset() is nice when moving towards typed properties
         Rector\CodeQuality\Rector\Identical\FlipTypeControlToUseExclusiveTypeRector::class, // Unnecessarily complex with PHPStan
         Rector\CodeQuality\Rector\ClassMethod\LocallyCalledStaticMethodToNonStaticRector::class, // static methods are fine
-        Rector\CodeQuality\Rector\Foreach_\UnusedForeachValueToArrayKeysRector::class, // Less efficient
         Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector::class, // Sometimes necessary to prove runtime behavior matches defined types
         Rector\DeadCode\Rector\If_\RemoveDeadInstanceOfRector::class, // Sometimes necessary to prove runtime behavior matches defined types
         Rector\DeadCode\Rector\Node\RemoveNonExistingVarAnnotationRector::class, // Sometimes false-positive
