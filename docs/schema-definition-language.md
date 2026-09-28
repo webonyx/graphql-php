@@ -72,7 +72,10 @@ $dateType = new CustomScalarType([
 
 $schema = BuildSchema::build(
     file_get_contents('schema.graphql'),
-    types: [$dateType],
+    null,
+    [],
+    null,
+    [$dateType],
 );
 ```
 
