@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Fixed
+
+- Detect `REQUIRED_ARG_ADDED` in `BreakingChangesFinder::findArgChanges()` when the old field had no prior arguments https://github.com/webonyx/graphql-php/pull/1976
+
 ## v15.37.2
 
 ### Changed
