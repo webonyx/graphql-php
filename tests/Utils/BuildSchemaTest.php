@@ -24,6 +24,7 @@ use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use GraphQL\Tests\TestCaseBase;
+use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
@@ -1494,6 +1495,129 @@ final class BuildSchemaTest extends TestCaseBase
         $hello = $schema->getType('Hello');
         self::assertInstanceOf(InterfaceType::class, $hello);
         self::assertSame('My description of Hello', $hello->description);
+    }
+
+    public function testBuildSchemaWithTypeOverrides(): void
+    {
+        $sdl = '
+            schema {
+              query: Query
+            }
+
+            type Query {
+              value: MyScalar
+              status: Status
+            }
+
+            scalar MyScalar
+
+            enum Status {
+              ACTIVE
+              INACTIVE
+            }
+        ';
+
+        $myScalar = new CustomScalarType([
+            'name' => 'MyScalar',
+            'serialize' => static fn ($value) => 'serialized:' . $value,
+            'parseValue' => static fn ($value) => 'parsed:' . $value,
+        ]);
+
+        $myEnum = new EnumType([
+            'name' => 'Status',
+            'values' => [
+                'ACTIVE' => [
+                    'value' => 1,
+                ],
+                'INACTIVE' => [
+                    'value' => 0,
+                ],
+            ],
+        ]);
+
+        $extraType = new ObjectType([
+            'name' => 'ExtraType',
+            'fields' => [
+                'id' => \GraphQL\Type\Definition\Type::string(),
+            ],
+        ]);
+
+        $schema = BuildSchema::build($sdl, null, [], null, [$myScalar, $myEnum, $extraType]);
+
+        $scalar = $schema->getType('MyScalar');
+        self::assertSame($myScalar, $scalar);
+
+        $enum = $schema->getType('Status');
+        self::assertSame($myEnum, $enum);
+
+        $extra = $schema->getType('ExtraType');
+        self::assertSame($extraType, $extra);
+
+        // Verify the custom scalar serialize/parseValue are actually used
+        $result = GraphQL::executeQuery(
+            $schema,
+            '{ value }',
+            ['value' => 'hello']
+        );
+        self::assertSame(['value' => 'serialized:hello'], $result->data);
+    }
+
+    public function testBuildSchemaWithObjectTypeOverride(): void
+    {
+        $sdl = '
+            type Query {
+              user: User
+            }
+
+            type User
+        ';
+
+        $user = new ObjectType([
+            'name' => 'User',
+            'fields' => [
+                'name' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (): string => 'resolved in PHP',
+                ],
+            ],
+        ]);
+
+        $schema = BuildSchema::build($sdl, null, [], null, [$user]);
+        $schema->assertValid();
+
+        $result = GraphQL::executeQuery(
+            $schema,
+            '{ user { name } }',
+            ['user' => []]
+        );
+        self::assertSame(['user' => ['name' => 'resolved in PHP']], $result->data);
+    }
+
+    public function testBuildSchemaAllowsSameTypeInstanceTwice(): void
+    {
+        $date = new CustomScalarType(['name' => 'Date']);
+
+        $schema = BuildSchema::build('type Query { date: Date } scalar Date', null, [], null, [$date, $date]);
+
+        self::assertSame($date, $schema->getType('Date'));
+    }
+
+    public function testBuildSchemaAssertsNamedTypesAtDevelopmentTime(): void
+    {
+        $this->expectException(\AssertionError::class);
+        // @phpstan-ignore-next-line intentionally wrong
+        BuildSchema::build('type Query { date: Date } scalar Date', null, [], null, [
+            Type::nonNull(new CustomScalarType(['name' => 'Date'])),
+        ]);
+    }
+
+    public function testBuildSchemaAssertsUniqueTypeNamesAtDevelopmentTime(): void
+    {
+        $this->expectException(\AssertionError::class);
+        BuildSchema::build('type Query { id: ID }', null, [], null, [
+            new CustomScalarType(['name' => 'Date']),
+            new CustomScalarType(['name' => 'Date']),
+        ]);
     }
 
     public function testCreatesTypesLazily(): void
