@@ -102,7 +102,7 @@ class BlockString
      * trailing blank line. However, if a block string starts with whitespace and is
      * a single-line, adding a leading blank line would strip that whitespace.
      */
-    public static function print(string $value): string
+    public static function print(string $value, bool $minimize = false): string
     {
         $escapedValue = str_replace('"""', '\\"""', $value);
 
@@ -131,11 +131,14 @@ class BlockString
         $forceTrailingNewline = $hasTrailingQuote || $hasTrailingSlash;
 
         // add leading and trailing new lines only if it improves readability
-        $printAsMultipleLines = ! $isSingleLine
-            || mb_strlen($value) > 70
-            || $forceTrailingNewline
-            || $forceLeadingNewLine
-            || $hasTrailingTripleQuotes;
+        $printAsMultipleLines = ! $minimize
+            && (
+                ! $isSingleLine
+                || mb_strlen($value) > 70
+                || $forceTrailingNewline
+                || $forceLeadingNewLine
+                || $hasTrailingTripleQuotes
+            );
 
         $result = '';
 
@@ -146,7 +149,7 @@ class BlockString
         }
 
         $result .= $escapedValue;
-        if ($printAsMultipleLines) {
+        if ($printAsMultipleLines || $forceTrailingNewline) {
             $result .= "\n";
         }
 

@@ -2,6 +2,7 @@
 
 namespace GraphQL\Language;
 
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
@@ -76,6 +77,96 @@ class Printer
     public static function doPrint(Node $ast): string
     {
         return static::p($ast);
+    }
+
+    /**
+     * Strips characters that are not significant to the validity or execution of a GraphQL document:
+     * - UnicodeBOM
+     * - WhiteSpace
+     * - LineTerminator
+     * - Comment
+     * - Comma
+     * - BlockString indentation
+     *
+     * Neighboring non-punctuator tokens are always delimited by a single space.
+     * Parsing input and output yields the same AST, apart from node locations.
+     * The output is stable, but may change between releases.
+     *
+     * ```graphql
+     * query SomeQuery($foo: String!, $bar: String) {
+     *   someField(foo: $foo, bar: $bar) {
+     *     a
+     *     b {
+     *       c
+     *       d
+     *     }
+     *   }
+     * }
+     * ```
+     *
+     * becomes
+     *
+     * ```graphql
+     * query SomeQuery($foo:String!$bar:String){someField(foo:$foo bar:$bar){a b{c d}}}
+     * ```
+     *
+     * @param Source|string $source
+     *
+     * @throws \JsonException
+     * @throws SyntaxError
+     *
+     * @api
+     */
+    public static function stripIgnoredCharacters($source): string
+    {
+        $sourceObj = $source instanceof Source
+            ? $source
+            : new Source($source);
+        $lexer = new Lexer($sourceObj);
+        $utf32Body = mb_convert_encoding($sourceObj->body, 'UTF-32', 'UTF-8');
+
+        $stripped = '';
+        $wasLastAddedTokenNonPunctuator = false;
+        while (($token = $lexer->advance())->kind !== Token::EOF) {
+            $isNonPunctuator = ! static::isPunctuatorTokenKind($token->kind);
+
+            // `1...` would lex as an invalid float
+            if ($wasLastAddedTokenNonPunctuator && ($isNonPunctuator || $token->kind === Token::SPREAD)) {
+                $stripped .= ' ';
+            }
+
+            $stripped .= static::tokenSource($utf32Body, $token);
+            $wasLastAddedTokenNonPunctuator = $isNonPunctuator;
+        }
+
+        return $stripped;
+    }
+
+    protected static function isPunctuatorTokenKind(string $kind): bool
+    {
+        return ! in_array($kind, [Token::NAME, Token::INT, Token::FLOAT, Token::STRING, Token::BLOCK_STRING], true);
+    }
+
+    protected static function tokenSource(string $utf32Body, Token $token): string
+    {
+        switch ($token->kind) {
+            case Token::BLOCK_STRING:
+                assert(is_string($token->value));
+
+                return BlockString::print($token->value, true);
+            case Token::STRING:
+                $utf32Token = substr($utf32Body, $token->start * 4, ($token->end - $token->start) * 4);
+
+                return mb_convert_encoding($utf32Token, 'UTF-8', 'UTF-32');
+            case Token::NAME:
+            case Token::INT:
+            case Token::FLOAT:
+                assert(is_string($token->value));
+
+                return $token->value;
+            default:
+                return $token->kind;
+        }
     }
 
     /** @throws \JsonException */
