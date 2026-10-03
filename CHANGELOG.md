@@ -9,6 +9,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.37.3
+
 ### Fixed
 
 - Strip tab-only leading and trailing lines from block string values https://github.com/webonyx/graphql-php/pull/1984
