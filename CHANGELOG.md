@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Fixed
+
+- Fix error columns after lines with multibyte characters https://github.com/webonyx/graphql-php/pull/1988
+
 ## v15.37.3
 
 ### Fixed
