@@ -48,7 +48,7 @@ class BlockString
     {
         $strLength = mb_strlen($str);
         for ($i = 0; $i < $strLength; ++$i) {
-            if ($str[$i] !== ' ' && $str[$i] !== '\t') {
+            if ($str[$i] !== ' ' && $str[$i] !== "\t") {
                 return false;
             }
         }
