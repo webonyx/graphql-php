@@ -182,13 +182,13 @@ class Printer
     {
         switch ($token->kind) {
             case Token::BLOCK_STRING:
-                assert(is_string($token->value));
+                assert(is_string($token->value), 'Lexer sets the dedented value of block strings');
 
                 return BlockString::print($token->value, true);
             case Token::NAME:
             case Token::INT:
             case Token::FLOAT:
-                assert(is_string($token->value));
+                assert(is_string($token->value), 'Lexer sets the raw value of names and numbers');
 
                 return $token->value;
             default:

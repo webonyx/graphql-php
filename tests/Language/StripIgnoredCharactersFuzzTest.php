@@ -120,9 +120,9 @@ final class StripIgnoredCharactersFuzzTest extends TestCase
 
             $leftOver = $combination;
             while ($leftOver >= 0) {
-                $reminder = $leftOver % $numAllowedChars;
-                $permutation = $allowedChars[$reminder] . $permutation;
-                $leftOver = intdiv($leftOver - $reminder, $numAllowedChars) - 1;
+                $remainder = $leftOver % $numAllowedChars;
+                $permutation = $allowedChars[$remainder] . $permutation;
+                $leftOver = intdiv($leftOver - $remainder, $numAllowedChars) - 1;
             }
 
             yield $permutation;
@@ -286,7 +286,7 @@ final class StripIgnoredCharactersFuzzTest extends TestCase
     /** @see it('strips ignored characters inside random block strings', () => { */
     public function testStripsIgnoredCharactersInsideRandomBlockStrings(): void
     {
-        // Lengths above 7 take exponentially longer, but test with them when changing the implementation
+        // Increase when changing the implementation, lengths above 7 are exponentially slower
         foreach (self::genFuzzStrings(["\n", "\t", ' ', '"', 'a', '\\'], 7) as $fuzzStr) {
             $testStr = '"""' . $fuzzStr . '"""';
 

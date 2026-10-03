@@ -264,6 +264,9 @@ final class StripIgnoredCharactersTest extends TestCase
     public function testStripsNonASCIICharactersInStrings(): void
     {
         self::assertStripped('{a(b:"ä ö" c:""" ü """)}', '{ a(b: "ä ö", c: """ ü """) }');
+        self::assertStripped('{a(b:"😀€" c:"x")}', '{ a(b: "😀€", c: "x") }');
+        self::assertStripped('{a(b:"😀x" c:"€y")}', "# €😀\n{ a(b: \"😀x\", c: \"€y\") }");
+        self::assertStripped('"ö" "ä"', "\u{FEFF}# ü\n\"ö\" \"ä\"");
     }
 
     public function testRejectsInvalidUTF8(): void
