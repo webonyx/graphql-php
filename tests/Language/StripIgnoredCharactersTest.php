@@ -14,6 +14,8 @@ use PHPUnit\Framework\TestCase;
 use function Safe\file_get_contents;
 
 /**
+ * Hand-picked cases, generated ones are in StripIgnoredCharactersFuzzTest.
+ *
  * @see describe('stripIgnoredCharacters', () => {
  */
 final class StripIgnoredCharactersTest extends TestCase

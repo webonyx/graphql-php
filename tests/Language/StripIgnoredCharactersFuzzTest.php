@@ -10,6 +10,8 @@ use GraphQL\Language\Token;
 use PHPUnit\Framework\TestCase;
 
 /**
+ * Generated input combinations, split out like stripIgnoredCharacters-fuzz.ts in graphql-js.
+ *
  * @see describe('stripIgnoredCharacters', () => {
  */
 final class StripIgnoredCharactersFuzzTest extends TestCase
