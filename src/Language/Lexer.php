@@ -531,6 +531,12 @@ class Lexer
         throw new SyntaxError($this->source, $this->position, 'Unterminated string.');
     }
 
+    /** Compares bytes, since decoding one byte at a time would land inside multibyte characters. */
+    private function isTripleQuoteAhead(): bool
+    {
+        return substr($this->source->body, $this->byteStreamPosition, 3) === '"""';
+    }
+
     /**
      * Reads a block string token from the source file.
      *
@@ -551,52 +557,31 @@ class Lexer
 
         while ($code !== null) {
             // Closing Triple-Quote (""")
-            if ($code === 34) {
-                // Move 2 quotes
-                [, $nextCode] = $this->moveStringCursor(1, 1)->readChar();
-                [, $nextNextCode] = $this->moveStringCursor(1, 1)->readChar();
+            if ($code === 34 && $this->isTripleQuoteAhead()) {
+                $value .= $chunk;
 
-                if ($nextCode === 34 && $nextNextCode === 34) {
-                    $value .= $chunk;
+                $this->moveStringCursor(3, 3);
 
-                    $this->moveStringCursor(1, 1);
-
-                    return new Token(
-                        Token::BLOCK_STRING,
-                        $start,
-                        $this->position,
-                        $line,
-                        $col,
-                        $prev,
-                        BlockString::dedentBlockStringLines($value)
-                    );
-                }
-
-                // move cursor back to before the first quote
-                $this->moveStringCursor(-2, -2);
+                return new Token(
+                    Token::BLOCK_STRING,
+                    $start,
+                    $this->position,
+                    $line,
+                    $col,
+                    $prev,
+                    BlockString::dedentBlockStringLines($value)
+                );
             }
 
             $this->assertValidBlockStringCharacterCode($code, $this->position);
             $this->moveStringCursor(1, $bytes);
 
-            [, $nextCode] = $this->readChar();
-            [, $nextNextCode] = $this->moveStringCursor(1, 1)->readChar();
-            [, $nextNextNextCode] = $this->moveStringCursor(1, 1)->readChar();
-
             // Escape Triple-Quote (\""")
-            if (
-                $code === 92
-                && $nextCode === 34
-                && $nextNextCode === 34
-                && $nextNextNextCode === 34
-            ) {
-                $this->moveStringCursor(1, 1);
+            if ($code === 92 && $this->isTripleQuoteAhead()) {
+                $this->moveStringCursor(3, 3);
                 $value .= $chunk . '"""';
                 $chunk = '';
             } else {
-                // move cursor back to before the first quote
-                $this->moveStringCursor(-2, -2);
-
                 if ($code === 10) { // new line
                     ++$this->line;
                     $this->lineStart = $this->position;

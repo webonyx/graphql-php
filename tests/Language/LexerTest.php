@@ -50,7 +50,14 @@ final class LexerTest extends TestCase
     {
         $lexer = new Lexer(new Source($body));
 
-        return $lexer->advance();
+        set_error_handler(static function (int $severity, string $message): bool {
+            throw new \ErrorException($message, 0, $severity);
+        });
+        try {
+            return $lexer->advance();
+        } finally {
+            restore_error_handler();
+        }
     }
 
     private static function loc(int $line, int $column): SourceLocation
@@ -334,6 +341,14 @@ final class LexerTest extends TestCase
         );
     }
 
+    public function testLexesBlockStringsWithMultibyteCharactersAfterQuotes(): void
+    {
+        self::assertArraySubset(
+            ['kind' => Token::BLOCK_STRING, 'start' => 0, 'end' => 11, 'value' => 'a"é\\ü'],
+            (array) $this->lexOne('"""a"é\\ü"""')
+        );
+    }
+
     /** @see it('lexes block strings') */
     public function testLexesBlockString(): void
     {
@@ -479,6 +494,9 @@ line"', 'Unterminated string.', self::loc(1, 7)];
     {
         yield ['"""', 'Unterminated string.', self::loc(1, 4)];
         yield ['"""no end quote', 'Unterminated string.', self::loc(1, 16)];
+        yield ['"""a"é', 'Unterminated string.', self::loc(1, 7)];
+        yield ['""""é', 'Unterminated string.', self::loc(1, 6)];
+        yield ['"""\\é', 'Unterminated string.', self::loc(1, 6)];
         yield [
             '"""contains unescaped ' . json_decode('"\u0007"') . ' control char"""',
             'Invalid character within String: "\\u0007"',
