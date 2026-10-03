@@ -674,6 +674,26 @@ line"', 'Unterminated string.', self::loc(1, 7)];
         $this->expectSyntaxError($str, $expectedMessage, $location);
     }
 
+    /** @return iterable<array{string, string, SourceLocation}> */
+    public static function reportsInvalidUTF8(): iterable
+    {
+        yield 'in name position' => ["\xFF", 'Invalid UTF-8 byte: 0xFF', self::loc(1, 1)];
+        yield 'in string' => ["\"a\xFFbcd\"", 'Invalid UTF-8 byte: 0xFF', self::loc(1, 3)];
+        yield 'after multibyte character' => ["\"ä\xC3x\"", 'Invalid UTF-8 byte: 0xC3', self::loc(1, 3)];
+        yield 'truncated at end' => ["\"ab\xE2\x82", 'Invalid UTF-8 byte: 0xE2', self::loc(1, 4)];
+        yield 'encoded surrogate' => ["\"\xED\xA0\x80\"", 'Invalid UTF-8 byte: 0xED', self::loc(1, 2)];
+        yield 'overlong encoding' => ["\"\xC0\xAF\"", 'Invalid UTF-8 byte: 0xC0', self::loc(1, 2)];
+        yield 'in block string' => ["\"\"\"\xFF\"\"\"", 'Invalid UTF-8 byte: 0xFF', self::loc(1, 4)];
+        yield 'in comment' => ["# \xFF\nfoo", 'Invalid UTF-8 byte: 0xFF', self::loc(1, 3)];
+        yield 'after the first token' => ["foo\n  \"\xFF\"", 'Invalid UTF-8 byte: 0xFF', self::loc(2, 4)];
+    }
+
+    /** @dataProvider reportsInvalidUTF8 */
+    public function testReportsInvalidUTF8(string $str, string $expectedMessage, SourceLocation $location): void
+    {
+        $this->expectSyntaxError($str, $expectedMessage, $location);
+    }
+
     /** @see it('lex reports useful information for dashes in names') */
     public function testReportsUsefulDashesInfo(): void
     {
