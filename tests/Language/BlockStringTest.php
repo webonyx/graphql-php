@@ -221,6 +221,12 @@ final class BlockStringTest extends TestCase
         );
     }
 
+    public function testRemovesTabOnlyLeadingAndTrailingLines(): void
+    {
+        $rawValue = self::joinLines("\t", "\t\t", 'Hello,', "\t", "\t");
+        self::assertSame('Hello,', BlockString::dedentBlockStringLines($rawValue));
+    }
+
     /** @see it('retains indentation from first line', () => { */
     public function testRetainsIndentationFromFirstLine(): void
     {
