@@ -200,8 +200,10 @@ class QueryPlan
                 $type = $this->schema->getType($fragment->typeCondition->name->value);
                 assert($type instanceof Type, 'ensured by query validation');
 
-                $subfields = $this->analyzeSubFields($type, $fragment->selectionSet);
+                $subImplementors = [];
+                $subfields = $this->analyzeSubFields($type, $fragment->selectionSet, $subImplementors);
                 $fields = $this->mergeFields($parentType, $type, $fields, $subfields, $implementors);
+                $fields = $this->mergeSubImplementors($parentType, $fields, $subImplementors, $implementors);
             } elseif ($selection instanceof InlineFragmentNode) {
                 $typeCondition = $selection->typeCondition;
                 $type = $typeCondition === null
@@ -209,8 +211,10 @@ class QueryPlan
                     : $this->schema->getType($typeCondition->name->value);
                 assert($type instanceof Type, 'ensured by query validation');
 
-                $subfields = $this->analyzeSubFields($type, $selection->selectionSet);
+                $subImplementors = [];
+                $subfields = $this->analyzeSubFields($type, $selection->selectionSet, $subImplementors);
                 $fields = $this->mergeFields($parentType, $type, $fields, $subfields, $implementors);
+                $fields = $this->mergeSubImplementors($parentType, $fields, $subImplementors, $implementors);
             }
         }
 
@@ -273,6 +277,39 @@ class QueryPlan
         }
 
         return $this->arrayMergeDeep($subfields, $fields);
+    }
+
+    /**
+     * Merges implementors collected within a fragment on an abstract type into the current selection.
+     *
+     * @param Type&NamedType $parentType
+     * @param array<mixed> $fields
+     * @param array<string, mixed> $subImplementors
+     * @param array<string, mixed> $implementors
+     *
+     * @return array<mixed>
+     */
+    private function mergeSubImplementors(Type $parentType, array $fields, array $subImplementors, array &$implementors): array
+    {
+        if (! $this->groupImplementorFields || $subImplementors === []) {
+            return $fields;
+        }
+
+        if ($parentType instanceof AbstractType) {
+            foreach ($subImplementors as $name => $implementor) {
+                $implementors[$name] = $this->arrayMergeDeep($implementors[$name] ?? [], $implementor);
+            }
+
+            return $fields;
+        }
+
+        // A concrete parent type can only ever match the implementor of its own name
+        $parentImplementor = $subImplementors[$parentType->name()] ?? null;
+        if ($parentImplementor === null) {
+            return $fields;
+        }
+
+        return $this->arrayMergeDeep($fields, $parentImplementor['fields']);
     }
 
     /**

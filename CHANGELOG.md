@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Fixed
+
+- Keep implementor fields in `QueryPlan` with `groupImplementorFields` when a fragment on an abstract type contains fragments on concrete types https://github.com/webonyx/graphql-php/issues/1949
+
 ## v15.37.2
 
 ### Changed
