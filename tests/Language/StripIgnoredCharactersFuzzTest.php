@@ -9,8 +9,6 @@ use GraphQL\Language\Source;
 use GraphQL\Language\Token;
 use PHPUnit\Framework\TestCase;
 
-use function Safe\json_encode;
-
 /**
  * @see describe('stripIgnoredCharacters', () => {
  */
@@ -72,10 +70,10 @@ final class StripIgnoredCharactersFuzzTest extends TestCase
     private static function assertStripped(string $expected, string $docString): void
     {
         $stripped = Printer::stripIgnoredCharacters($docString);
-        self::assertSame($expected, $stripped, 'Stripping ' . json_encode($docString));
+        self::assertSame($expected, $stripped, 'Stripping ' . json_encode($docString, JSON_THROW_ON_ERROR));
 
         $strippedTwice = Printer::stripIgnoredCharacters($stripped);
-        self::assertSame($stripped, $strippedTwice, 'Stripping twice ' . json_encode($stripped));
+        self::assertSame($stripped, $strippedTwice, 'Stripping twice ' . json_encode($stripped, JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -258,14 +256,14 @@ final class StripIgnoredCharactersFuzzTest extends TestCase
     public function testDoesNotStripRandomIgnoredTokensEmbeddedInTheString(): void
     {
         foreach (self::IGNORED_TOKENS as $ignored) {
-            self::assertStaysTheSame(json_encode($ignored, JSON_UNESCAPED_UNICODE));
+            self::assertStaysTheSame(json_encode($ignored, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
 
             foreach (self::IGNORED_TOKENS as $anotherIgnored) {
-                self::assertStaysTheSame(json_encode($ignored . $anotherIgnored, JSON_UNESCAPED_UNICODE));
+                self::assertStaysTheSame(json_encode($ignored . $anotherIgnored, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
             }
         }
 
-        self::assertStaysTheSame(json_encode(implode('', self::IGNORED_TOKENS), JSON_UNESCAPED_UNICODE));
+        self::assertStaysTheSame(json_encode(implode('', self::IGNORED_TOKENS), JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
     }
 
     /** @see it('does not strip random ignored tokens embedded in the block string', () => { */
@@ -297,7 +295,7 @@ final class StripIgnoredCharactersFuzzTest extends TestCase
             $testValue = self::lexValue($testStr);
 
             $strippedValue = self::lexValue(Printer::stripIgnoredCharacters($testStr));
-            self::assertSame($testValue, $strippedValue, 'Stripping ' . json_encode($testStr));
+            self::assertSame($testValue, $strippedValue, 'Stripping ' . json_encode($testStr, JSON_THROW_ON_ERROR));
         }
     }
 }

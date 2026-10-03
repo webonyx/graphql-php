@@ -5,6 +5,11 @@ parameters:
           message: "#::chr#"
           count: 1
 
+        - path: ../src/Language/Printer.php
+          identifier: argument.type
+          message: "#tokenSource\(\) expects string, string\|false given#"
+          count: 1
+
         # Native enums require PHP 8.1, but checking if a value is of an unknown class still works
         - path: ../src/Type/Definition/EnumType.php
           identifier: class.notFound
