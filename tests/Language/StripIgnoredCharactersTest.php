@@ -266,6 +266,13 @@ final class StripIgnoredCharactersTest extends TestCase
         self::assertStripped('{a(b:"ä ö" c:""" ü """)}', '{ a(b: "ä ö", c: """ ü """) }');
     }
 
+    public function testRejectsInvalidUTF8(): void
+    {
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Invalid UTF-8 byte: 0xFF');
+        Printer::stripIgnoredCharacters("{ a(b: \"\xFFabc\") }");
+    }
+
     /** @see it('strips kitchen sink query but maintains the exact same AST', () => { */
     public function testStripsKitchenSinkQueryButMaintainsTheExactSameAST(): void
     {

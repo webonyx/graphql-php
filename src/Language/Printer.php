@@ -122,11 +122,13 @@ class Printer
         $sourceObj = $source instanceof Source
             ? $source
             : new Source($source);
+        $body = $sourceObj->body;
         $lexer = new Lexer($sourceObj);
-        $utf32Body = mb_convert_encoding($sourceObj->body, 'UTF-32', 'UTF-8');
 
         $stripped = '';
         $wasLastAddedTokenNonPunctuator = false;
+        $charPosition = 0;
+        $bytePosition = 0;
         while (($token = $lexer->advance())->kind !== Token::EOF) {
             $isNonPunctuator = ! static::isPunctuatorTokenKind($token->kind);
 
@@ -135,7 +137,17 @@ class Printer
                 $stripped .= ' ';
             }
 
-            $stripped .= static::tokenSource($utf32Body, $token);
+            if ($token->kind === Token::STRING) {
+                $bytePosition = static::advanceBytePosition($body, $bytePosition, $token->start - $charPosition);
+                $tokenBytePosition = static::advanceBytePosition($body, $bytePosition, $token->end - $token->start);
+                $stripped .= substr($body, $bytePosition, $tokenBytePosition - $bytePosition);
+
+                $charPosition = $token->end;
+                $bytePosition = $tokenBytePosition;
+            } else {
+                $stripped .= static::tokenSource($token);
+            }
+
             $wasLastAddedTokenNonPunctuator = $isNonPunctuator;
         }
 
@@ -147,17 +159,32 @@ class Printer
         return ! in_array($kind, [Token::NAME, Token::INT, Token::FLOAT, Token::STRING, Token::BLOCK_STRING], true);
     }
 
-    protected static function tokenSource(string $utf32Body, Token $token): string
+    /** Steps through characters the same way as Lexer::readChar(), since token positions count them. */
+    protected static function advanceBytePosition(string $body, int $bytePosition, int $charCount): int
+    {
+        for ($i = 0; $i < $charCount; ++$i) {
+            $leadByte = ord($body[$bytePosition]);
+            if ($leadByte < 128) {
+                ++$bytePosition;
+            } elseif ($leadByte < 224) {
+                $bytePosition += 2;
+            } elseif ($leadByte < 240) {
+                $bytePosition += 3;
+            } else {
+                $bytePosition += 4;
+            }
+        }
+
+        return $bytePosition;
+    }
+
+    protected static function tokenSource(Token $token): string
     {
         switch ($token->kind) {
             case Token::BLOCK_STRING:
                 assert(is_string($token->value));
 
                 return BlockString::print($token->value, true);
-            case Token::STRING:
-                $utf32Token = substr($utf32Body, $token->start * 4, ($token->end - $token->start) * 4);
-
-                return mb_convert_encoding($utf32Token, 'UTF-8', 'UTF-32');
             case Token::NAME:
             case Token::INT:
             case Token::FLOAT:
