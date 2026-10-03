@@ -46,9 +46,6 @@ class Lexer
     /** Ignored single-byte characters that never start or end a line, so runs of them can be skipped in bulk. */
     private const HORIZONTAL_WHITESPACE_BYTES = "\t ,";
 
-    /** Matches the longest valid UTF-8 prefix, see https://www.rfc-editor.org/rfc/rfc3629#section-4. */
-    private const VALID_UTF8_PREFIX = '/\A(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})*+/';
-
     public Source $source;
 
     /** @phpstan-var ParserOptions */
@@ -274,9 +271,10 @@ class Lexer
             return;
         }
 
-        preg_match(self::VALID_UTF8_PREFIX, $body, $matches);
-        $validPrefix = $matches[0] ?? '';
-        $invalidByte = strtoupper(bin2hex($body[strlen($validPrefix)]));
+        $scrubbedBody = mb_scrub($body, 'UTF-8');
+        $invalidByteOffset = strspn($body ^ $scrubbedBody, "\0");
+        $invalidByte = strtoupper(bin2hex($body[$invalidByteOffset]));
+        $validPrefix = substr($body, 0, $invalidByteOffset);
 
         throw new SyntaxError($this->source, mb_strlen($validPrefix, 'UTF-8'), "Invalid UTF-8 byte: 0x{$invalidByte}");
     }

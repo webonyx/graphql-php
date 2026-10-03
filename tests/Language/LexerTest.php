@@ -686,6 +686,9 @@ line"', 'Unterminated string.', self::loc(1, 7)];
         yield 'in block string' => ["\"\"\"\xFF\"\"\"", 'Invalid UTF-8 byte: 0xFF', self::loc(1, 4)];
         yield 'in comment' => ["# \xFF\nfoo", 'Invalid UTF-8 byte: 0xFF', self::loc(1, 3)];
         yield 'after the first token' => ["foo\n  \"\xFF\"", 'Invalid UTF-8 byte: 0xFF', self::loc(2, 4)];
+        yield 'after BOM' => ["\u{FEFF}\xFF", 'Invalid UTF-8 byte: 0xFF', self::loc(1, 2)];
+        yield 'first of two' => ["\"a\xFEb\xFF\"", 'Invalid UTF-8 byte: 0xFE', self::loc(1, 3)];
+        yield 'after long multibyte prefix' => ['"' . str_repeat('€', 2000) . "\xFF\"", 'Invalid UTF-8 byte: 0xFF', self::loc(1, 2002)];
     }
 
     /** @dataProvider reportsInvalidUTF8 */
