@@ -809,4 +809,35 @@ GRAPHQL
         Parser::parse($query, ['recursionLimit' => $limit]);
         $this->expectNotToPerformAssertions();
     }
+
+    /** @see it('limit maximum number of tokens') */
+    public function testLimitMaximumNumberOfTokens(): void
+    {
+        Parser::parse('{ foo }', ['maxTokens' => 3]);
+        $this->assertSyntaxErrorMessage('{ foo }', 2);
+
+        Parser::parse('{ foo(bar: "baz") }', ['maxTokens' => 8]);
+        $this->assertSyntaxErrorMessage('{ foo(bar: "baz") }', 7);
+    }
+
+    public function testNoTokenLimitByDefault(): void
+    {
+        Parser::parse('{ ' . str_repeat('a ', 10000) . '}');
+        $this->expectNotToPerformAssertions();
+    }
+
+    /**
+     * @param int<1, max> $maxTokens
+     *
+     * @throws \JsonException
+     */
+    private function assertSyntaxErrorMessage(string $source, int $maxTokens): void
+    {
+        try {
+            Parser::parse($source, ['maxTokens' => $maxTokens]);
+            self::fail('Expected a SyntaxError');
+        } catch (SyntaxError $error) {
+            self::assertSame("Syntax Error: Document contains more than {$maxTokens} tokens. Parsing aborted.", $error->getMessage());
+        }
+    }
 }

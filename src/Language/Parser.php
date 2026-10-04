@@ -66,7 +66,8 @@ use GraphQL\Language\AST\VariableNode;
  *   allowLegacySDLEmptyFields?: bool,
  *   allowLegacySDLImplementsInterfaces?: bool,
  *   experimentalFragmentVariables?: bool,
- *   recursionLimit?: int<0, max>
+ *   recursionLimit?: int<0, max>,
+ *   maxTokens?: int<1, max>|null
  * }
  *
  * - **noLocation**:
@@ -100,6 +101,12 @@ use GraphQL\Language\AST\VariableNode;
  *   Limits the depth of recursion during parsing to prevent stack overflows from deeply nested queries.
  *   The counter is shared across `parseSelectionSet`, `parseValueLiteral`, and `parseTypeReference`.
  *   Defaults to 256. Set to 0 to disable the limit.
+ *
+ * - **maxTokens**:
+ *   Parser CPU and memory usage is linear to the number of tokens in a document,
+ *   and parsing happens before validation, so even an invalid document can use a lot of resources.
+ *   Set this option to limit the number of tokens a document may contain, parsing then fails with a syntax error.
+ *   There is no limit by default.
  *
  * Those magic functions allow partial parsing:
  *
@@ -330,6 +337,10 @@ class Parser
 
     private int $recursionLimit;
 
+    private ?int $maxTokens;
+
+    private int $tokenCount = 0;
+
     /**
      * @param Source|string $source
      *
@@ -342,6 +353,7 @@ class Parser
             : new Source($source);
         $this->lexer = new Lexer($sourceObj, $options);
         $this->recursionLimit = $options['recursionLimit'] ?? self::DEFAULT_RECURSION_LIMIT;
+        $this->maxTokens = $options['maxTokens'] ?? null;
     }
 
     /**
@@ -367,6 +379,25 @@ class Parser
         ++$this->recursionDepth;
     }
 
+    /**
+     * Advances the lexer, counting the tokens of the document to enforce the maxTokens option.
+     *
+     * @throws \JsonException
+     * @throws SyntaxError
+     */
+    private function advanceLexer(): void
+    {
+        $token = $this->lexer->advance();
+
+        if ($token->kind !== Token::EOF) {
+            ++$this->tokenCount;
+
+            if ($this->maxTokens !== null && $this->tokenCount > $this->maxTokens) {
+                throw new SyntaxError($this->lexer->source, $token->start, "Document contains more than {$this->maxTokens} tokens. Parsing aborted.");
+            }
+        }
+    }
+
     /** Determines if the next token is of a given kind. */
     private function peek(string $kind): bool
     {
@@ -385,7 +416,7 @@ class Parser
         $match = $this->lexer->token->kind === $kind;
 
         if ($match) {
-            $this->lexer->advance();
+            $this->advanceLexer();
         }
 
         return $match;
@@ -403,7 +434,7 @@ class Parser
         $token = $this->lexer->token;
 
         if ($token->kind === $kind) {
-            $this->lexer->advance();
+            $this->advanceLexer();
 
             return $token;
         }
@@ -425,7 +456,7 @@ class Parser
             throw new SyntaxError($this->lexer->source, $token->start, "Expected \"{$value}\", found {$token->getDescription()}");
         }
 
-        $this->lexer->advance();
+        $this->advanceLexer();
     }
 
     /**
@@ -439,7 +470,7 @@ class Parser
     {
         $token = $this->lexer->token;
         if ($token->kind === Token::NAME && $token->value === $value) {
-            $this->lexer->advance();
+            $this->advanceLexer();
 
             return true;
         }
@@ -953,7 +984,7 @@ class Parser
                     return $this->parseObject($isConst);
 
                 case Token::INT:
-                    $this->lexer->advance();
+                    $this->advanceLexer();
 
                     return new IntValueNode([
                         'value' => $token->value,
@@ -961,7 +992,7 @@ class Parser
                     ]);
 
                 case Token::FLOAT:
-                    $this->lexer->advance();
+                    $this->advanceLexer();
 
                     return new FloatValueNode([
                         'value' => $token->value,
@@ -974,7 +1005,7 @@ class Parser
 
                 case Token::NAME:
                     if ($token->value === 'true' || $token->value === 'false') {
-                        $this->lexer->advance();
+                        $this->advanceLexer();
 
                         return new BooleanValueNode([
                             'value' => $token->value === 'true',
@@ -983,13 +1014,13 @@ class Parser
                     }
 
                     if ($token->value === 'null') {
-                        $this->lexer->advance();
+                        $this->advanceLexer();
 
                         return new NullValueNode([
                             'loc' => $this->loc($token),
                         ]);
                     }
-                    $this->lexer->advance();
+                    $this->advanceLexer();
 
                     return new EnumValueNode([
                         'value' => $token->value,
@@ -1017,7 +1048,7 @@ class Parser
     private function parseStringLiteral(): StringValueNode
     {
         $token = $this->lexer->token;
-        $this->lexer->advance();
+        $this->advanceLexer();
 
         return new StringValueNode([
             'value' => $token->value,
@@ -1376,8 +1407,8 @@ class Parser
             && $this->peek(Token::BRACE_L)
             && $this->lexer->lookahead()->kind === Token::BRACE_R
         ) {
-            $this->lexer->advance();
-            $this->lexer->advance();
+            $this->advanceLexer();
+            $this->advanceLexer();
 
             return new NodeList([]);
         }
