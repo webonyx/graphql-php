@@ -69,18 +69,7 @@ class Value
             try {
                 return self::ofValue($type->parseValue($value));
             } catch (\Throwable $error) {
-                if (
-                    $error instanceof Error
-                    || ($error instanceof ClientAware && $error->isClientSafe())
-                ) {
-                    return self::ofErrors([
-                        CoercionError::make($error->getMessage(), $path, $value, $error),
-                    ]);
-                }
-
-                return self::ofErrors([
-                    CoercionError::make("Expected type \"{$type->name}\".", $path, $value, $error),
-                ]);
+                return static::ofParseValueError($error, $type->name, $path, $value);
             }
         }
 
@@ -206,9 +195,33 @@ class Value
             }
         }
 
-        return $errors === []
-            ? self::ofValue($type->parseValue($coercedValue))
-            : self::ofErrors($errors);
+        if ($errors !== []) {
+            return self::ofErrors($errors);
+        }
+
+        try {
+            return self::ofValue($type->parseValue($coercedValue));
+        } catch (\Throwable $error) {
+            return static::ofParseValueError($error, $type->name, $path, $value);
+        }
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @phpstan-param InputPath|null $path
+     *
+     * @phpstan-return CoercedErrors
+     */
+    protected static function ofParseValueError(\Throwable $error, string $typeName, ?array $path, $value): array
+    {
+        $message = $error instanceof Error || ($error instanceof ClientAware && $error->isClientSafe())
+            ? $error->getMessage()
+            : "Expected type \"{$typeName}\".";
+
+        return self::ofErrors([
+            CoercionError::make($message, $path, $value, $error),
+        ]);
     }
 
     /**
