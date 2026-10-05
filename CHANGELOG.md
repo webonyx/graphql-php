@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Fixed
+
+- Reject invalid UTF-8 in documents https://github.com/webonyx/graphql-php/pull/1987
+
 ## v15.37.3
 
 ### Fixed
