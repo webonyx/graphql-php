@@ -4,7 +4,9 @@ namespace GraphQL\Tests\Utils;
 
 use GraphQL\Error\ClientAware;
 use GraphQL\Error\CoercionError;
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\ProvidesExtensions;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -225,6 +227,157 @@ final class CoerceInputValueTest extends TestCase
     {
         yield [['foo' => 123]];
         yield [(object) ['foo' => 123]];
+    }
+
+    /**
+     * @phpstan-param array{code: string}|null $extensions
+     *
+     * @dataProvider provideInputObjectParseValueErrors
+     */
+    public function testInputObjectParseValueErrors(
+        \Throwable $exception,
+        string $message,
+        bool $isClientSafe,
+        ?array $extensions
+    ): void {
+        $parsedValue = null;
+        $input = new InputObjectType([
+            'name' => 'TestInput',
+            'fields' => [
+                'id' => Type::id(),
+                'limit' => [
+                    'type' => Type::int(),
+                    'defaultValue' => 7,
+                ],
+            ],
+            'parseValue' => static function (array $value) use ($exception, &$parsedValue): void {
+                $parsedValue = $value;
+                throw $exception;
+            },
+        ]);
+        $originalValue = ['id' => 123];
+        $path = ['input', 2];
+
+        $result = Value::coerceInputValue($originalValue, $input, $path);
+
+        self::assertSame(['id' => '123', 'limit' => 7], $parsedValue);
+        self::assertNull($result['value']);
+        self::assertNotNull($result['errors']);
+        self::assertCount(1, $result['errors']);
+        $error = $result['errors'][0];
+        self::assertSame($message, $error->getMessage());
+        self::assertSame($isClientSafe, $error->isClientSafe());
+        self::assertSame($extensions, $error->getExtensions());
+        self::assertSame($exception, $error->getPrevious());
+        self::assertSame($originalValue, $error->invalidValue);
+        self::assertSame($path, $error->inputPath);
+    }
+
+    /** @phpstan-return \Generator<string, array{\Throwable, string, bool, array{code: string}|null}> */
+    public static function provideInputObjectParseValueErrors(): \Generator
+    {
+        foreach ([true, false] as $isClientSafe) {
+            $exception = new class($isClientSafe) extends \Exception implements ClientAware, ProvidesExtensions {
+                private bool $isClientSafe;
+
+                public function __construct(bool $isClientSafe)
+                {
+                    parent::__construct('Client-aware failure.');
+                    $this->isClientSafe = $isClientSafe;
+                }
+
+                public function isClientSafe(): bool
+                {
+                    return $this->isClientSafe;
+                }
+
+                /** @phpstan-return array{code: string} */
+                public function getExtensions(): array
+                {
+                    return ['code' => 'INPUT_INVALID'];
+                }
+            };
+
+            $case = $isClientSafe
+                ? 'client safe with extensions'
+                : 'client unsafe with extensions';
+            $message = $isClientSafe
+                ? 'Client-aware failure.'
+                : 'Expected type "TestInput".';
+
+            yield $case => [
+                $exception,
+                $message,
+                $isClientSafe,
+                ['code' => 'INPUT_INVALID'],
+            ];
+        }
+
+        yield 'unsafe exception' => [new \RuntimeException('Private detail.'), 'Expected type "TestInput".', false, null];
+        yield 'type error' => [new \TypeError('Private type detail.'), 'Expected type "TestInput".', false, null];
+        yield 'graphql error' => [
+            new Error('GraphQL failure.', null, null, [], null, null, ['code' => 'GRAPHQL_INVALID']),
+            'GraphQL failure.',
+            true,
+            ['code' => 'GRAPHQL_INVALID'],
+        ];
+        yield 'graphql error with unsafe previous' => [
+            new Error(
+                'GraphQL failure.',
+                null,
+                null,
+                [],
+                null,
+                new \RuntimeException('Private detail.'),
+                ['code' => 'GRAPHQL_INVALID'],
+            ),
+            'GraphQL failure.',
+            false,
+            ['code' => 'GRAPHQL_INVALID'],
+        ];
+    }
+
+    public function testCollectsNestedInputObjectParseValueErrorsWithoutParsingParent(): void
+    {
+        $parsedValues = [];
+        $child = new InputObjectType([
+            'name' => 'TestInput',
+            'fields' => ['value' => Type::int()],
+            'parseValue' => static function (array $value) use (&$parsedValues): array {
+                $parsedValues[] = $value['value'];
+                if ($value['value'] !== 4) {
+                    throw new Error("Rejected {$value['value']}.");
+                }
+
+                return $value;
+            },
+        ]);
+        $parentCalls = 0;
+        $parent = new InputObjectType([
+            'name' => 'ParentInput',
+            'fields' => ['items' => Type::listOf(Type::listOf($child))],
+            'parseValue' => static function (array $value) use (&$parentCalls): array {
+                ++$parentCalls;
+
+                return $value;
+            },
+        ]);
+
+        $result = Value::coerceInputValue([
+            'items' => [[['value' => 1], ['value' => 'invalid']], [['value' => 3], ['value' => 4]]],
+        ], $parent, ['root']);
+
+        $this->expectGraphQLError($result, [
+            CoercionError::make('Rejected 1.', ['root', 'items', 0, 0], ['value' => 1]),
+            CoercionError::make(
+                'Int cannot represent non-integer value: "invalid"',
+                ['root', 'items', 0, 1, 'value'],
+                'invalid',
+            ),
+            CoercionError::make('Rejected 3.', ['root', 'items', 1, 0], ['value' => 3]),
+        ]);
+        self::assertSame([1, 3, 4], $parsedValues);
+        self::assertSame(0, $parentCalls);
     }
 
     /** @see it('returns an error for a non-object type', () => { */
