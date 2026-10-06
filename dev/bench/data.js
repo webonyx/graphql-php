@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791313195265,
+  "lastUpdate": 1791313551565,
   "repoUrl": "https://github.com/webonyx/graphql-php",
   "entries": {
     "Benchmark": [
@@ -21765,6 +21765,200 @@ window.BENCHMARK_DATA = {
           {
             "name": "DeferredBench::bench1000Chains",
             "value": 3.108,
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benedikt@franke.tech",
+            "name": "Benedikt Franke",
+            "username": "spawnia"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6a7c89abfd063a894d9602df1c2ea479dc505b65",
+          "message": "Add Printer::stripIgnoredCharacters() (#1985)\n\nResolves https://github.com/webonyx/graphql-php/issues/1028\n\ngraphql-php has no equivalent of graphql-js `stripIgnoredCharacters`,\nwhich clients use to send compact documents.\nThis adds `Printer::stripIgnoredCharacters()`, a port of\nhttps://github.com/graphql/graphql-js/blob/17.x.x/src/utilities/stripIgnoredCharacters.ts.\n\n<details>\n<summary>Merge https://github.com/webonyx/graphql-php/pull/1987 first,\nits commits show in this diff until then</summary>\n\nString tokens are copied byte for byte, as in graphql-js.\nToken positions count characters, so the byte offsets come from stepping\nlead bytes like `Lexer::readChar()`.\nThat matches the Lexer only for valid UTF-8, which\nhttps://github.com/webonyx/graphql-php/pull/1987 enforces.\nGitHub refused to change the base branch, so this pull request targets\nmaster.\n</details>\n\n<details>\n<summary>Parsing the output gives the same AST as parsing the input,\napart from locations</summary>\n\nBlock strings are re-printed minimized, through a new `$minimize` flag\non `BlockString::print()`.\nBoth `stripIgnoredCharacters-test.ts` and\n`stripIgnoredCharacters-fuzz.ts` are ported, plus the minimized cases\nfrom `blockString-test.ts`.\nThe fuzz suite checks that every block string up to 7 characters, built\nfrom 6 tricky characters, keeps its value.\n</details>\n\n<details>\n<summary>Runtime stays linear in document size</summary>\n\nOn a 664 KB document, stripping takes 0.85s and `Parser::parse()` takes\n1.07s.\nSlicing with `mb_substr()` instead took 3.85s, because it scans from the\nstart of the body for every string token.\n</details>\n\n🤖 Generated with Claude Code",
+          "timestamp": "2026-10-06T20:52:04+02:00",
+          "tree_id": "8e6e3a15b035997165c5f8c3a94811efd67ea272",
+          "url": "https://github.com/webonyx/graphql-php/commit/6a7c89abfd063a894d9602df1c2ea479dc505b65"
+        },
+        "date": 1791313550372,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "BuildSchemaBench::benchBuildSchema",
+            "value": 14.001,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields100",
+            "value": 1.743,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields500",
+            "value": 8.614,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields1000",
+            "value": 16.946,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields2000",
+            "value": 35.356,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields3000",
+            "value": 52.179,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeave",
+            "value": 0.159,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindMap",
+            "value": 0.154,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindCallable",
+            "value": 0.143,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeaveMap",
+            "value": 0.16,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitNestedWithEnterLeave",
+            "value": 0.036,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithoutOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithTypesOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithoutOverride",
+            "value": 0.081,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithTypesOverride",
+            "value": 0.081,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchSchema",
+            "value": 0.003,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchHeroQuery",
+            "value": 0.178,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchNestedQuery",
+            "value": 0.396,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithFragment",
+            "value": 0.425,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithInterfaceFragment",
+            "value": 0.391,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchStarWarsIntrospectionQuery",
+            "value": 3.954,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchema",
+            "value": 7.536,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchemaLazy",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQuery",
+            "value": 8.289,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQueryLazy",
+            "value": 9.704,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchIntrospectionQuery",
+            "value": 0.162,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchDeeplyIndentedQuery",
+            "value": 1.054,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchSingleDeferred",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchNestedDeferred",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain5",
+            "value": 0.003,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain100",
+            "value": 0.044,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyDeferreds",
+            "value": 0.225,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyNestedDeferreds",
+            "value": 6.324,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::bench1000Chains",
+            "value": 1.766,
             "unit": "ms"
           }
         ]
