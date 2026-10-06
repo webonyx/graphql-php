@@ -9,6 +9,20 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Added
+
+- Add `Printer::stripIgnoredCharacters()` to remove characters that do not change a document's meaning https://github.com/webonyx/graphql-php/pull/1985
+
+### Fixed
+
+- Reject invalid UTF-8 in documents https://github.com/webonyx/graphql-php/pull/1987
+
+## v15.37.3
+
+### Fixed
+
+- Strip tab-only leading and trailing lines from block string values https://github.com/webonyx/graphql-php/pull/1984
+
 ## v15.37.2
 
 ### Changed

@@ -221,6 +221,12 @@ final class BlockStringTest extends TestCase
         );
     }
 
+    public function testRemovesTabOnlyLeadingAndTrailingLines(): void
+    {
+        $rawValue = self::joinLines("\t", "\t\t", 'Hello,', "\t", "\t");
+        self::assertSame('Hello,', BlockString::dedentBlockStringLines($rawValue));
+    }
+
     /** @see it('retains indentation from first line', () => { */
     public function testRetainsIndentationFromFirstLine(): void
     {
@@ -325,6 +331,7 @@ final class BlockStringTest extends TestCase
             EOF,
             BlockString::print($str)
         );
+        self::assertSame("\"\"\"\n{$str}\"\"\"", BlockString::print($str, true));
     }
 
     /** @see it('by default print block strings as single line', () => { */
@@ -332,6 +339,7 @@ final class BlockStringTest extends TestCase
     {
         $str = 'one liner';
         self::assertSame('"""one liner"""', BlockString::print($str));
+        self::assertSame('"""one liner"""', BlockString::print($str, true));
     }
 
     /** @see it('by default print block strings ending with triple quotation as multi-line', () => { */
@@ -346,6 +354,7 @@ final class BlockStringTest extends TestCase
             EOF,
             BlockString::print($str)
         );
+        self::assertSame('"""triple quotation \\""""""', BlockString::print($str, true));
     }
 
     /** @see it('correctly prints single-line with leading space') */
@@ -353,6 +362,7 @@ final class BlockStringTest extends TestCase
     {
         $str = '    space-led string';
         self::assertSame('"""    space-led string"""', BlockString::print($str));
+        self::assertSame('"""    space-led string"""', BlockString::print($str, true));
     }
 
     /** @see it('correctly prints single-line with leading space and trailing quotation', () => { */
@@ -366,6 +376,7 @@ final class BlockStringTest extends TestCase
             EOF,
             BlockString::print($str)
         );
+        self::assertSame("\"\"\"    space-led value \"quoted string\"\n\"\"\"", BlockString::print($str, true));
     }
 
     /** @see it('correctly prints single-line with trailing backslash') */
@@ -380,6 +391,7 @@ final class BlockStringTest extends TestCase
             EOF,
             BlockString::print($str)
         );
+        self::assertSame("\"\"\"backslash \\\n\"\"\"", BlockString::print($str, true));
     }
 
     /** @see it('correctly prints multi-line with internal indent', () => { */
@@ -398,6 +410,7 @@ final class BlockStringTest extends TestCase
             EOF,
             BlockString::print($str)
         );
+        self::assertSame("\"\"\"\nno indent\n with indent\"\"\"", BlockString::print($str, true));
     }
 
     /** @see it('correctly prints string with a first line indentation') */
@@ -420,11 +433,13 @@ final class BlockStringTest extends TestCase
             EOF,
             BlockString::print($str)
         );
+        self::assertSame("\"\"\"{$str}\"\"\"", BlockString::print($str, true));
     }
 
     public function testCorrectlyPrintsEmptyString(): void
     {
         $str = '';
         self::assertSame('""""""', BlockString::print($str));
+        self::assertSame('""""""', BlockString::print($str, true));
     }
 }
