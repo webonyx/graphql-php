@@ -16,6 +16,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 ### Fixed
 
 - Reject invalid UTF-8 in documents https://github.com/webonyx/graphql-php/pull/1987
+- Avoid undefined array key warning when visiting nodes with a custom kind https://github.com/webonyx/graphql-php/pull/1952
 
 ## v15.37.3
 

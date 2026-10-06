@@ -1906,11 +1906,6 @@ final class VisitorTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * visit() must correctly invoke generic enter/leave visitors for a Node
-     * whose kind is not one of the built-in NodeKind constants (e.g. a
-     * custom Node subclass defined by a consumer).
-     */
     public function testVisitCallsGenericVisitorsForCustomKind(): void
     {
         $customNode = new class([]) extends Node {
@@ -1919,7 +1914,7 @@ final class VisitorTest extends ValidatorTestCase
 
         $visited = [];
 
-        Visitor::visit(
+        self::visitFailingOnWarnings(
             $customNode,
             [
                 'enter' => static function (Node $node) use (&$visited): void {
@@ -1940,7 +1935,6 @@ final class VisitorTest extends ValidatorTestCase
         );
     }
 
-    /** Same as testVisitCallsGenericVisitorsForCustomKind, but for a visitor keyed specifically by the custom kind. */
     public function testVisitCallsKindSpecificVisitorForCustomKind(): void
     {
         $customNode = new class([]) extends Node {
@@ -1949,7 +1943,7 @@ final class VisitorTest extends ValidatorTestCase
 
         $visited = [];
 
-        Visitor::visit(
+        self::visitFailingOnWarnings(
             $customNode,
             [
                 'CustomKind' => [
@@ -1970,5 +1964,22 @@ final class VisitorTest extends ValidatorTestCase
             ],
             $visited
         );
+    }
+
+    /**
+     * @param array<string, mixed> $visitor
+     *
+     * @throws \Exception
+     */
+    private static function visitFailingOnWarnings(Node $root, array $visitor): void
+    {
+        set_error_handler(static function (int $severity, string $message): bool {
+            throw new \ErrorException($message, 0, $severity);
+        });
+        try {
+            Visitor::visit($root, $visitor);
+        } finally {
+            restore_error_handler();
+        }
     }
 }
