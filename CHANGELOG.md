@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Added
+
+- Add the `maxTokens` parser option to limit the number of tokens a document may contain https://github.com/webonyx/graphql-php/issues/1905
+
 ## v15.37.3
 
 ### Fixed

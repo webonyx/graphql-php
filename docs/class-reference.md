@@ -1180,7 +1180,8 @@ Parses string containing GraphQL query language or [schema definition language](
   allowLegacySDLEmptyFields?: bool,
   allowLegacySDLImplementsInterfaces?: bool,
   experimentalFragmentVariables?: bool,
-  recursionLimit?: int<0, max>
+  recursionLimit?: int<0, max>,
+  maxTokens?: int<1, max>|null
 }
 ```
 
@@ -1215,6 +1216,12 @@ Parses string containing GraphQL query language or [schema definition language](
   Limits the depth of recursion during parsing to prevent stack overflows from deeply nested queries.
   The counter is shared across `parseSelectionSet`, `parseValueLiteral`, and `parseTypeReference`.
   Defaults to 256. Set to 0 to disable the limit.
+
+- **maxTokens**:
+  Parser CPU and memory usage is linear to the number of tokens in a document,
+  and parsing happens before validation, so even an invalid document can use a lot of resources.
+  Set this option to limit the number of tokens a document may contain, parsing then fails with a syntax error.
+  There is no limit by default.
 
 Those magic functions allow partial parsing:
 
