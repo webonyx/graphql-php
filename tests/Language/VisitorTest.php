@@ -1905,4 +1905,81 @@ final class VisitorTest extends ValidatorTestCase
             ]
         );
     }
+
+    public function testVisitCallsGenericVisitorsForCustomKind(): void
+    {
+        $customNode = new class([]) extends Node {
+            public string $kind = 'CustomKind';
+        };
+
+        $visited = [];
+
+        self::visitFailingOnWarnings(
+            $customNode,
+            [
+                'enter' => static function (Node $node) use (&$visited): void {
+                    $visited[] = ['enter', $node->kind];
+                },
+                'leave' => static function (Node $node) use (&$visited): void {
+                    $visited[] = ['leave', $node->kind];
+                },
+            ]
+        );
+
+        self::assertSame(
+            [
+                ['enter', 'CustomKind'],
+                ['leave', 'CustomKind'],
+            ],
+            $visited
+        );
+    }
+
+    public function testVisitCallsKindSpecificVisitorForCustomKind(): void
+    {
+        $customNode = new class([]) extends Node {
+            public string $kind = 'CustomKind';
+        };
+
+        $visited = [];
+
+        self::visitFailingOnWarnings(
+            $customNode,
+            [
+                'CustomKind' => [
+                    'enter' => static function (Node $node) use (&$visited): void {
+                        $visited[] = ['enter', $node->kind];
+                    },
+                    'leave' => static function (Node $node) use (&$visited): void {
+                        $visited[] = ['leave', $node->kind];
+                    },
+                ],
+            ]
+        );
+
+        self::assertSame(
+            [
+                ['enter', 'CustomKind'],
+                ['leave', 'CustomKind'],
+            ],
+            $visited
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $visitor
+     *
+     * @throws \Exception
+     */
+    private static function visitFailingOnWarnings(Node $root, array $visitor): void
+    {
+        set_error_handler(static function (int $severity, string $message): bool {
+            throw new \ErrorException($message, 0, $severity);
+        });
+        try {
+            Visitor::visit($root, $visitor);
+        } finally {
+            restore_error_handler();
+        }
+    }
 }
