@@ -6,6 +6,7 @@ use GraphQL\Deferred;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Executor;
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
@@ -57,6 +58,7 @@ use GraphQL\Utils\Utils;
  *   fields: (callable(): iterable<mixed>)|iterable<mixed>,
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
  *   isTypeOf?: (callable(mixed $objectValue, mixed $context, ResolveInfo $resolveInfo): (bool|Deferred|null))|null,
+ *   directives?: array<DirectiveNode>|null,
  *   astNode?: ObjectTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ObjectTypeExtensionNode>|null
  * }
@@ -71,6 +73,9 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
 
     /** @var array<ObjectTypeExtensionNode> */
     public array $extensionASTNodes;
+
+    /** @var array<DirectiveNode> */
+    public array $directives;
 
     /**
      * @var callable|null
@@ -102,6 +107,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         $this->argsMapper = $config['argsMapper'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
+        $this->directives = $config['directives'] ?? [];
 
         $this->config = $config;
     }
