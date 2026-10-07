@@ -11,7 +11,10 @@ use GraphQL\GraphQL;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\IntValueNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\ObjectTypeDefinitionNode;
+use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
@@ -1731,7 +1734,8 @@ GRAPHQL,
         $helloResolveFn = $extendedQueryType->getField('hello')->resolveFn;
         self::assertIsCallable($helloResolveFn);
 
-        $query = /** @lang GraphQL */ '{ hello }';
+        $query /** @lang GraphQL */
+            = '{ hello }';
         $result = GraphQL::executeQuery($extendedSchema, $query);
         self::assertSame(['data' => ['hello' => $value]], $result->toArray());
     }
@@ -1767,7 +1771,8 @@ GRAPHQL,
         $queryResolveFieldFn = $extendedQueryType->resolveFieldFn;
         self::assertIsCallable($queryResolveFieldFn);
 
-        $query = /** @lang GraphQL */ '{ hello }';
+        $query /** @lang GraphQL */
+            = '{ hello }';
         $result = GraphQL::executeQuery($extendedSchema, $query);
         self::assertSame(['data' => ['hello' => $value]], $result->toArray());
     }
@@ -1775,7 +1780,8 @@ GRAPHQL,
     /** @see https://github.com/webonyx/graphql-php/issues/180 */
     public function testShouldBeAbleToIntroduceNewTypesThroughExtension(): void
     {
-        $sdl = /** @lang GraphQL */ '
+        $sdl /** @lang GraphQL */
+            = '
           type Query {
             defaultValue: String
           }
@@ -1788,7 +1794,8 @@ GRAPHQL,
         $documentNode = Parser::parse($sdl);
         $schema = BuildSchema::build($documentNode);
 
-        $extensionSdl = /** @lang GraphQL */ '
+        $extensionSdl /** @lang GraphQL */
+            = '
           type Bar {
             foo: Foo
           }
@@ -1834,6 +1841,39 @@ GRAPHQL,
         self::assertInstanceOf(Directive::class, $extendedDirective);
 
         self::assertTrue($extendedDirective->isRepeatable);
+    }
+
+    public function testCustomConfigIsTransferred(): void
+    {
+        $fieldConfigDecorator = function (
+            array $typeConfig,
+            FieldDefinitionNode $fieldDefinitionNode,
+            Node $node
+        ) {
+            if (($node instanceof ObjectTypeDefinitionNode || $node instanceof ObjectTypeExtensionNode) && $node->name->value === 'Test' && ($fieldDefinitionNode->name->value === 'field1' || $fieldDefinitionNode->name->value === 'field2')) {
+                $typeConfig['customAttr'] = true;
+            }
+
+            return $typeConfig;
+        };
+        $schema = BuildSchema::build(/** @lang GraphQL */ '
+            type Test {
+                field1: String!
+            }
+        ', null, [], $fieldConfigDecorator);
+
+        $type = $schema->getType('Test');
+        assert($type instanceof ObjectType);
+        $field1 = $type->getField('field1');
+        self::assertArrayHasKey('customAttr', $field1->config);
+
+        $extendedSchema = SchemaExtender::extend($schema, Parser::parse(/** @lang GraphQL */ 'extend type Test { field2: String! }'), [], null, $fieldConfigDecorator);
+        $type = $extendedSchema->getType('Test');
+        assert($type instanceof ObjectType);
+        $field1 = $type->getField('field1');
+        self::assertArrayHasKey('customAttr', $field1->config);
+        $field2 = $type->getField('field2');
+        self::assertArrayHasKey('customAttr', $field2->config);
     }
 
     public function testSupportsTypeConfigDecorator(): void
@@ -1886,7 +1926,8 @@ GRAPHQL,
 
         $extendedSchema = SchemaExtender::extend($schema, $documentNode, [], $typeConfigDecorator, $fieldConfigDecorator);
 
-        $query = /** @lang GraphQL */ '
+        $query /** @lang GraphQL */
+            = '
         {
             hello
             foo {
@@ -1994,7 +2035,8 @@ GRAPHQL,
         $SomeInterfaceClassType->concrete = $ExtendedFooType;
         $SomeUnionClassType->concrete = $ExtendedFooType;
 
-        $query = /** @lang GraphQL */ '
+        $query /** @lang GraphQL */
+            = '
         {
             someUnion {
                 __typename
@@ -2052,7 +2094,8 @@ GRAPHQL,
 
         $extendedSchema = SchemaExtender::extend($schema, $documentNode);
 
-        $query = /** @lang GraphQL */ '
+        $query /** @lang GraphQL */
+            = '
         {
             someInterface {
                 __typename
