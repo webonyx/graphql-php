@@ -11,7 +11,7 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ### Fixed
 
-- Throw `RequestError` instead of `TypeError` for batch entries that are not objects, such as `["x"]` or `{"query":"{ a }","0":"x"}`
+- Throw `RequestError` instead of `TypeError` for batch entries that are not objects, such as `["x"]` or `{"query":"{ a }","0":"x"}` https://github.com/webonyx/graphql-php/pull/1993
 
 ## v15.38.0
 
