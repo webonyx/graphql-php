@@ -124,6 +124,11 @@ class Helper
             if (isset($bodyParams[0])) {
                 $operations = [];
                 foreach ($bodyParams as $entry) {
+                    if (! is_array($entry)) {
+                        $notArray = Utils::printSafeJson($entry);
+                        throw new RequestError("Expected each batch entry to be an object, got: {$notArray}");
+                    }
+
                     $operations[] = OperationParams::create($entry);
                 }
 

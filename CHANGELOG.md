@@ -9,6 +9,10 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+### Fixed
+
+- Throw `RequestError` instead of `TypeError` for batch entries that are not objects, such as `["x"]` or `{"query":"{ a }","0":"x"}`
+
 ## v15.38.0
 
 ### Added

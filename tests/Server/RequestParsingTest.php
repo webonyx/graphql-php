@@ -445,6 +445,30 @@ final class RequestParsingTest extends TestCase
         }
     }
 
+    public function testParsesJSONObjectWithNullKeyZeroAsSingleOperation(): void
+    {
+        $parsedBody = $this->parseRawRequest('application/json', '{"0":null,"query":"{ a }"}');
+
+        self::assertInstanceOf(OperationParams::class, $parsedBody);
+        self::assertSame('{ a }', $parsedBody->query);
+    }
+
+    /** @dataProvider nonArrayBatchEntries */
+    public function testFailsParsingBatchWithNonArrayEntry(string $body, string $message): void
+    {
+        $this->expectException(RequestError::class);
+        $this->expectExceptionMessage($message);
+        $this->parseRawRequest('application/json', $body);
+    }
+
+    /** @return iterable<array{string, string}> */
+    public static function nonArrayBatchEntries(): iterable
+    {
+        yield ['["x"]', 'Expected each batch entry to be an object, got: "x"'];
+        yield ['[{"query":"{ a }"},"x"]', 'Expected each batch entry to be an object, got: "x"'];
+        yield ['{"query":"{ a }","0":"x"}', 'Expected each batch entry to be an object, got: "{ a }"'];
+    }
+
     public function testFailsParsingInvalidRawJsonRequestRaw(): void
     {
         $body = 'not really{} a json';
