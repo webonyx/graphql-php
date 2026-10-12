@@ -464,9 +464,9 @@ final class RequestParsingTest extends TestCase
     /** @return iterable<array{string, string}> */
     public static function nonArrayBatchEntries(): iterable
     {
-        yield ['["x"]', 'Expected each batch entry to be an object, got: "x"'];
-        yield ['[{"query":"{ a }"},"x"]', 'Expected each batch entry to be an object, got: "x"'];
-        yield ['{"query":"{ a }","0":"x"}', 'Expected each batch entry to be an object, got: "{ a }"'];
+        yield ['["x"]', 'Expected batch entry 0 to be an object, got: "x"'];
+        yield ['[{"query":"{ a }"},"x"]', 'Expected batch entry 1 to be an object, got: "x"'];
+        yield ['{"query":"{ a }","0":"x"}', 'Expected batch entry query to be an object, got: "{ a }"'];
     }
 
     public function testFailsParsingInvalidRawJsonRequestRaw(): void
