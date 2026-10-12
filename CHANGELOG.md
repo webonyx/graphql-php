@@ -9,6 +9,8 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v15.38.1
+
 ### Fixed
 
 - Throw `RequestError` instead of `TypeError` for scalar batch entries, such as `["x"]` or `{"query":"{ a }","0":"x"}` https://github.com/webonyx/graphql-php/pull/1993
