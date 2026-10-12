@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791313551565,
+  "lastUpdate": 1791815609816,
   "repoUrl": "https://github.com/webonyx/graphql-php",
   "entries": {
     "Benchmark": [
@@ -21959,6 +21959,200 @@ window.BENCHMARK_DATA = {
           {
             "name": "DeferredBench::bench1000Chains",
             "value": 1.766,
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benedikt@franke.tech",
+            "name": "Benedikt Franke",
+            "username": "spawnia"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4c966a23c4ef6ad2ff4f69157de02fe0eda1c0ae",
+          "message": "Throw RequestError for scalar batch entries (#1993)\n\nMalformed batch bodies such as `[\"x\"]` caused an uncaught `TypeError`\ninstead of a `RequestError`.\n`Helper::parseRequestParams()` now rejects scalar batch entries.\n\n<details>\n<summary>An object with a non-null key `0` still counts as a batch, so\nthe message names the offending key</summary>\n\n`{\"query\":\"{ a }\",\"0\":\"x\"}` fails with `Expected batch entry query to be\nan object, got: \"{ a }\"`.\nBatch detection stays `isset($bodyParams[0])`, so `{\"0\":null,\"query\":\"{\na }\"}` is still a single operation.\nNo other server checked has a dedicated message for this case: JS\nservers detect batches with `Array.isArray`, and\nhttps://github.com/laragraph/utils/pull/27 also uses a generic message.\n</details>\n\n<details>\n<summary>The fix targets master only, not 14.x</summary>\n\n14.x has the same bug, but its last release was\nhttps://github.com/webonyx/graphql-php/releases/tag/v14.11.10 in 2023.\n</details>\n\n🤖 Generated with Claude Code",
+          "timestamp": "2026-10-12T16:31:21+02:00",
+          "tree_id": "e7916c9b11d66e0fec2b545b571e92c11a7e8ac2",
+          "url": "https://github.com/webonyx/graphql-php/commit/4c966a23c4ef6ad2ff4f69157de02fe0eda1c0ae"
+        },
+        "date": 1791815609361,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "BuildSchemaBench::benchBuildSchema",
+            "value": 25.058,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields100",
+            "value": 3.233,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields500",
+            "value": 15.384,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields1000",
+            "value": 30.643,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields2000",
+            "value": 61.347,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields3000",
+            "value": 93.472,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeave",
+            "value": 0.298,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindMap",
+            "value": 0.294,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindCallable",
+            "value": 0.277,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeaveMap",
+            "value": 0.297,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitNestedWithEnterLeave",
+            "value": 0.069,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithoutOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithTypesOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithoutOverride",
+            "value": 0.162,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithTypesOverride",
+            "value": 0.162,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchSchema",
+            "value": 0.005,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchHeroQuery",
+            "value": 0.322,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchNestedQuery",
+            "value": 0.703,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithFragment",
+            "value": 0.754,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithInterfaceFragment",
+            "value": 0.706,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchStarWarsIntrospectionQuery",
+            "value": 7.091,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchema",
+            "value": 12.833,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchemaLazy",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQuery",
+            "value": 14.41,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQueryLazy",
+            "value": 15.404,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchIntrospectionQuery",
+            "value": 0.292,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchDeeplyIndentedQuery",
+            "value": 1.886,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchSingleDeferred",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchNestedDeferred",
+            "value": 0.002,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain5",
+            "value": 0.005,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain100",
+            "value": 0.08,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyDeferreds",
+            "value": 0.465,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyNestedDeferreds",
+            "value": 11.938,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::bench1000Chains",
+            "value": 3.389,
             "unit": "ms"
           }
         ]
