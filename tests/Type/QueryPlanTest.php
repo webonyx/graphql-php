@@ -1008,6 +1008,208 @@ final class QueryPlanTest extends TestCase
         self::assertSame($expectedBuildingSubFields, $queryPlan->subFields('Building'));
     }
 
+    /**
+     * @see https://github.com/webonyx/graphql-php/issues/1949
+     *
+     * @dataProvider abstractFragmentsWithImplementorsProvider
+     */
+    public function testQueryPlanGroupsImplementorsInsideAbstractFragments(string $doc): void
+    {
+        $car = new ObjectType([
+            'name' => 'Car',
+            'fields' => [
+                'mark' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $building = new ObjectType([
+            'name' => 'Building',
+            'fields' => [
+                'city' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $item = new UnionType([
+            'name' => 'Item',
+            'types' => [$car, $building],
+        ]);
+
+        /** @var QueryPlan|null $queryPlan */
+        $queryPlan = null;
+
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'item' => [
+                    'type' => $item,
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) use (&$queryPlan) {
+                        $queryPlan = $info->lookAhead([
+                            'groupImplementorFields' => true,
+                        ]);
+
+                        return null;
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $query,
+            'types' => [$car, $building],
+        ]);
+
+        $expectedQueryPlan = [
+            'fields' => [],
+            'implementors' => [
+                'Car' => [
+                    'type' => $car,
+                    'fields' => [
+                        'mark' => [
+                            'type' => Type::string(),
+                            'fields' => [],
+                            'args' => [],
+                        ],
+                    ],
+                ],
+                'Building' => [
+                    'type' => $building,
+                    'fields' => [
+                        'city' => [
+                            'type' => Type::string(),
+                            'fields' => [],
+                            'args' => [],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = GraphQL::executeQuery($schema, $doc)->toArray();
+
+        self::assertSame(['data' => ['item' => null]], $result);
+        self::assertInstanceOf(QueryPlan::class, $queryPlan);
+        self::assertSame($expectedQueryPlan, $queryPlan->queryPlan());
+        self::assertSame(['mark'], $queryPlan->subFields('Car'));
+        self::assertSame(['city'], $queryPlan->subFields('Building'));
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function abstractFragmentsWithImplementorsProvider(): iterable
+    {
+        yield 'named fragment on abstract type' => [
+            <<<'GRAPHQL'
+            {
+              item {
+                ...ItemFields
+              }
+            }
+
+            fragment ItemFields on Item {
+              ... on Car {
+                mark
+              }
+              ... on Building {
+                city
+              }
+            }
+            GRAPHQL,
+        ];
+
+        yield 'inline fragment on abstract type' => [
+            <<<'GRAPHQL'
+            {
+              item {
+                ... on Item {
+                  ... on Car {
+                    mark
+                  }
+                  ... on Building {
+                    city
+                  }
+                }
+              }
+            }
+            GRAPHQL,
+        ];
+    }
+
+    /** @see https://github.com/webonyx/graphql-php/issues/1949 */
+    public function testQueryPlanMergesMatchingImplementorFromAbstractFragmentIntoConcreteParent(): void
+    {
+        $car = new ObjectType([
+            'name' => 'Car',
+            'fields' => [
+                'mark' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $building = new ObjectType([
+            'name' => 'Building',
+            'fields' => [
+                'city' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $item = new UnionType([
+            'name' => 'Item',
+            'types' => [$car, $building],
+        ]);
+
+        /** @var QueryPlan|null $queryPlan */
+        $queryPlan = null;
+
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'car' => [
+                    'type' => $car,
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) use (&$queryPlan) {
+                        $queryPlan = $info->lookAhead([
+                            'groupImplementorFields' => true,
+                        ]);
+
+                        return null;
+                    },
+                ],
+                'item' => ['type' => $item],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $query]);
+
+        $result = GraphQL::executeQuery($schema, <<<'GRAPHQL'
+        {
+          car {
+            ...ItemFields
+          }
+        }
+
+        fragment ItemFields on Item {
+          ... on Car {
+            mark
+          }
+          ... on Building {
+            city
+          }
+        }
+        GRAPHQL)->toArray();
+
+        self::assertSame(['data' => ['car' => null]], $result);
+        self::assertInstanceOf(QueryPlan::class, $queryPlan);
+        self::assertSame(
+            [
+                'fields' => [
+                    'mark' => [
+                        'type' => Type::string(),
+                        'fields' => [],
+                        'args' => [],
+                    ],
+                ],
+            ],
+            $queryPlan->queryPlan()
+        );
+    }
+
     public function testQueryPlanForMultipleFieldNodes(): void
     {
         /** @var ObjectType|null $entity */
