@@ -319,7 +319,7 @@ class Visitor
                 ];
                 $inList = $node instanceof NodeList;
 
-                $keys = ($inList ? $node : $visitorKeys[$node->kind]) ?? [];
+                $keys = $inList ? $node : ($visitorKeys[$node->kind] ?? []);
                 $index = -1;
                 $edits = [];
                 if ($parent !== null) {
