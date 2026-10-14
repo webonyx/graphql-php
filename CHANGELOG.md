@@ -7,8 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 You can find and compare releases at the [GitHub release page](https://github.com/webonyx/graphql-php/releases).
 
-## Unreleased
-
 ## v15.38.1
 
 ### Fixed

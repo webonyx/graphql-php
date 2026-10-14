@@ -15,7 +15,7 @@ For smaller contributions use this workflow:
 2. Add your features and or bug fixes.
 3. Add tests to ensure your changes work and will continue working.
 4. Check your changes using `composer check`.
-5. Add an entry to the [Changelog's Unreleased section](CHANGELOG.md#unreleased).
+5. Describe notable changes in the `## Changelog` section of the pull request description, not in [`CHANGELOG.md`](CHANGELOG.md).
 6. Send a pull request.
 
 ## Release a New Version
@@ -28,7 +28,7 @@ Before you release a new version, make sure to familiarize yourself with:
 
 To create a new release, follow these steps:
 
-1. Consider the entries in the [`CHANGELOG unreleased section`](CHANGELOG.md#unreleased), add missing entries if needed
+1. Copy the `## Changelog` sections of the pull requests merged since the last release, appending each pull request URL, add missing entries if needed
 2. Based on those entries and the previous version, define the next version number and add it to the [`CHANGELOG.md`](CHANGELOG.md)
 3. [Draft a new release](https://github.com/webonyx/graphql-php/releases/new)
 4. Add the version number as both tag and title
