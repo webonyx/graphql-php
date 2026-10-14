@@ -99,7 +99,7 @@ class AST
 
             if (is_array($value)) {
                 $value = isset($value[0]) || $value === []
-                    ? new NodeList($value)
+                    ? new NodeList(array_values($value))
                     : self::fromArray($value);
             }
 
@@ -618,7 +618,7 @@ class AST
      */
     public static function concatAST(array $documents): DocumentNode
     {
-        /** @var array<int, Node&DefinitionNode> $definitions */
+        /** @var list<Node&DefinitionNode> $definitions */
         $definitions = [];
         foreach ($documents as $document) {
             foreach ($document->definitions as $definition) {

@@ -175,7 +175,7 @@ class ASTDefinitionBuilder
      */
     private function makeInputFields(array $nodes): array
     {
-        /** @var array<int, InputValueDefinitionNode> $fields */
+        /** @var list<InputValueDefinitionNode> $fields */
         $fields = [];
         foreach ($nodes as $node) {
             array_push($fields, ...$node->fields);

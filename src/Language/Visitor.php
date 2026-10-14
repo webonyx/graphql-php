@@ -231,7 +231,7 @@ class Visitor
                                 $node->splice($editKey, 1, $editValue);
                                 $editOffset -= count($editValue) - 1;
                             } elseif ($editValue instanceof Node) {
-                                $node[$editKey] = $editValue;
+                                $node->set($editKey, $editValue);
                             } else {
                                 $notNodeOrNodeList = Utils::printSafe($editValue);
                                 throw new \Exception("Can only add Node or NodeList to NodeList, got: {$notNodeOrNodeList}.");
@@ -255,7 +255,7 @@ class Visitor
                     ? $index
                     : $keys[$index];
                 $node = $parent instanceof NodeList
-                    ? $parent[$key]
+                    ? $parent->get($key)
                     : $parent->{$key};
                 if ($node === null) {
                     continue;
