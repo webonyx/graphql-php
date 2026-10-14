@@ -123,7 +123,12 @@ class Helper
         if ($method === 'POST') {
             if (isset($bodyParams[0])) {
                 $operations = [];
-                foreach ($bodyParams as $entry) {
+                foreach ($bodyParams as $key => $entry) {
+                    if (! is_array($entry)) {
+                        $notArray = Utils::printSafeJson($entry);
+                        throw new RequestError("Expected batch entry {$key} to be an object, got: {$notArray}");
+                    }
+
                     $operations[] = OperationParams::create($entry);
                 }
 
