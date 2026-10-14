@@ -1386,6 +1386,48 @@ $printed = GraphQL\Language\Printer::doPrint($ast);
 static function doPrint(GraphQL\Language\AST\Node $ast): string
 ```
 
+````php
+/**
+ * Strips characters that are not significant to the validity or execution of a GraphQL document:
+ * - UnicodeBOM
+ * - WhiteSpace
+ * - LineTerminator
+ * - Comment
+ * - Comma
+ * - BlockString indentation
+ *
+ * Neighboring non-punctuator tokens are always delimited by a single space.
+ * Parsing input and output yields the same AST, apart from node locations.
+ * The output is stable, but may change between releases.
+ *
+ * ```graphql
+ * query SomeQuery($foo: String!, $bar: String) {
+ *   someField(foo: $foo, bar: $bar) {
+ *     a
+ *     b {
+ *       c
+ *       d
+ *     }
+ *   }
+ * }
+ * ```
+ *
+ * becomes
+ *
+ * ```graphql
+ * query SomeQuery($foo:String!$bar:String){someField(foo:$foo bar:$bar){a b{c d}}}
+ * ```
+ *
+ * @param Source|string $source
+ *
+ * @throws \JsonException
+ * @throws SyntaxError
+ *
+ * @api
+ */
+static function stripIgnoredCharacters($source): string
+````
+
 ## GraphQL\Language\Visitor
 
 Utility for efficient AST traversal and modification.
