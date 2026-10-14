@@ -113,6 +113,10 @@ class Lexer
      */
     private function readToken(Token $prev): Token
     {
+        if ($prev->kind === Token::SOF) {
+            $this->assertValidUTF8();
+        }
+
         $bodyLength = $this->source->length;
 
         $this->positionAfterWhitespace();
@@ -257,6 +261,22 @@ class Lexer
         }
 
         throw new SyntaxError($this->source, $position, $this->unexpectedCharacterMessage($code));
+    }
+
+    /** @throws SyntaxError */
+    private function assertValidUTF8(): void
+    {
+        $body = $this->source->body;
+        if (mb_check_encoding($body, 'UTF-8')) {
+            return;
+        }
+
+        $scrubbedBody = mb_scrub($body, 'UTF-8');
+        $invalidByteOffset = strspn($body ^ $scrubbedBody, "\0");
+        $invalidByte = strtoupper(bin2hex($body[$invalidByteOffset]));
+        $validPrefix = substr($body, 0, $invalidByteOffset);
+
+        throw new SyntaxError($this->source, mb_strlen($validPrefix, 'UTF-8'), "Invalid UTF-8 byte: 0x{$invalidByte}");
     }
 
     /** @throws \JsonException */
