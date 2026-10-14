@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\DebugFlag;
+use GraphQL\Error\Error;
 use GraphQL\Executor\Executor;
 use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
@@ -64,9 +65,146 @@ final class StoryFiltersInputExtended
 
 /**
  * @phpstan-import-type FieldResolver from Executor
+ *
+ * @phpstan-type ParseValueErrorResult array{
+ *     data?: array{action: string|null, sibling: string},
+ *     errors?: list<array{
+ *         message: string,
+ *         locations: list<array{line: int, column: int}>,
+ *         path?: list<string>
+ *     }>
+ * }
  */
 final class InputObjectTypeTest extends TestCase
 {
+    /**
+     * @param list<string> $expectedResolvedFields
+     *
+     * @phpstan-param array{input?: array{value: string}} $variables
+     * @phpstan-param ParseValueErrorResult $expectedResult
+     *
+     * @dataProvider provideParseValueErrorTransport
+     */
+    public function testParseValueErrorTransport(
+        string $query,
+        array $variables,
+        array $expectedResult,
+        array $expectedResolvedFields
+    ): void {
+        $input = new InputObjectType([
+            'name' => 'TestInput',
+            'fields' => ['value' => Type::string()],
+            'parseValue' => static function (array $value): array {
+                if ($value['value'] === 'reject') {
+                    throw new Error('Input rejected.');
+                }
+
+                return $value;
+            },
+        ]);
+        $resolvedFields = [];
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'action' => [
+                        'type' => Type::string(),
+                        'args' => ['input' => $input],
+                        'resolve' => static function () use (&$resolvedFields): string {
+                            $resolvedFields[] = 'action';
+
+                            return 'accepted';
+                        },
+                    ],
+                    'sibling' => [
+                        'type' => Type::string(),
+                        'resolve' => static function () use (&$resolvedFields): string {
+                            $resolvedFields[] = 'sibling';
+
+                            return 'ok';
+                        },
+                    ],
+                ],
+            ]),
+        ]);
+
+        $result = GraphQL::executeQuery($schema, $query, null, null, $variables);
+
+        self::assertSame($expectedResult, $result->toArray());
+        self::assertSame($expectedResolvedFields, $resolvedFields);
+    }
+
+    /**
+     * @phpstan-return \Generator<string, array{
+     *     string,
+     *     array{input?: array{value: string}},
+     *     ParseValueErrorResult,
+     *     list<string>
+     * }>
+     */
+    public static function provideParseValueErrorTransport(): \Generator
+    {
+        $variableQuery = <<<'GRAPHQL'
+            query(
+              $input: TestInput
+            ) {
+              action(input: $input)
+              sibling
+            }
+            GRAPHQL;
+        $defaultQuery = <<<'GRAPHQL'
+            query(
+              $input: TestInput = {value: "reject"}
+            ) {
+              action(input: $input)
+              sibling
+            }
+            GRAPHQL;
+
+        yield 'supplied variable stops execution' => [
+            $variableQuery,
+            ['input' => ['value' => 'reject']],
+            ['errors' => [[
+                'message' => 'Variable "$input" got invalid value {"value":"reject"}; Input rejected.',
+                'locations' => [['line' => 2, 'column' => 3]],
+            ]]],
+            [],
+        ];
+        yield 'operation default stops execution' => [
+            $defaultQuery,
+            [],
+            ['errors' => [[
+                'message' => 'Input rejected.',
+                'locations' => [['line' => 2, 'column' => 3]],
+            ]]],
+            [],
+        ];
+        yield 'supplied variable overrides failing default' => [
+            $defaultQuery,
+            ['input' => ['value' => 'accepted']],
+            ['data' => ['action' => 'accepted', 'sibling' => 'ok']],
+            ['action', 'sibling'],
+        ];
+        yield 'inline literal allows sibling execution' => [
+            <<<'GRAPHQL'
+            {
+              action(input: {value: "reject"})
+              sibling
+            }
+            GRAPHQL,
+            [],
+            [
+                'errors' => [[
+                    'message' => 'Input rejected.',
+                    'locations' => [['line' => 2, 'column' => 3]],
+                    'path' => ['action'],
+                ]],
+                'data' => ['action' => null, 'sibling' => 'ok'],
+            ],
+            ['sibling'],
+        ];
+    }
+
     public function testParseValueFromVariables(): void
     {
         $tag = new InputObjectType([
