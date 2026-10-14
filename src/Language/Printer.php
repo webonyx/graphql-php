@@ -2,6 +2,7 @@
 
 namespace GraphQL\Language;
 
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
@@ -76,6 +77,123 @@ class Printer
     public static function doPrint(Node $ast): string
     {
         return static::p($ast);
+    }
+
+    /**
+     * Strips characters that are not significant to the validity or execution of a GraphQL document:
+     * - UnicodeBOM
+     * - WhiteSpace
+     * - LineTerminator
+     * - Comment
+     * - Comma
+     * - BlockString indentation
+     *
+     * Neighboring non-punctuator tokens are always delimited by a single space.
+     * Parsing input and output yields the same AST, apart from node locations.
+     * The output is stable, but may change between releases.
+     *
+     * ```graphql
+     * query SomeQuery($foo: String!, $bar: String) {
+     *   someField(foo: $foo, bar: $bar) {
+     *     a
+     *     b {
+     *       c
+     *       d
+     *     }
+     *   }
+     * }
+     * ```
+     *
+     * becomes
+     *
+     * ```graphql
+     * query SomeQuery($foo:String!$bar:String){someField(foo:$foo bar:$bar){a b{c d}}}
+     * ```
+     *
+     * @param Source|string $source
+     *
+     * @throws \JsonException
+     * @throws SyntaxError
+     *
+     * @api
+     */
+    public static function stripIgnoredCharacters($source): string
+    {
+        $sourceObj = $source instanceof Source
+            ? $source
+            : new Source($source);
+        $body = $sourceObj->body;
+        $lexer = new Lexer($sourceObj);
+
+        $stripped = '';
+        $wasLastAddedTokenNonPunctuator = false;
+        $charPosition = 0;
+        $bytePosition = 0;
+        while (($token = $lexer->advance())->kind !== Token::EOF) {
+            $isNonPunctuator = ! static::isPunctuatorTokenKind($token->kind);
+
+            // `1...` would lex as an invalid float
+            if ($wasLastAddedTokenNonPunctuator && ($isNonPunctuator || $token->kind === Token::SPREAD)) {
+                $stripped .= ' ';
+            }
+
+            if ($token->kind === Token::STRING) {
+                $bytePosition = static::advanceBytePosition($body, $bytePosition, $token->start - $charPosition);
+                $tokenBytePosition = static::advanceBytePosition($body, $bytePosition, $token->end - $token->start);
+                $stripped .= substr($body, $bytePosition, $tokenBytePosition - $bytePosition);
+
+                $charPosition = $token->end;
+                $bytePosition = $tokenBytePosition;
+            } else {
+                $stripped .= static::tokenSource($token);
+            }
+
+            $wasLastAddedTokenNonPunctuator = $isNonPunctuator;
+        }
+
+        return $stripped;
+    }
+
+    protected static function isPunctuatorTokenKind(string $kind): bool
+    {
+        return ! in_array($kind, [Token::NAME, Token::INT, Token::FLOAT, Token::STRING, Token::BLOCK_STRING], true);
+    }
+
+    /** Steps through characters the same way as Lexer::readChar(), since token positions count them. */
+    protected static function advanceBytePosition(string $body, int $bytePosition, int $charCount): int
+    {
+        for ($i = 0; $i < $charCount; ++$i) {
+            $leadByte = ord($body[$bytePosition]);
+            if ($leadByte < 128) {
+                ++$bytePosition;
+            } elseif ($leadByte < 224) {
+                $bytePosition += 2;
+            } elseif ($leadByte < 240) {
+                $bytePosition += 3;
+            } else {
+                $bytePosition += 4;
+            }
+        }
+
+        return $bytePosition;
+    }
+
+    protected static function tokenSource(Token $token): string
+    {
+        switch ($token->kind) {
+            case Token::BLOCK_STRING:
+                assert(is_string($token->value), 'Lexer sets the dedented value of block strings');
+
+                return BlockString::print($token->value, true);
+            case Token::NAME:
+            case Token::INT:
+            case Token::FLOAT:
+                assert(is_string($token->value), 'Lexer sets the raw value of names and numbers');
+
+                return $token->value;
+            default:
+                return $token->kind;
+        }
     }
 
     /** @throws \JsonException */
