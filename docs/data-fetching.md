@@ -119,6 +119,9 @@ function defaultFieldResolver($objectValue, array $args, $context, ResolveInfo $
 It returns value by key (for arrays) or property (for objects).
 If the value is not set, it returns **null**.
 
+Objects that implement `ArrayAccess` are read by key only, so their properties stay hidden.
+Implement `GraphQL\Executor\ArrayAccessPropertyFallback` instead of `ArrayAccess` to fall back to the property when the key is not set.
+
 To override the default resolver, pass it as an argument to [executeQuery](executing-queries.md).
 
 ## Default Field Resolver per Type
