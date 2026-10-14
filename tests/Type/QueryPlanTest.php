@@ -270,7 +270,9 @@ final class QueryPlanTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $blogQuery]);
+        $schema = new Schema([
+            'query' => $blogQuery,
+        ]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
         self::assertSame(['data' => ['article' => null]], $result);
@@ -328,7 +330,9 @@ final class QueryPlanTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $blogQuery]);
+        $schema = new Schema([
+            'query' => $blogQuery,
+        ]);
         GraphQL::executeQuery($schema, $doc);
 
         self::assertInstanceOf(QueryPlan::class, $queryPlan);
@@ -462,7 +466,9 @@ final class QueryPlanTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $petsQuery]);
+        $schema = new Schema([
+            'query' => $petsQuery,
+        ]);
         GraphQL::executeQuery($schema, /** @lang GraphQL */ '
         {
           pets {
@@ -734,7 +740,7 @@ final class QueryPlanTest extends TestCase
         ];
 
         $hasCalled = false;
-        /** @var QueryPlan $queryPlan */
+        /** @var QueryPlan|null $queryPlan */
         $queryPlan = null;
 
         $blogQuery = new ObjectType([
@@ -760,8 +766,12 @@ final class QueryPlanTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $blogQuery]);
+        $schema = new Schema([
+            'query' => $blogQuery,
+        ]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
+
+        self::assertNotNull($queryPlan);
 
         self::assertTrue($hasCalled);
         self::assertSame(['data' => ['article' => null]], $result);
@@ -961,7 +971,7 @@ final class QueryPlanTest extends TestCase
         $expectedBuildingSubFields = ['city', 'address'];
 
         $hasCalled = false;
-        /** @var QueryPlan $queryPlan */
+        /** @var QueryPlan|null $queryPlan */
         $queryPlan = null;
 
         $root = new ObjectType([
@@ -986,6 +996,8 @@ final class QueryPlanTest extends TestCase
             'types' => [$car, $building],
         ]);
         $result = GraphQL::executeQuery($schema, $query)->toArray();
+
+        self::assertNotNull($queryPlan);
 
         self::assertTrue($hasCalled);
         self::assertSame($expectedResult, $result);
@@ -1076,7 +1088,9 @@ GRAPHQL;
             ]
         );
 
-        $schema = new Schema(['query' => $query]);
+        $schema = new Schema([
+            'query' => $query,
+        ]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
         self::assertTrue($hasCalled);

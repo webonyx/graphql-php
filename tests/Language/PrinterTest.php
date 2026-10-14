@@ -30,9 +30,7 @@ final class PrinterTest extends TestCaseBase
         self::assertEquals($astCopy, $ast);
     }
 
-    /**
-     * @see it('prints minimal ast', () => {
-     */
+    /** @see it('prints minimal ast', () => { */
     public function testPrintsMinimalAst(): void
     {
         $ast = new FieldNode([
@@ -43,17 +41,13 @@ final class PrinterTest extends TestCaseBase
         self::assertSame('foo', Printer::doPrint($ast));
     }
 
-    /**
-     * @see it('produces helpful error messages', () => {
-     */
+    /** @see it('produces helpful error messages', () => { */
     public function testProducesHelpfulErrorMessages(): void
     {
-        self::markTestSkipped('Not necessary because our class based AST makes it impossible to pass bad data.');
+        self::markTestSkipped('Unnecessary because our class based AST makes it impossible to pass bad data.');
     }
 
-    /**
-     * @see it('correctly prints non-query operations without name', () => {
-     */
+    /** @see it('correctly prints non-query operations without name', () => { */
     public function testCorrectlyPrintsNonQueryOperationsWithoutName(): void
     {
         $queryAstShorthanded = Parser::parse('query { id, name }');
@@ -126,9 +120,7 @@ final class PrinterTest extends TestCaseBase
         self::assertSame($expected, Printer::doPrint($queryWithNonNullVariable));
     }
 
-    /**
-     * @see it('prints query with variable directives', () => {
-     */
+    /** @see it('prints query with variable directives', () => { */
     public function testPrintsQueryWithVariableDirectives(): void
     {
         $queryAstWithVariableDirective = Parser::parse(
@@ -145,9 +137,7 @@ final class PrinterTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('keeps arguments on one line if line is short (<= 80 chars)', () => {
-     */
+    /** @see it('keeps arguments on one line if line is short (<= 80 chars)', () => { */
     public function testKeepsArgumentsOnOneLineIfLineIsShortBelowOrEquals80Chars(): void
     {
         $queryASTWithMultipleArguments = Parser::parse(
@@ -166,9 +156,7 @@ final class PrinterTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('puts arguments on multiple lines if line is long (> 80 chars)', () => {
-     */
+    /** @see it('puts arguments on multiple lines if line is long (> 80 chars)', () => { */
     public function testPutsArgumentsOnMultipleLinesIfLineIsLongMoreThan80Chars(): void
     {
         $queryASTWithMultipleArguments = Parser::parse(
@@ -192,9 +180,7 @@ final class PrinterTest extends TestCaseBase
         );
     }
 
-    /**
-     * @see it('prints fragment with variable directives')
-     */
+    /** @see it('prints fragment with variable directives') */
     public function testPrintsFragmentWithVariableDirectives(): void
     {
         $queryAstWithVariableDirective = Parser::parse(
@@ -210,9 +196,7 @@ GRAPHQL;
         self::assertSame($expected, Printer::doPrint($queryAstWithVariableDirective));
     }
 
-    /**
-     * @see it('Experimental: correctly prints fragment defined variables')
-     */
+    /** @see it('Experimental: correctly prints fragment defined variables') */
     public function testExperimentalCorrectlyPrintsFragmentDefinedVariables(): void
     {
         $fragmentWithVariable = Parser::parse(
@@ -225,19 +209,17 @@ GRAPHQL;
         );
 
         self::assertSame(
-            Printer::doPrint($fragmentWithVariable),
             <<<'GRAPHQL'
 fragment Foo($a: ComplexType, $b: Boolean = false) on TestType {
   id
 }
 
-GRAPHQL
+GRAPHQL,
+            Printer::doPrint($fragmentWithVariable)
         );
     }
 
-    /**
-     * @see it('prints kitchen sink without altering ast', () => {
-     */
+    /** @see it('prints kitchen sink without altering ast', () => { */
     public function testPrintsKitchenSinkWithoutAlteringAST(): void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
@@ -308,5 +290,30 @@ GRAPHQL, Printer::doPrint($ast));
     {
         self::assertASTMatches('3', AST::astFromValue(3, Type::int()));
         self::assertASTMatches('3.14', AST::astFromValue(3.14, Type::float()));
+    }
+
+    public function testDoNotEscapeForwardSlash(): void
+    {
+        $ast = Parser::parse(
+            <<<'GRAPHQL'
+query {
+    search(query: "repo: webonyx/graphql-php") {
+        id
+    }
+}
+GRAPHQL
+        );
+
+        self::assertSame(
+            <<<'GRAPHQL'
+{
+  search(query: "repo: webonyx/graphql-php") {
+    id
+  }
+}
+
+GRAPHQL,
+            Printer::doPrint($ast),
+        );
     }
 }

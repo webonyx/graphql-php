@@ -97,9 +97,7 @@ class PossibleTypeExtensions extends ValidationRule
         ];
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private static function defKindToExtKind(string $kind): string
     {
         switch ($kind) {
@@ -120,9 +118,7 @@ class PossibleTypeExtensions extends ValidationRule
         }
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private static function typeToExtKind(NamedType $type): string
     {
         switch (true) {
@@ -144,9 +140,7 @@ class PossibleTypeExtensions extends ValidationRule
         }
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private static function extensionKindToTypeName(string $kind): string
     {
         switch ($kind) {

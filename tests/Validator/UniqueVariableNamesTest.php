@@ -13,9 +13,7 @@ final class UniqueVariableNamesTest extends ValidatorTestCase
 {
     // Validate: Unique variable names
 
-    /**
-     * @see it('unique variable names')
-     */
+    /** @see it('unique variable names') */
     public function testUniqueVariableNames(): void
     {
         $this->expectPassesRule(
@@ -27,9 +25,7 @@ final class UniqueVariableNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate variable names')
-     */
+    /** @see it('duplicate variable names') */
     public function testDuplicateVariableNames(): void
     {
         $this->expectFailsRule(
@@ -48,9 +44,7 @@ final class UniqueVariableNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @phpstan-return ErrorArray
-     */
+    /** @phpstan-return ErrorArray */
     private function duplicateVariable(string $name, int $l1, int $c1, int $l2, int $c2): array
     {
         return ErrorHelper::create(

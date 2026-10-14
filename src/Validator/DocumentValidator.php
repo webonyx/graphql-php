@@ -22,6 +22,7 @@ use GraphQL\Validator\Rules\NoFragmentCycles;
 use GraphQL\Validator\Rules\NoUndefinedVariables;
 use GraphQL\Validator\Rules\NoUnusedFragments;
 use GraphQL\Validator\Rules\NoUnusedVariables;
+use GraphQL\Validator\Rules\OneOfInputObjectsRule;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
 use GraphQL\Validator\Rules\PossibleTypeExtensions;
@@ -86,11 +87,11 @@ class DocumentValidator
     /**
      * Validate a GraphQL query against a schema.
      *
-     * @param array<ValidationRule>|null $rules
+     * @param array<ValidationRule>|null $rules Defaults to using all available rules
      *
      * @throws \Exception
      *
-     * @return array<int, Error>
+     * @return list<Error>
      *
      * @api
      */
@@ -138,7 +139,7 @@ class DocumentValidator
     public static function allRules(): array
     {
         if (! self::$initRules) {
-            self::$rules = \array_merge(
+            self::$rules = array_merge(
                 static::defaultRules(),
                 self::securityRules(),
                 self::$rules
@@ -149,9 +150,7 @@ class DocumentValidator
         return self::$rules;
     }
 
-    /**
-     * @return array<class-string<ValidationRule>, ValidationRule>
-     */
+    /** @return array<class-string<ValidationRule>, ValidationRule> */
     public static function defaultRules(): array
     {
         return self::$defaultRules ??= [
@@ -181,6 +180,7 @@ class DocumentValidator
             VariablesInAllowedPosition::class => new VariablesInAllowedPosition(),
             OverlappingFieldsCanBeMerged::class => new OverlappingFieldsCanBeMerged(),
             UniqueInputFieldNames::class => new UniqueInputFieldNames(),
+            OneOfInputObjectsRule::class => new OneOfInputObjectsRule(),
         ];
     }
 
@@ -200,9 +200,7 @@ class DocumentValidator
         ];
     }
 
-    /**
-     * @return array<class-string<ValidationRule>, ValidationRule>
-     */
+    /** @return array<class-string<ValidationRule>, ValidationRule> */
     public static function sdlRules(): array
     {
         return self::$sdlRules ??= [
@@ -267,7 +265,7 @@ class DocumentValidator
      *
      * @throws \Exception
      *
-     * @return array<int, Error>
+     * @return list<Error>
      */
     public static function validateSDL(
         DocumentNode $documentAST,
@@ -319,9 +317,7 @@ class DocumentValidator
         }
     }
 
-    /**
-     * @param array<Error> $errors
-     */
+    /** @param array<Error> $errors */
     private static function combineErrorMessages(array $errors): string
     {
         $messages = [];
@@ -329,6 +325,6 @@ class DocumentValidator
             $messages[] = $error->getMessage();
         }
 
-        return \implode("\n\n", $messages);
+        return implode("\n\n", $messages);
     }
 }

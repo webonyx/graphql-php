@@ -52,7 +52,7 @@ final class ExtractTypesTest extends TestCase
     /** @var InputObjectType */
     private $postCommentMutationInput;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->node = new InterfaceType([
             'name' => 'Node',

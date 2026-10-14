@@ -30,7 +30,7 @@ final class UnionInterfaceTest extends TestCase
 
     public Person $john;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $NamedType = new InterfaceType([
             'name' => 'Named',
@@ -42,7 +42,7 @@ final class UnionInterfaceTest extends TestCase
         $LifeType = new InterfaceType([
             'name' => 'Life',
             'fields' => static function () use (&$LifeType): array {
-                assert($LifeType instanceof InterfaceType);
+                self::assertInstanceOf(InterfaceType::class, $LifeType);
 
                 return [
                     'progeny' => ['type' => Type::listOf($LifeType)],
@@ -54,7 +54,7 @@ final class UnionInterfaceTest extends TestCase
             'name' => 'Mammal',
             'interfaces' => [$LifeType],
             'fields' => static function () use (&$MammalType): array {
-                assert($MammalType instanceof InterfaceType);
+                self::assertInstanceOf(InterfaceType::class, $MammalType);
 
                 return [
                     'progeny' => ['type' => Type::listOf($MammalType)],
@@ -68,7 +68,7 @@ final class UnionInterfaceTest extends TestCase
             'name' => 'Dog',
             'interfaces' => [$MammalType, $LifeType, $NamedType],
             'fields' => static function () use (&$DogType): array {
-                assert($DogType instanceof ObjectType);
+                self::assertInstanceOf(ObjectType::class, $DogType);
 
                 return [
                     'name' => ['type' => Type::string()],
@@ -85,7 +85,7 @@ final class UnionInterfaceTest extends TestCase
             'name' => 'Cat',
             'interfaces' => [$MammalType, $LifeType, $NamedType],
             'fields' => static function () use (&$CatType): array {
-                assert($CatType instanceof ObjectType);
+                self::assertInstanceOf(ObjectType::class, $CatType);
 
                 return [
                     'name' => ['type' => Type::string()],
@@ -118,7 +118,7 @@ final class UnionInterfaceTest extends TestCase
             'name' => 'Person',
             'interfaces' => [$NamedType, $MammalType, $LifeType],
             'fields' => static function () use (&$PetType, &$NamedType, &$PersonType): array {
-                assert($PersonType instanceof ObjectType);
+                self::assertInstanceOf(ObjectType::class, $PersonType);
 
                 return [
                     'name' => ['type' => Type::string()],
@@ -161,9 +161,7 @@ final class UnionInterfaceTest extends TestCase
 
     // Execute: Union and intersection types
 
-    /**
-     * @see it('can introspect on union and intersection types')
-     */
+    /** @see it('can introspect on union and intersection types') */
     public function testCanIntrospectOnUnionAndIntersectionTypes(): void
     {
         $ast = Parser::parse('
@@ -251,9 +249,7 @@ final class UnionInterfaceTest extends TestCase
         self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast));
     }
 
-    /**
-     * @see it('executes using union types')
-     */
+    /** @see it('executes using union types') */
     public function testExecutesUsingUnionTypes(): void
     {
         // NOTE: This is an *invalid* query, but it should be an *executable* query.
@@ -291,9 +287,7 @@ final class UnionInterfaceTest extends TestCase
         self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
-    /**
-     * @see it('executes union types with inline fragments')
-     */
+    /** @see it('executes union types with inline fragments') */
     public function testExecutesUnionTypesWithInlineFragments(): void
     {
         // This is the valid version of the query in the above test.
@@ -335,9 +329,7 @@ final class UnionInterfaceTest extends TestCase
         self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
-    /**
-     * @see it('executes using interface types')
-     */
+    /** @see it('executes using interface types') */
     public function testExecutesUsingInterfaceTypes(): void
     {
         // NOTE: This is an *invalid* query, but it should be an *executable* query.
@@ -367,9 +359,7 @@ final class UnionInterfaceTest extends TestCase
         self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
-    /**
-     * @see it('executes interface types with inline fragments')
-     */
+    /** @see it('executes interface types with inline fragments') */
     public function testExecutesInterfaceTypesWithInlineFragments(): void
     {
         // This is the valid version of the query in the above test.
@@ -430,9 +420,7 @@ final class UnionInterfaceTest extends TestCase
         self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
-    /**
-     * @see it('allows fragment conditions to be abstract types')
-     */
+    /** @see it('allows fragment conditions to be abstract types') */
     public function testAllowsFragmentConditionsToBeAbstractTypes(): void
     {
         $ast = Parser::parse('
@@ -522,9 +510,7 @@ final class UnionInterfaceTest extends TestCase
         self::assertExecutionResultEquals($expected, Executor::execute($this->schema, $ast, $this->john));
     }
 
-    /**
-     * @see it('gets execution info in resolver')
-     */
+    /** @see it('gets execution info in resolver') */
     public function testGetsExecutionInfoInResolver(): void
     {
         $encounteredContext = null;
@@ -564,7 +550,9 @@ final class UnionInterfaceTest extends TestCase
             ],
         ]);
 
-        $schema2 = new Schema(['query' => $PersonType2]);
+        $schema2 = new Schema([
+            'query' => $PersonType2,
+        ]);
 
         $john2 = new Person('John', [], [$this->liz]);
 

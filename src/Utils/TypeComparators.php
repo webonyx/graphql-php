@@ -11,13 +11,15 @@ use GraphQL\Type\Schema;
 
 class TypeComparators
 {
-    /**
-     * Provided two types, return true if the types are equal (invariant).
-     */
+    /** Provided two types, return true if the types are equal (invariant). */
     public static function isEqualType(Type $typeA, Type $typeB): bool
     {
         // Equivalent types are equal.
         if ($typeA === $typeB) {
+            return true;
+        }
+
+        if (self::areSameBuiltInScalar($typeA, $typeB)) {
             return true;
         }
 
@@ -45,6 +47,10 @@ class TypeComparators
     {
         // Equivalent type is a valid subtype
         if ($maybeSubType === $superType) {
+            return true;
+        }
+
+        if (self::areSameBuiltInScalar($maybeSubType, $superType)) {
             return true;
         }
 
@@ -85,5 +91,16 @@ class TypeComparators
         }
 
         return false;
+    }
+
+    /**
+     * Built-in scalars may exist as different instances when a type loader
+     * overrides them. Compare by name to handle this case.
+     */
+    private static function areSameBuiltInScalar(Type $typeA, Type $typeB): bool
+    {
+        return Type::isBuiltInScalar($typeA)
+            && Type::isBuiltInScalar($typeB)
+            && $typeA->name() === $typeB->name();
     }
 }

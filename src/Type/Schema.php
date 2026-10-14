@@ -14,6 +14,7 @@ use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\InterfaceImplementations;
@@ -42,6 +43,8 @@ use GraphQL\Utils\Utils;
  *
  * @phpstan-import-type SchemaConfigOptions from SchemaConfig
  * @phpstan-import-type OperationType from OperationDefinitionNode
+ *
+ * @see \GraphQL\Tests\Type\SchemaTest
  */
 class Schema
 {
@@ -61,17 +64,20 @@ class Schema
      */
     private array $implementationsMap;
 
-    /**
-     * True when $resolvedTypes contains all possible schema types.
-     */
+    /** True when $resolvedTypes contains all possible schema types. */
     private bool $fullyLoaded = false;
+
+    /** @var array<string, ScalarType>|null Lazily initialised by getScalarOverrides(). */
+    private ?array $scalarOverrides = null;
 
     /** @var array<int, Error> */
     private array $validationErrors;
 
+    public ?string $description;
+
     public ?SchemaDefinitionNode $astNode;
 
-    /** @var array<int, SchemaExtensionNode> */
+    /** @var array<SchemaExtensionNode> */
     public array $extensionASTNodes = [];
 
     /**
@@ -79,11 +85,13 @@ class Schema
      *
      * @phpstan-param SchemaConfig|SchemaConfigOptions $config
      *
+     * @throws InvariantViolation
+     *
      * @api
      */
     public function __construct($config)
     {
-        if (\is_array($config)) {
+        if (is_array($config)) {
             $config = SchemaConfig::create($config);
         }
 
@@ -93,6 +101,7 @@ class Schema
             $this->validationErrors = [];
         }
 
+        $this->description = $config->description;
         $this->astNode = $config->astNode;
         $this->extensionASTNodes = $config->extensionASTNodes;
 
@@ -113,21 +122,23 @@ class Schema
     public function getTypeMap(): array
     {
         if (! $this->fullyLoaded) {
-            $types = $this->config->types;
-            if (\is_callable($types)) {
-                $types = $types();
-            }
-
             // Reset order of user provided types, since calls to getType() may have loaded them
             $this->resolvedTypes = [];
 
-            foreach ($types as $typeOrLazyType) {
+            $scalarOverrides = $this->getScalarOverrides();
+
+            foreach ($this->materializeTypes() as $typeOrLazyType) {
                 /** @var Type|callable(): Type $typeOrLazyType */
                 $type = self::resolveType($typeOrLazyType);
                 assert($type instanceof NamedType);
 
                 /** @var string $typeName Necessary assertion for PHPStan + PHP 8.2 */
                 $typeName = $type->name;
+
+                if (isset($scalarOverrides[$typeName])) {
+                    continue;
+                }
+
                 assert(
                     ! isset($this->resolvedTypes[$typeName]) || $type === $this->resolvedTypes[$typeName],
                     "Schema must contain unique named types but contains multiple types named \"{$type}\" (see https://webonyx.github.io/graphql-php/type-definitions/#type-registry).",
@@ -147,7 +158,7 @@ class Schema
                 TypeInfo::extractTypes($type, $allReferencedTypes);
             }
 
-            foreach ([$this->config->query, $this->config->mutation, $this->config->subscription] as $rootType) {
+            foreach ([$this->getQueryType(), $this->getMutationType(), $this->getSubscriptionType()] as $rootType) {
                 if ($rootType instanceof ObjectType) {
                     TypeInfo::extractTypes($rootType, $allReferencedTypes);
                 }
@@ -160,6 +171,12 @@ class Schema
                 }
             }
             TypeInfo::extractTypes(Introspection::_schema(), $allReferencedTypes);
+
+            // Apply scalar overrides after all extractions, replacing the
+            // global singletons with user-provided instances.
+            foreach ($scalarOverrides as $name => $override) {
+                $allReferencedTypes[$name] = $override;
+            }
 
             $this->resolvedTypes = $allReferencedTypes;
             $this->fullyLoaded = true;
@@ -182,9 +199,7 @@ class Schema
         return $this->config->directives ?? GraphQL::getStandardDirectives();
     }
 
-    /**
-     * @param mixed $typeLoaderReturn could be anything
-     */
+    /** @param mixed $typeLoaderReturn could be anything */
     public static function typeLoaderNotType($typeLoaderReturn): string
     {
         $typeClass = Type::class;
@@ -198,9 +213,7 @@ class Schema
         return "Type loader is expected to return type {$expectedTypeName}, but it returned type {$actualTypeName}.";
     }
 
-    /**
-     * Returns root type by operation name.
-     */
+    /** Returns root type by operation name. */
     public function getOperationType(string $operation): ?ObjectType
     {
         switch ($operation) {
@@ -218,7 +231,17 @@ class Schema
      */
     public function getQueryType(): ?ObjectType
     {
-        return $this->config->query;
+        $query = $this->config->query;
+
+        if ($query === null) {
+            return null;
+        }
+
+        if (is_callable($query)) {
+            return $this->config->query = $query();
+        }
+
+        return $query;
     }
 
     /**
@@ -228,7 +251,17 @@ class Schema
      */
     public function getMutationType(): ?ObjectType
     {
-        return $this->config->mutation;
+        $mutation = $this->config->mutation;
+
+        if ($mutation === null) {
+            return null;
+        }
+
+        if (is_callable($mutation)) {
+            return $this->config->mutation = $mutation();
+        }
+
+        return $mutation;
     }
 
     /**
@@ -238,12 +271,20 @@ class Schema
      */
     public function getSubscriptionType(): ?ObjectType
     {
-        return $this->config->subscription;
+        $subscription = $this->config->subscription;
+
+        if ($subscription === null) {
+            return null;
+        }
+
+        if (is_callable($subscription)) {
+            return $this->config->subscription = $subscription();
+        }
+
+        return $subscription;
     }
 
-    /**
-     * @api
-     */
+    /** @api */
     public function getConfig(): SchemaConfig
     {
         return $this->config;
@@ -269,22 +310,25 @@ class Schema
             return $introspectionTypes[$name];
         }
 
-        $standardTypes = Type::getStandardTypes();
-        if (isset($standardTypes[$name])) {
-            return $standardTypes[$name];
-        }
-
         $type = $this->loadType($name);
-        if ($type === null) {
-            return null;
+        if ($type !== null) {
+            return $this->resolvedTypes[$name] = self::resolveType($type);
         }
 
-        return $this->resolvedTypes[$name] = self::resolveType($type);
+        $scalarOverrides = $this->getScalarOverrides();
+        if (isset($scalarOverrides[$name])) {
+            return $this->resolvedTypes[$name] = $scalarOverrides[$name];
+        }
+
+        $builtInScalars = Type::builtInScalars();
+        if (isset($builtInScalars[$name])) {
+            return $this->resolvedTypes[$name] = $builtInScalars[$name];
+        }
+
+        return null;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function hasType(string $name): bool
     {
         return $this->getType($name) !== null;
@@ -297,11 +341,18 @@ class Schema
      */
     private function loadType(string $typeName): ?Type
     {
-        if (! isset($this->config->typeLoader)) {
+        $typeLoader = $this->config->typeLoader;
+
+        if (! isset($typeLoader)) {
             return $this->getTypeMap()[$typeName] ?? null;
         }
 
-        $type = ($this->config->typeLoader)($typeName);
+        // TODO https://github.com/webonyx/graphql-php/issues/1874 - reconsider supporting typeLoader-based scalar overrides in the next major version
+        if (Type::isBuiltInScalarName($typeName)) {
+            return null;
+        }
+
+        $type = $typeLoader($typeName);
         if ($type === null) {
             return null;
         }
@@ -316,6 +367,55 @@ class Schema
         }
 
         return $type;
+    }
+
+    /** @return array<string, ScalarType> */
+    private function getScalarOverrides(): array
+    {
+        if ($this->scalarOverrides === null) {
+            // When overrides are given explicitly, the scan of types is unnecessary.
+            // This keeps a lazily provided types callable unresolved, see https://github.com/nuwave/lighthouse/issues/2771.
+            $explicitScalarOverrides = $this->config->scalarOverrides;
+            if ($explicitScalarOverrides !== null) {
+                return $this->scalarOverrides = $explicitScalarOverrides;
+            }
+
+            $this->scalarOverrides = [];
+
+            $builtInScalars = Type::builtInScalars();
+            foreach ($this->materializeTypes() as $typeOrLazyType) {
+                /** @var Type|callable(): Type $typeOrLazyType */
+                $type = self::resolveType($typeOrLazyType);
+                if ($type instanceof ScalarType
+                    && isset($builtInScalars[$type->name])
+                    && $type !== $builtInScalars[$type->name]
+                ) {
+                    $this->scalarOverrides[$type->name] = $type;
+                }
+            }
+        }
+
+        return $this->scalarOverrides;
+    }
+
+    /**
+     * Resolve config->types to an array, materializing callables and generators.
+     *
+     * @return array<Type|callable(): Type>
+     */
+    private function materializeTypes(): array
+    {
+        $types = $this->config->types;
+        if (is_callable($types)) {
+            $types = $types();
+        }
+
+        if (! is_array($types)) {
+            $types = iterator_to_array($types);
+            $this->config->types = $types;
+        }
+
+        return $types;
     }
 
     /**
@@ -481,10 +581,10 @@ class Schema
         $errors = $this->validate();
 
         if ($errors !== []) {
-            throw new InvariantViolation(\implode("\n\n", $this->validationErrors));
+            throw new InvariantViolation(implode("\n\n", $this->validationErrors));
         }
 
-        $internalTypes = Type::getStandardTypes() + Introspection::getTypes();
+        $internalTypes = Type::builtInScalars() + Introspection::getTypes();
         foreach ($this->getTypeMap() as $name => $type) {
             if (isset($internalTypes[$name])) {
                 continue;
@@ -520,6 +620,7 @@ class Schema
         // Validate the schema, producing a list of errors.
         $context = new SchemaValidationContext($this);
         $context->validateRootTypes();
+        $context->validateScalarOverrides();
         $context->validateDirectives();
         $context->validateTypes();
 

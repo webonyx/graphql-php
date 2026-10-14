@@ -1,0 +1,7 @@
+parameters:
+    excludePaths:
+        # PHP 8.1 enums
+        - ../src/Type/Definition/PhpEnumType.php
+        - ../tests/Type/EnumTypeTest.php
+        - ../tests/Type/PhpEnumTypeTest.php
+        - ../tests/Type/PhpEnumType

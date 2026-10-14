@@ -87,9 +87,7 @@ class UniqueFieldDefinitionNames extends ValidationRule
         ];
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private static function hasField(?NamedType $type, string $fieldName): bool
     {
         if ($type instanceof ObjectType || $type instanceof InterfaceType || $type instanceof InputObjectType) {

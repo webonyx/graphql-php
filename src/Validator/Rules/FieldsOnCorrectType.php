@@ -20,7 +20,7 @@ class FieldsOnCorrectType extends ValidationRule
         return [
             NodeKind::FIELD => function (FieldNode $node) use ($context): void {
                 $fieldDef = $context->getFieldDef();
-                if ($fieldDef !== null) {
+                if ($fieldDef !== null && $fieldDef->isVisible()) {
                     return;
                 }
 
@@ -89,11 +89,11 @@ class FieldsOnCorrectType extends ValidationRule
             }
 
             // Suggest interface types based on how common they are.
-            \arsort($interfaceUsageCount);
-            $suggestedInterfaceTypes = \array_keys($interfaceUsageCount);
+            arsort($interfaceUsageCount);
+            $suggestedInterfaceTypes = array_keys($interfaceUsageCount);
 
             // Suggest both interface and object types.
-            return \array_merge($suggestedInterfaceTypes, $suggestedObjectTypes);
+            return array_merge($suggestedInterfaceTypes, $suggestedObjectTypes);
         }
 
         // Otherwise, must be an Object type, which does not have suggested types.

@@ -12,16 +12,20 @@ use GraphQL\Utils\Utils;
  * @see Executor
  *
  * @phpstan-import-type FieldResolver from Executor
+ * @phpstan-import-type ArgsMapper from Executor
  * @phpstan-import-type ArgumentListConfig from Argument
  *
  * @phpstan-type FieldType (Type&OutputType)|callable(): (Type&OutputType)
  * @phpstan-type ComplexityFn callable(int, array<string, mixed>): int
+ * @phpstan-type VisibilityFn callable(): bool
  * @phpstan-type FieldDefinitionConfig array{
  *     name: string,
  *     type: FieldType,
  *     resolve?: FieldResolver|null,
  *     args?: ArgumentListConfig|null,
+ *     argsMapper?: ArgsMapper|null,
  *     description?: string|null,
+ *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
  *     astNode?: FieldDefinitionNode|null,
  *     complexity?: ComplexityFn|null
@@ -30,7 +34,9 @@ use GraphQL\Utils\Utils;
  *     type: FieldType,
  *     resolve?: FieldResolver|null,
  *     args?: ArgumentListConfig|null,
+ *     argsMapper?: ArgsMapper|null,
  *     description?: string|null,
+ *     visible?: VisibilityFn|bool,
  *     deprecationReason?: string|null,
  *     astNode?: FieldDefinitionNode|null,
  *     complexity?: ComplexityFn|null
@@ -54,6 +60,15 @@ class FieldDefinition
     public array $args;
 
     /**
+     * Callback to transform args to value object.
+     *
+     * @var callable|null
+     *
+     * @phpstan-var ArgsMapper|null
+     */
+    public $argsMapper;
+
+    /**
      * Callback for resolving field value given parent value.
      *
      * @var callable|null
@@ -63,6 +78,13 @@ class FieldDefinition
     public $resolveFn;
 
     public ?string $description;
+
+    /**
+     * @var callable|bool
+     *
+     * @phpstan-var VisibilityFn|bool
+     */
+    public $visible;
 
     public ?string $deprecationReason;
 
@@ -85,9 +107,7 @@ class FieldDefinition
     /** @var Type&OutputType */
     private Type $type;
 
-    /**
-     * @param FieldDefinitionConfig $config
-     */
+    /** @param FieldDefinitionConfig $config */
     public function __construct(array $config)
     {
         $this->name = $config['name'];
@@ -95,7 +115,9 @@ class FieldDefinition
         $this->args = isset($config['args'])
             ? Argument::listFromConfig($config['args'])
             : [];
+        $this->argsMapper = $config['argsMapper'] ?? null;
         $this->description = $config['description'] ?? null;
+        $this->visible = $config['visible'] ?? true;
         $this->deprecationReason = $config['deprecationReason'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->complexityFn = $config['complexity'] ?? null;
@@ -115,19 +137,19 @@ class FieldDefinition
      */
     public static function defineFieldMap(Type $parentType, $fields): array
     {
-        if (\is_callable($fields)) {
+        if (is_callable($fields)) {
             $fields = $fields();
         }
 
-        if (! \is_iterable($fields)) {
+        if (! is_iterable($fields)) {
             throw new InvariantViolation("{$parentType->name} fields must be an iterable or a callable which returns such an iterable.");
         }
 
         $map = [];
         foreach ($fields as $maybeName => $field) {
-            if (\is_array($field)) {
+            if (is_array($field)) {
                 if (! isset($field['name'])) {
-                    if (! \is_string($maybeName)) {
+                    if (! is_string($maybeName)) {
                         throw new InvariantViolation("{$parentType->name} fields must be an associative array with field names as keys or a function which returns such an array.");
                     }
 
@@ -138,8 +160,8 @@ class FieldDefinition
                 $fieldDef = new self($field);
             } elseif ($field instanceof self) {
                 $fieldDef = $field;
-            } elseif (\is_callable($field)) {
-                if (! \is_string($maybeName)) {
+            } elseif (is_callable($field)) {
+                if (! is_string($maybeName)) {
                     throw new InvariantViolation("{$parentType->name} lazy fields must be an associative array with field names as keys.");
                 }
 
@@ -177,12 +199,19 @@ class FieldDefinition
         return $this->name;
     }
 
-    /**
-     * @return Type&OutputType
-     */
+    /** @return Type&OutputType */
     public function getType(): Type
     {
         return $this->type ??= Schema::resolveType($this->config['type']);
+    }
+
+    public function isVisible(): bool
+    {
+        if (is_bool($this->visible)) {
+            return $this->visible;
+        }
+
+        return $this->visible = ($this->visible)();
     }
 
     public function isDeprecated(): bool
@@ -209,8 +238,8 @@ class FieldDefinition
             throw new InvariantViolation("{$parentType->name}.{$this->name} field type must be Output Type but got: {$safeType}.");
         }
 
-        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
-        if ($this->resolveFn !== null && ! \is_callable($this->resolveFn)) {
+        // @phpstan-ignore-next-line unnecessary according to types, but can happen during runtime
+        if ($this->resolveFn !== null && ! is_callable($this->resolveFn)) {
             $safeResolveFn = Utils::printSafe($this->resolveFn);
             throw new InvariantViolation("{$parentType->name}.{$this->name} field resolver must be a function if provided, but got: {$safeResolveFn}.");
         }

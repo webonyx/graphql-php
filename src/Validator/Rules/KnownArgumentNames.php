@@ -19,9 +19,7 @@ use GraphQL\Validator\QueryValidationContext;
  */
 class KnownArgumentNames extends ValidationRule
 {
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function getVisitor(QueryValidationContext $context): array
     {
         $knownArgumentNamesOnDirectives = new KnownArgumentNamesOnDirectives();
@@ -50,7 +48,7 @@ class KnownArgumentNames extends ValidationRule
                         $parentType->name,
                         Utils::suggestionList(
                             $node->name->value,
-                            \array_map(
+                            array_map(
                                 static fn (Argument $arg): string => $arg->name,
                                 $fieldDef->args
                             )
@@ -62,9 +60,7 @@ class KnownArgumentNames extends ValidationRule
         ];
     }
 
-    /**
-     * @param array<string> $suggestedArgs
-     */
+    /** @param array<string> $suggestedArgs */
     public static function unknownArgMessage(string $argName, string $fieldName, string $typeName, array $suggestedArgs): string
     {
         $message = "Unknown argument \"{$argName}\" on field \"{$fieldName}\" of type \"{$typeName}\".";

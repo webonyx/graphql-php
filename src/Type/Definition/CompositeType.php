@@ -9,6 +9,4 @@ GraphQLInterfaceType |
 GraphQLUnionType;
 */
 
-interface CompositeType
-{
-}
+interface CompositeType {}

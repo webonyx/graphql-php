@@ -35,7 +35,7 @@ class UniqueTypeNames extends ValidationRule
                 return null;
             }
 
-            if (\array_key_exists($typeName, $knownTypeNames)) {
+            if (array_key_exists($typeName, $knownTypeNames)) {
                 $context->reportError(
                     new Error(
                         "There can be only one type named \"{$typeName}\".",

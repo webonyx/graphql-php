@@ -20,6 +20,7 @@ use GraphQL\Utils\Utils;
  *   serialize?: callable(mixed): mixed,
  *   parseValue: callable(mixed): mixed,
  *   parseLiteral: ParseLiteralFn,
+ *   specifiedByURL?: string|null,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }
@@ -29,6 +30,7 @@ use GraphQL\Utils\Utils;
  *   serialize: callable(mixed): mixed,
  *   parseValue?: callable(mixed): mixed,
  *   parseLiteral?: ParseLiteralFn,
+ *   specifiedByURL?: string|null,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }
@@ -68,9 +70,7 @@ class CustomScalarType extends ScalarType
         return $value;
     }
 
-    /**
-     * @throws \Exception
-     */
+    /** @throws \Exception */
     public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if (isset($this->config['parseLiteral'])) {
@@ -105,19 +105,19 @@ class CustomScalarType extends ScalarType
             throw new InvariantViolation("{$this->name} must provide \"parseValue\" and \"parseLiteral\" functions, \"serialize\" function, or both.");
         }
 
-        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
+        // @phpstan-ignore-next-line unnecessary according to types, but can happen during runtime
         if ($hasSerialize && ! is_callable($serialize)) {
             $notCallable = Utils::printSafe($serialize);
             throw new InvariantViolation("{$this->name} must provide \"serialize\" as a callable if given, but got: {$notCallable}.");
         }
 
-        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
+        // @phpstan-ignore-next-line unnecessary according to types, but can happen during runtime
         if ($hasParseValue && ! is_callable($parseValue)) {
             $notCallable = Utils::printSafe($parseValue);
             throw new InvariantViolation("{$this->name} must provide \"parseValue\" as a callable if given, but got: {$notCallable}.");
         }
 
-        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
+        // @phpstan-ignore-next-line unnecessary according to types, but can happen during runtime
         if ($hasParseLiteral && ! is_callable($parseLiteral)) {
             $notCallable = Utils::printSafe($parseLiteral);
             throw new InvariantViolation("{$this->name} must provide \"parseLiteral\" as a callable if given, but got: {$notCallable}.");

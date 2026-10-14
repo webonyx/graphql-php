@@ -40,6 +40,8 @@ use GraphQL\Type\TypeKind;
  *          produced schema is valid.
  *
  *          Default: false
+ *
+ * @see \GraphQL\Tests\Utils\BuildClientSchemaTest
  */
 class BuildClientSchema
 {
@@ -58,7 +60,7 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $introspectionQuery
-     * @param array<string, bool>  $options
+     * @param array<string, bool> $options
      *
      * @phpstan-param Options    $options
      */
@@ -81,12 +83,13 @@ class BuildClientSchema
      * the "errors" field of a server response before calling this function.
      *
      * @param array<string, mixed> $introspectionQuery
-     * @param array<string, bool>  $options
+     * @param array<string, bool> $options
      *
-     * @phpstan-param Options    $options
+     * @phpstan-param Options $options
      *
      * @api
      *
+     * @throws \Exception
      * @throws InvariantViolation
      */
     public static function build(array $introspectionQuery, array $options = []): Schema
@@ -95,19 +98,20 @@ class BuildClientSchema
     }
 
     /**
+     * @throws \Exception
      * @throws InvariantViolation
      */
     public function buildSchema(): Schema
     {
-        if (! \array_key_exists('__schema', $this->introspection)) {
+        if (! array_key_exists('__schema', $this->introspection)) {
             $missingSchemaIntrospection = Utils::printSafeJson($this->introspection);
             throw new InvariantViolation("Invalid or incomplete introspection result. Ensure that you are passing \"data\" property of introspection response and no \"errors\" was returned alongside: {$missingSchemaIntrospection}.");
         }
 
         $schemaIntrospection = $this->introspection['__schema'];
 
-        $builtInTypes = \array_merge(
-            Type::getStandardTypes(),
+        $builtInTypes = array_merge(
+            Type::builtInScalars(),
             Introspection::getTypes()
         );
 
@@ -126,6 +130,10 @@ class BuildClientSchema
                 ?? $this->buildType($typeIntrospection);
         }
 
+        $description = isset($schemaIntrospection['description'])
+            ? $schemaIntrospection['description']
+            : null;
+
         $queryType = isset($schemaIntrospection['queryType'])
             ? $this->getObjectType($schemaIntrospection['queryType'])
             : null;
@@ -139,7 +147,7 @@ class BuildClientSchema
             : null;
 
         $directives = isset($schemaIntrospection['directives'])
-            ? \array_map(
+            ? array_map(
                 [$this, 'buildDirective'],
                 $schemaIntrospection['directives']
             )
@@ -147,12 +155,13 @@ class BuildClientSchema
 
         return new Schema(
             (new SchemaConfig())
-            ->setQuery($queryType)
-            ->setMutation($mutationType)
-            ->setSubscription($subscriptionType)
-            ->setTypes($this->typeMap)
-            ->setDirectives($directives)
-            ->setAssumeValid($this->options['assumeValid'] ?? false)
+                ->setDescription($description)
+                ->setQuery($queryType)
+                ->setMutation($mutationType)
+                ->setSubscription($subscriptionType)
+                ->setTypes($this->typeMap)
+                ->setDirectives($directives)
+                ->setAssumeValid($this->options['assumeValid'] ?? false)
         );
     }
 
@@ -204,9 +213,7 @@ class BuildClientSchema
         return $this->typeMap[$typeName];
     }
 
-    /**
-     * @param array<mixed> $type
-     */
+    /** @param array<mixed> $type */
     public static function invalidOrIncompleteIntrospectionResult(array $type): InvariantViolation
     {
         $incompleteType = Utils::printSafeJson($type);
@@ -283,7 +290,7 @@ class BuildClientSchema
      */
     private function buildType(array $type): NamedType
     {
-        if (! \array_key_exists('kind', $type)) {
+        if (! array_key_exists('kind', $type)) {
             throw self::invalidOrIncompleteIntrospectionResult($type);
         }
 
@@ -307,7 +314,7 @@ class BuildClientSchema
     }
 
     /**
-     * @param array<string, string> $scalar
+     * @param array<string, string|null> $scalar
      *
      * @throws InvariantViolation
      */
@@ -316,7 +323,8 @@ class BuildClientSchema
         return new CustomScalarType([
             'name' => $scalar['name'],
             'description' => $scalar['description'],
-            'serialize' => static fn ($value): string => (string) $value,
+            'specifiedByURL' => $scalar['specifiedByURL'] ?? null,
+            'serialize' => static fn ($value) => $value,
         ]);
     }
 
@@ -331,19 +339,19 @@ class BuildClientSchema
     {
         // TODO: Temporary workaround until GraphQL ecosystem will fully support 'interfaces' on interface types.
         if (
-            \array_key_exists('interfaces', $implementingIntrospection)
+            array_key_exists('interfaces', $implementingIntrospection)
             && $implementingIntrospection['interfaces'] === null
             && $implementingIntrospection['kind'] === TypeKind::INTERFACE
         ) {
             return [];
         }
 
-        if (! \array_key_exists('interfaces', $implementingIntrospection)) {
+        if (! array_key_exists('interfaces', $implementingIntrospection)) {
             $safeIntrospection = Utils::printSafeJson($implementingIntrospection);
             throw new InvariantViolation("Introspection result missing interfaces: {$safeIntrospection}.");
         }
 
-        return \array_map(
+        return array_map(
             [$this, 'getInterfaceType'],
             $implementingIntrospection['interfaces']
         );
@@ -386,7 +394,7 @@ class BuildClientSchema
      */
     private function buildUnionDef(array $union): UnionType
     {
-        if (! \array_key_exists('possibleTypes', $union)) {
+        if (! array_key_exists('possibleTypes', $union)) {
             $safeUnion = Utils::printSafeJson($union);
             throw new InvariantViolation("Introspection result missing possibleTypes: {$safeUnion}.");
         }
@@ -394,7 +402,7 @@ class BuildClientSchema
         return new UnionType([
             'name' => $union['name'],
             'description' => $union['description'],
-            'types' => fn (): array => \array_map(
+            'types' => fn (): array => array_map(
                 [$this, 'getObjectType'],
                 $union['possibleTypes']
             ),
@@ -408,7 +416,7 @@ class BuildClientSchema
      */
     private function buildEnumDef(array $enum): EnumType
     {
-        if (! \array_key_exists('enumValues', $enum)) {
+        if (! array_key_exists('enumValues', $enum)) {
             $safeEnum = Utils::printSafeJson($enum);
             throw new InvariantViolation("Introspection result missing enumValues: {$safeEnum}.");
         }
@@ -435,7 +443,7 @@ class BuildClientSchema
      */
     private function buildInputObjectDef(array $inputObject): InputObjectType
     {
-        if (! \array_key_exists('inputFields', $inputObject)) {
+        if (! array_key_exists('inputFields', $inputObject)) {
             $safeInputObject = Utils::printSafeJson($inputObject);
             throw new InvariantViolation("Introspection result missing inputFields: {$safeInputObject}.");
         }
@@ -457,7 +465,7 @@ class BuildClientSchema
      */
     private function buildFieldDefMap(array $typeIntrospection): array
     {
-        if (! \array_key_exists('fields', $typeIntrospection)) {
+        if (! array_key_exists('fields', $typeIntrospection)) {
             $safeType = Utils::printSafeJson($typeIntrospection);
             throw new InvariantViolation("Introspection result missing fields: {$safeType}.");
         }
@@ -465,7 +473,7 @@ class BuildClientSchema
         /** @var array<string, UnnamedFieldDefinitionConfig> $map */
         $map = [];
         foreach ($typeIntrospection['fields'] as $field) {
-            if (! \array_key_exists('args', $field)) {
+            if (! array_key_exists('args', $field)) {
                 $safeField = Utils::printSafeJson($field);
                 throw new InvariantViolation("Introspection result missing field args: {$safeField}.");
             }
@@ -497,7 +505,6 @@ class BuildClientSchema
             $map[$value['name']] = $this->buildInputValue($value);
         }
 
-        // @phpstan-ignore-next-line unless the returned name was numeric, this works
         return $map;
     }
 
@@ -515,6 +522,7 @@ class BuildClientSchema
 
         $inputValue = [
             'description' => $inputValueIntrospection['description'],
+            'deprecationReason' => $inputValueIntrospection['deprecationReason'] ?? null,
             'type' => $type,
         ];
 
@@ -536,12 +544,12 @@ class BuildClientSchema
      */
     public function buildDirective(array $directive): Directive
     {
-        if (! \array_key_exists('args', $directive)) {
+        if (! array_key_exists('args', $directive)) {
             $safeDirective = Utils::printSafeJson($directive);
             throw new InvariantViolation("Introspection result missing directive args: {$safeDirective}.");
         }
 
-        if (! \array_key_exists('locations', $directive)) {
+        if (! array_key_exists('locations', $directive)) {
             $safeDirective = Utils::printSafeJson($directive);
             throw new InvariantViolation("Introspection result missing directive locations: {$safeDirective}.");
         }

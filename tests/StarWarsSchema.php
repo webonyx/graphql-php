@@ -57,9 +57,7 @@ use GraphQL\Type\Schema;
  */
 final class StarWarsSchema
 {
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public static function build(): Schema
     {
         /**
@@ -87,10 +85,10 @@ final class StarWarsSchema
             ],
         ]);
 
-        /** @var ObjectType $humanType */
+        /** @var ObjectType|null $humanType */
         $humanType = null;
 
-        /** @var ObjectType $droidType */
+        /** @var ObjectType|null $droidType */
         $droidType = null;
 
         /**
@@ -131,12 +129,21 @@ final class StarWarsSchema
                         'type' => Type::string(),
                         'description' => 'All secrets about their past.',
                     ],
+                    'secretName' => [
+                        'type' => Type::string(),
+                        'description' => 'The secret name of the character.',
+                        'visible' => false,
+                    ],
                 ];
             },
-            'resolveType' => static function (array $obj) use (&$humanType, &$droidType): ObjectType {
-                return StarWarsData::getHuman($obj['id']) === null
+            'resolveType' => function (array $obj) use (&$humanType, &$droidType): ObjectType {
+                $objectType = StarWarsData::human($obj['id']) === null
                     ? $droidType
                     : $humanType;
+
+                assert($objectType !== null);
+
+                return $objectType;
             },
         ]);
 
@@ -171,11 +178,9 @@ final class StarWarsSchema
                         $fieldSelection = $info->getFieldSelection();
                         $fieldSelection['id'] = true;
 
-                        return \array_map(
-                            static function ($friend) use ($fieldSelection): array {
-                                return \array_intersect_key($friend, $fieldSelection);
-                            },
-                            StarWarsData::getFriends($human)
+                        return array_map(
+                            static fn ($friend): array => array_intersect_key($friend, $fieldSelection),
+                            StarWarsData::friends($human)
                         );
                     },
                 ],
@@ -227,7 +232,7 @@ final class StarWarsSchema
                 'friends' => [
                     'type' => Type::listOf($characterInterface),
                     'description' => 'The friends of the droid, or an empty list if they have none.',
-                    'resolve' => static fn (array $droid): array => StarWarsData::getFriends($droid),
+                    'resolve' => static fn (array $droid): array => StarWarsData::friends($droid),
                 ],
                 'appearsIn' => [
                     'type' => Type::listOf($episodeEnum),
@@ -273,7 +278,7 @@ final class StarWarsSchema
                             'type' => $episodeEnum,
                         ],
                     ],
-                    'resolve' => static fn ($rootValue, array $args): array => StarWarsData::getHero($args['episode'] ?? null),
+                    'resolve' => static fn ($rootValue, array $args): array => StarWarsData::hero($args['episode'] ?? null),
                 ],
                 'human' => [
                     'type' => $humanType,

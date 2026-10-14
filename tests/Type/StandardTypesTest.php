@@ -3,10 +3,14 @@
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\GraphQL;
 use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Introspection;
+use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
 final class StandardTypesTest extends TestCase
@@ -31,11 +35,11 @@ final class StandardTypesTest extends TestCase
         self::assertCount(5, $originalTypes);
         self::assertSame(self::$originalStandardTypes, $originalTypes);
 
-        $newBooleanType = $this->createCustomScalarType(Type::BOOLEAN);
-        $newFloatType = $this->createCustomScalarType(Type::FLOAT);
-        $newIDType = $this->createCustomScalarType(Type::ID);
-        $newIntType = $this->createCustomScalarType(Type::INT);
-        $newStringType = $this->createCustomScalarType(Type::STRING);
+        $newBooleanType = self::createCustomScalarType(Type::BOOLEAN);
+        $newFloatType = self::createCustomScalarType(Type::FLOAT);
+        $newIDType = self::createCustomScalarType(Type::ID);
+        $newIntType = self::createCustomScalarType(Type::INT);
+        $newStringType = self::createCustomScalarType(Type::STRING);
 
         Type::overrideStandardTypes([
             $newBooleanType,
@@ -67,8 +71,8 @@ final class StandardTypesTest extends TestCase
         self::assertCount(5, $originalTypes);
         self::assertSame(self::$originalStandardTypes, $originalTypes);
 
-        $newIDType = $this->createCustomScalarType(Type::ID);
-        $newStringType = $this->createCustomScalarType(Type::STRING);
+        $newIDType = self::createCustomScalarType(Type::ID);
+        $newStringType = self::createCustomScalarType(Type::STRING);
 
         Type::overrideStandardTypes([
             $newStringType,
@@ -98,17 +102,15 @@ final class StandardTypesTest extends TestCase
      *
      * @return iterable<array{mixed, string}>
      */
-    public function invalidStandardTypes(): iterable
+    public static function invalidStandardTypes(): iterable
     {
-        return [
-            [null, 'Expecting instance of GraphQL\Type\Definition\ScalarType, got null'],
-            [5, 'Expecting instance of GraphQL\Type\Definition\ScalarType, got 5'],
-            ['', 'Expecting instance of GraphQL\Type\Definition\ScalarType, got (empty string)'],
-            [new \stdClass(), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got instance of stdClass'],
-            [[], 'Expecting instance of GraphQL\Type\Definition\ScalarType, got []'],
-            [new ObjectType(['name' => 'ID', 'fields' => []]), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got ID'],
-            [$this->createCustomScalarType('NonStandardName'), 'Expecting one of the following names for a standard type: Int, Float, String, Boolean, ID; got "NonStandardName"'],
-        ];
+        yield [null, 'Expecting instance of GraphQL\Type\Definition\ScalarType, got null'];
+        yield [5, 'Expecting instance of GraphQL\Type\Definition\ScalarType, got 5'];
+        yield ['', 'Expecting instance of GraphQL\Type\Definition\ScalarType, got (empty string)'];
+        yield [new \stdClass(), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got instance of stdClass'];
+        yield [[], 'Expecting instance of GraphQL\Type\Definition\ScalarType, got []'];
+        yield [new ObjectType(['name' => 'ID', 'fields' => []]), 'Expecting instance of GraphQL\Type\Definition\ScalarType, got ID'];
+        yield [self::createCustomScalarType('NonStandardName'), 'Expecting one of the following names for a standard type: Int, Float, String, Boolean, ID; got "NonStandardName"'];
     }
 
     /**
@@ -124,10 +126,96 @@ final class StandardTypesTest extends TestCase
         Type::overrideStandardTypes([$notType]);
     }
 
+    public function testCachesShouldResetWhenOverridingStandardTypes(): void
+    {
+        $string = Type::string();
+
+        $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
+        self::assertSame($string, Type::getNullableType($typeNameMetaFieldDef->getType()));
+
+        $deprecatedDirective = Directive::deprecatedDirective();
+        self::assertSame($string, $deprecatedDirective->args[0]->getType());
+
+        $newString = self::createCustomScalarType(Type::STRING);
+        self::assertNotSame($string, $newString);
+        Type::overrideStandardTypes([$newString]);
+
+        $newTypeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
+        self::assertNotSame($typeNameMetaFieldDef, $newTypeNameMetaFieldDef);
+        self::assertSame($newString, Type::getNullableType($newTypeNameMetaFieldDef->getType()));
+
+        $newDeprecatedDirective = Directive::deprecatedDirective();
+        self::assertNotSame($deprecatedDirective, $newDeprecatedDirective);
+        self::assertSame($newString, $newDeprecatedDirective->args[0]->getType());
+    }
+
+    /** @see ScalarOverridesTest for the per-schema alternative */
+    public function testGlobalOverrideAffectsSchemaExecution(): void
+    {
+        $uppercaseString = self::createUppercaseString();
+        Type::overrideStandardTypes([$uppercaseString]);
+
+        $schema = new Schema([
+            'query' => self::createQueryType(),
+        ]);
+
+        $result = GraphQL::executeQuery($schema, '{ greeting }');
+
+        self::assertSame(['data' => ['greeting' => 'HELLO WORLD']], $result->toArray());
+    }
+
     /**
-     * @throws InvariantViolation
+     * Documents the exact problem from https://github.com/webonyx/graphql-php/issues/1424.
+     *
+     * @see ScalarOverridesTest for the per-schema alternative
      */
-    private function createCustomScalarType(string $name): CustomScalarType
+    public function testStaticOverrideAffectsAllSchemas(): void
+    {
+        $schemaA = new Schema([
+            'query' => self::createQueryType(),
+        ]);
+
+        $uppercaseString = self::createUppercaseString();
+        Type::overrideStandardTypes([$uppercaseString]);
+
+        new Schema([
+            'query' => self::createQueryType(),
+        ]);
+
+        // Schema A was built before the override. Its query type fields reference
+        // the old String singleton, but introspection types (rebuilt by
+        // overrideStandardTypes) now hold the new String. When getTypeMap()
+        // encounters both instances during extractTypes, it throws.
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('contains multiple types named "String"');
+        $schemaA->getTypeMap();
+    }
+
+    /** @throws InvariantViolation */
+    private static function createUppercaseString(): CustomScalarType
+    {
+        return new CustomScalarType([
+            'name' => Type::STRING,
+            'serialize' => static fn ($value): string => strtoupper((string) $value),
+        ]);
+    }
+
+    /** @throws InvariantViolation */
+    private static function createQueryType(): ObjectType
+    {
+        return new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'greeting' => [
+                    'type' => Type::string(),
+                    'resolve' => static fn (): string => 'hello world',
+                ],
+            ],
+        ]);
+    }
+
+    /** @throws InvariantViolation */
+    private static function createCustomScalarType(string $name): CustomScalarType
     {
         return new CustomScalarType([
             'name' => $name,

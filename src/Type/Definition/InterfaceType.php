@@ -10,6 +10,7 @@ use GraphQL\Utils\Utils;
 
 /**
  * @phpstan-import-type ResolveType from AbstractType
+ * @phpstan-import-type ResolveValue from AbstractType
  * @phpstan-import-type FieldsConfig from FieldDefinition
  *
  * @phpstan-type InterfaceTypeReference InterfaceType|callable(): InterfaceType
@@ -19,8 +20,9 @@ use GraphQL\Utils\Utils;
  *   fields: FieldsConfig,
  *   interfaces?: iterable<InterfaceTypeReference>|callable(): iterable<InterfaceTypeReference>,
  *   resolveType?: ResolveType|null,
+ *   resolveValue?: ResolveValue|null,
  *   astNode?: InterfaceTypeDefinitionNode|null,
- *   extensionASTNodes?: array<int, InterfaceTypeExtensionNode>|null
+ *   extensionASTNodes?: array<InterfaceTypeExtensionNode>|null
  * }
  */
 class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, HasFieldsType, NamedType, ImplementingType
@@ -31,16 +33,16 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
 
     public ?InterfaceTypeDefinitionNode $astNode;
 
-    /** @var array<int, InterfaceTypeExtensionNode> */
+    /** @var array<InterfaceTypeExtensionNode> */
     public array $extensionASTNodes;
 
     /** @phpstan-var InterfaceConfig */
     public array $config;
 
     /**
-     * @throws InvariantViolation
-     *
      * @phpstan-param InterfaceConfig $config
+     *
+     * @throws InvariantViolation
      */
     public function __construct(array $config)
     {
@@ -59,12 +61,21 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      */
     public static function assertInterfaceType($type): self
     {
-        if (! ($type instanceof self)) {
+        if (! $type instanceof self) {
             $notInterfaceType = Utils::printSafe($type);
             throw new InvariantViolation("Expected {$notInterfaceType} to be a GraphQL Interface type.");
         }
 
         return $type;
+    }
+
+    public function resolveValue($objectValue, $context, ResolveInfo $info)
+    {
+        if (isset($this->config['resolveValue'])) {
+            return ($this->config['resolveValue'])($objectValue, $context, $info);
+        }
+
+        return $objectValue;
     }
 
     public function resolveType($objectValue, $context, ResolveInfo $info)
@@ -85,8 +96,8 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         Utils::assertValidName($this->name);
 
         $resolveType = $this->config['resolveType'] ?? null;
-        // @phpstan-ignore-next-line not necessary according to types, but can happen during runtime
-        if ($resolveType !== null && ! \is_callable($resolveType)) {
+        // @phpstan-ignore-next-line unnecessary according to types, but can happen during runtime
+        if ($resolveType !== null && ! is_callable($resolveType)) {
             $notCallable = Utils::printSafe($resolveType);
             throw new InvariantViolation("{$this->name} must provide \"resolveType\" as null or a callable, but got: {$notCallable}.");
         }
@@ -99,7 +110,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         return $this->astNode;
     }
 
-    /** @return array<int, InterfaceTypeExtensionNode> */
+    /** @return array<InterfaceTypeExtensionNode> */
     public function extensionASTNodes(): array
     {
         return $this->extensionASTNodes;

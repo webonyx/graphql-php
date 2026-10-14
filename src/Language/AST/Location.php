@@ -13,29 +13,19 @@ use GraphQL\Language\Token;
  */
 class Location
 {
-    /**
-     * The character offset at which this Node begins.
-     */
+    /** The character offset at which this Node begins. */
     public int $start;
 
-    /**
-     * The character offset at which this Node ends.
-     */
+    /** The character offset at which this Node ends. */
     public int $end;
 
-    /**
-     * The Token at which this Node begins.
-     */
+    /** The Token at which this Node begins. */
     public ?Token $startToken = null;
 
-    /**
-     * The Token at which this Node ends.
-     */
+    /** The Token at which this Node ends. */
     public ?Token $endToken = null;
 
-    /**
-     * The Source document the AST represents.
-     */
+    /** The Source document the AST represents. */
     public ?Source $source = null;
 
     public static function create(int $start, int $end): self
@@ -62,9 +52,7 @@ class Location
         $this->end = $endToken->end;
     }
 
-    /**
-     * @return LocationArray
-     */
+    /** @return LocationArray */
     public function toArray(): array
     {
         return [

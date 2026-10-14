@@ -4,9 +4,13 @@ namespace GraphQL\Tests\Type;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\GraphQL;
+use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\ErrorHelper;
+use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -19,13 +23,14 @@ use PHPUnit\Framework\TestCase;
 
 use function Safe\json_encode;
 
+/**
+ * @phpstan-import-type VisibilityFn from FieldDefinition
+ */
 final class IntrospectionTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /**
-     * @see it('executes an introspection query')
-     */
+    /** @see it('executes an introspection query') */
     public function testExecutesAnIntrospectionQuery(): void
     {
         $schema = BuildSchema::build('
@@ -33,6 +38,7 @@ final class IntrospectionTest extends TestCase
         someField: String
       }
 
+      "Sample schema"
       schema {
         query: SomeObject
       }
@@ -41,6 +47,7 @@ final class IntrospectionTest extends TestCase
         $source = Introspection::getIntrospectionQuery([
             'descriptions' => false,
             'directiveIsRepeatable' => true,
+            'typeIsOneOf' => true,
         ]);
 
         $expected = [
@@ -53,6 +60,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'OBJECT',
                             'name' => 'SomeObject',
+                            'isOneOf' => null,
                             'fields' => [
                                 [
                                     'name' => 'someField',
@@ -74,6 +82,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'SCALAR',
                             'name' => 'String',
+                            'isOneOf' => null,
                             'fields' => null,
                             'inputFields' => null,
                             'interfaces' => null,
@@ -83,6 +92,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'SCALAR',
                             'name' => 'Boolean',
+                            'isOneOf' => null,
                             'fields' => null,
                             'inputFields' => null,
                             'interfaces' => null,
@@ -92,8 +102,20 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'OBJECT',
                             'name' => '__Schema',
+                            'isOneOf' => null,
                             'fields' => [
                                 0 => [
+                                    'name' => 'description',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
+                                ],
+                                1 => [
                                     'name' => 'types',
                                     'args' => [],
                                     'type' => [
@@ -116,7 +138,7 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                1 => [
+                                2 => [
                                     'name' => 'queryType',
                                     'args' => [],
                                     'type' => [
@@ -185,6 +207,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'OBJECT',
                             'name' => '__Type',
+                            'isOneOf' => null,
                             'fields' => [
                                 0 => [
                                     'name' => 'kind',
@@ -224,16 +247,33 @@ final class IntrospectionTest extends TestCase
                                     'deprecationReason' => null,
                                 ],
                                 3 => [
+                                    'name' => 'specifiedByURL',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
+                                ],
+                                4 => [
                                     'name' => 'fields',
                                     'args' => [
                                         0 => [
                                             'name' => 'includeDeprecated',
                                             'type' => [
-                                                'kind' => 'SCALAR',
-                                                'name' => 'Boolean',
-                                                'ofType' => null,
+                                                'kind' => 'NON_NULL',
+                                                'name' => null,
+                                                'ofType' => [
+                                                    'kind' => 'SCALAR',
+                                                    'name' => 'Boolean',
+                                                    'ofType' => null,
+                                                ],
                                             ],
                                             'defaultValue' => 'false',
+                                            'isDeprecated' => false,
+                                            'deprecationReason' => null,
                                         ],
                                     ],
                                     'type' => [
@@ -252,7 +292,7 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                4 => [
+                                5 => [
                                     'name' => 'interfaces',
                                     'args' => [],
                                     'type' => [
@@ -271,7 +311,7 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                5 => [
+                                6 => [
                                     'name' => 'possibleTypes',
                                     'args' => [],
                                     'type' => [
@@ -290,17 +330,23 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                6 => [
+                                7 => [
                                     'name' => 'enumValues',
                                     'args' => [
                                         0 => [
                                             'name' => 'includeDeprecated',
                                             'type' => [
-                                                'kind' => 'SCALAR',
-                                                'name' => 'Boolean',
-                                                'ofType' => null,
+                                                'kind' => 'NON_NULL',
+                                                'name' => null,
+                                                'ofType' => [
+                                                    'kind' => 'SCALAR',
+                                                    'name' => 'Boolean',
+                                                    'ofType' => null,
+                                                ],
                                             ],
                                             'defaultValue' => 'false',
+                                            'isDeprecated' => false,
+                                            'deprecationReason' => null,
                                         ],
                                     ],
                                     'type' => [
@@ -319,9 +365,25 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                7 => [
+                                8 => [
                                     'name' => 'inputFields',
-                                    'args' => [],
+                                    'args' => [
+                                        0 => [
+                                            'name' => 'includeDeprecated',
+                                            'type' => [
+                                                'kind' => 'NON_NULL',
+                                                'name' => null,
+                                                'ofType' => [
+                                                    'kind' => 'SCALAR',
+                                                    'name' => 'Boolean',
+                                                    'ofType' => null,
+                                                ],
+                                            ],
+                                            'defaultValue' => 'false',
+                                            'isDeprecated' => false,
+                                            'deprecationReason' => null,
+                                        ],
+                                    ],
                                     'type' => [
                                         'kind' => 'LIST',
                                         'name' => null,
@@ -338,12 +400,23 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
-                                8 => [
+                                9 => [
                                     'name' => 'ofType',
                                     'args' => [],
                                     'type' => [
                                         'kind' => 'OBJECT',
                                         'name' => '__Type',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
+                                ],
+                                10 => [
+                                    'name' => 'isOneOf',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'Boolean',
                                         'ofType' => null,
                                     ],
                                     'isDeprecated' => false,
@@ -358,6 +431,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'ENUM',
                             'name' => '__TypeKind',
+                            'isOneOf' => null,
                             'fields' => null,
                             'inputFields' => null,
                             'interfaces' => null,
@@ -408,6 +482,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'OBJECT',
                             'name' => '__Field',
+                            'isOneOf' => null,
                             'fields' => [
                                 0 => [
                                     'name' => 'name',
@@ -437,7 +512,23 @@ final class IntrospectionTest extends TestCase
                                 ],
                                 2 => [
                                     'name' => 'args',
-                                    'args' => [],
+                                    'args' => [
+                                        0 => [
+                                            'name' => 'includeDeprecated',
+                                            'type' => [
+                                                'kind' => 'NON_NULL',
+                                                'name' => null,
+                                                'ofType' => [
+                                                    'kind' => 'SCALAR',
+                                                    'name' => 'Boolean',
+                                                    'ofType' => null,
+                                                ],
+                                            ],
+                                            'defaultValue' => 'false',
+                                            'isDeprecated' => false,
+                                            'deprecationReason' => null,
+                                        ],
+                                    ],
                                     'type' => [
                                         'kind' => 'NON_NULL',
                                         'name' => null,
@@ -508,6 +599,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'OBJECT',
                             'name' => '__InputValue',
+                            'isOneOf' => null,
                             'fields' => [
                                 0 => [
                                     'name' => 'name',
@@ -561,6 +653,32 @@ final class IntrospectionTest extends TestCase
                                     'isDeprecated' => false,
                                     'deprecationReason' => null,
                                 ],
+                                4 => [
+                                    'name' => 'isDeprecated',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'NON_NULL',
+                                        'name' => null,
+                                        'ofType' => [
+                                            'kind' => 'SCALAR',
+                                            'name' => 'Boolean',
+                                            'ofType' => null,
+                                        ],
+                                    ],
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
+                                ],
+                                5 => [
+                                    'name' => 'deprecationReason',
+                                    'args' => [],
+                                    'type' => [
+                                        'kind' => 'SCALAR',
+                                        'name' => 'String',
+                                        'ofType' => null,
+                                    ],
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
+                                ],
                             ],
                             'inputFields' => null,
                             'interfaces' => [],
@@ -570,6 +688,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'OBJECT',
                             'name' => '__EnumValue',
+                            'isOneOf' => null,
                             'fields' => [
                                 0 => [
                                     'name' => 'name',
@@ -632,6 +751,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'OBJECT',
                             'name' => '__Directive',
+                            'isOneOf' => null,
                             'fields' => [
                                 [
                                     'name' => 'name',
@@ -699,7 +819,23 @@ final class IntrospectionTest extends TestCase
                                 ],
                                 [
                                     'name' => 'args',
-                                    'args' => [],
+                                    'args' => [
+                                        0 => [
+                                            'name' => 'includeDeprecated',
+                                            'type' => [
+                                                'kind' => 'NON_NULL',
+                                                'name' => null,
+                                                'ofType' => [
+                                                    'kind' => 'SCALAR',
+                                                    'name' => 'Boolean',
+                                                    'ofType' => null,
+                                                ],
+                                            ],
+                                            'defaultValue' => 'false',
+                                            'isDeprecated' => false,
+                                            'deprecationReason' => null,
+                                        ],
+                                    ],
                                     'type' => [
                                         'kind' => 'NON_NULL',
                                         'name' => null,
@@ -729,6 +865,7 @@ final class IntrospectionTest extends TestCase
                         [
                             'kind' => 'ENUM',
                             'name' => '__DirectiveLocation',
+                            'isOneOf' => null,
                             'fields' => null,
                             'inputFields' => null,
                             'interfaces' => null,
@@ -848,6 +985,8 @@ final class IntrospectionTest extends TestCase
                                         ],
                                     ],
                                     'defaultValue' => null,
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
                                 ],
                             ],
                             'isRepeatable' => false,
@@ -872,6 +1011,8 @@ final class IntrospectionTest extends TestCase
                                         ],
                                     ],
                                     'defaultValue' => null,
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
                                 ],
                             ],
                             'isRepeatable' => false,
@@ -892,12 +1033,48 @@ final class IntrospectionTest extends TestCase
                                         'ofType' => null,
                                     ],
                                     'defaultValue' => '"No longer supported"',
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
                                 ],
                             ],
                             'isRepeatable' => false,
                             'locations' => [
                                 0 => 'FIELD_DEFINITION',
                                 1 => 'ENUM_VALUE',
+                                2 => 'ARGUMENT_DEFINITION',
+                                3 => 'INPUT_FIELD_DEFINITION',
+                            ],
+                        ],
+                        [
+                            'name' => 'specifiedBy',
+                            'args' => [
+                                0 => [
+                                    'name' => 'url',
+                                    'type' => [
+                                        'kind' => 'NON_NULL',
+                                        'name' => null,
+                                        'ofType' => [
+                                            'kind' => 'SCALAR',
+                                            'name' => 'String',
+                                            'ofType' => null,
+                                        ],
+                                    ],
+                                    'defaultValue' => null,
+                                    'isDeprecated' => false,
+                                    'deprecationReason' => null,
+                                ],
+                            ],
+                            'isRepeatable' => false,
+                            'locations' => [
+                                0 => 'SCALAR',
+                            ],
+                        ],
+                        [
+                            'name' => 'oneOf',
+                            'args' => [],
+                            'isRepeatable' => false,
+                            'locations' => [
+                                0 => 'INPUT_OBJECT',
                             ],
                         ],
                     ],
@@ -910,9 +1087,7 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /**
-     * @see it('introspects on input object')
-     */
+    /** @see it('introspects on input object') */
     public function testIntrospectsOnInputObject(): void
     {
         $TestInputObject = new InputObjectType([
@@ -935,7 +1110,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestInputObject") {
@@ -1009,9 +1186,7 @@ final class IntrospectionTest extends TestCase
         self::assertEquals($expectedFragment, $result['data']['__type'] ?? null);
     }
 
-    /**
-     * @see it('supports the __type root field')
-     */
+    /** @see it('supports the __type root field') */
     public function testSupportsTheTypeRootField(): void
     {
         $TestType = new ObjectType([
@@ -1023,7 +1198,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestType") {
@@ -1041,9 +1218,7 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('identifies deprecated fields')
-     */
+    /** @see it('identifies deprecated fields') */
     public function testIdentifiesDeprecatedFields(): void
     {
         $TestType = new ObjectType([
@@ -1059,7 +1234,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestType") {
@@ -1095,9 +1272,7 @@ final class IntrospectionTest extends TestCase
         self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('respects the includeDeprecated parameter for fields')
-     */
+    /** @see it('respects the includeDeprecated parameter for fields') */
     public function testRespectsTheIncludeDeprecatedParameterForFields(): void
     {
         $TestType = new ObjectType([
@@ -1113,7 +1288,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
       {
         __type(name: "TestType") {
@@ -1152,9 +1329,120 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('identifies deprecated enum values')
-     */
+    /** @see it('identifies deprecated args' */
+    public function testIdentifiesDeprecatedArgs(): void
+    {
+        $TestType = new ObjectType([
+            'name' => 'TestType',
+            'fields' => [
+                'testField' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'nonDeprecated' => [
+                            'type' => Type::string(),
+                        ],
+                        'deprecated' => [
+                            'type' => Type::string(),
+                            'deprecationReason' => 'Removed in 1.0',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
+        $request = '
+          {
+            __type(name: "TestType") {
+              fields {
+                args(includeDeprecated: true) {
+                  name
+                  isDeprecated
+                  deprecationReason
+                }
+              }
+            }
+          }
+        ';
+
+        $expected = [
+            [
+                'args' => [
+                    [
+                        'name' => 'nonDeprecated',
+                        'isDeprecated' => false,
+                        'deprecationReason' => null,
+                    ],
+                    [
+                        'name' => 'deprecated',
+                        'isDeprecated' => true,
+                        'deprecationReason' => 'Removed in 1.0',
+                    ],
+                ],
+            ],
+        ];
+
+        $result = GraphQL::executeQuery($schema, $request)->toArray();
+        self::assertEquals($expected, $result['data']['__type']['fields'] ?? null);
+    }
+
+    /** @see it('respects the includeDeprecated parameter for args' */
+    public function testRespectsTheIncludeDeprecatedParameterForArgs(): void
+    {
+        $TestType = new ObjectType([
+            'name' => 'TestType',
+            'fields' => [
+                'testField' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'nonDeprecated' => [
+                            'type' => Type::string(),
+                        ],
+                        'deprecated' => [
+                            'type' => Type::string(),
+                            'deprecationReason' => 'Removed in 1.0',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
+        $request = '
+          {
+            __type(name: "TestType") {
+              fields {
+                trueArgs: args(includeDeprecated: true) {
+                  name
+                }
+                falseArgs: args(includeDeprecated: false) {
+                  name
+                }
+                omittedArgs: args {
+                  name
+                }
+              }
+            }
+          }
+        ';
+
+        $expected = [
+            [
+                'trueArgs' => [['name' => 'nonDeprecated'], ['name' => 'deprecated']],
+                'falseArgs' => [['name' => 'nonDeprecated']],
+                'omittedArgs' => [['name' => 'nonDeprecated']],
+            ],
+        ];
+
+        $result = GraphQL::executeQuery($schema, $request)->toArray();
+        self::assertSame($expected, $result['data']['__type']['fields'] ?? null);
+    }
+
+    /** @see it('identifies deprecated enum values') */
     public function testIdentifiesDeprecatedEnumValues(): void
     {
         $TestEnum = new EnumType([
@@ -1173,7 +1461,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestEnum") {
@@ -1214,9 +1504,7 @@ final class IntrospectionTest extends TestCase
         self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('respects the includeDeprecated parameter for enum values')
-     */
+    /** @see it('respects the includeDeprecated parameter for enum values') */
     public function testRespectsTheIncludeDeprecatedParameterForEnumValues(): void
     {
         $TestEnum = new EnumType([
@@ -1235,7 +1523,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
           {
             __type(name: "TestEnum") {
@@ -1275,9 +1565,126 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('fails as expected on the __type root field without an arg')
-     */
+    /** @see it('identifies deprecated for input fields' */
+    public function testIdentifiesDeprecatedForInputFields(): void
+    {
+        $TestInputObject = new InputObjectType([
+            'name' => 'TestInputObject',
+            'fields' => [
+                'nonDeprecated' => [
+                    'type' => Type::string(),
+                ],
+                'deprecated' => [
+                    'type' => Type::listOf(Type::string()),
+                    'deprecationReason' => 'Very important fake reason',
+                ],
+            ],
+        ]);
+
+        $TestType = new ObjectType([
+            'name' => 'TestType',
+            'fields' => [
+                'field' => [
+                    'type' => Type::string(),
+                    'args' => ['complex' => ['type' => $TestInputObject]],
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
+        $request = '
+          {
+            __type(name: "TestInputObject") {
+              name
+              trueFields: inputFields(includeDeprecated: true) {
+                name
+              }
+              falseFields: inputFields(includeDeprecated: false) {
+                name
+              }
+              omittedFields: inputFields {
+                name
+              }
+            }
+          }
+        ';
+
+        $expected = [
+            'name' => 'TestInputObject',
+            'trueFields' => [['name' => 'nonDeprecated'], ['name' => 'deprecated']],
+            'falseFields' => [['name' => 'nonDeprecated']],
+            'omittedFields' => [['name' => 'nonDeprecated']],
+        ];
+
+        $result = GraphQL::executeQuery($schema, $request)->toArray();
+        self::assertSame($expected, $result['data']['__type'] ?? null);
+    }
+
+    /** @see it('respects the includeDeprecated parameter for input fields' */
+    public function testRespectsTheIncludeDeprecatedParameterForInputFields(): void
+    {
+        $TestInputObject = new InputObjectType([
+            'name' => 'TestInputObject',
+            'fields' => [
+                'nonDeprecated' => [
+                    'type' => Type::string(),
+                ],
+                'deprecated' => [
+                    'type' => Type::listOf(Type::string()),
+                    'deprecationReason' => 'Very important fake reason',
+                ],
+            ],
+        ]);
+
+        $TestType = new ObjectType([
+            'name' => 'TestType',
+            'fields' => [
+                'field' => [
+                    'type' => Type::string(),
+                    'args' => ['complex' => ['type' => $TestInputObject]],
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
+        $request = '
+          {
+            __type(name: "TestInputObject") {
+              name
+              inputFields(includeDeprecated: true) {
+                name
+                isDeprecated
+                deprecationReason
+              }
+            }
+          }
+        ';
+
+        $expected = [
+            'name' => 'TestInputObject',
+            'inputFields' => [
+                [
+                    'name' => 'nonDeprecated',
+                    'isDeprecated' => false,
+                    'deprecationReason' => null,
+                ],
+                [
+                    'name' => 'deprecated',
+                    'isDeprecated' => true,
+                    'deprecationReason' => 'Very important fake reason',
+                ],
+            ],
+        ];
+
+        $result = GraphQL::executeQuery($schema, $request)->toArray();
+        self::assertEquals($expected, $result['data']['__type'] ?? null);
+    }
+
+    /** @see it('fails as expected on the __type root field without an arg') */
     public function testFailsAsExpectedOnTheTypeRootFieldWithoutAnArg(): void
     {
         $TestType = new ObjectType([
@@ -1289,7 +1696,9 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $TestType]);
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
         $request = '
       {
         __type {
@@ -1308,9 +1717,7 @@ final class IntrospectionTest extends TestCase
         self::assertArraySubset($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('exposes descriptions on types and fields')
-     */
+    /** @see it('exposes descriptions on types and fields') */
     public function testExposesDescriptionsOnTypesAndFields(): void
     {
         $QueryRoot = new ObjectType([
@@ -1318,7 +1725,9 @@ final class IntrospectionTest extends TestCase
             'fields' => ['a' => Type::string()],
         ]);
 
-        $schema = new Schema(['query' => $QueryRoot]);
+        $schema = new Schema([
+            'query' => $QueryRoot,
+        ]);
         $request = '
       {
         schemaType: __type(name: "__Schema") {
@@ -1340,6 +1749,10 @@ final class IntrospectionTest extends TestCase
                         . 'directives on the server, as well as the entry '
                         . 'points for query, mutation, and subscription operations.',
                     'fields' => [
+                        [
+                            'name' => 'description',
+                            'description' => null,
+                        ],
                         [
                             'name' => 'types',
                             'description' => 'A list of all types supported by this server.',
@@ -1367,9 +1780,7 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('exposes descriptions on enums')
-     */
+    /** @see it('exposes descriptions on enums') */
     public function testExposesDescriptionsOnEnums(): void
     {
         $QueryRoot = new ObjectType([
@@ -1377,7 +1788,9 @@ final class IntrospectionTest extends TestCase
             'fields' => ['a' => Type::string()],
         ]);
 
-        $schema = new Schema(['query' => $QueryRoot]);
+        $schema = new Schema([
+            'query' => $QueryRoot,
+        ]);
         $request = '
       {
         typeKindType: __type(name: "__TypeKind") {
@@ -1436,9 +1849,7 @@ final class IntrospectionTest extends TestCase
         self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
 
-    /**
-     * @see it('executes an introspection query without calling global fieldResolver')
-     */
+    /** @see it('executes an introspection query without calling global fieldResolver') */
     public function testExecutesAnIntrospectionQueryWithoutCallingGlobalFieldResolver(): void
     {
         $QueryRoot = new ObjectType([
@@ -1448,8 +1859,13 @@ final class IntrospectionTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $QueryRoot]);
-        $source = Introspection::getIntrospectionQuery(['directiveIsRepeatable' => true]);
+        $schema = new Schema([
+            'query' => $QueryRoot,
+        ]);
+        $source = Introspection::getIntrospectionQuery([
+            'directiveIsRepeatable' => true,
+            'typeIsOneOf' => true,
+        ]);
 
         $calledForFields = [];
         $fieldResolver = static function ($value, array $args, $context, ResolveInfo $info) use (&$calledForFields) {
@@ -1460,5 +1876,267 @@ final class IntrospectionTest extends TestCase
 
         GraphQL::executeQuery($schema, $source, null, null, null, null, $fieldResolver);
         self::assertEmpty($calledForFields);
+    }
+
+    /**
+     * @param VisibilityFn|bool $visible
+     *
+     * @dataProvider invisibleFieldDataProvider
+     */
+    public function testDoesNotExposeInvisibleFields($visible): void
+    {
+        $TestType = new ObjectType([
+            'name' => 'TestType',
+            'fields' => [
+                'nonVisible' => [
+                    'type' => Type::string(),
+                    'visible' => $visible,
+                ],
+                'visible' => [
+                    'type' => Type::string(),
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $TestType,
+        ]);
+        $request = '
+          {
+            __type(name: "TestType") {
+              name
+              fields {
+                name
+              }
+            }
+          }
+        ';
+
+        $expected = [
+            'data' => [
+                '__type' => [
+                    'name' => 'TestType',
+                    'fields' => [
+                        [
+                            'name' => 'visible',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        self::assertSame($expected, GraphQL::executeQuery($schema, $request)->toArray());
+    }
+
+    /** @return iterable<array{VisibilityFn|bool}> */
+    public static function invisibleFieldDataProvider(): iterable
+    {
+        yield [fn (): bool => false];
+        yield [false];
+    }
+
+    public function testIsOneOf(): void
+    {
+        $input = new InputObjectType([
+            'name' => 'SearchInput',
+            'isOneOf' => true,
+            'fields' => [
+                'name' => ['type' => Type::string()],
+                'email' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $query = new ObjectType([
+            'name' => 'QueryRoot',
+            'fields' => [
+                'input' => ['type' => $input],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $query,
+        ]);
+
+        $introspection = Introspection::fromSchema($schema);
+        self::assertTrue($introspection['__schema']['types'][1]['isOneOf']);
+    }
+
+    public function testRespectsTheIncludeDeprecatedParameterForDirectiveArgs(): void
+    {
+        $query = new ObjectType([
+            'name' => 'QueryRoot',
+            'fields' => [
+                [
+                    'name' => 'test',
+                    'type' => Type::int(),
+                ],
+            ],
+        ]);
+
+        $directive = new Directive([
+            'name' => 'TestDirective',
+            'args' => [
+                'nonDeprecated' => [
+                    'type' => Type::string(),
+                ],
+                'deprecated' => [
+                    'type' => Type::string(),
+                    'deprecationReason' => 'Removed in 1.0',
+                ],
+            ],
+            'locations' => [DirectiveLocation::FIELD],
+        ]);
+
+        $schema = new Schema([
+            'query' => $query,
+            'directives' => [$directive],
+        ]);
+
+        $request = '
+            {
+                __schema {
+                    directives {
+                        trueArgs: args(includeDeprecated: true) {
+                            name
+                            isDeprecated
+                            deprecationReason
+                        }
+                        falseArgs: args(includeDeprecated: false) {
+                            name
+                        }
+                        omittedArgs: args {
+                            name
+                        }
+                    }
+                }
+            }
+        ';
+
+        $expected = [
+            [
+                'trueArgs' => [
+                    [
+                        'name' => 'nonDeprecated',
+                        'isDeprecated' => false,
+                        'deprecationReason' => null,
+                    ],
+                    [
+                        'name' => 'deprecated',
+                        'isDeprecated' => true,
+                        'deprecationReason' => 'Removed in 1.0',
+                    ],
+                ],
+                'falseArgs' => [
+                    [
+                        'name' => 'nonDeprecated',
+                    ],
+                ],
+                'omittedArgs' => [
+                    [
+                        'name' => 'nonDeprecated',
+                    ],
+                ],
+            ],
+        ];
+
+        $result = GraphQL::executeQuery($schema, $request)->toArray();
+        self::assertSame($expected, $result['data']['__schema']['directives'] ?? null);
+    }
+
+    /** @see it('executes an introspection query') */
+    public function testSpecifiedByURL(): void
+    {
+        $scalarType = new CustomScalarType([
+            'name' => 'UUID',
+            'specifiedByURL' => 'https://tools.ietf.org/html/rfc4122',
+            'serialize' => static fn ($value) => $value,
+        ]);
+
+        $query = new ObjectType([
+            'name' => 'QueryRoot',
+            'fields' => [
+                'uuid' => ['type' => $scalarType],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $query]);
+
+        $result = GraphQL::executeQuery($schema, '{ __type(name: "UUID") { specifiedByURL } }')->toArray();
+
+        self::assertSame(['data' => ['__type' => ['specifiedByURL' => 'https://tools.ietf.org/html/rfc4122']]], $result);
+    }
+
+    /** @see it('executes an introspection query') */
+    public function testSpecifiedByURLIsNullForNonScalars(): void
+    {
+        $query = new ObjectType([
+            'name' => 'QueryRoot',
+            'fields' => ['x' => ['type' => Type::string()]],
+        ]);
+
+        $schema = new Schema(['query' => $query]);
+
+        $result = GraphQL::executeQuery($schema, '{ __type(name: "QueryRoot") { specifiedByURL } }')->toArray();
+
+        self::assertSame(['data' => ['__type' => ['specifiedByURL' => null]]], $result);
+    }
+
+    public function testIncludeDescriptionFieldOnSchema(): void
+    {
+        preg_match_all('/\bdescription\b/', Introspection::getIntrospectionQuery(), $matches);
+        self::assertCount(5, $matches[0]);
+
+        preg_match_all('/\bdescription\b/', Introspection::getIntrospectionQuery(['schemaDescription' => false]), $matches);
+        self::assertCount(5, $matches[0]);
+
+        preg_match_all('/\bdescription\b/', Introspection::getIntrospectionQuery(['schemaDescription' => true]), $matches);
+        self::assertCount(6, $matches[0]);
+
+        preg_match_all('/\bdescription\b/', Introspection::getIntrospectionQuery(['descriptions' => false, 'schemaDescription' => true]), $matches);
+        self::assertCount(0, $matches[0]);
+    }
+
+    /** @see it('include "specifiedBy" field') */
+    public function testSpecifiedByURLNotIncludedInIntrospectionQueryByDefault(): void
+    {
+        self::assertStringNotContainsString('specifiedByURL', Introspection::getIntrospectionQuery());
+    }
+
+    /** @see it('include "specifiedBy" field') */
+    public function testSpecifiedByURLIncludedInIntrospectionQueryWhenEnabled(): void
+    {
+        self::assertStringContainsString('specifiedByURL', Introspection::getIntrospectionQuery(['specifiedByURL' => true]));
+    }
+
+    /** @see it('include "specifiedBy" field') */
+    public function testFromSchemaIncludesSpecifiedByURLByDefault(): void
+    {
+        $scalarType = new CustomScalarType([
+            'name' => 'UUID',
+            'specifiedByURL' => 'https://tools.ietf.org/html/rfc4122',
+            'serialize' => static fn ($value) => $value,
+        ]);
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => ['uuid' => ['type' => $scalarType]],
+            ]),
+        ]);
+
+        $introspection = Introspection::fromSchema($schema);
+
+        // Find the UUID type in the introspection result
+        $uuidType = null;
+        foreach ($introspection['__schema']['types'] as $type) {
+            if ($type['name'] === 'UUID') {
+                $uuidType = $type;
+                break;
+            }
+        }
+
+        self::assertNotNull($uuidType, 'UUID type not found in introspection result');
+        self::assertArrayHasKey('specifiedByURL', $uuidType);
+        self::assertSame('https://tools.ietf.org/html/rfc4122', $uuidType['specifiedByURL']);
     }
 }

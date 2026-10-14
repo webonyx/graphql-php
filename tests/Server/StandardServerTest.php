@@ -21,7 +21,7 @@ final class StandardServerTest extends ServerTestCase
     /** @var ServerConfig */
     private $config;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $schema = $this->buildSchema();
         $this->config = ServerConfig::create()
@@ -46,9 +46,7 @@ final class StandardServerTest extends ServerTestCase
         );
     }
 
-    /**
-     * @throws \GraphQL\Server\RequestError
-     */
+    /** @throws \GraphQL\Server\RequestError */
     private function parseRawRequest(string $contentType, string $content, string $method = 'POST'): OperationParams
     {
         $_SERVER['CONTENT_TYPE'] = $contentType;

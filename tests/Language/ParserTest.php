@@ -24,53 +24,49 @@ use function Safe\file_get_contents;
 
 final class ParserTest extends TestCaseBase
 {
-    /**
-     * @return array<int, array{0: string, 1: string, 2: string, 3?: list<int>, 4?: list<SourceLocation>}>
-     */
-    public function parseProvidesUsefulErrors(): array
+    /** @return iterable<array{0: string, 1: string, 2: string, 3?: list<int>, 4?: list<SourceLocation>}> */
+    public static function parseProvidesUsefulErrors(): iterable
     {
-        return [
+        yield [
+            '{',
+            'Syntax Error: Expected Name, found <EOF>',
+            "Syntax Error: Expected Name, found <EOF>\n\nGraphQL request (1:2)\n1: {\n    ^\n",
+            [1],
             [
-                '{',
-                'Syntax Error: Expected Name, found <EOF>',
-                "Syntax Error: Expected Name, found <EOF>\n\nGraphQL request (1:2)\n1: {\n    ^\n",
-                [1],
-                [
-                    new SourceLocation(
-                        1,
-                        2
-                    ),
-                ],
+                new SourceLocation(
+                    1,
+                    2
+                ),
             ],
-            [
-                '{ ...MissingOn }
+        ];
+        yield [
+            '{ ...MissingOn }
 fragment MissingOn Type
 ',
-                'Syntax Error: Expected "on", found Name "Type"',
-                "Syntax Error: Expected \"on\", found Name \"Type\"\n\nGraphQL request (2:20)\n1: { ...MissingOn }\n2: fragment MissingOn Type\n                      ^\n3: \n",
-            ],
-            [
-                '{ field: {} }',
-                'Syntax Error: Expected Name, found {',
-                "Syntax Error: Expected Name, found {\n\nGraphQL request (1:10)\n1: { field: {} }\n            ^\n",
-            ],
-            [
-                'notanoperation Foo { field }',
-                'Syntax Error: Unexpected Name "notanoperation"',
-                "Syntax Error: Unexpected Name \"notanoperation\"\n\nGraphQL request (1:1)\n1: notanoperation Foo { field }\n   ^\n",
-            ],
-            [
-                '...',
-                'Syntax Error: Unexpected ...',
-                "Syntax Error: Unexpected ...\n\nGraphQL request (1:1)\n1: ...\n   ^\n",
-            ],
+            'Syntax Error: Expected "on", found Name "Type"',
+            "Syntax Error: Expected \"on\", found Name \"Type\"\n\nGraphQL request (2:20)\n1: { ...MissingOn }\n2: fragment MissingOn Type\n                      ^\n3: \n",
+        ];
+        yield [
+            '{ field: {} }',
+            'Syntax Error: Expected Name, found {',
+            "Syntax Error: Expected Name, found {\n\nGraphQL request (1:10)\n1: { field: {} }\n            ^\n",
+        ];
+        yield [
+            'notanoperation Foo { field }',
+            'Syntax Error: Unexpected Name "notanoperation"',
+            "Syntax Error: Unexpected Name \"notanoperation\"\n\nGraphQL request (1:1)\n1: notanoperation Foo { field }\n   ^\n",
+        ];
+        yield [
+            '...',
+            'Syntax Error: Unexpected ...',
+            "Syntax Error: Unexpected ...\n\nGraphQL request (1:1)\n1: ...\n   ^\n",
         ];
     }
 
     /**
-     * @see          it('parse provides useful errors')
+     * @see it('parse provides useful errors')
      *
-     * @param list<int>            $expectedPositions
+     * @param list<int> $expectedPositions
      * @param list<SourceLocation> $expectedLocations
      *
      * @dataProvider parseProvidesUsefulErrors
@@ -89,19 +85,17 @@ fragment MissingOn Type
             self::assertSame($expectedMessage, $e->getMessage());
             self::assertSame($stringRepresentation, (string) $e);
 
-            if (\is_array($expectedPositions)) {
+            if (is_array($expectedPositions)) {
                 self::assertEquals($expectedPositions, $e->getPositions());
             }
 
-            if (\is_array($expectedLocations)) {
+            if (is_array($expectedLocations)) {
                 self::assertEquals($expectedLocations, $e->getLocations());
             }
         }
     }
 
-    /**
-     * @see it('parse provides useful error when using source')
-     */
+    /** @see it('parse provides useful error when using source') */
     public function testParseProvidesUsefulErrorWhenUsingSource(): void
     {
         try {
@@ -115,18 +109,14 @@ fragment MissingOn Type
         }
     }
 
-    /**
-     * @see it('parses variable inline values')
-     */
+    /** @see it('parses variable inline values') */
     public function testParsesVariableInlineValues(): void
     {
         Parser::parse('{ field(complex: { a: { b: [ $var ] } }) }');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
-    /**
-     * @see it('parses constant default values')
-     */
+    /** @see it('parses constant default values') */
     public function testParsesConstantDefaultValues(): void
     {
         $this->expectSyntaxError(
@@ -136,13 +126,11 @@ fragment MissingOn Type
         );
     }
 
-    /**
-     * @see it('parses variable definition directives')
-     */
+    /** @see it('parses variable definition directives') */
     public function testParsesVariableDefinitionDirectives(): void
     {
         Parser::parse('query Foo($x: Boolean = false @bar) { field }');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     /**
@@ -167,9 +155,7 @@ fragment MissingOn Type
         return new SourceLocation($line, $column);
     }
 
-    /**
-     * @see it('does not accept fragments spread of "on"')
-     */
+    /** @see it('does not accept fragments spread of "on"') */
     public function testDoesNotAcceptFragmentsNamedOn(): void
     {
         $this->expectSyntaxError(
@@ -179,9 +165,7 @@ fragment MissingOn Type
         );
     }
 
-    /**
-     * @see it('does not accept fragments spread of "on"')
-     */
+    /** @see it('does not accept fragments spread of "on"') */
     public function testDoesNotAcceptFragmentSpreadOfOn(): void
     {
         $this->expectSyntaxError(
@@ -191,9 +175,7 @@ fragment MissingOn Type
         );
     }
 
-    /**
-     * @see it('parses multi-byte characters')
-     */
+    /** @see it('parses multi-byte characters') */
     public function testParsesMultiByteCharacters(): void
     {
         // Note: \u0A0A could be naively interpreted as two line-feed chars.
@@ -228,9 +210,7 @@ HEREDOC;
         self::assertEquals($expected, $operationDefinition->selectionSet);
     }
 
-    /**
-     * @see it('parses kitchen sink')
-     */
+    /** @see it('parses kitchen sink') */
     public function testParsesKitchenSink(): void
     {
         // Following should not throw:
@@ -239,9 +219,7 @@ HEREDOC;
         self::assertNotEmpty($result);
     }
 
-    /**
-     * allows non-keywords anywhere a Name is allowed.
-     */
+    /** allows non-keywords anywhere a Name is allowed. */
     public function testAllowsNonKeywordsAnywhereANameIsAllowed(): void
     {
         $nonKeywords = [
@@ -278,9 +256,7 @@ GRAPHQL
         }
     }
 
-    /**
-     * @see it('parses anonymous mutation operations')
-     */
+    /** @see it('parses anonymous mutation operations') */
     public function testParsessAnonymousMutationOperations(): void
     {
         Parser::parse('
@@ -288,12 +264,10 @@ GRAPHQL
             mutationField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
-    /**
-     * @see it('parses anonymous subscription operations')
-     */
+    /** @see it('parses anonymous subscription operations') */
     public function testParsesAnonymousSubscriptionOperations(): void
     {
         Parser::parse('
@@ -301,12 +275,10 @@ GRAPHQL
             subscriptionField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
-    /**
-     * @see it('parses named mutation operations')
-     */
+    /** @see it('parses named mutation operations') */
     public function testParsesNamedMutationOperations(): void
     {
         Parser::parse('
@@ -314,12 +286,10 @@ GRAPHQL
             mutationField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
-    /**
-     * @see it('parses named subscription operations')
-     */
+    /** @see it('parses named subscription operations') */
     public function testParsesNamedSubscriptionOperations(): void
     {
         Parser::parse('
@@ -327,12 +297,10 @@ GRAPHQL
             subscriptionField
           }
         ');
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
-    /**
-     * @see it('creates ast')
-     */
+    /** @see it('creates ast') */
     public function testParseCreatesAst(): void
     {
         $source = new Source('{
@@ -432,9 +400,7 @@ GRAPHQL
         self::assertArrayEquals($expected, $result->toArray());
     }
 
-    /**
-     * @see it('creates ast from nameless query without variables')
-     */
+    /** @see it('creates ast from nameless query without variables') */
     public function testParseCreatesAstFromNamelessQueryWithoutVariables(): void
     {
         $source = new Source('query {
@@ -505,9 +471,7 @@ GRAPHQL
         self::assertArrayEquals($expected, $result->toArray());
     }
 
-    /**
-     * @see it('allows parsing without source location information')
-     */
+    /** @see it('allows parsing without source location information') */
     public function testAllowsParsingWithoutSourceLocationInformation(): void
     {
         $source = new Source('{ id }');
@@ -516,9 +480,7 @@ GRAPHQL
         self::assertEquals(null, $result->loc);
     }
 
-    /**
-     * @see it('Experimental: allows parsing fragment defined variables')
-     */
+    /** @see it('Experimental: allows parsing fragment defined variables') */
     public function testExperimentalAllowsParsingFragmentDefinedVariables(): void
     {
         $source = new Source('fragment a($v: Boolean = false) on t { f(v: $v) }');
@@ -531,9 +493,7 @@ GRAPHQL
 
     // Describe: parseValue
 
-    /**
-     * @see it('contains location information that only stringifys start/end')
-     */
+    /** @see it('contains location information that only stringifys start/end') */
     public function testContainsLocationInformationThatOnlyStringifysStartEnd(): void
     {
         $source = new Source('{ id }');
@@ -544,9 +504,7 @@ GRAPHQL
         self::assertSame(['start' => 0, 'end' => 6], $location->toArray());
     }
 
-    /**
-     * @see it('contains references to source')
-     */
+    /** @see it('contains references to source') */
     public function testContainsReferencesToSource(): void
     {
         $source = new Source('{ id }');
@@ -559,9 +517,7 @@ GRAPHQL
 
     // Describe: parseType
 
-    /**
-     * @see it('contains references to start and end tokens')
-     */
+    /** @see it('contains references to start and end tokens') */
     public function testContainsReferencesToStartAndEndTokens(): void
     {
         $source = new Source('{ id }');
@@ -579,9 +535,7 @@ GRAPHQL
         self::assertSame('<EOF>', $endToken->kind);
     }
 
-    /**
-     * @see it('parses null value')
-     */
+    /** @see it('parses null value') */
     public function testParsesNullValues(): void
     {
         self::assertArrayEquals(
@@ -593,9 +547,7 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses list values')
-     */
+    /** @see it('parses list values') */
     public function testParsesListValues(): void
     {
         self::assertArrayEquals(
@@ -620,9 +572,7 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses well known types')
-     */
+    /** @see it('parses well known types') */
     public function testParsesWellKnownTypes(): void
     {
         self::assertArrayEquals(
@@ -639,9 +589,7 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses custom types')
-     */
+    /** @see it('parses custom types') */
     public function testParsesCustomTypes(): void
     {
         self::assertArrayEquals(
@@ -658,9 +606,7 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses list types')
-     */
+    /** @see it('parses list types') */
     public function testParsesListTypes(): void
     {
         self::assertArrayEquals(
@@ -681,9 +627,7 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses non-null types')
-     */
+    /** @see it('parses non-null types') */
     public function testParsesNonNullTypes(): void
     {
         self::assertArrayEquals(
@@ -704,9 +648,7 @@ GRAPHQL
         );
     }
 
-    /**
-     * @see it('parses nested types')
-     */
+    /** @see it('parses nested types') */
     public function testParsesNestedTypes(): void
     {
         self::assertArrayEquals(
@@ -770,5 +712,101 @@ GRAPHQL
 
         $this->expectException(SyntaxError::class);
         Parser::constValueLiteral('$foo');
+    }
+
+    public function testRejectsDeeplyNestedLists(): void
+    {
+        $depth = 257;
+        $query = '{ field(arg: ' . str_repeat('[', $depth) . '1' . str_repeat(']', $depth) . ') }';
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 256 exceeded');
+        Parser::parse($query);
+    }
+
+    public function testRejectsDeeplyNestedObjects(): void
+    {
+        $depth = 257;
+        $query = '{ field(arg: ' . str_repeat('{a:', $depth) . '1' . str_repeat('}', $depth) . ') }';
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 256 exceeded');
+        Parser::parse($query);
+    }
+
+    public function testRejectsDeeplyNestedSelections(): void
+    {
+        $depth = 257;
+        $query = str_repeat('{ a ', $depth) . str_repeat('}', $depth);
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 256 exceeded');
+        Parser::parse($query);
+    }
+
+    public function testRejectsDeeplyNestedTypes(): void
+    {
+        $depth = 257;
+        $query = 'query ($var: ' . str_repeat('[', $depth) . 'Int' . str_repeat(']', $depth) . ') { field }';
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 256 exceeded');
+        Parser::parse($query);
+    }
+
+    public function testCustomRecursionLimit(): void
+    {
+        $depth = 6;
+        $query = str_repeat('{ a ', $depth) . str_repeat('}', $depth);
+
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Recursion depth limit of 5 exceeded');
+        Parser::parse($query, ['recursionLimit' => 5]);
+    }
+
+    public function testRecursionLimitZeroDisablesCheck(): void
+    {
+        $depth = 500;
+        $query = 'query ($var: ' . str_repeat('[', $depth) . 'Int' . str_repeat(']', $depth) . ') { field }';
+
+        Parser::parse($query, ['recursionLimit' => 0]);
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testQueryAtExactLimitPasses(): void
+    {
+        $depth = 5;
+        $query = str_repeat('{ a ', $depth) . str_repeat('}', $depth);
+
+        Parser::parse($query, ['recursionLimit' => $depth]);
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testValueLiteralAtExactLimitPasses(): void
+    {
+        $depth = 5;
+        $query = '{ field(arg: ' . str_repeat('[', $depth) . '1' . str_repeat(']', $depth) . ') }';
+
+        Parser::parse($query, ['recursionLimit' => $depth + 2]);
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testTypeReferenceAtExactLimitPasses(): void
+    {
+        $depth = 5;
+        $query = 'query ($var: ' . str_repeat('[', $depth) . 'Int' . str_repeat(']', $depth) . ') { field }';
+
+        Parser::parse($query, ['recursionLimit' => $depth + 2]);
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testSiblingBranchesDontAccumulate(): void
+    {
+        $limit = 5;
+        $innerSelection = str_repeat('{ a ', $limit - 1) . str_repeat('}', $limit - 1);
+        $query = "{ a {$innerSelection} b {$innerSelection} }";
+
+        Parser::parse($query, ['recursionLimit' => $limit]);
+        $this->expectNotToPerformAssertions();
     }
 }

@@ -3,7 +3,6 @@
 namespace GraphQL\Tests\Executor\TestClasses;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Printer;
@@ -14,17 +13,7 @@ final class ComplexScalar extends ScalarType
 {
     public string $name = 'ComplexScalar';
 
-    /**
-     * @throws InvariantViolation
-     */
-    public static function create(): self
-    {
-        return new self();
-    }
-
-    /**
-     * @throws SerializationError
-     */
+    /** @throws SerializationError */
     public function serialize($value): string
     {
         if ($value === 'DeserializedValue') {
@@ -35,9 +24,7 @@ final class ComplexScalar extends ScalarType
         throw new SerializationError("Cannot serialize value as ComplexScalar: {$notComplexScalar}");
     }
 
-    /**
-     * @throws Error
-     */
+    /** @throws Error */
     public function parseValue($value): string
     {
         if ($value === 'SerializedValue') {
@@ -48,6 +35,10 @@ final class ComplexScalar extends ScalarType
         throw new Error("Cannot represent value as ComplexScalar: {$notComplexScalar}");
     }
 
+    /**
+     * @throws \JsonException
+     * @throws Error
+     */
     public function parseLiteral(Node $valueNode, ?array $variables = null): string
     {
         $value = property_exists($valueNode, 'value')

@@ -40,13 +40,17 @@ final class ServerConfigTest extends TestCase
 
     public function testAllowsSettingSchema(): void
     {
-        $schema = new Schema(['query' => new ObjectType(['name' => 'a', 'fields' => []])]);
+        $schema = new Schema([
+            'query' => new ObjectType(['name' => 'a', 'fields' => []]),
+        ]);
         $config = ServerConfig::create()
             ->setSchema($schema);
 
         self::assertSame($schema, $config->getSchema());
 
-        $schema2 = new Schema(['query' => new ObjectType(['name' => 'a', 'fields' => []])]);
+        $schema2 = new Schema([
+            'query' => new ObjectType(['name' => 'a', 'fields' => []]),
+        ]);
         $config->setSchema($schema2);
         self::assertSame($schema2, $config->getSchema());
     }
@@ -83,9 +87,7 @@ final class ServerConfigTest extends TestCase
         self::assertSame($closure, $config->getErrorFormatter());
     }
 
-    /**
-     * @return SerializableError
-     */
+    /** @return SerializableError */
     public static function formatError(): array
     {
         return ['message' => 'irrelevant'];
@@ -105,9 +107,7 @@ final class ServerConfigTest extends TestCase
         self::assertSame($closure, $config->getErrorsHandler());
     }
 
-    /**
-     * @return SerializableErrors
-     */
+    /** @return SerializableErrors */
     public static function handleError(): array
     {
         return [];
@@ -149,8 +149,7 @@ final class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $resolver = static function (): void {
-        };
+        $resolver = static function (): void {};
         $config->setFieldResolver($resolver);
         self::assertSame($resolver, $config->getFieldResolver());
 
@@ -197,15 +196,11 @@ final class ServerConfigTest extends TestCase
             ]),
             'context' => new \stdClass(),
             'rootValue' => new \stdClass(),
-            'errorFormatter' => static function (): void {
-            },
+            'errorFormatter' => static function (): void {},
             'promiseAdapter' => new SyncPromiseAdapter(),
-            'validationRules' => static function (): void {
-            },
-            'fieldResolver' => static function (): void {
-            },
-            'persistedQueryLoader' => static function (): void {
-            },
+            'validationRules' => static function (): void {},
+            'fieldResolver' => static function (): void {},
+            'persistedQueryLoader' => static function (): void {},
             'debugFlag' => DebugFlag::INCLUDE_DEBUG_MESSAGE,
             'queryBatching' => true,
         ];

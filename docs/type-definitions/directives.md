@@ -4,10 +4,13 @@ The directive is a way for a client to give GraphQL server additional context an
 the query. The directive can be attached to a field or fragment and can affect the execution of the
 query in any way the server desires.
 
-GraphQL specification includes two built-in directives:
+The GraphQL specification includes the following built-in directives:
 
 - **@include(if: Boolean)** Only include this field or fragment in the result if the argument is **true**
 - **@skip(if: Boolean)** Skip this field or fragment if the argument is **true**
+- **@deprecated(reason: String)** Marks a field, argument, input field, or enum value as deprecated with an optional reason
+- **@specifiedBy(url: String!)** Links a custom scalar type to a human-readable specification URL
+- **@oneOf** Marks an input object type as a "oneof" input, requiring exactly one field to be non-null
 
 For example:
 

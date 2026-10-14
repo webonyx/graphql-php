@@ -5,6 +5,4 @@ namespace GraphQL\Language\AST;
 /**
  * @phpstan-type TypeNodeVariants NamedTypeNode|ListTypeNode|NonNullTypeNode
  */
-interface TypeNode
-{
-}
+interface TypeNode {}

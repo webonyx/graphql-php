@@ -28,6 +28,8 @@ use GraphQL\Utils\Utils;
  * | DirectiveNode
  * | ListTypeNode
  * | NonNullTypeNode.
+ *
+ * @see \GraphQL\Tests\Language\AST\NodeTest
  */
 abstract class Node implements \JsonSerializable
 {
@@ -35,9 +37,7 @@ abstract class Node implements \JsonSerializable
 
     public string $kind;
 
-    /**
-     * @param array<string, mixed> $vars
-     */
+    /** @param array<string, mixed> $vars */
     public function __construct(array $vars)
     {
         Utils::assign($this, $vars);
@@ -62,35 +62,38 @@ abstract class Node implements \JsonSerializable
      *
      * @phpstan-param TCloneable $value
      *
-     * @phpstan-return TCloneable
-     *
      * @throws \JsonException
      * @throws InvariantViolation
+     *
+     * @phpstan-return TCloneable
      */
     protected static function cloneValue($value)
     {
         if ($value instanceof self) {
             $cloned = clone $value;
-            foreach (\get_object_vars($cloned) as $prop => $propValue) {
-                $cloned->{$prop} = static::cloneValue($propValue);
+            foreach (get_object_vars($cloned) as $prop => $propValue) {
+                $cloned->{$prop} = static::cloneValue($propValue); // @phpstan-ignore argument.templateType
             }
 
             return $cloned;
         }
 
         if ($value instanceof NodeList) {
+            /**
+             * @phpstan-var TCloneable
+             *
+             * @phpstan-ignore varTag.nativeType (PHPStan is strict about template types and sees NodeList<TNode> as potentially different from TCloneable)
+             */
             return $value->cloneDeep();
         }
 
         return $value;
     }
 
-    /**
-     * @throws \JsonException
-     */
+    /** @throws \JsonException */
     public function __toString(): string
     {
-        return \json_encode($this, JSON_THROW_ON_ERROR);
+        return json_encode($this, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -105,22 +108,18 @@ abstract class Node implements \JsonSerializable
         return $this->toArray();
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function toArray(): array
     {
         return self::recursiveToArray($this);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     private static function recursiveToArray(Node $node): array
     {
         $result = [];
 
-        foreach (\get_object_vars($node) as $prop => $propValue) {
+        foreach (get_object_vars($node) as $prop => $propValue) {
             if ($propValue === null) {
                 continue;
             }

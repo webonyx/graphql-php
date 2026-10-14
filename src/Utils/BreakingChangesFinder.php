@@ -26,6 +26,8 @@ use GraphQL\Type\Schema;
  *     breakingChanges: array<int, Change>,
  *     dangerousChanges: array<int, Change>
  * }
+ *
+ * @see \GraphQL\Tests\Utils\BreakingChangesFinderTest
  */
 class BreakingChangesFinder
 {
@@ -62,7 +64,7 @@ class BreakingChangesFinder
      */
     public static function findBreakingChanges(Schema $oldSchema, Schema $newSchema): array
     {
-        return \array_merge(
+        return array_merge(
             self::findRemovedTypes($oldSchema, $newSchema),
             self::findTypesThatChangedKind($oldSchema, $newSchema),
             self::findFieldsThatChangedTypeOnObjectOrInterfaceTypes($oldSchema, $newSchema),
@@ -94,7 +96,7 @@ class BreakingChangesFinder
         $newTypeMap = $newSchema->getTypeMap();
 
         $breakingChanges = [];
-        foreach (\array_keys($oldTypeMap) as $typeName) {
+        foreach (array_keys($oldTypeMap) as $typeName) {
             if (! isset($newTypeMap[$typeName])) {
                 $breakingChanges[] = [
                     'type' => self::BREAKING_CHANGE_TYPE_REMOVED,
@@ -288,7 +290,7 @@ class BreakingChangesFinder
 
             $oldTypeFieldsDef = $oldType->getFields();
             $newTypeFieldsDef = $newType->getFields();
-            foreach (\array_keys($oldTypeFieldsDef) as $fieldName) {
+            foreach (array_keys($oldTypeFieldsDef) as $fieldName) {
                 if (! isset($newTypeFieldsDef[$fieldName])) {
                     $breakingChanges[] = [
                         'type' => self::BREAKING_CHANGE_FIELD_REMOVED,
@@ -345,9 +347,7 @@ class BreakingChangesFinder
         ];
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private static function isChangeSafeForInputObjectFieldOrFieldArg(
         Type $oldType,
         Type $newType
@@ -682,9 +682,7 @@ class BreakingChangesFinder
         return $removedDirectiveArgs;
     }
 
-    /**
-     * @return array<int, Argument>
-     */
+    /** @return array<int, Argument> */
     public static function findRemovedArgsForDirectives(Directive $oldDirective, Directive $newDirective): array
     {
         $removedArgs = [];
@@ -698,9 +696,7 @@ class BreakingChangesFinder
         return $removedArgs;
     }
 
-    /**
-     * @return array<string, Argument>
-     */
+    /** @return array<string, Argument> */
     private static function getArgumentMapForDirective(Directive $directive): array
     {
         $args = [];
@@ -744,9 +740,7 @@ class BreakingChangesFinder
         return $addedNonNullableArgs;
     }
 
-    /**
-     * @return array<int, Argument>
-     */
+    /** @return array<int, Argument> */
     public static function findAddedArgsForDirective(Directive $oldDirective, Directive $newDirective): array
     {
         $addedArgs = [];
@@ -791,15 +785,13 @@ class BreakingChangesFinder
         return $removedLocations;
     }
 
-    /**
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     public static function findRemovedLocationsForDirective(Directive $oldDirective, Directive $newDirective): array
     {
         $removedLocations = [];
-        $newLocationSet = \array_flip($newDirective->locations);
+        $newLocationSet = array_flip($newDirective->locations);
         foreach ($oldDirective->locations as $oldLocation) {
-            if (! \array_key_exists($oldLocation, $newLocationSet)) {
+            if (! array_key_exists($oldLocation, $newLocationSet)) {
                 $removedLocations[] = $oldLocation;
             }
         }
@@ -817,7 +809,7 @@ class BreakingChangesFinder
      */
     public static function findDangerousChanges(Schema $oldSchema, Schema $newSchema): array
     {
-        return \array_merge(
+        return array_merge(
             self::findArgChanges($oldSchema, $newSchema)['dangerousChanges'],
             self::findValuesAddedToEnums($oldSchema, $newSchema),
             self::findInterfacesAddedToObjectTypes($oldSchema, $newSchema),

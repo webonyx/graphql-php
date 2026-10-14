@@ -8,11 +8,12 @@ use GraphQL\Language\AST\ConstValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ValueNode;
 
-/**
+/*
 export type GraphQLLeafType =
 GraphQLScalarType |
 GraphQLEnumType;
- */
+*/
+
 interface LeafType
 {
     /**
@@ -31,7 +32,7 @@ interface LeafType
     /**
      * Parses an externally provided value (query variable) to use as an input.
      *
-     * Should throw an exception with a client friendly message on invalid values, @see ClientAware.
+     * Should throw an exception with a client-friendly message on invalid values, @see ClientAware.
      *
      * @param mixed $value
      *
@@ -44,7 +45,7 @@ interface LeafType
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
      *
-     * Should throw an exception with a client friendly message on invalid value nodes, @see ClientAware.
+     * Should throw an exception with a client-friendly message on invalid value nodes, @see ClientAware.
      *
      * @param (ValueNode&Node)|(ConstValueNode&Node) $valueNode
      * @param array<string, mixed>|null $variables

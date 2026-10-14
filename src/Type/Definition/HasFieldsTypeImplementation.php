@@ -16,9 +16,7 @@ trait HasFieldsTypeImplementation
      */
     private array $fields;
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     private function initializeFields(): void
     {
         if (isset($this->fields)) {
@@ -28,9 +26,7 @@ trait HasFieldsTypeImplementation
         $this->fields = FieldDefinition::defineFieldMap($this, $this->config['fields']);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function getField(string $name): FieldDefinition
     {
         $field = $this->findField($name);
@@ -42,9 +38,7 @@ trait HasFieldsTypeImplementation
         return $field;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function findField(string $name): ?FieldDefinition
     {
         $this->initializeFields();
@@ -61,9 +55,7 @@ trait HasFieldsTypeImplementation
         return $field;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function hasField(string $name): bool
     {
         $this->initializeFields();
@@ -73,6 +65,8 @@ trait HasFieldsTypeImplementation
 
     /**
      * @throws InvariantViolation
+     *
+     * @return array<string, FieldDefinition>
      */
     public function getFields(): array
     {
@@ -88,13 +82,25 @@ trait HasFieldsTypeImplementation
         return $this->fields;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @return array<string, FieldDefinition> */
+    public function getVisibleFields(): array
+    {
+        return array_filter(
+            $this->getFields(),
+            fn (FieldDefinition $fieldDefinition): bool => $fieldDefinition->isVisible()
+        );
+    }
+
+    /** @throws InvariantViolation */
     public function getFieldNames(): array
     {
         $this->initializeFields();
 
-        return \array_keys($this->fields);
+        $visibleFieldNames = array_map(
+            fn (FieldDefinition $fieldDefinition): string => $fieldDefinition->getName(),
+            $this->getVisibleFields()
+        );
+
+        return array_values($visibleFieldNames);
     }
 }

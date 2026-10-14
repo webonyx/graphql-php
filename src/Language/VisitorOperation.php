@@ -2,6 +2,4 @@
 
 namespace GraphQL\Language;
 
-abstract class VisitorOperation
-{
-}
+abstract class VisitorOperation {}

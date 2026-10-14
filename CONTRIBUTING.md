@@ -1,19 +1,39 @@
 # Contributing to graphql-php
 
-## Workflow
+## Open a Pull Request
 
 If your contribution requires significant or breaking changes, or if you plan to propose a major new feature,
 we recommend you to [create an issue](https://github.com/webonyx/graphql-php/issues/new)
 with a brief proposal and discuss it with us first.
 
-For smaller contributions just use this workflow:
+Breaking changes are collected for the next major release.
+Maintainers mark such pull requests with the [`breaking change`](https://github.com/webonyx/graphql-php/labels/breaking%20change) label, which may keep them open for a while.
 
-- Fork the project.
-- Add your features and or bug fixes.
-- Add tests. Tests are important for us.
-- Check your changes using `composer check`.
-- Add an entry to the [Changelog's Unreleased section](CHANGELOG.md#unreleased).
-- Send a pull request.
+For smaller contributions use this workflow:
+
+1. Fork the project.
+2. Add your features and or bug fixes.
+3. Add tests to ensure your changes work and will continue working.
+4. Check your changes using `composer check`.
+5. Describe notable changes in the `## Changelog` section of the pull request description, not in [`CHANGELOG.md`](CHANGELOG.md).
+6. Send a pull request.
+
+## Release a New Version
+
+Before you release a new version, make sure to familiarize yourself with:
+
+- [Keep a Changelog](https://keepachangelog.com/en/1.0.0)
+- [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+- [Previous GitHub Releases](https://github.com/webonyx/graphql-php/releases)
+
+To create a new release, follow these steps:
+
+1. Copy the `## Changelog` sections of the pull requests merged since the last release, appending each pull request URL, add missing entries if needed
+2. Based on those entries and the previous version, define the next version number and add it to the [`CHANGELOG.md`](CHANGELOG.md)
+3. [Draft a new release](https://github.com/webonyx/graphql-php/releases/new)
+4. Add the version number as both tag and title
+5. Add the changelog entries as the description
+6. Publish the release
 
 ## Setup
 
@@ -34,7 +54,8 @@ composer test
 ```
 
 Some tests have an annotation such as `@see it('<description>')`.
-It references a matching test in the [graphql-js implementation](https://github.com/graphql/graphql-js).
+It references a test with the exact same name in the [graphql-js reference implementation](https://github.com/graphql/graphql-js).
+Only add `@see it(...)` when the test has a direct counterpart in graphql-js with that exact name.
 
 When porting tests that utilize [the `dedent()` test utility from `graphql-js`](https://github.com/graphql/graphql-js/blob/99d6079434/src/__testUtils__/dedent.js),
 we instead use [the PHP native `nowdoc` syntax](https://www.php.net/manual/en/language.types.string.php#language.types.string.syntax.nowdoc).
@@ -79,6 +100,10 @@ We cannot foresee every possible use case in advance, extending the code should 
 #### `protected` over `private`
 
 Always use class member visibility `protected` over `private`.
+
+#### Late Static Binding
+
+Always use `static::` over `self::` for method calls to enable overriding of static class methods.
 
 #### `final` classes
 
@@ -129,6 +154,9 @@ composer bench
 ## Documentation
 
 We document this library by rendering the Markdown files in [docs](docs) with [MkDocs](https://www.mkdocs.org).
+
+> You may propose changes to the docs via merge requests against the `master` branch.
+> Do not edit the generated HTML files in the `gh-pages` branch directly, they are automatically generated.
 
 Generate the class reference docs:
 

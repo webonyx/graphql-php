@@ -117,7 +117,7 @@ class ValuesOfCorrectType extends ValidationRule
 
                 $suggestions = Utils::suggestionList(
                     $node->name->value,
-                    \array_keys($parentType->getFields())
+                    array_keys($parentType->getFields())
                 );
                 $didYouMean = $suggestions === []
                     ? null
@@ -150,6 +150,8 @@ class ValuesOfCorrectType extends ValidationRule
 
     /**
      * @param ValueNodeVariants|ConstValueNodeVariants $node
+     *
+     * @throws \JsonException
      */
     protected function isValidValueNode(QueryValidationContext $context, Node $node): void
     {

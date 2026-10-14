@@ -130,7 +130,7 @@ This will make each error entry look like this:
     'extensions' => [
         'debugMessage' => 'Actual exception message',
         'trace' => [
-            /* Formatted original exception trace */
+            // Formatted original exception trace
         ],
     ],
 ]

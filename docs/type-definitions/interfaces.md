@@ -122,20 +122,18 @@ $humanType = new ObjectType([
 ]);
 ```
 
-In this case, field definitions are created only once (as a part of Interface Type) and then
-reused by all interface implementors. It can save several microseconds and kilobytes + ensures that
-field definitions of Interface and implementors are always in sync.
+In this case, field definitions are created only once (as a part of the Interface Type) and then reused by all interface implementors.
+It can save several microseconds and kilobytes and ensures that field definitions of Interface and implementors are always in sync.
+Yet it creates a problem with the resolution of such fields.
 
-Yet it creates a problem with the resolution of such fields. There are two ways how shared fields could
-be resolved:
+There are two ways how shared fields could be resolved:
 
-1. If field resolution algorithm is the same for all Interface implementors - you can simply add
-   **resolve** option to field definition in Interface itself.
+1. If the field resolution algorithm is the same for all Interface implementors,
+   you can add the **resolve** option to the field definition in the Interface itself.
 
-2. If field resolution varies for different implementations - you can specify **resolveField**
-   option in [Object Type config](object-types.md#configuration-options) and handle field
-   resolutions there
-   (Note: **resolve** option in field definition has precedence over **resolveField** option in object type definition)
+2. If field resolution varies for different implementations, you can specify the **resolveField** option
+   in [the Object Type config](object-types.md#configuration-options) and handle field resolutions there.
+   (Note: The **resolve** option in field definitions has precedence over the **resolveField** option in object type definitions.)
 
 ## Interface role in data fetching
 

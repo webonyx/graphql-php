@@ -34,9 +34,7 @@ final class UniqueFieldDefinitionNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('one field')
-     */
+    /** @see it('one field') */
     public function testOneField(): void
     {
         $this->expectValidSDL(
@@ -57,9 +55,7 @@ final class UniqueFieldDefinitionNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('multiple fields')
-     */
+    /** @see it('multiple fields') */
     public function testMultipleFields(): void
     {
         $this->expectValidSDL(
@@ -83,9 +79,7 @@ final class UniqueFieldDefinitionNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate fields inside the same type definition')
-     */
+    /** @see it('duplicate fields inside the same type definition') */
     public function testDuplicateFieldsInsideTheSameTypeDefinition(): void
     {
         $this->expectSDLErrors(
@@ -135,9 +129,7 @@ final class UniqueFieldDefinitionNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('extend type with new field')
-     */
+    /** @see it('extend type with new field') */
     public function testExtendTypeWithNewField(): void
     {
         $this->expectValidSDL(
@@ -176,9 +168,7 @@ final class UniqueFieldDefinitionNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('extend type with duplicate field')
-     */
+    /** @see it('extend type with duplicate field') */
     public function testExtendTypeWithDuplicateField(): void
     {
         $this->expectSDLErrors(
@@ -231,9 +221,7 @@ final class UniqueFieldDefinitionNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate field inside extension')
-     */
+    /** @see it('duplicate field inside extension') */
     public function testDuplicateFieldInsideExtension(): void
     {
         $this->expectSDLErrors(
@@ -286,9 +274,7 @@ final class UniqueFieldDefinitionNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicate field inside different extensions')
-     */
+    /** @see it('duplicate field inside different extensions') */
     public function testDuplicateFieldInsideDifferentExtensions(): void
     {
         $this->expectSDLErrors(
@@ -344,9 +330,7 @@ final class UniqueFieldDefinitionNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('adding new field to the type inside existing schema')
-     */
+    /** @see it('adding new field to the type inside existing schema') */
     public function testAddingNewFieldToTheTypeInsideExistingSchema(): void
     {
         $schema = BuildSchema::build('        
@@ -374,9 +358,7 @@ final class UniqueFieldDefinitionNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('adding conflicting fields to existing schema twice')
-     */
+    /** @see it('adding conflicting fields to existing schema twice') */
     public function testAddingConflictingFieldsToExistingSchemaTwice(): void
     {
         $schema = BuildSchema::build('
@@ -445,9 +427,7 @@ final class UniqueFieldDefinitionNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('adding fields to existing schema twice')
-     */
+    /** @see it('adding fields to existing schema twice') */
     public function testAddingFieldsToExistingSchemaTwice(): void
     {
         $schema = BuildSchema::build('

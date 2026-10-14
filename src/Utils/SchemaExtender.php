@@ -14,6 +14,7 @@ use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaExtensionNode;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
@@ -39,8 +40,11 @@ use GraphQL\Validator\DocumentValidator;
 
 /**
  * @phpstan-import-type TypeConfigDecorator from ASTDefinitionBuilder
+ * @phpstan-import-type FieldConfigDecorator from ASTDefinitionBuilder
  * @phpstan-import-type UnnamedArgumentConfig from Argument
  * @phpstan-import-type UnnamedInputObjectFieldConfig from InputObjectField
+ *
+ * @see \GraphQL\Tests\Utils\SchemaExtenderTest
  */
 class SchemaExtender
 {
@@ -56,6 +60,7 @@ class SchemaExtender
      * @param array<string, bool> $options
      *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
      *
      * @api
      *
@@ -66,15 +71,17 @@ class SchemaExtender
         Schema $schema,
         DocumentNode $documentAST,
         array $options = [],
-        ?callable $typeConfigDecorator = null
+        ?callable $typeConfigDecorator = null,
+        ?callable $fieldConfigDecorator = null
     ): Schema {
-        return (new static())->doExtend($schema, $documentAST, $options, $typeConfigDecorator);
+        return (new static())->doExtend($schema, $documentAST, $options, $typeConfigDecorator, $fieldConfigDecorator);
     }
 
     /**
      * @param array<string, bool> $options
      *
      * @phpstan-param TypeConfigDecorator|null $typeConfigDecorator
+     * @phpstan-param FieldConfigDecorator|null $fieldConfigDecorator
      *
      * @throws \Exception
      * @throws \ReflectionException
@@ -85,7 +92,8 @@ class SchemaExtender
         Schema $schema,
         DocumentNode $documentAST,
         array $options = [],
-        ?callable $typeConfigDecorator = null
+        ?callable $typeConfigDecorator = null,
+        ?callable $fieldConfigDecorator = null
     ): Schema {
         if (
             ! ($options['assumeValid'] ?? false)
@@ -135,7 +143,6 @@ class SchemaExtender
         $this->astBuilder = new ASTDefinitionBuilder(
             $typeDefinitionMap,
             [],
-            // @phpstan-ignore-next-line no idea what is wrong here
             function (string $typeName) use ($schema): Type {
                 $existingType = $schema->getType($typeName);
                 if ($existingType === null) {
@@ -144,7 +151,8 @@ class SchemaExtender
 
                 return $this->extendNamedType($existingType);
             },
-            $typeConfigDecorator
+            $typeConfigDecorator,
+            $fieldConfigDecorator
         );
 
         $this->extendTypeCache = [];
@@ -180,10 +188,8 @@ class SchemaExtender
             }
         }
 
-        $schemaExtensionASTNodes = \array_merge($schema->extensionASTNodes, $schemaExtensions);
-
-        return new Schema(
-            (new SchemaConfig())
+        $schemaConfig = (new SchemaConfig())
+            ->setDescription($schemaDef->description->value ?? $schema->description ?? null)
             // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors
             ->setQuery($operationTypes['query'])
             // @phpstan-ignore-next-line the root types may be invalid, but just passing them leads to more actionable errors
@@ -193,8 +199,9 @@ class SchemaExtender
             ->setTypes($types)
             ->setDirectives($this->getMergedDirectives($schema, $directiveDefinitions))
             ->setAstNode($schema->astNode ?? $schemaDef)
-            ->setExtensionASTNodes($schemaExtensionASTNodes)
-        );
+            ->setExtensionASTNodes([...$schema->extensionASTNodes, ...$schemaExtensions]);
+
+        return new Schema($schemaConfig);
     }
 
     /**
@@ -204,10 +211,10 @@ class SchemaExtender
      */
     protected function extensionASTNodes(NamedType $type): ?array
     {
-        return \array_merge(
-            $type->extensionASTNodes ?? [],
-            $this->typeExtensionsMap[$type->name] ?? []
-        );
+        return [
+            ...$type->extensionASTNodes ?? [],
+            ...$this->typeExtensionsMap[$type->name] ?? [],
+        ];
     }
 
     /**
@@ -217,8 +224,27 @@ class SchemaExtender
      */
     protected function extendScalarType(ScalarType $type): CustomScalarType
     {
-        /** @var array<int, ScalarTypeExtensionNode> $extensionASTNodes */
+        /** @var array<ScalarTypeExtensionNode> $extensionASTNodes */
         $extensionASTNodes = $this->extensionASTNodes($type);
+
+        $specifiedByURL = $type->specifiedByURL;
+        if ($specifiedByURL === null) {
+            foreach ($extensionASTNodes as $extensionNode) {
+                foreach ($extensionNode->directives as $directive) {
+                    if ($directive->name->value !== Directive::SPECIFIED_BY_NAME) {
+                        continue;
+                    }
+
+                    foreach ($directive->arguments as $argument) {
+                        if ($argument->name->value === Directive::URL_ARGUMENT_NAME
+                            && $argument->value instanceof StringValueNode) {
+                            $specifiedByURL = $argument->value->value;
+                            break 3;
+                        }
+                    }
+                }
+            }
+        }
 
         return new CustomScalarType([
             'name' => $type->name,
@@ -226,17 +252,16 @@ class SchemaExtender
             'serialize' => [$type, 'serialize'],
             'parseValue' => [$type, 'parseValue'],
             'parseLiteral' => [$type, 'parseLiteral'],
+            'specifiedByURL' => $specifiedByURL,
             'astNode' => $type->astNode,
             'extensionASTNodes' => $extensionASTNodes,
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     protected function extendUnionType(UnionType $type): UnionType
     {
-        /** @var array<int, UnionTypeExtensionNode> $extensionASTNodes */
+        /** @var array<UnionTypeExtensionNode> $extensionASTNodes */
         $extensionASTNodes = $this->extensionASTNodes($type);
 
         return new UnionType([
@@ -256,7 +281,7 @@ class SchemaExtender
      */
     protected function extendEnumType(EnumType $type): EnumType
     {
-        /** @var array<int, EnumTypeExtensionNode> $extensionASTNodes */
+        /** @var array<EnumTypeExtensionNode> $extensionASTNodes */
         $extensionASTNodes = $this->extensionASTNodes($type);
 
         return new EnumType([
@@ -268,21 +293,20 @@ class SchemaExtender
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     protected function extendInputObjectType(InputObjectType $type): InputObjectType
     {
-        /** @var array<int, InputObjectTypeExtensionNode> $extensionASTNodes */
+        /** @var array<InputObjectTypeExtensionNode> $extensionASTNodes */
         $extensionASTNodes = $this->extensionASTNodes($type);
 
         return new InputObjectType([
             'name' => $type->name,
             'description' => $type->description,
             'fields' => fn (): array => $this->extendInputFieldMap($type),
+            'parseValue' => [$type, 'parseValue'],
             'astNode' => $type->astNode,
             'extensionASTNodes' => $extensionASTNodes,
-            'parseValue' => [$type, 'parseValue'],
+            'isOneOf' => $type->isOneOf,
         ]);
     }
 
@@ -304,6 +328,7 @@ class SchemaExtender
             $newFieldConfig = [
                 'description' => $field->description,
                 'type' => $extendedType,
+                'deprecationReason' => $field->deprecationReason,
                 'astNode' => $field->astNode,
             ];
 
@@ -370,7 +395,7 @@ class SchemaExtender
      */
     protected function extendUnionPossibleTypes(UnionType $type): array
     {
-        $possibleTypes = \array_map(
+        $possibleTypes = array_map(
             [$this, 'extendNamedType'],
             $type->getTypes()
         );
@@ -401,7 +426,7 @@ class SchemaExtender
      */
     protected function extendImplementedInterfaces(ImplementingType $type): array
     {
-        $interfaces = \array_map(
+        $interfaces = array_map(
             [$this, 'extendNamedType'],
             $type->getInterfaces()
         );
@@ -422,7 +447,6 @@ class SchemaExtender
             }
         }
 
-        // @phpstan-ignore-next-line will be caught in schema validation
         return $interfaces;
     }
 
@@ -463,6 +487,7 @@ class SchemaExtender
             $def = [
                 'type' => $extendedType,
                 'description' => $arg->description,
+                'deprecationReason' => $arg->deprecationReason,
                 'astNode' => $arg->astNode,
             ];
 
@@ -490,7 +515,7 @@ class SchemaExtender
         $newFieldMap = [];
         $oldFieldMap = $type->getFields();
 
-        foreach (\array_keys($oldFieldMap) as $fieldName) {
+        foreach (array_keys($oldFieldMap) as $fieldName) {
             $field = $oldFieldMap[$fieldName];
 
             $newFieldMap[$fieldName] = [
@@ -500,6 +525,7 @@ class SchemaExtender
                 'type' => $this->extendType($field->getType()),
                 'args' => $this->extendArgs($field->args),
                 'resolve' => $field->resolveFn,
+                'argsMapper' => $field->argsMapper,
                 'astNode' => $field->astNode,
             ];
         }
@@ -512,7 +538,7 @@ class SchemaExtender
                 );
 
                 foreach ($extension->fields as $field) {
-                    $newFieldMap[$field->name->value] = $this->astBuilder->buildField($field);
+                    $newFieldMap[$field->name->value] = $this->astBuilder->buildField($field, $extension);
                 }
             }
         }
@@ -520,12 +546,10 @@ class SchemaExtender
         return $newFieldMap;
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     protected function extendObjectType(ObjectType $type): ObjectType
     {
-        /** @var array<int, ObjectTypeExtensionNode> $extensionASTNodes */
+        /** @var array<ObjectTypeExtensionNode> $extensionASTNodes */
         $extensionASTNodes = $this->extensionASTNodes($type);
 
         return new ObjectType([
@@ -534,18 +558,17 @@ class SchemaExtender
             'interfaces' => fn (): array => $this->extendImplementedInterfaces($type),
             'fields' => fn (): array => $this->extendFieldMap($type),
             'isTypeOf' => [$type, 'isTypeOf'],
-            'resolveField' => $type->resolveFieldFn ?? null,
+            'resolveField' => $type->resolveFieldFn,
+            'argsMapper' => $type->argsMapper,
             'astNode' => $type->astNode,
             'extensionASTNodes' => $extensionASTNodes,
         ]);
     }
 
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     protected function extendInterfaceType(InterfaceType $type): InterfaceType
     {
-        /** @var array<int, InterfaceTypeExtensionNode> $extensionASTNodes */
+        /** @var array<InterfaceTypeExtensionNode> $extensionASTNodes */
         $extensionASTNodes = $this->extensionASTNodes($type);
 
         return new InterfaceType([
@@ -562,13 +585,13 @@ class SchemaExtender
     protected function isSpecifiedScalarType(Type $type): bool
     {
         return $type instanceof NamedType
-            && (
-                $type->name === Type::STRING
-                || $type->name === Type::INT
-                || $type->name === Type::FLOAT
-                || $type->name === Type::BOOLEAN
-                || $type->name === Type::ID
-            );
+            && in_array($type->name, [
+                Type::STRING,
+                Type::INT,
+                Type::FLOAT,
+                Type::BOOLEAN,
+                Type::ID,
+            ], true);
     }
 
     /**
@@ -591,9 +614,7 @@ class SchemaExtender
         return $this->extendTypeCache[$type->name] ??= $this->extendNamedTypeWithoutCache($type);
     }
 
-    /**
-     * @throws \Exception
-     */
+    /** @throws \Exception */
     protected function extendNamedTypeWithoutCache(Type $type): Type
     {
         switch (true) {
@@ -639,7 +660,7 @@ class SchemaExtender
      */
     protected function getMergedDirectives(Schema $schema, array $directiveDefinitions): array
     {
-        $directives = \array_map(
+        $directives = array_map(
             [$this, 'extendDirective'],
             $schema->getDirectives()
         );

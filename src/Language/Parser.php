@@ -69,118 +69,121 @@ use GraphQL\Language\AST\VariableNode;
  *   noLocation?: bool,
  *   allowLegacySDLEmptyFields?: bool,
  *   allowLegacySDLImplementsInterfaces?: bool,
- *   experimentalFragmentVariables?: bool
+ *   experimentalFragmentVariables?: bool,
+ *   recursionLimit?: int<0, max>
  * }
  *
  * @phpstan-import-type ConstValueNodeVariants from ConstValueNode
  * @phpstan-import-type ValueNodeVariants from ValueNode
  * @phpstan-import-type TypeNodeVariants from TypeNode
  *
- * noLocation:
- *   (By default, the parser creates AST nodes that know the location
- *   in the source that they correspond to. This configuration flag
- *   disables that behavior for performance or testing.)
+ * - **noLocation**:
+ *   By default, the parser creates AST nodes that know the location in the source.
+ *   This configuration flag disables that behavior for performance or testing.
  *
- * allowLegacySDLEmptyFields:
- *   If enabled, the parser will parse empty fields sets in the Schema
- *   Definition Language. Otherwise, the parser will follow the current
- *   specification.
+ * - **allowLegacySDLEmptyFields**:
+ *   If enabled, the parser will parse empty fields sets in the Schema Definition Language.
+ *   Otherwise, the parser will follow the current specification.
+ *   This option is provided to ease adoption of the final SDL specification and will be removed in a future major release.
  *
- *   This option is provided to ease adoption of the final SDL specification
- *   and will be removed in a future major release.
+ * - **allowLegacySDLImplementsInterfaces**:
+ *   If enabled, the parser will parse implemented interfaces with no `&` character between each interface.
+ *   Otherwise, the parser will follow the current specification.
+ *   This option is provided to ease adoption of the final SDL specification and will be removed in a future major release.
  *
- * allowLegacySDLImplementsInterfaces:
- *   If enabled, the parser will parse implemented interfaces with no `&`
- *   character between each interface. Otherwise, the parser will follow the
- *   current specification.
- *
- *   This option is provided to ease adoption of the final SDL specification
- *   and will be removed in a future major release.
- *
- * experimentalFragmentVariables:
- *   (If enabled, the parser will understand and parse variable definitions
- *   contained in a fragment definition. They'll be represented in the
- *   `variableDefinitions` field of the FragmentDefinitionNode.
- *
+ * - **experimentalFragmentVariables**:
+ *   If enabled, the parser will understand and parse variable definitions contained in a fragment definition.
+ *   They'll be represented in the `variableDefinitions` field of the FragmentDefinitionNode.
  *   The syntax is identical to normal, query-defined variables. For example:
  *
- *     fragment A($var: Boolean = false) on T  {
- *       ...
- *     }
+ *   ```graphql
+ *   fragment A($var: Boolean = false) on T {
+ *     ...
+ *   }
+ *   ```
  *
- *   Note: this feature is experimental and may change or be removed in the
- *   future.)
+ *   Note: this feature is experimental and may change or be removed in the future.
+ *
+ * - **recursionLimit**:
+ *   Limits the depth of recursion during parsing to prevent stack overflows from deeply nested queries.
+ *   The counter is shared across `parseSelectionSet`, `parseValueLiteral`, and `parseTypeReference`.
+ *   Defaults to 256. Set to 0 to disable the limit.
+ *
  * Those magic functions allow partial parsing:
  *
- * @method static NameNode name(Source|string $source, bool[] $options = [])
- * @method static DocumentNode document(Source|string $source, bool[] $options = [])
- * @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, bool[] $options = [])
- * @method static ExecutableDefinitionNode executableDefinition(Source|string $source, bool[] $options = [])
- * @method static OperationDefinitionNode operationDefinition(Source|string $source, bool[] $options = [])
- * @method static string operationType(Source|string $source, bool[] $options = [])
- * @method static NodeList<VariableDefinitionNode> variableDefinitions(Source|string $source, bool[] $options = [])
- * @method static VariableDefinitionNode variableDefinition(Source|string $source, bool[] $options = [])
- * @method static VariableNode variable(Source|string $source, bool[] $options = [])
- * @method static SelectionSetNode selectionSet(Source|string $source, bool[] $options = [])
- * @method static mixed selection(Source|string $source, bool[] $options = [])
- * @method static FieldNode field(Source|string $source, bool[] $options = [])
- * @method static NodeList<ArgumentNode> arguments(Source|string $source, bool[] $options = [])
- * @method static NodeList<ArgumentNode> constArguments(Source|string $source, bool[] $options = [])
- * @method static ArgumentNode argument(Source|string $source, bool[] $options = [])
- * @method static ArgumentNode constArgument(Source|string $source, bool[] $options = [])
- * @method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, bool[] $options = [])
- * @method static FragmentDefinitionNode fragmentDefinition(Source|string $source, bool[] $options = [])
- * @method static NameNode fragmentName(Source|string $source, bool[] $options = [])
- * @method static ValueNodeVariants valueLiteral(Source|string $source, bool[] $options = [])
- * @method static ConstValueNodeVariants constValueLiteral(Source|string $source, bool[] $options = [])
- * @method static StringValueNode stringLiteral(Source|string $source, bool[] $options = [])
- * @method static ConstValueNodeVariants constValue(Source|string $source, bool[] $options = [])
- * @method static ValueNodeVariants variableValue(Source|string $source, bool[] $options = [])
- * @method static ListValueNode array(Source|string $source, bool[] $options = [])
- * @method static ConstListValueNode constArray(Source|string $source, bool[] $options = [])
- * @method static ObjectValueNode object(Source|string $source, bool[] $options = [])
- * @method static ConstObjectValueNode constObject(Source|string $source, bool[] $options = [])
- * @method static ObjectFieldNode objectField(Source|string $source, bool[] $options = [])
- * @method static ConstObjectFieldNode constObjectField(Source|string $source, bool[] $options = [])
- * @method static NodeList<DirectiveNode> directives(Source|string $source, bool[] $options = [])
- * @method static NodeList<DirectiveNode> constDirectives(Source|string $source, bool[] $options = [])
- * @method static DirectiveNode directive(Source|string $source, bool[] $options = [])
- * @method static DirectiveNode constDirective(Source|string $source, bool[] $options = [])
- * @method static ListTypeNode|NamedTypeNode|NonNullTypeNode typeReference(Source|string $source, bool[] $options = [])
- * @method static NamedTypeNode namedType(Source|string $source, bool[] $options = [])
- * @method static TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, bool[] $options = [])
- * @method static StringValueNode|null description(Source|string $source, bool[] $options = [])
- * @method static SchemaDefinitionNode schemaDefinition(Source|string $source, bool[] $options = [])
- * @method static OperationTypeDefinitionNode operationTypeDefinition(Source|string $source, bool[] $options = [])
- * @method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, bool[] $options = [])
- * @method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, bool[] $options = [])
- * @method static NodeList<NamedTypeNode> implementsInterfaces(Source|string $source, bool[] $options = [])
- * @method static NodeList<FieldDefinitionNode> fieldsDefinition(Source|string $source, bool[] $options = [])
- * @method static FieldDefinitionNode fieldDefinition(Source|string $source, bool[] $options = [])
- * @method static NodeList<InputValueDefinitionNode> argumentsDefinition(Source|string $source, bool[] $options = [])
- * @method static InputValueDefinitionNode inputValueDefinition(Source|string $source, bool[] $options = [])
- * @method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, bool[] $options = [])
- * @method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, bool[] $options = [])
- * @method static NodeList<NamedTypeNode> unionMemberTypes(Source|string $source, bool[] $options = [])
- * @method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, bool[] $options = [])
- * @method static NodeList<EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, bool[] $options = [])
- * @method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, bool[] $options = [])
- * @method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, bool[] $options = [])
- * @method static NodeList<InputValueDefinitionNode> inputFieldsDefinition(Source|string $source, bool[] $options = [])
- * @method static TypeExtensionNode typeExtension(Source|string $source, bool[] $options = [])
- * @method static SchemaExtensionNode schemaTypeExtension(Source|string $source, bool[] $options = [])
- * @method static ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, bool[] $options = [])
- * @method static ObjectTypeExtensionNode objectTypeExtension(Source|string $source, bool[] $options = [])
- * @method static InterfaceTypeExtensionNode interfaceTypeExtension(Source|string $source, bool[] $options = [])
- * @method static UnionTypeExtensionNode unionTypeExtension(Source|string $source, bool[] $options = [])
- * @method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, bool[] $options = [])
- * @method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, bool[] $options = [])
- * @method static DirectiveDefinitionNode directiveDefinition(Source|string $source, bool[] $options = [])
- * @method static NodeList<NameNode> directiveLocations(Source|string $source, bool[] $options = [])
- * @method static NameNode directiveLocation(Source|string $source, bool[] $options = [])
+ * @method static NameNode name(Source|string $source, ParserOptions $options = [])
+ * @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, ParserOptions $options = [])
+ * @method static ExecutableDefinitionNode executableDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static OperationDefinitionNode operationDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static string operationType(Source|string $source, ParserOptions $options = [])
+ * @method static NodeList<VariableDefinitionNode> variableDefinitions(Source|string $source, ParserOptions $options = [])
+ * @method static VariableDefinitionNode variableDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static VariableNode variable(Source|string $source, ParserOptions $options = [])
+ * @method static SelectionSetNode selectionSet(Source|string $source, ParserOptions $options = [])
+ * @method static mixed selection(Source|string $source, ParserOptions $options = [])
+ * @method static FieldNode field(Source|string $source, ParserOptions $options = [])
+ * @method static NodeList<ArgumentNode> arguments(Source|string $source, ParserOptions $options = [])
+ * @method static NodeList<ArgumentNode> constArguments(Source|string $source, ParserOptions $options = [])
+ * @method static ArgumentNode argument(Source|string $source, ParserOptions $options = [])
+ * @method static ArgumentNode constArgument(Source|string $source, ParserOptions $options = [])
+ * @method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, ParserOptions $options = [])
+ * @method static FragmentDefinitionNode fragmentDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static NameNode fragmentName(Source|string $source, ParserOptions $options = [])
+ * @method static ValueNodeVariants valueLiteral(Source|string $source, ParserOptions $options = [])
+ * @method static ConstValueNodeVariants constValueLiteral(Source|string $source, ParserOptions $options = [])
+ * @method static StringValueNode stringLiteral(Source|string $source, ParserOptions $options = [])
+ * @method static ConstValueNodeVariants constValue(Source|string $source, ParserOptions $options = [])
+ * @method static ValueNodeVariants variableValue(Source|string $source, ParserOptions $options = [])
+ * @method static ListValueNode array(Source|string $source, ParserOptions $options = [])
+ * @method static ConstListValueNode constArray(Source|string $source, ParserOptions $options = [])
+ * @method static ObjectValueNode object(Source|string $source, ParserOptions $options = [])
+ * @method static ConstObjectValueNode constObject(Source|string $source, ParserOptions $options = [])
+ * @method static ObjectFieldNode objectField(Source|string $source, ParserOptions $options = [])
+ * @method static ConstObjectFieldNode constObjectField(Source|string $source, ParserOptions $options = [])
+ * @method static NodeList<DirectiveNode> directives(Source|string $source, ParserOptions $options = [])
+ * @method static NodeList<DirectiveNode> constDirectives(Source|string $source, ParserOptions $options = [])
+ * @method static DirectiveNode directive(Source|string $source, ParserOptions $options = [])
+ * @method static DirectiveNode constDirective(Source|string $source, ParserOptions $options = [])
+ * @method static ListTypeNode|NamedTypeNode|NonNullTypeNode typeReference(Source|string $source, ParserOptions $options = [])
+ * @method static NamedTypeNode namedType(Source|string $source, ParserOptions $options = [])
+ * @method static TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static StringValueNode|null description(Source|string $source, ParserOptions $options = [])
+ * @method static SchemaDefinitionNode schemaDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static OperationTypeDefinitionNode operationTypeDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static NodeList<NamedTypeNode> implementsInterfaces(Source|string $source, ParserOptions $options = [])
+ * @method static NodeList<FieldDefinitionNode> fieldsDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static FieldDefinitionNode fieldDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static NodeList<InputValueDefinitionNode> argumentsDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static InputValueDefinitionNode inputValueDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static NodeList<NamedTypeNode> unionMemberTypes(Source|string $source, ParserOptions $options = [])
+ * @method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static NodeList<EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static NodeList<InputValueDefinitionNode> inputFieldsDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static TypeExtensionNode typeExtension(Source|string $source, ParserOptions $options = [])
+ * @method static SchemaExtensionNode schemaTypeExtension(Source|string $source, ParserOptions $options = [])
+ * @method static ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, ParserOptions $options = [])
+ * @method static ObjectTypeExtensionNode objectTypeExtension(Source|string $source, ParserOptions $options = [])
+ * @method static InterfaceTypeExtensionNode interfaceTypeExtension(Source|string $source, ParserOptions $options = [])
+ * @method static UnionTypeExtensionNode unionTypeExtension(Source|string $source, ParserOptions $options = [])
+ * @method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, ParserOptions $options = [])
+ * @method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, ParserOptions $options = [])
+ * @method static DirectiveDefinitionNode directiveDefinition(Source|string $source, ParserOptions $options = [])
+ * @method static NodeList<NameNode> directiveLocations(Source|string $source, ParserOptions $options = [])
+ * @method static NameNode directiveLocation(Source|string $source, ParserOptions $options = [])
+ *
+ * @see \GraphQL\Tests\Language\ParserTest
  */
 class Parser
 {
+    /** @api */
+    public const DEFAULT_RECURSION_LIMIT = 256;
+
     /**
      * Given a GraphQL source, parses it into a `GraphQL\Language\AST\DocumentNode`.
      *
@@ -188,7 +191,7 @@ class Parser
      *
      * @param Source|string $source
      *
-     * @phpstan-param ParserOptions       $options
+     * @phpstan-param ParserOptions $options
      *
      * @api
      *
@@ -244,7 +247,7 @@ class Parser
      *
      * @param Source|string $source
      *
-     * @phpstan-param ParserOptions       $options
+     * @phpstan-param ParserOptions $options
      *
      * @throws \JsonException
      * @throws SyntaxError
@@ -280,13 +283,25 @@ class Parser
 
         switch ($name) {
             case 'arguments':
+                $parsed = $parser->parseArguments(false);
+                break;
             case 'valueLiteral':
+                $parsed = $parser->parseValueLiteral(false);
+                break;
             case 'array':
+                $parsed = $parser->parseArray(false);
+                break;
             case 'object':
+                $parsed = $parser->parseObject(false);
+                break;
             case 'objectField':
+                $parsed = $parser->parseObjectField(false);
+                break;
             case 'directives':
+                $parsed = $parser->parseDirectives(false);
+                break;
             case 'directive':
-                $parsed = $parser->{'parse' . $name}(false);
+                $parsed = $parser->parseDirective(false);
                 break;
             case 'constArguments':
                 $parsed = $parser->parseArguments(true);
@@ -320,6 +335,10 @@ class Parser
 
     private Lexer $lexer;
 
+    private int $recursionDepth = 0;
+
+    private int $recursionLimit;
+
     /**
      * @param Source|string $source
      *
@@ -331,6 +350,7 @@ class Parser
             ? $source
             : new Source($source);
         $this->lexer = new Lexer($sourceObj, $options);
+        $this->recursionLimit = $options['recursionLimit'] ?? self::DEFAULT_RECURSION_LIMIT;
     }
 
     /**
@@ -346,9 +366,17 @@ class Parser
         return null;
     }
 
-    /**
-     * Determines if the next token is of a given kind.
-     */
+    /** @throws SyntaxError */
+    private function increaseRecursionDepth(): void
+    {
+        if ($this->recursionLimit > 0 && $this->recursionDepth >= $this->recursionLimit) {
+            throw new SyntaxError($this->lexer->source, $this->lexer->token->start, "Recursion depth limit of {$this->recursionLimit} exceeded");
+        }
+
+        ++$this->recursionDepth;
+    }
+
+    /** Determines if the next token is of a given kind. */
     private function peek(string $kind): bool
     {
         return $this->lexer->token->kind === $kind;
@@ -389,11 +417,7 @@ class Parser
             return $token;
         }
 
-        throw new SyntaxError(
-            $this->lexer->source,
-            $token->start,
-            "Expected {$kind}, found {$token->getDescription()}"
-        );
+        throw new SyntaxError($this->lexer->source, $token->start, "Expected {$kind}, found {$token->getDescription()}");
     }
 
     /**
@@ -407,11 +431,7 @@ class Parser
     {
         $token = $this->lexer->token;
         if ($token->kind !== Token::NAME || $token->value !== $value) {
-            throw new SyntaxError(
-                $this->lexer->source,
-                $token->start,
-                "Expected \"{$value}\", found {$token->getDescription()}"
-            );
+            throw new SyntaxError($this->lexer->source, $token->start, "Expected \"{$value}\", found {$token->getDescription()}");
         }
 
         $this->lexer->advance();
@@ -714,18 +734,24 @@ class Parser
      */
     private function parseSelectionSet(): SelectionSetNode
     {
-        $start = $this->lexer->token;
+        $this->increaseRecursionDepth();
 
-        return new SelectionSetNode(
-            [
-                'selections' => $this->many(
-                    Token::BRACE_L,
-                    fn (): SelectionNode => $this->parseSelection(),
-                    Token::BRACE_R
-                ),
-                'loc' => $this->loc($start),
-            ]
-        );
+        try {
+            $start = $this->lexer->token;
+
+            return new SelectionSetNode(
+                [
+                    'selections' => $this->many(
+                        Token::BRACE_L,
+                        fn (): SelectionNode => $this->parseSelection(),
+                        Token::BRACE_R
+                    ),
+                    'loc' => $this->loc($start),
+                ]
+            );
+        } finally {
+            --$this->recursionDepth;
+        }
     }
 
     /**
@@ -924,67 +950,73 @@ class Parser
      */
     private function parseValueLiteral(bool $isConst): Node
     {
-        $token = $this->lexer->token;
-        switch ($token->kind) {
-            case Token::BRACKET_L:
-                return $this->parseArray($isConst);
+        $this->increaseRecursionDepth();
 
-            case Token::BRACE_L:
-                return $this->parseObject($isConst);
+        try {
+            $token = $this->lexer->token;
+            switch ($token->kind) {
+                case Token::BRACKET_L:
+                    return $this->parseArray($isConst);
 
-            case Token::INT:
-                $this->lexer->advance();
+                case Token::BRACE_L:
+                    return $this->parseObject($isConst);
 
-                return new IntValueNode([
-                    'value' => $token->value,
-                    'loc' => $this->loc($token),
-                ]);
-
-            case Token::FLOAT:
-                $this->lexer->advance();
-
-                return new FloatValueNode([
-                    'value' => $token->value,
-                    'loc' => $this->loc($token),
-                ]);
-
-            case Token::STRING:
-            case Token::BLOCK_STRING:
-                return $this->parseStringLiteral();
-
-            case Token::NAME:
-                if ($token->value === 'true' || $token->value === 'false') {
+                case Token::INT:
                     $this->lexer->advance();
 
-                    return new BooleanValueNode([
-                        'value' => $token->value === 'true',
+                    return new IntValueNode([
+                        'value' => $token->value,
                         'loc' => $this->loc($token),
                     ]);
-                }
 
-                if ($token->value === 'null') {
+                case Token::FLOAT:
                     $this->lexer->advance();
 
-                    return new NullValueNode([
+                    return new FloatValueNode([
+                        'value' => $token->value,
                         'loc' => $this->loc($token),
                     ]);
-                }
-                $this->lexer->advance();
 
-                return new EnumValueNode([
-                    'value' => $token->value,
-                    'loc' => $this->loc($token),
-                ]);
+                case Token::STRING:
+                case Token::BLOCK_STRING:
+                    return $this->parseStringLiteral();
 
-            case Token::DOLLAR:
-                if (! $isConst) {
-                    return $this->parseVariable();
-                }
+                case Token::NAME:
+                    if ($token->value === 'true' || $token->value === 'false') {
+                        $this->lexer->advance();
 
-                break;
+                        return new BooleanValueNode([
+                            'value' => $token->value === 'true',
+                            'loc' => $this->loc($token),
+                        ]);
+                    }
+
+                    if ($token->value === 'null') {
+                        $this->lexer->advance();
+
+                        return new NullValueNode([
+                            'loc' => $this->loc($token),
+                        ]);
+                    }
+                    $this->lexer->advance();
+
+                    return new EnumValueNode([
+                        'value' => $token->value,
+                        'loc' => $this->loc($token),
+                    ]);
+
+                case Token::DOLLAR:
+                    if (! $isConst) {
+                        return $this->parseVariable();
+                    }
+
+                    break;
+            }
+
+            throw $this->unexpected();
+        } finally {
+            --$this->recursionDepth;
         }
-
-        throw $this->unexpected();
     }
 
     /**
@@ -1138,27 +1170,33 @@ class Parser
      */
     private function parseTypeReference(): TypeNode
     {
-        $start = $this->lexer->token;
+        $this->increaseRecursionDepth();
 
-        if ($this->skip(Token::BRACKET_L)) {
-            $type = $this->parseTypeReference();
-            $this->expect(Token::BRACKET_R);
-            $type = new ListTypeNode([
-                'type' => $type,
-                'loc' => $this->loc($start),
-            ]);
-        } else {
-            $type = $this->parseNamedType();
+        try {
+            $start = $this->lexer->token;
+
+            if ($this->skip(Token::BRACKET_L)) {
+                $type = $this->parseTypeReference();
+                $this->expect(Token::BRACKET_R);
+                $type = new ListTypeNode([
+                    'type' => $type,
+                    'loc' => $this->loc($start),
+                ]);
+            } else {
+                $type = $this->parseNamedType();
+            }
+
+            if ($this->skip(Token::BANG)) {
+                return new NonNullTypeNode([
+                    'type' => $type,
+                    'loc' => $this->loc($start),
+                ]);
+            }
+
+            return $type;
+        } finally {
+            --$this->recursionDepth;
         }
-
-        if ($this->skip(Token::BANG)) {
-            return new NonNullTypeNode([
-                'type' => $type,
-                'loc' => $this->loc($start),
-            ]);
-        }
-
-        return $type;
     }
 
     /**
@@ -1246,6 +1284,7 @@ class Parser
     private function parseSchemaDefinition(): SchemaDefinitionNode
     {
         $start = $this->lexer->token;
+        $description = $this->parseDescription();
         $this->expectKeyword('schema');
         $directives = $this->parseDirectives(true);
 
@@ -1259,6 +1298,7 @@ class Parser
             'directives' => $directives,
             'operationTypes' => $operationTypes,
             'loc' => $this->loc($start),
+            'description' => $description,
         ]);
     }
 
@@ -1365,20 +1405,16 @@ class Parser
             $this->lexer->advance();
             $this->lexer->advance();
 
-            /** @phpstan-var NodeList<FieldDefinitionNode> $nodeList */
-            $nodeList = new NodeList([]);
-        } else {
-            /** @phpstan-var NodeList<FieldDefinitionNode> $nodeList */
-            $nodeList = $this->peek(Token::BRACE_L)
-                ? $this->many(
-                    Token::BRACE_L,
-                    fn (): FieldDefinitionNode => $this->parseFieldDefinition(),
-                    Token::BRACE_R
-                )
-                : new NodeList([]);
+            return new NodeList([]);
         }
 
-        return $nodeList;
+        return $this->peek(Token::BRACE_L)
+            ? $this->many(
+                Token::BRACE_L,
+                fn (): FieldDefinitionNode => $this->parseFieldDefinition(),
+                Token::BRACE_R
+            )
+            : new NodeList([]);
     }
 
     /**
@@ -1672,7 +1708,7 @@ class Parser
                 Token::BRACE_R
             )
             : new NodeList([]);
-        if (\count($directives) === 0 && \count($operationTypes) === 0) {
+        if (count($directives) === 0 && count($operationTypes) === 0) {
             $this->unexpected();
         }
 
@@ -1694,7 +1730,7 @@ class Parser
         $this->expectKeyword('scalar');
         $name = $this->parseName();
         $directives = $this->parseDirectives(true);
-        if (\count($directives) === 0) {
+        if (count($directives) === 0) {
             throw $this->unexpected();
         }
 
@@ -1720,9 +1756,9 @@ class Parser
         $fields = $this->parseFieldsDefinition();
 
         if (
-            \count($interfaces) === 0
-            && \count($directives) === 0
-            && \count($fields) === 0
+            count($interfaces) === 0
+            && count($directives) === 0
+            && count($fields) === 0
         ) {
             throw $this->unexpected();
         }
@@ -1750,9 +1786,9 @@ class Parser
         $directives = $this->parseDirectives(true);
         $fields = $this->parseFieldsDefinition();
         if (
-            \count($interfaces) === 0
-            && \count($directives) === 0
-            && \count($fields) === 0
+            count($interfaces) === 0
+            && count($directives) === 0
+            && count($fields) === 0
         ) {
             throw $this->unexpected();
         }
@@ -1782,7 +1818,7 @@ class Parser
         $name = $this->parseName();
         $directives = $this->parseDirectives(true);
         $types = $this->parseUnionMemberTypes();
-        if (\count($directives) === 0 && \count($types) === 0) {
+        if (count($directives) === 0 && count($types) === 0) {
             throw $this->unexpected();
         }
 
@@ -1807,8 +1843,8 @@ class Parser
         $directives = $this->parseDirectives(true);
         $values = $this->parseEnumValuesDefinition();
         if (
-            \count($directives) === 0
-            && \count($values) === 0
+            count($directives) === 0
+            && count($values) === 0
         ) {
             throw $this->unexpected();
         }
@@ -1834,8 +1870,8 @@ class Parser
         $directives = $this->parseDirectives(true);
         $fields = $this->parseInputFieldsDefinition();
         if (
-            \count($directives) === 0
-            && \count($fields) === 0
+            count($directives) === 0
+            && count($fields) === 0
         ) {
             throw $this->unexpected();
         }

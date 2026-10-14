@@ -16,8 +16,7 @@ use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
 
 final class IsCompositeTypeStaticMethodTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
-    /** @var TypeSpecifier */
-    private $typeSpecifier;
+    private TypeSpecifier $typeSpecifier;
 
     public function getClass(): string
     {
@@ -37,6 +36,6 @@ final class IsCompositeTypeStaticMethodTypeSpecifyingExtension implements Static
 
     public function specifyTypes(MethodReflection $staticMethodReflection, StaticCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
     {
-        return $this->typeSpecifier->create($node->getArgs()[0]->value, new ObjectType(CompositeType::class), $context);
+        return $this->typeSpecifier->create($node->getArgs()[0]->value, new ObjectType(CompositeType::class), $context, $scope);
     }
 }

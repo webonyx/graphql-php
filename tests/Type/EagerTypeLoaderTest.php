@@ -24,7 +24,7 @@ final class EagerTypeLoaderTest extends TypeLoaderTestCaseBase
 
     private InputObjectType $postStoryMutationInput;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

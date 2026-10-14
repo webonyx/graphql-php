@@ -3,7 +3,6 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Validator\QueryValidationContext;
@@ -19,17 +18,14 @@ class LoneAnonymousOperation extends ValidationRule
     public function getVisitor(QueryValidationContext $context): array
     {
         $operationCount = 0;
+        foreach ($context->getDocument()->definitions as $definition) {
+            if ($definition instanceof OperationDefinitionNode) {
+                ++$operationCount;
+            }
+        }
 
         return [
-            NodeKind::DOCUMENT => static function (DocumentNode $node) use (&$operationCount): void {
-                $operationCount = 0;
-                foreach ($node->definitions as $definition) {
-                    if ($definition instanceof OperationDefinitionNode) {
-                        ++$operationCount;
-                    }
-                }
-            },
-            NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use (&$operationCount, $context): void {
+            NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use ($operationCount, $context): void {
                 if ($node->name !== null || $operationCount <= 1) {
                     return;
                 }
