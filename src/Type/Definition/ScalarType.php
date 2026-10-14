@@ -2,6 +2,7 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Utils\Utils;
@@ -27,6 +28,7 @@ use GraphQL\Utils\Utils;
  * @phpstan-type ScalarConfig array{
  *   name?: string|null,
  *   description?: string|null,
+ *   specifiedByURL?: string|null,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
  * }
@@ -37,6 +39,8 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
 
     public ?ScalarTypeDefinitionNode $astNode;
 
+    public ?string $specifiedByURL;
+
     /** @var array<ScalarTypeExtensionNode> */
     public array $extensionASTNodes;
 
@@ -45,11 +49,14 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
 
     /**
      * @phpstan-param ScalarConfig $config
+     *
+     * @throws InvariantViolation
      */
     public function __construct(array $config = [])
     {
         $this->name = $config['name'] ?? $this->inferName();
         $this->description = $config['description'] ?? $this->description ?? null;
+        $this->specifiedByURL = $config['specifiedByURL'] ?? $this->specifiedByURL ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
 
@@ -66,7 +73,7 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
         return $this->astNode;
     }
 
-    /** @return array<int, ScalarTypeExtensionNode> */
+    /** @return array<ScalarTypeExtensionNode> */
     public function extensionASTNodes(): array
     {
         return $this->extensionASTNodes;

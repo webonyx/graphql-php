@@ -18,20 +18,20 @@ final class GraphQLTest extends TestCase
         $promiseAdapter = new SyncPromiseAdapter();
         $schema = new Schema(
             (new SchemaConfig())
-            ->setQuery(new ObjectType([
-                'name' => 'Query',
-                'fields' => [
-                    'sayHi' => [
-                        'type' => Type::nonNull(Type::string()),
-                        'args' => [
-                            'name' => [
-                                'type' => Type::nonNull(Type::string()),
+                ->setQuery(new ObjectType([
+                    'name' => 'Query',
+                    'fields' => [
+                        'sayHi' => [
+                            'type' => Type::nonNull(Type::string()),
+                            'args' => [
+                                'name' => [
+                                    'type' => Type::nonNull(Type::string()),
+                                ],
                             ],
+                            'resolve' => static fn ($rootValue, array $args): Promise => $promiseAdapter->createFulfilled("Hi {$args['name']}!"),
                         ],
-                        'resolve' => static fn ($rootValue, array $args): Promise => $promiseAdapter->createFulfilled("Hi {$args['name']}!"),
                     ],
-                ],
-            ]))
+                ]))
         );
 
         $promise = GraphQL::promiseToExecute($promiseAdapter, $schema, '{ sayHi(name: "John") }');

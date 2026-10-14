@@ -65,11 +65,14 @@ final class NodeListTest extends TestCase
     {
         $foo = new NameNode(['value' => 'foo']);
         $bar = new NameNode(['value' => 'bar']);
+        $baz = new NameNode(['value' => 'baz']);
 
-        $nodeList = new NodeList([$foo, $bar]);
+        $nodeList = new NodeList([$foo, $bar, $baz]);
         $nodeList->unset(0);
 
         self::assertTrue($nodeList->has(0));
         self::assertSame($bar, $nodeList->get(0));
+        self::assertSame($baz, $nodeList->get(1));
+        self::assertFalse($nodeList->has(2));
     }
 }

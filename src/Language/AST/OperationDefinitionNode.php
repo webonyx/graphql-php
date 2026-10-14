@@ -11,9 +11,7 @@ class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, 
 
     public ?NameNode $name = null;
 
-    /**
-     * @var OperationType
-     */
+    /** @var OperationType */
     public string $operation;
 
     /** @var NodeList<VariableDefinitionNode> */
@@ -23,6 +21,13 @@ class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, 
     public NodeList $directives;
 
     public SelectionSetNode $selectionSet;
+
+    public function __construct(array $vars)
+    {
+        parent::__construct($vars);
+        $this->directives ??= new NodeList([]);
+        $this->variableDefinitions ??= new NodeList([]);
+    }
 
     public function getSelectionSet(): SelectionSetNode
     {

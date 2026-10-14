@@ -3,6 +3,7 @@
 namespace GraphQL;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
@@ -23,7 +24,10 @@ use GraphQL\Validator\Rules\ValidationRule;
  * This is the primary facade for fulfilling GraphQL operations.
  * See [related documentation](executing-queries.md).
  *
+ * @phpstan-import-type ArgsMapper from Executor
  * @phpstan-import-type FieldResolver from Executor
+ *
+ * @see \GraphQL\Tests\GraphQLTest
  */
 class GraphQL
 {
@@ -48,6 +52,9 @@ class GraphQL
      *    field arguments. It is used to pass shared information useful at any point
      *    during executing this query, for example the currently logged in user and
      *    connections to databases or other services.
+     *    If the passed object implements the `ScopedContext` interface,
+     *    its `clone()` method will be called before passing the context down to a field.
+     *    This allows passing information to child fields in the query tree without affecting sibling or parent fields.
      * variableValues:
      *    A mapping of variable name to runtime value to use for all variables
      *    defined in the requestString.
@@ -64,13 +71,16 @@ class GraphQL
      *    Empty array would allow to skip query validation (may be convenient for persisted
      *    queries which are validated before persisting and assumed valid during execution)
      *
-     * @param string|DocumentNode        $source
-     * @param mixed                      $rootValue
-     * @param mixed                      $contextValue
-     * @param array<string, mixed>|null  $variableValues
+     * @param string|DocumentNode $source
+     * @param mixed $rootValue
+     * @param mixed $contextValue
+     * @param array<string, mixed>|null $variableValues
      * @param array<ValidationRule>|null $validationRules
      *
      * @api
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     public static function executeQuery(
         SchemaType $schema,
@@ -103,13 +113,15 @@ class GraphQL
      * Same as executeQuery(), but requires PromiseAdapter and always returns a Promise.
      * Useful for Async PHP platforms.
      *
-     * @param string|DocumentNode        $source
-     * @param mixed                      $rootValue
-     * @param mixed                      $context
-     * @param array<string, mixed>|null  $variableValues
-     * @param array<ValidationRule>|null $validationRules
+     * @param string|DocumentNode $source
+     * @param mixed $rootValue
+     * @param mixed $context
+     * @param array<string, mixed>|null $variableValues
+     * @param array<ValidationRule>|null $validationRules Defaults to using all available rules
      *
      * @api
+     *
+     * @throws \Exception
      */
     public static function promiseToExecute(
         PromiseAdapter $promiseAdapter,
@@ -127,7 +139,7 @@ class GraphQL
                 ? $source
                 : Parser::parse(new Source($source, 'GraphQL'));
 
-            if ($validationRules === null || \count($validationRules) === 0) {
+            if ($validationRules === null) {
                 $queryComplexity = DocumentValidator::getRule(QueryComplexity::class);
                 assert($queryComplexity instanceof QueryComplexity, 'should not register a different rule for QueryComplexity');
 
@@ -142,7 +154,7 @@ class GraphQL
 
             $validationErrors = DocumentValidator::validate($schema, $documentNode, $validationRules);
 
-            if (\count($validationErrors) > 0) {
+            if ($validationErrors !== []) {
                 return $promiseAdapter->createFulfilled(
                     new ExecutionResult(null, $validationErrors)
                 );
@@ -168,17 +180,25 @@ class GraphQL
     /**
      * Returns directives defined in GraphQL spec.
      *
+     * @deprecated use {@see Directive::builtInDirectives()}
+     *
+     * @throws InvariantViolation
+     *
      * @return array<string, Directive>
      *
      * @api
      */
     public static function getStandardDirectives(): array
     {
-        return Directive::getInternalDirectives();
+        return Directive::builtInDirectives();
     }
 
     /**
-     * Returns types defined in GraphQL spec.
+     * Returns built-in scalar types defined in GraphQL spec.
+     *
+     * @deprecated use {@see Type::builtInScalars()}
+     *
+     * @throws InvariantViolation
      *
      * @return array<string, ScalarType>
      *
@@ -186,7 +206,7 @@ class GraphQL
      */
     public static function getStandardTypes(): array
     {
-        return Type::getStandardTypes();
+        return Type::builtInScalars();
     }
 
     /**
@@ -194,9 +214,13 @@ class GraphQL
      *
      * Standard types not listed here remain untouched.
      *
+     * @deprecated prefer per-schema scalar overrides via {@see \GraphQL\Type\SchemaConfig::$types} or {@see \GraphQL\Type\SchemaConfig::$typeLoader}
+     *
      * @param array<string, ScalarType> $types
      *
      * @api
+     *
+     * @throws InvariantViolation
      */
     public static function overrideStandardTypes(array $types): void
     {
@@ -225,5 +249,17 @@ class GraphQL
     public static function setDefaultFieldResolver(callable $fn): void
     {
         Executor::setDefaultFieldResolver($fn);
+    }
+
+    /**
+     * Set default args mapper implementation.
+     *
+     * @phpstan-param ArgsMapper $fn
+     *
+     * @api
+     */
+    public static function setDefaultArgsMapper(callable $fn): void
+    {
+        Executor::setDefaultArgsMapper($fn);
     }
 }

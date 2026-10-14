@@ -21,7 +21,7 @@ final class StandardServerTest extends ServerTestCase
     /** @var ServerConfig */
     private $config;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $schema = $this->buildSchema();
         $this->config = ServerConfig::create()
@@ -30,7 +30,7 @@ final class StandardServerTest extends ServerTestCase
 
     public function testSimpleRequestExecutionWithOutsideParsing(): void
     {
-        $body = json_encode(['query' => '{f1}']);
+        $body = json_encode(['query' => '{f1}'], JSON_THROW_ON_ERROR);
 
         $parsedBody = $this->parseRawRequest('application/json', $body);
         $server = new StandardServer($this->config);
@@ -46,6 +46,7 @@ final class StandardServerTest extends ServerTestCase
         );
     }
 
+    /** @throws \GraphQL\Server\RequestError */
     private function parseRawRequest(string $contentType, string $content, string $method = 'POST'): OperationParams
     {
         $_SERVER['CONTENT_TYPE'] = $contentType;
@@ -67,7 +68,7 @@ final class StandardServerTest extends ServerTestCase
             'data' => ['f1' => 'f1'],
         ];
 
-        $request = $this->preparePsrRequest('application/json', json_encode($body));
+        $request = $this->preparePsrRequest('application/json', json_encode($body, JSON_THROW_ON_ERROR));
         $this->assertPsrRequestEquals($expected, $request);
     }
 
@@ -83,6 +84,8 @@ final class StandardServerTest extends ServerTestCase
 
     /**
      * @param array<string, mixed> $expected
+     *
+     * @throws \Exception
      */
     private function assertPsrRequestEquals(array $expected, RequestInterface $request): ExecutionResult
     {
@@ -92,6 +95,10 @@ final class StandardServerTest extends ServerTestCase
         return $result;
     }
 
+    /**
+     * @throws \Exception
+     * @throws \JsonException
+     */
     private function executePsrRequest(RequestInterface $psrRequest): ExecutionResult
     {
         $result = (new StandardServer($this->config))->executePsrRequest($psrRequest);
@@ -111,7 +118,7 @@ final class StandardServerTest extends ServerTestCase
             'data' => ['f1' => 'f1'],
         ];
 
-        $request = $this->preparePsrRequest('application/json', json_encode($body));
+        $request = $this->preparePsrRequest('application/json', json_encode($body, JSON_THROW_ON_ERROR));
         $this->assertPsrRequestEquals($expected, $request);
     }
 }

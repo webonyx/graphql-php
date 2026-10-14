@@ -19,13 +19,14 @@ class FloatType extends ScalarType
 values as specified by
 [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point). ';
 
+    /** @throws SerializationError */
     public function serialize($value): float
     {
-        $float = \is_numeric($value) || \is_bool($value)
+        $float = is_numeric($value) || is_bool($value)
             ? (float) $value
             : null;
 
-        if ($float === null || ! \is_finite($float)) {
+        if ($float === null || ! is_finite($float)) {
             $notFloat = Utils::printSafe($value);
             throw new SerializationError("Float cannot represent non numeric value: {$notFloat}");
         }
@@ -33,13 +34,14 @@ values as specified by
         return $float;
     }
 
+    /** @throws Error */
     public function parseValue($value): float
     {
-        $float = \is_float($value) || \is_int($value)
+        $float = is_float($value) || is_int($value)
             ? (float) $value
             : null;
 
-        if ($float === null || ! \is_finite($float)) {
+        if ($float === null || ! is_finite($float)) {
             $notFloat = Utils::printSafeJson($value);
             throw new Error("Float cannot represent non numeric value: {$notFloat}");
         }
@@ -47,6 +49,10 @@ values as specified by
         return $float;
     }
 
+    /**
+     * @throws \JsonException
+     * @throws Error
+     */
     public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof FloatValueNode || $valueNode instanceof IntValueNode) {

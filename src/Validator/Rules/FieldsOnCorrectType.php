@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Type\Definition\HasFieldsType;
@@ -19,7 +20,7 @@ class FieldsOnCorrectType extends ValidationRule
         return [
             NodeKind::FIELD => function (FieldNode $node) use ($context): void {
                 $fieldDef = $context->getFieldDef();
-                if ($fieldDef !== null) {
+                if ($fieldDef !== null && $fieldDef->isVisible()) {
                     return;
                 }
 
@@ -58,6 +59,8 @@ class FieldsOnCorrectType extends ValidationRule
      * suggest them, sorted by how often the type is referenced, starting
      * with interfaces.
      *
+     * @throws InvariantViolation
+     *
      * @return array<int, string>
      */
     protected function getSuggestedTypeNames(Schema $schema, Type $type, string $fieldName): array
@@ -79,19 +82,18 @@ class FieldsOnCorrectType extends ValidationRule
                     }
 
                     // This interface type defines this field.
-                    $interfaceUsageCount[$possibleInterface->name]
-                        = ! isset($interfaceUsageCount[$possibleInterface->name])
-                            ? 0
-                            : $interfaceUsageCount[$possibleInterface->name] + 1;
+                    $interfaceUsageCount[$possibleInterface->name] = isset($interfaceUsageCount[$possibleInterface->name])
+                        ? $interfaceUsageCount[$possibleInterface->name] + 1
+                        : 0;
                 }
             }
 
             // Suggest interface types based on how common they are.
-            \arsort($interfaceUsageCount);
-            $suggestedInterfaceTypes = \array_keys($interfaceUsageCount);
+            arsort($interfaceUsageCount);
+            $suggestedInterfaceTypes = array_keys($interfaceUsageCount);
 
             // Suggest both interface and object types.
-            return \array_merge($suggestedInterfaceTypes, $suggestedObjectTypes);
+            return array_merge($suggestedInterfaceTypes, $suggestedObjectTypes);
         }
 
         // Otherwise, must be an Object type, which does not have suggested types.
@@ -101,6 +103,8 @@ class FieldsOnCorrectType extends ValidationRule
     /**
      * For the field name provided, determine if there are any similar field names
      * that may be the result of a typo.
+     *
+     * @throws InvariantViolation
      *
      * @return array<int, string>
      */

@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Error;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Parser;
@@ -13,9 +14,7 @@ use PHPUnit\Framework\TestCase;
 
 final class ErrorTest extends TestCase
 {
-    /**
-     * @see it('uses the stack of an original error')
-     */
+    /** @see it('uses the stack of an original error') */
     public function testUsesTheStackOfAnOriginalError(): void
     {
         $prev = new \Exception('Original');
@@ -24,9 +23,7 @@ final class ErrorTest extends TestCase
         self::assertSame($err->getPrevious(), $prev);
     }
 
-    /**
-     * @see it('converts nodes to positions and locations')
-     */
+    /** @see it('converts nodes to positions and locations') */
     public function testConvertsNodesToPositionsAndLocations(): void
     {
         $source = new Source('{
@@ -40,13 +37,11 @@ final class ErrorTest extends TestCase
 
         self::assertEquals([$fieldNode], $e->getNodes());
         self::assertEquals($source, $e->getSource());
-        self::assertEquals([8], $e->getPositions());
+        self::assertSame([8], $e->getPositions());
         self::assertEquals([new SourceLocation(2, 7)], $e->getLocations());
     }
 
-    /**
-     * @see it('converts single node to positions and locations')
-     */
+    /** @see it('converts single node to positions and locations') */
     public function testConvertSingleNodeToPositionsAndLocations(): void
     {
         $source = new Source('{
@@ -60,13 +55,11 @@ final class ErrorTest extends TestCase
 
         self::assertEquals([$fieldNode], $e->getNodes());
         self::assertEquals($source, $e->getSource());
-        self::assertEquals([8], $e->getPositions());
+        self::assertSame([8], $e->getPositions());
         self::assertEquals([new SourceLocation(2, 7)], $e->getLocations());
     }
 
-    /**
-     * @see it('converts node with loc.start === 0 to positions and locations')
-     */
+    /** @see it('converts node with loc.start === 0 to positions and locations') */
     public function testConvertsNodeWithStart0ToPositionsAndLocations(): void
     {
         $source = new Source('{
@@ -78,13 +71,11 @@ final class ErrorTest extends TestCase
 
         self::assertEquals([$operationNode], $e->getNodes());
         self::assertEquals($source, $e->getSource());
-        self::assertEquals([0], $e->getPositions());
+        self::assertSame([0], $e->getPositions());
         self::assertEquals([new SourceLocation(1, 1)], $e->getLocations());
     }
 
-    /**
-     * @see it('converts source and positions to locations')
-     */
+    /** @see it('converts source and positions to locations') */
     public function testConvertsSourceAndPositionsToLocations(): void
     {
         $source = new Source('{
@@ -94,22 +85,18 @@ final class ErrorTest extends TestCase
 
         self::assertEquals(null, $e->getNodes());
         self::assertEquals($source, $e->getSource());
-        self::assertEquals([10], $e->getPositions());
+        self::assertSame([10], $e->getPositions());
         self::assertEquals([new SourceLocation(2, 9)], $e->getLocations());
     }
 
-    /**
-     * @see it('serializes to include message')
-     */
+    /** @see it('serializes to include message') */
     public function testSerializesToIncludeMessage(): void
     {
         $e = new Error('msg');
-        self::assertEquals(['message' => 'msg'], FormattedError::createFromException($e));
+        self::assertSame(['message' => 'msg'], FormattedError::createFromException($e));
     }
 
-    /**
-     * @see it('serializes to include message and locations')
-     */
+    /** @see it('serializes to include message and locations') */
     public function testSerializesToIncludeMessageAndLocations(): void
     {
         $ast = Parser::parse('{ field }');
@@ -118,15 +105,13 @@ final class ErrorTest extends TestCase
         $node = $operationDefinition->selectionSet->selections->get(0);
         $e = new Error('msg', [$node]);
 
-        self::assertEquals(
+        self::assertSame(
             ['message' => 'msg', 'locations' => [['line' => 1, 'column' => 3]]],
             FormattedError::createFromException($e)
         );
     }
 
-    /**
-     * @see it('serializes to include path')
-     */
+    /** @see it('serializes to include path') */
     public function testSerializesToIncludePath(): void
     {
         $e = new Error(
@@ -137,13 +122,11 @@ final class ErrorTest extends TestCase
             ['path', 3, 'to', 'field']
         );
 
-        self::assertEquals(['path', 3, 'to', 'field'], $e->path);
-        self::assertEquals(['message' => 'msg', 'path' => ['path', 3, 'to', 'field']], FormattedError::createFromException($e));
+        self::assertSame(['path', 3, 'to', 'field'], $e->path);
+        self::assertSame(['message' => 'msg', 'path' => ['path', 3, 'to', 'field']], FormattedError::createFromException($e));
     }
 
-    /**
-     * @see it('default error formatter includes extension fields')
-     */
+    /** @see it('default error formatter includes extension fields') */
     public function testDefaultErrorFormatterIncludesExtensionFields(): void
     {
         $e = new Error(
@@ -156,8 +139,8 @@ final class ErrorTest extends TestCase
             ['foo' => 'bar']
         );
 
-        self::assertEquals(['foo' => 'bar'], $e->getExtensions());
-        self::assertEquals(
+        self::assertSame(['foo' => 'bar'], $e->getExtensions());
+        self::assertSame(
             [
                 'message' => 'msg',
                 'extensions' => ['foo' => 'bar'],
@@ -166,10 +149,11 @@ final class ErrorTest extends TestCase
         );
     }
 
-    public function testErrorReadsOverridenMethods(): void
+    public function testErrorReadsOverriddenMethods(): void
     {
         $error = new class('msg', null, null, [], null, null, ['foo' => 'bar']) extends Error {
-            public function getExtensions(): ?array
+            /** @return array<string, mixed> */
+            public function getExtensions(): array
             {
                 $extensions = parent::getExtensions();
                 $extensions['subfoo'] = 'subbar';
@@ -182,12 +166,13 @@ final class ErrorTest extends TestCase
                 return [1 => 2];
             }
 
-            public function getSource(): ?Source
+            public function getSource(): Source
             {
                 return new Source('');
             }
 
-            public function getNodes(): ?array
+            /** @return list<Node> */
+            public function getNodes(): array
             {
                 return [];
             }
@@ -195,18 +180,20 @@ final class ErrorTest extends TestCase
 
         $locatedError = Error::createLocatedError($error);
 
-        self::assertEquals(['foo' => 'bar', 'subfoo' => 'subbar'], $locatedError->getExtensions());
-        self::assertEquals([], $locatedError->getNodes());
-        self::assertEquals([1 => 2], $locatedError->getPositions());
+        self::assertSame(['foo' => 'bar', 'subfoo' => 'subbar'], $locatedError->getExtensions());
+        self::assertSame([], $locatedError->getNodes());
+        self::assertSame([1 => 2], $locatedError->getPositions());
         self::assertNotNull($locatedError->getSource());
 
         $error = new class('msg', new NullValueNode([]), null, []) extends Error {
-            public function getNodes(): ?array
+            /** @return list<NullValueNode> */
+            public function getNodes(): array
             {
                 return [new NullValueNode([])];
             }
 
-            public function getPath(): ?array
+            /** @return list<string> */
+            public function getPath(): array
             {
                 return ['path'];
             }

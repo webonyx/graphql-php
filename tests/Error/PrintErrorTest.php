@@ -12,9 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 final class PrintErrorTest extends TestCase
 {
-    /**
-     * @see it('prints an line numbers with correct padding')
-     */
+    /** @see it('prints an line numbers with correct padding') */
     public function testPrintsAnLineNumbersWithCorrectPadding(): void
     {
         $singleDigit = new Error(
@@ -31,7 +29,7 @@ Test (9:1)
  9: *
     ^
 ';
-        self::assertEquals($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $doubleDigit = new Error(
             'Left padded first line number',
@@ -47,12 +45,10 @@ Test (9:1)
     ^
 10: 
 ';
-        self::assertEquals($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
-    /**
-     * @see it('prints an error with nodes from different sources')
-     */
+    /** @see it('prints an error with nodes from different sources') */
     public function testPrintsAnErrorWithNodesFromDifferentSources(): void
     {
         $sourceA = Parser::parse(new Source(
@@ -85,7 +81,7 @@ Test (9:1)
             ]
         );
 
-        self::assertEquals(
+        self::assertSame(
             'Example error with two nodes
 
 SourceA (2:10)

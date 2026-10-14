@@ -11,6 +11,7 @@ use GraphQL\Validator\QueryValidationContext;
 
 class ProvidedRequiredArguments extends ValidationRule
 {
+    /** @throws \Exception */
     public function getVisitor(QueryValidationContext $context): array
     {
         $providedRequiredArgumentsOnDirectives = new ProvidedRequiredArgumentsOnDirectives();

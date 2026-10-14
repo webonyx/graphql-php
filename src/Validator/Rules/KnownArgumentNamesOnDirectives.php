@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\NodeKind;
@@ -25,9 +26,7 @@ use GraphQL\Validator\ValidationContext;
  */
 class KnownArgumentNamesOnDirectives extends ValidationRule
 {
-    /**
-     * @param array<string> $suggestedArgs
-     */
+    /** @param array<string> $suggestedArgs */
     public static function unknownDirectiveArgMessage(string $argName, string $directiveName, array $suggestedArgs): string
     {
         $message = "Unknown argument \"{$argName}\" on directive \"@{$directiveName}\".";
@@ -40,17 +39,21 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         return $message;
     }
 
+    /** @throws InvariantViolation */
     public function getSDLVisitor(SDLValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
+    /** @throws InvariantViolation */
     public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @phpstan-return VisitorArray
      */
     public function getASTVisitor(ValidationContext $context): array
@@ -62,7 +65,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
             : Directive::getInternalDirectives();
 
         foreach ($definedDirectives as $directive) {
-            $directiveArgs[$directive->name] = \array_map(
+            $directiveArgs[$directive->name] = array_map(
                 static fn (Argument $arg): string => $arg->name,
                 $directive->args
             );
@@ -91,7 +94,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
                 foreach ($directiveNode->arguments as $argNode) {
                     $argName = $argNode->name->value;
-                    if (! \in_array($argName, $knownArgs, true)) {
+                    if (! in_array($argName, $knownArgs, true)) {
                         $suggestions = Utils::suggestionList($argName, $knownArgs);
                         $context->reportError(new Error(
                             static::unknownDirectiveArgMessage($argName, $directiveName, $suggestions),

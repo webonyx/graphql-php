@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\NodeKind;
@@ -62,6 +63,8 @@ class PossibleFragmentSpreads extends ValidationRule
     /**
      * @param CompositeType&Type $fragType
      * @param CompositeType&Type $parentType
+     *
+     * @throws InvariantViolation
      */
     protected function doTypesOverlap(Schema $schema, CompositeType $fragType, CompositeType $parentType): bool
     {
@@ -137,6 +140,8 @@ class PossibleFragmentSpreads extends ValidationRule
     }
 
     /**
+     * @throws \Exception
+     *
      * @return (CompositeType&Type)|null
      */
     protected function getFragmentType(QueryValidationContext $context, string $name): ?Type

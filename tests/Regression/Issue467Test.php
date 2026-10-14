@@ -38,6 +38,6 @@ query echo ($msg: MsgInput) {
 
         $expectedError = 'Variable "$msg" got invalid value ["my message"]; Field "0" is not defined by type "MsgInput".';
         self::assertCount(1, $result->errors);
-        self::assertEquals($expectedError, $result->errors[0]->getMessage());
+        self::assertSame($expectedError, $result->errors[0]->getMessage());
     }
 }

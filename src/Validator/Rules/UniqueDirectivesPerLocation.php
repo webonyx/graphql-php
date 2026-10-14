@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Visitor;
@@ -21,17 +22,21 @@ use GraphQL\Validator\ValidationContext;
  */
 class UniqueDirectivesPerLocation extends ValidationRule
 {
+    /** @throws InvariantViolation */
     public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
+    /** @throws InvariantViolation */
     public function getSDLVisitor(SDLValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @phpstan-return VisitorArray
      */
     public function getASTVisitor(ValidationContext $context): array

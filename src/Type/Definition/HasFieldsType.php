@@ -6,9 +6,7 @@ use GraphQL\Error\InvariantViolation;
 
 interface HasFieldsType
 {
-    /**
-     * @throws InvariantViolation
-     */
+    /** @throws InvariantViolation */
     public function getField(string $name): FieldDefinition;
 
     public function hasField(string $name): bool;
@@ -23,6 +21,15 @@ interface HasFieldsType
     public function getFields(): array;
 
     /**
+     * @throws InvariantViolation
+     *
+     * @return array<string, FieldDefinition>
+     */
+    public function getVisibleFields(): array;
+
+    /**
+     * Get all field names, including only visible fields.
+     *
      * @throws InvariantViolation
      *
      * @return array<int, string>

@@ -18,13 +18,13 @@ abstract class TypeLoaderTestCaseBase extends TestCaseBase
 
     protected ObjectType $mutation;
 
-    /** @var callable(string): ?(Type&NamedType) */
+    /** @var callable(string): ((Type&NamedType)|null) */
     protected $typeLoader;
 
     /** @var array<int, string> */
     protected array $calls;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->calls = [];
     }
@@ -38,7 +38,7 @@ abstract class TypeLoaderTestCaseBase extends TestCaseBase
             ]),
             'typeLoader' => static fn () => null,
         ]);
-        self::assertDidNotCrash();
+        $this->assertDidNotCrash();
     }
 
     public function testSchemaRejectsNonCallableTypeLoader(): void
@@ -64,10 +64,10 @@ abstract class TypeLoaderTestCaseBase extends TestCaseBase
         ]);
 
         $schema->getType('Node');
-        self::assertEquals(['Node'], $this->calls);
+        self::assertSame(['Node'], $this->calls);
 
         $schema->getType('Node');
-        self::assertEquals(['Node'], $this->calls);
+        self::assertSame(['Node'], $this->calls);
     }
 
     public function testIgnoresNonExistentType(): void

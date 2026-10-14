@@ -29,15 +29,15 @@ final class Issue396Test extends TestCase
             'types' => [$a, $b, $c],
             'resolveType' => static function ($result, $value, ResolveInfo $info) use ($a, $b, $c, &$log): ?Type {
                 $log[] = [$result, $info->path];
-                if (\stristr($result['name'], 'A') !== false) {
+                if (stristr($result['name'], 'A') !== false) {
                     return $a;
                 }
 
-                if (\stristr($result['name'], 'B') !== false) {
+                if (stristr($result['name'], 'B') !== false) {
                     return $b;
                 }
 
-                if (\stristr($result['name'], 'C') !== false) {
+                if (stristr($result['name'], 'C') !== false) {
                     return $c;
                 }
 
@@ -59,7 +59,9 @@ final class Issue396Test extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $exampleType]);
+        $schema = new Schema([
+            'query' => $exampleType,
+        ]);
 
         $query = '
             query {
@@ -84,7 +86,7 @@ final class Issue396Test extends TestCase
             [['name' => 'B 2'], ['field', 1]],
             [['name' => 'C 3'], ['field', 2]],
         ];
-        self::assertEquals($expected, $log);
+        self::assertSame($expected, $log);
     }
 
     public function testInterfaceResolveType(): void
@@ -98,15 +100,15 @@ final class Issue396Test extends TestCase
             ],
             'resolveType' => static function ($result, $value, ResolveInfo $info) use (&$a, &$b, &$c, &$log): ?ObjectType {
                 $log[] = [$result, $info->path];
-                if (\stristr($result['name'], 'A') !== false) {
+                if (stristr($result['name'], 'A') !== false) {
                     return $a;
                 }
 
-                if (\stristr($result['name'], 'B') !== false) {
+                if (stristr($result['name'], 'B') !== false) {
                     return $b;
                 }
 
-                if (\stristr($result['name'], 'C') !== false) {
+                if (stristr($result['name'], 'C') !== false) {
                     return $c;
                 }
 
@@ -162,7 +164,7 @@ final class Issue396Test extends TestCase
 
         GraphQL::executeQuery($schema, $query);
 
-        self::assertEquals(
+        self::assertSame(
             [
                 [['name' => 'A 1'], ['field', 0]],
                 [['name' => 'B 2'], ['field', 1]],

@@ -2,6 +2,7 @@
 
 namespace GraphQL\Language\AST;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\AST;
 
 /**
@@ -14,7 +15,7 @@ class NodeList implements \IteratorAggregate, \Countable
     /**
      * @var list<Node|array<string, mixed>>
      *
-     * @phpstan-var list<T|array<string, mixed>> $nodes
+     * @phpstan-var list<T|array<string, mixed>>
      */
     protected array $nodes;
 
@@ -33,32 +34,29 @@ class NodeList implements \IteratorAggregate, \Countable
         return isset($this->nodes[$offset]);
     }
 
-    /**
-     * @phpstan-return T
-     */
+    /** @phpstan-return T */
     public function get(int $offset): Node
     {
         $node = $this->nodes[$offset];
 
-        // @phpstan-ignore-next-line not really possible to express the correctness of this in PHP
-        return \is_array($node)
-            ? ($this->nodes[$offset] = AST::fromArray($node))
-            : $node;
+        if (is_array($node)) {
+            // @phpstan-ignore-next-line not really possible to express the correctness of this in PHP
+            return $this->nodes[$offset] = AST::fromArray($node);
+        }
+
+        return $node;
     }
 
-    /**
-     * @phpstan-param T $value
-     */
+    /** @phpstan-param T $value */
     public function set(int $offset, Node $value): void
     {
+        // @phpstan-ignore assign.propertyType (the assertion below guards against gaps)
         $this->nodes[$offset] = $value;
 
-        assert($this->nodes === \array_values($this->nodes));
+        assert($this->nodes === array_values($this->nodes));
     }
 
-    /**
-     * @phpstan-param T $value
-     */
+    /** @phpstan-param T $value */
     public function add(Node $value): void
     {
         $this->nodes[] = $value;
@@ -66,8 +64,7 @@ class NodeList implements \IteratorAggregate, \Countable
 
     public function unset(int $offset): void
     {
-        unset($this->nodes[$offset]);
-        $this->nodes = \array_values($this->nodes);
+        array_splice($this->nodes, $offset, 1);
     }
 
     public function getIterator(): \Traversable
@@ -79,24 +76,25 @@ class NodeList implements \IteratorAggregate, \Countable
 
     public function count(): int
     {
-        return \count($this->nodes);
+        return count($this->nodes);
     }
 
     /**
      * Remove a portion of the NodeList and replace it with something else.
      *
-     * @param Node|array<Node>|null $replacement
-     *
-     * @phpstan-param T|array<T>|null $replacement
+     * @param T|iterable<T>|null $replacement
      *
      * @phpstan-return NodeList<T> the NodeList with the extracted elements
      */
     public function splice(int $offset, int $length, $replacement = null): NodeList
     {
-        $spliced = \array_splice($this->nodes, $offset, $length, $replacement);
+        if (is_iterable($replacement) && ! is_array($replacement)) {
+            $replacement = iterator_to_array($replacement);
+        }
 
-        // @phpstan-ignore-next-line generic type mismatch
-        return new NodeList($spliced);
+        return new NodeList(
+            array_splice($this->nodes, $offset, $length, $replacement)
+        );
     }
 
     /**
@@ -106,25 +104,26 @@ class NodeList implements \IteratorAggregate, \Countable
      */
     public function merge(iterable $list): NodeList
     {
-        if (! \is_array($list)) {
-            $list = \iterator_to_array($list);
+        if (! is_array($list)) {
+            $list = iterator_to_array($list);
         }
 
-        $merged = \array_merge($this->nodes, $list);
-
-        // @phpstan-ignore-next-line generic type mismatch
-        return new NodeList($merged);
+        return new NodeList(array_merge($this->nodes, $list));
     }
 
     /**
      * Returns a clone of this instance and all its children, except Location $loc.
      *
+     * @throws \JsonException
+     * @throws InvariantViolation
+     *
      * @return static<T>
      */
     public function cloneDeep(): self
     {
-        /** @var static<T> $cloned */
-        $cloned = new static([]);
+        /** @var array<T> $empty */
+        $empty = [];
+        $cloned = new static($empty);
         foreach ($this->getIterator() as $node) {
             $cloned->add($node->cloneDeep());
         }

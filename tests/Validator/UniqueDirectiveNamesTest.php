@@ -10,6 +10,8 @@ final class UniqueDirectiveNamesTest extends ValidatorTestCase
 {
     /**
      * @param array<int, array<string, mixed>> $errors
+     *
+     * @throws \Exception
      */
     private function expectSDLErrors(string $sdlString, ?Schema $schema, array $errors): void
     {
@@ -30,9 +32,7 @@ final class UniqueDirectiveNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('one directive')
-     */
+    /** @see it('one directive') */
     public function testOneDirective(): void
     {
         $this->expectValidSDL(
@@ -43,9 +43,7 @@ final class UniqueDirectiveNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('many directives')
-     */
+    /** @see it('many directives') */
     public function testManyDirectives(): void
     {
         $this->expectValidSDL(
@@ -58,9 +56,7 @@ final class UniqueDirectiveNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('directive and non-directive definitions named the same')
-     */
+    /** @see it('directive and non-directive definitions named the same') */
     public function testDirectiveAndNonDirectiveDefinitionsNamedTheSame(): void
     {
         $this->expectValidSDL(
@@ -75,9 +71,7 @@ final class UniqueDirectiveNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('directives named the same')
-     */
+    /** @see it('directives named the same') */
     public function testDirectivesNamedTheSame(): void
     {
         $this->expectSDLErrors(
@@ -99,9 +93,7 @@ final class UniqueDirectiveNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('adding new directive to existing schema')
-     */
+    /** @see it('adding new directive to existing schema') */
     public function testAddingNewDirectiveToExistingSchema(): void
     {
         $schema = BuildSchema::build('directive @foo on SCHEMA');
@@ -109,9 +101,7 @@ final class UniqueDirectiveNamesTest extends ValidatorTestCase
         $this->expectValidSDL(new UniqueDirectiveNames(), 'directive @bar on SCHEMA', $schema);
     }
 
-    /**
-     * @see it('adding new directive with standard name to existing schema')
-     */
+    /** @see it('adding new directive with standard name to existing schema') */
     public function testAddingNewDirectiveWithStandardNameToExistingSchema(): void
     {
         $schema = BuildSchema::build('type foo');
@@ -130,9 +120,7 @@ final class UniqueDirectiveNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('adding new directive to existing schema with same-named type')
-     */
+    /** @see it('adding new directive to existing schema with same-named type') */
     public function testAddingNewDirectiveToExistingSchemaWithSameNamedType(): void
     {
         $schema = BuildSchema::build('type foo');
@@ -140,9 +128,7 @@ final class UniqueDirectiveNamesTest extends ValidatorTestCase
         $this->expectValidSDL(new UniqueDirectiveNames(), 'directive @foo on SCHEMA', $schema);
     }
 
-    /**
-     * @see it('adding conflicting directives to existing schema')
-     */
+    /** @see it('adding conflicting directives to existing schema') */
     public function testAddingConflictingDirectivesToExistingSchema(): void
     {
         $schema = BuildSchema::build('directive @foo on SCHEMA');

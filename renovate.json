@@ -1,20 +1,31 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-      "config:base"
+      "config:recommended"
   ],
   "labels": ["dependencies"],
   "rangeStrategy": "replace",
   "packageRules": [
     {
-      "matchPackagePatterns": ["phpstan"],
+      "matchPackageNames": ["/phpstan/"],
       "groupName": "phpstan packages",
       "groupSlug": "phpstan",
-      "rangeStrategy": "pin"
+      "rangeStrategy": "pin",
+      "schedule": ["before 4am on monday"],
+      "automerge": true,
+      "automergeType": "branch"
     },
     {
       "matchPackageNames": ["phpstan/extension-installer"],
       "rangeStrategy": "replace"
+    },
+    {
+      "matchPackageNames": ["friendsofphp/php-cs-fixer", "mll-lab/php-cs-fixer-config"],
+      "groupName": "php-cs-fixer packages",
+      "groupSlug": "php-cs-fixer",
+      "schedule": ["before 4am on monday"],
+      "automerge": true,
+      "automergeType": "branch"
     }
   ],
   "assignees": [

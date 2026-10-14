@@ -54,11 +54,11 @@ class NoFragmentCycles extends ValidationRule
 
         $spreadNodes = $context->getFragmentSpreads($fragment);
 
-        if (\count($spreadNodes) === 0) {
+        if ($spreadNodes === []) {
             return;
         }
 
-        $this->spreadPathIndexByName[$fragmentName] = \count($this->spreadPath);
+        $this->spreadPathIndexByName[$fragmentName] = count($this->spreadPath);
 
         foreach ($spreadNodes as $spreadNode) {
             $spreadName = $spreadNode->name->value;
@@ -71,9 +71,9 @@ class NoFragmentCycles extends ValidationRule
                     $this->detectCycleRecursive($spreadFragment, $context);
                 }
             } else {
-                $cyclePath = \array_slice($this->spreadPath, $cycleIndex);
+                $cyclePath = array_slice($this->spreadPath, $cycleIndex);
                 $fragmentNames = [];
-                foreach (\array_slice($cyclePath, 0, -1) as $frag) {
+                foreach (array_slice($cyclePath, 0, -1) as $frag) {
                     $fragmentNames[] = $frag->name->value;
                 }
 
@@ -83,20 +83,18 @@ class NoFragmentCycles extends ValidationRule
                 ));
             }
 
-            \array_pop($this->spreadPath);
+            array_pop($this->spreadPath);
         }
 
         $this->spreadPathIndexByName[$fragmentName] = null;
     }
 
-    /**
-     * @param array<string> $spreadNames
-     */
+    /** @param array<string> $spreadNames */
     public static function cycleErrorMessage(string $fragName, array $spreadNames = []): string
     {
-        $via = \count($spreadNames) > 0
-            ? ' via ' . \implode(', ', $spreadNames)
-            : '';
+        $via = $spreadNames === []
+            ? ''
+            : ' via ' . implode(', ', $spreadNames);
 
         return "Cannot spread fragment \"{$fragName}\" within itself{$via}.";
     }

@@ -15,8 +15,12 @@ use GraphQL\Validator\QueryValidationContext;
 
 class QueryDepth extends QuerySecurityRule
 {
+    /** @var array<string, bool> Fragment names which are already calculated in recursion */
+    protected array $calculatedFragments = [];
+
     protected int $maxQueryDepth;
 
+    /** @throws \InvalidArgumentException */
     public function __construct(int $maxQueryDepth)
     {
         $this->setMaxQueryDepth($maxQueryDepth);
@@ -44,9 +48,7 @@ class QueryDepth extends QuerySecurityRule
         );
     }
 
-    /**
-     * @param OperationDefinitionNode|FieldNode|InlineFragmentNode|FragmentDefinitionNode $node
-     */
+    /** @param OperationDefinitionNode|FieldNode|InlineFragmentNode|FragmentDefinitionNode $node */
     protected function fieldDepth(Node $node, int $depth = 0, int $maxDepth = 0): int
     {
         if ($node->selectionSet instanceof SelectionSetNode) {
@@ -83,7 +85,14 @@ class QueryDepth extends QuerySecurityRule
                 $fragment = $this->getFragment($node);
 
                 if ($fragment !== null) {
+                    $name = $fragment->name->value;
+                    if (isset($this->calculatedFragments[$name])) {
+                        return $this->maxQueryDepth + 1;
+                    }
+
+                    $this->calculatedFragments[$name] = true;
                     $maxDepth = $this->fieldDepth($fragment, $depth, $maxDepth);
+                    unset($this->calculatedFragments[$name]);
                 }
 
                 break;
@@ -99,6 +108,8 @@ class QueryDepth extends QuerySecurityRule
 
     /**
      * Set max query depth. If equal to 0 no check is done. Must be greater or equal to 0.
+     *
+     * @throws \InvalidArgumentException
      */
     public function setMaxQueryDepth(int $maxQueryDepth): void
     {

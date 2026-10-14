@@ -22,7 +22,7 @@ final class PsrResponseTest extends TestCase
         $response = (new Helper())->toPsrResponse($result, $psrResponse, $stream);
 
         self::assertInstanceOf(ResponseInterface::class, $response);
-        self::assertSame(json_encode($result), (string) $response->getBody());
+        self::assertSame(json_encode($result, JSON_THROW_ON_ERROR), (string) $response->getBody());
         self::assertSame(['Content-Type' => ['application/json']], $response->getHeaders());
     }
 }

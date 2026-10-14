@@ -35,7 +35,7 @@ class LexicalDistance
     public function __construct(string $input)
     {
         $this->input = $input;
-        $this->inputLowerCase = \strtolower($input);
+        $this->inputLowerCase = strtolower($input);
         $this->inputArray = self::stringToArray($this->inputLowerCase);
     }
 
@@ -45,7 +45,7 @@ class LexicalDistance
             return 0;
         }
 
-        $optionLowerCase = \strtolower($option);
+        $optionLowerCase = strtolower($option);
 
         // Any case change counts as a single edit
         if ($this->inputLowerCase === $optionLowerCase) {
@@ -55,14 +55,14 @@ class LexicalDistance
         $a = self::stringToArray($optionLowerCase);
         $b = $this->inputArray;
 
-        if (\count($a) < \count($b)) {
+        if (count($a) < count($b)) {
             $tmp = $a;
             $a = $b;
             $b = $tmp;
         }
 
-        $aLength = \count($a);
-        $bLength = \count($b);
+        $aLength = count($a);
+        $bLength = count($b);
 
         if ($aLength - $bLength > $threshold) {
             return null;
@@ -82,7 +82,7 @@ class LexicalDistance
             for ($j = 1; $j <= $bLength; ++$j) {
                 $cost = $a[$i - 1] === $b[$j - 1] ? 0 : 1;
 
-                $currentCell = \min(
+                $currentCell = min(
                     $upRow[$j] + 1, // delete
                     $currentRow[$j - 1] + 1, // insert
                     $upRow[$j - 1] + $cost, // substitute
@@ -91,7 +91,7 @@ class LexicalDistance
                 if ($i > 1 && $j > 1 && $a[$i - 1] === $b[$j - 2] && $a[$i - 2] === $b[$j - 1]) {
                     // transposition
                     $doubleDiagonalCell = $rows[($i - 2) % 3][$j - 2];
-                    $currentCell = \min($currentCell, $doubleDiagonalCell + 1);
+                    $currentCell = min($currentCell, $doubleDiagonalCell + 1);
                 }
 
                 if ($currentCell < $smallestCell) {
@@ -120,8 +120,8 @@ class LexicalDistance
     private static function stringToArray(string $str): array
     {
         $array = [];
-        foreach (\mb_str_split($str) as $char) {
-            $array[] = \mb_ord($char);
+        foreach (mb_str_split($str) as $char) {
+            $array[] = mb_ord($char);
         }
 
         return $array;

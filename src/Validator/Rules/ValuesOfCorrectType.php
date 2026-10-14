@@ -107,11 +107,11 @@ class ValuesOfCorrectType extends ValidationRule
 
                 $suggestions = Utils::suggestionList(
                     $node->name->value,
-                    \array_keys($parentType->getFields())
+                    array_keys($parentType->getFields())
                 );
-                $didYouMean = \count($suggestions) > 0
-                    ? ' Did you mean ' . Utils::quotedOrList($suggestions) . '?'
-                    : null;
+                $didYouMean = $suggestions === []
+                    ? null
+                    : ' Did you mean ' . Utils::quotedOrList($suggestions) . '?';
 
                 $context->reportError(
                     new Error(
@@ -140,6 +140,8 @@ class ValuesOfCorrectType extends ValidationRule
 
     /**
      * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node
+     *
+     * @throws \JsonException
      */
     protected function isValidValueNode(QueryValidationContext $context, ValueNode $node): void
     {

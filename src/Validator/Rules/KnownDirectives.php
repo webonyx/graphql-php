@@ -3,6 +3,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
@@ -43,17 +44,21 @@ use GraphQL\Validator\ValidationContext;
  */
 class KnownDirectives extends ValidationRule
 {
+    /** @throws InvariantViolation */
     public function getVisitor(QueryValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
+    /** @throws InvariantViolation */
     public function getSDLVisitor(SDLValidationContext $context): array
     {
         return $this->getASTVisitor($context);
     }
 
     /**
+     * @throws InvariantViolation
+     *
      * @phpstan-return VisitorArray
      */
     public function getASTVisitor(ValidationContext $context): array
@@ -106,7 +111,7 @@ class KnownDirectives extends ValidationRule
 
                 $candidateLocation = $this->getDirectiveLocationForASTPath($ancestors);
 
-                if ($candidateLocation === '' || \in_array($candidateLocation, $locations, true)) {
+                if ($candidateLocation === '' || in_array($candidateLocation, $locations, true)) {
                     return;
                 }
 
@@ -126,11 +131,13 @@ class KnownDirectives extends ValidationRule
     }
 
     /**
-     * @param array<Node|NodeList> $ancestors
+     * @param array<Node|NodeList<Node>> $ancestors
+     *
+     * @throws \Exception
      */
     protected function getDirectiveLocationForASTPath(array $ancestors): string
     {
-        $appliedTo = $ancestors[\count($ancestors) - 1];
+        $appliedTo = $ancestors[count($ancestors) - 1];
 
         switch (true) {
             case $appliedTo instanceof OperationDefinitionNode:
@@ -179,13 +186,13 @@ class KnownDirectives extends ValidationRule
             case $appliedTo instanceof InputObjectTypeExtensionNode:
                 return DirectiveLocation::INPUT_OBJECT;
             case $appliedTo instanceof InputValueDefinitionNode:
-                $parentNode = $ancestors[\count($ancestors) - 3];
+                $parentNode = $ancestors[count($ancestors) - 3];
 
                 return $parentNode instanceof InputObjectTypeDefinitionNode
                     ? DirectiveLocation::INPUT_FIELD_DEFINITION
                     : DirectiveLocation::ARGUMENT_DEFINITION;
             default:
-                $unknownLocation = \get_class($appliedTo);
+                $unknownLocation = get_class($appliedTo);
                 throw new \Exception("Unknown directive location: {$unknownLocation}.");
         }
     }

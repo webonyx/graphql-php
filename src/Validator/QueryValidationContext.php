@@ -36,7 +36,7 @@ class QueryValidationContext implements ValidationContext
 
     protected DocumentNode $ast;
 
-    /** @var array<int, Error> */
+    /** @var list<Error> */
     protected array $errors = [];
 
     private TypeInfo $typeInfo;
@@ -73,9 +73,7 @@ class QueryValidationContext implements ValidationContext
         $this->errors[] = $error;
     }
 
-    /**
-     * @return array<int, Error>
-     */
+    /** @return list<Error> */
     public function getErrors(): array
     {
         return $this->errors;
@@ -92,6 +90,8 @@ class QueryValidationContext implements ValidationContext
     }
 
     /**
+     * @throws \Exception
+     *
      * @phpstan-return array<int, VariableUsage>
      */
     public function getRecursiveVariableUsages(OperationDefinitionNode $operation): array
@@ -107,7 +107,7 @@ class QueryValidationContext implements ValidationContext
                 $allUsages[] = $this->getVariableUsages($fragment);
             }
 
-            $usages = \array_merge(...$allUsages);
+            $usages = array_merge(...$allUsages);
             $this->recursiveVariableUsages[$operation] = $usages;
         }
 
@@ -116,6 +116,8 @@ class QueryValidationContext implements ValidationContext
 
     /**
      * @param HasSelectionSet&Node $node
+     *
+     * @throws \Exception
      *
      * @phpstan-return array<int, VariableUsage>
      */
@@ -147,9 +149,7 @@ class QueryValidationContext implements ValidationContext
         return $this->variableUsages[$node];
     }
 
-    /**
-     * @return array<int, FragmentDefinitionNode>
-     */
+    /** @return array<int, FragmentDefinitionNode> */
     public function getRecursivelyReferencedFragments(OperationDefinitionNode $operation): array
     {
         $fragments = $this->recursivelyReferencedFragments[$operation] ?? null;
@@ -158,8 +158,8 @@ class QueryValidationContext implements ValidationContext
             $fragments = [];
             $collectedNames = [];
             $nodesToVisit = [$operation];
-            while (\count($nodesToVisit) > 0) {
-                $node = \array_pop($nodesToVisit);
+            while ($nodesToVisit !== []) {
+                $node = array_pop($nodesToVisit);
                 $spreads = $this->getFragmentSpreads($node);
                 foreach ($spreads as $spread) {
                     $fragName = $spread->name->value;
@@ -197,8 +197,8 @@ class QueryValidationContext implements ValidationContext
             $spreads = [];
 
             $setsToVisit = [$node->getSelectionSet()];
-            while (\count($setsToVisit) > 0) {
-                $set = \array_pop($setsToVisit);
+            while ($setsToVisit !== []) {
+                $set = array_pop($setsToVisit);
 
                 foreach ($set->selections as $selection) {
                     if ($selection instanceof FragmentSpreadNode) {
@@ -241,25 +241,19 @@ class QueryValidationContext implements ValidationContext
         return $this->typeInfo->getType();
     }
 
-    /**
-     * @return (CompositeType&Type)|null
-     */
+    /** @return (CompositeType&Type)|null */
     public function getParentType(): ?CompositeType
     {
         return $this->typeInfo->getParentType();
     }
 
-    /**
-     * @return (Type&InputType)|null
-     */
+    /** @return (Type&InputType)|null */
     public function getInputType(): ?InputType
     {
         return $this->typeInfo->getInputType();
     }
 
-    /**
-     * @return (Type&InputType)|null
-     */
+    /** @return (Type&InputType)|null */
     public function getParentInputType(): ?InputType
     {
         return $this->typeInfo->getParentInputType();

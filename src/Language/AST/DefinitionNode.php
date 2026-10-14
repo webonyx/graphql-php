@@ -8,6 +8,4 @@ namespace GraphQL\Language\AST;
  *   | TypeSystemDefinitionNode
  *   | TypeSystemExtensionNode;.
  */
-interface DefinitionNode
-{
-}
+interface DefinitionNode {}

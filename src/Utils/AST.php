@@ -4,6 +4,7 @@ namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
@@ -36,6 +37,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\NullableType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 
 /**
  * Various utilities dealing with AST.
@@ -66,6 +68,9 @@ class AST
      * @param array<string, mixed> $node
      *
      * @api
+     *
+     * @throws \JsonException
+     * @throws InvariantViolation
      */
     public static function fromArray(array $node): Node
     {
@@ -92,12 +97,10 @@ class AST
                 continue;
             }
 
-            if (\is_array($value)) {
-                if (isset($value[0]) || \count($value) === 0) {
-                    $value = new NodeList($value);
-                } else {
-                    $value = self::fromArray($value);
-                }
+            if (is_array($value)) {
+                $value = isset($value[0]) || $value === []
+                    ? new NodeList(array_values($value))
+                    : self::fromArray($value);
             }
 
             $instance->{$key} = $value;
@@ -138,6 +141,10 @@ class AST
      *
      * @param mixed $value
      * @param InputType&Type $type
+     *
+     * @throws \JsonException
+     * @throws InvariantViolation
+     * @throws SerializationError
      *
      * @return (ValueNode&Node)|null
      *
@@ -184,31 +191,29 @@ class AST
         // Populate the fields of the input object by creating ASTs from each value
         // in the PHP object according to the fields in the input type.
         if ($type instanceof InputObjectType) {
-            $isArray = \is_array($value);
+            $isArray = is_array($value);
             $isArrayLike = $isArray || $value instanceof \ArrayAccess;
-            if (! $isArrayLike && ! \is_object($value)) {
+            if (! $isArrayLike && ! is_object($value)) {
                 return null;
             }
 
             $fields = $type->getFields();
             $fieldNodes = [];
             foreach ($fields as $fieldName => $field) {
-                if ($isArrayLike) {
-                    $fieldValue = $value[$fieldName] ?? null;
-                } else {
-                    $fieldValue = $value->{$fieldName} ?? null;
-                }
+                $fieldValue = $isArrayLike
+                    ? $value[$fieldName] ?? null
+                    : $value->{$fieldName} ?? null;
 
                 // Have to check additionally if key exists, since we differentiate between
                 // "no key" and "value is null":
                 if ($fieldValue !== null) {
                     $fieldExists = true;
                 } elseif ($isArray) {
-                    $fieldExists = \array_key_exists($fieldName, $value);
+                    $fieldExists = array_key_exists($fieldName, $value);
                 } elseif ($isArrayLike) {
                     $fieldExists = $value->offsetExists($fieldName);
                 } else {
-                    $fieldExists = \property_exists($value, $fieldName);
+                    $fieldExists = property_exists($value, $fieldName);
                 }
 
                 if (! $fieldExists) {
@@ -237,16 +242,16 @@ class AST
         $serialized = $type->serialize($value);
 
         // Others serialize based on their corresponding PHP scalar types.
-        if (\is_bool($serialized)) {
+        if (is_bool($serialized)) {
             return new BooleanValueNode(['value' => $serialized]);
         }
 
-        if (\is_int($serialized)) {
+        if (is_int($serialized)) {
             return new IntValueNode(['value' => (string) $serialized]);
         }
 
-        if (\is_float($serialized)) {
-            // int cast with == used for performance reasons
+        if (is_float($serialized)) {
+            /** @phpstan-ignore equal.notAllowed (int cast with == used for performance reasons) */
             if ((int) $serialized == $serialized) {
                 return new IntValueNode(['value' => (string) $serialized]);
             }
@@ -254,7 +259,7 @@ class AST
             return new FloatValueNode(['value' => (string) $serialized]);
         }
 
-        if (\is_string($serialized)) {
+        if (is_string($serialized)) {
             // Enum types use Enum literals.
             if ($type instanceof EnumType) {
                 return new EnumValueNode(['value' => $serialized]);
@@ -303,7 +308,7 @@ class AST
      *
      * @api
      */
-    public static function valueFromAST(?ValueNode $valueNode, Type $type, ?array $variables = null)
+    public static function valueFromAST(?ValueNode $valueNode, Type $type, ?array $variables = null, ?Schema $schema = null)
     {
         $undefined = Utils::undefined();
 
@@ -319,7 +324,7 @@ class AST
                 return $undefined;
             }
 
-            return self::valueFromAST($valueNode, $type->getWrappedType(), $variables);
+            return self::valueFromAST($valueNode, $type->getWrappedType(), $variables, $schema);
         }
 
         if ($valueNode instanceof NullValueNode) {
@@ -330,7 +335,7 @@ class AST
         if ($valueNode instanceof VariableNode) {
             $variableName = $valueNode->name->value;
 
-            if ($variables === null || ! \array_key_exists($variableName, $variables)) {
+            if ($variables === null || ! array_key_exists($variableName, $variables)) {
                 // No valid return value.
                 return $undefined;
             }
@@ -358,7 +363,7 @@ class AST
 
                         $coercedValues[] = null;
                     } else {
-                        $itemValue = self::valueFromAST($itemNode, $itemType, $variables);
+                        $itemValue = self::valueFromAST($itemNode, $itemType, $variables, $schema);
                         if ($undefined === $itemValue) {
                             // Invalid: intentionally return no value.
                             return $undefined;
@@ -371,7 +376,7 @@ class AST
                 return $coercedValues;
             }
 
-            $coercedValue = self::valueFromAST($valueNode, $itemType, $variables);
+            $coercedValue = self::valueFromAST($valueNode, $itemType, $variables, $schema);
             if ($undefined === $coercedValue) {
                 // Invalid: intentionally return no value.
                 return $undefined;
@@ -412,7 +417,8 @@ class AST
                 $fieldValue = self::valueFromAST(
                     $fieldNode->value,
                     $field->getType(),
-                    $variables
+                    $variables,
+                    $schema,
                 );
 
                 if ($undefined === $fieldValue) {
@@ -435,6 +441,16 @@ class AST
         }
 
         assert($type instanceof ScalarType, 'only remaining option');
+        $typeName = $type->name;
+
+        // Account for type loader returning a different scalar instance than
+        // the built-in singleton used in field definitions. Resolve the actual
+        // type from the schema to ensure the correct parseLiteral() is called.
+        if ($schema !== null && Type::isBuiltInScalarName($typeName)) {
+            $schemaType = $schema->getType($typeName);
+            assert($schemaType instanceof ScalarType, "Schema must provide a ScalarType for built-in scalar \"{$typeName}\".");
+            $type = $schemaType;
+        }
 
         // Scalars fulfill parsing a literal value via parseLiteral().
         // Invalid values represent a failure to parse correctly, in which case
@@ -456,7 +472,7 @@ class AST
     private static function isMissingVariable(ValueNode $valueNode, ?array $variables): bool
     {
         return $valueNode instanceof VariableNode
-            && ($variables === null || ! \array_key_exists($valueNode->name->value, $variables));
+            && ($variables === null || ! array_key_exists($valueNode->name->value, $variables));
     }
 
     /**
@@ -602,7 +618,7 @@ class AST
      */
     public static function concatAST(array $documents): DocumentNode
     {
-        /** @var array<int, Node&DefinitionNode> $definitions */
+        /** @var list<Node&DefinitionNode> $definitions */
         $definitions = [];
         foreach ($documents as $document) {
             foreach ($document->definitions as $definition) {

@@ -28,9 +28,7 @@ final class DisableIntrospectionTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @phpstan-return ErrorArray
-     */
+    /** @phpstan-return ErrorArray */
     private function error(int $line, int $column): array
     {
         return ErrorHelper::create(

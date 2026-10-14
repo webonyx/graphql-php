@@ -130,7 +130,7 @@ This will make each error entry look like this:
     'extensions' => [
         'debugMessage' => 'Actual exception message',
         'trace' => [
-            /* Formatted original exception trace */
+            // Formatted original exception trace
         ],
     ],
 ]
@@ -201,5 +201,5 @@ try {
 }
 
 header('Content-Type: application/json', true, $status);
-echo json_encode($body);
+echo json_encode($body, JSON_THROW_ON_ERROR);
 ```

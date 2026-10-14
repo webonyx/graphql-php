@@ -2,6 +2,7 @@
 
 namespace GraphQL\Tests;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -10,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 final class IntegerFloatPrimitiveIntrospectionTest extends TestCase
 {
+    /** @throws InvariantViolation */
     public static function build(): Schema
     {
         $queryType = new ObjectType([
@@ -33,7 +35,9 @@ final class IntegerFloatPrimitiveIntrospectionTest extends TestCase
             ],
         ]);
 
-        return new Schema(['query' => $queryType]);
+        return new Schema([
+            'query' => $queryType,
+        ]);
     }
 
     public function testDefaultValues(): void

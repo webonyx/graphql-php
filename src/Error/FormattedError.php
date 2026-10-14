@@ -7,6 +7,7 @@ use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
+use PHPUnit\Framework\Test;
 
 /**
  * This class is used for [default error formatting](error-handling.md).
@@ -17,6 +18,8 @@ use GraphQL\Utils\Utils;
  *
  * @phpstan-import-type SerializableError from ExecutionResult
  * @phpstan-import-type ErrorFormatter from ExecutionResult
+ *
+ * @see \GraphQL\Tests\Error\FormattedErrorTest
  */
 class FormattedError
 {
@@ -42,7 +45,7 @@ class FormattedError
         $printedLocations = [];
 
         $nodes = $error->nodes;
-        if (isset($nodes) && \count($nodes) > 0) {
+        if (isset($nodes) && $nodes !== []) {
             foreach ($nodes as $node) {
                 $location = $node->loc;
                 if (isset($location)) {
@@ -55,16 +58,16 @@ class FormattedError
                     }
                 }
             }
-        } elseif ($error->getSource() !== null && \count($error->getLocations()) !== 0) {
+        } elseif ($error->getSource() !== null && $error->getLocations() !== []) {
             $source = $error->getSource();
             foreach ($error->getLocations() as $location) {
                 $printedLocations[] = self::highlightSourceAtLocation($source, $location);
             }
         }
 
-        return \count($printedLocations) === 0
+        return $printedLocations === []
             ? $error->getMessage()
-            : \implode("\n\n", \array_merge([$error->getMessage()], $printedLocations)) . "\n";
+            : implode("\n\n", array_merge([$error->getMessage()], $printedLocations)) . "\n";
     }
 
     /**
@@ -81,7 +84,7 @@ class FormattedError
         $prevLineNum = (string) ($contextLine - 1);
         $lineNum = (string) $contextLine;
         $nextLineNum = (string) ($contextLine + 1);
-        $padLen = \strlen($nextLineNum);
+        $padLen = strlen($nextLineNum);
 
         $lines = Utils::splitLines($source->body);
         $lines[0] = self::spaces($source->locationOffset->column - 1) . $lines[0];
@@ -91,10 +94,10 @@ class FormattedError
             $line >= 2 ? (self::leftPad($padLen, $prevLineNum) . ': ' . $lines[$line - 2]) : null,
             self::leftPad($padLen, $lineNum) . ': ' . $lines[$line - 1],
             self::spaces(2 + $padLen + $contextColumn - 1) . '^',
-            $line < \count($lines) ? self::leftPad($padLen, $nextLineNum) . ': ' . $lines[$line] : null,
+            $line < count($lines) ? self::leftPad($padLen, $nextLineNum) . ': ' . $lines[$line] : null,
         ];
 
-        return \implode("\n", \array_filter($outputLines));
+        return implode("\n", array_filter($outputLines));
     }
 
     private static function getColumnOffset(Source $source, SourceLocation $location): int
@@ -106,12 +109,12 @@ class FormattedError
 
     private static function spaces(int $length): string
     {
-        return \str_repeat(' ', $length);
+        return str_repeat(' ', $length);
     }
 
     private static function leftPad(int $length, string $str): string
     {
-        return self::spaces($length - \mb_strlen($str)) . $str;
+        return self::spaces($length - mb_strlen($str)) . $str;
     }
 
     /**
@@ -137,28 +140,28 @@ class FormattedError
         $formattedError = ['message' => $message];
 
         if ($exception instanceof Error) {
-            $locations = \array_map(
+            $locations = array_map(
                 static fn (SourceLocation $loc): array => $loc->toSerializableArray(),
                 $exception->getLocations()
             );
-            if (\count($locations) > 0) {
+            if ($locations !== []) {
                 $formattedError['locations'] = $locations;
             }
 
-            if ($exception->path !== null && \count($exception->path) > 0) {
+            if ($exception->path !== null && $exception->path !== []) {
                 $formattedError['path'] = $exception->path;
             }
         }
 
         if ($exception instanceof ProvidesExtensions) {
             $extensions = $exception->getExtensions();
-            if (\is_array($extensions) && \count($extensions) > 0) {
+            if (is_array($extensions) && $extensions !== []) {
                 $formattedError['extensions'] = $extensions;
             }
         }
 
         if ($debugFlag !== DebugFlag::NONE) {
-            $formattedError = self::addDebugEntries($formattedError, $exception, $debugFlag);
+            return self::addDebugEntries($formattedError, $exception, $debugFlag);
         }
 
         return $formattedError;
@@ -169,6 +172,8 @@ class FormattedError
      *
      * @param SerializableError $formattedError
      * @param int $debugFlag For available flags @see \GraphQL\Error\DebugFlag
+     *
+     * @throws \Throwable
      *
      * @return SerializableError
      */
@@ -253,10 +258,10 @@ class FormattedError
             // Remove invariant entries as they don't provide much value:
             && ($trace[0]['class'] . '::' . $trace[0]['function'] === 'GraphQL\Utils\Utils::invariant')
         ) {
-            \array_shift($trace);
+            array_shift($trace);
         } elseif (! isset($trace[0]['file'])) {
             // Remove root call as it's likely error handler trace:
-            \array_shift($trace);
+            array_shift($trace);
         }
 
         $formatted = [];
@@ -272,8 +277,8 @@ class FormattedError
             }
 
             $func = $err['function'];
-            $args = \array_map([self::class, 'printVar'], $err['args'] ?? []);
-            $funcStr = $func . '(' . \implode(', ', $args) . ')';
+            $args = array_map([self::class, 'printVar'], $err['args'] ?? []);
+            $funcStr = $func . '(' . implode(', ', $args) . ')';
 
             if (isset($err['class'])) {
                 $safeErr['call'] = $err['class'] . '::' . $funcStr;
@@ -287,36 +292,39 @@ class FormattedError
         return $formatted;
     }
 
-    /**
-     * @param mixed $var
-     */
+    /** @param mixed $var */
     public static function printVar($var): string
     {
         if ($var instanceof Type) {
             return 'GraphQLType: ' . $var->toString();
         }
 
-        if (\is_object($var)) {
-            return 'instance of ' . \get_class($var) . ($var instanceof \Countable ? '(' . \count($var) . ')' : '');
+        if (is_object($var)) {
+            // Calling `count` on instances of `PHPUnit\Framework\Test` triggers an unintended side effect - see https://github.com/sebastianbergmann/phpunit/issues/5866#issuecomment-2172429263
+            $count = ! $var instanceof Test && $var instanceof \Countable
+                ? '(' . count($var) . ')'
+                : '';
+
+            return 'instance of ' . get_class($var) . $count;
         }
 
-        if (\is_array($var)) {
-            return 'array(' . \count($var) . ')';
+        if (is_array($var)) {
+            return 'array(' . count($var) . ')';
         }
 
         if ($var === '') {
             return '(empty string)';
         }
 
-        if (\is_string($var)) {
-            return "'" . \addcslashes($var, "'") . "'";
+        if (is_string($var)) {
+            return "'" . addcslashes($var, "'") . "'";
         }
 
-        if (\is_bool($var)) {
+        if (is_bool($var)) {
             return $var ? 'true' : 'false';
         }
 
-        if (\is_scalar($var)) {
+        if (is_scalar($var)) {
             return (string) $var;
         }
 
@@ -324,6 +332,6 @@ class FormattedError
             return 'null';
         }
 
-        return \gettype($var);
+        return gettype($var);
     }
 }

@@ -2,7 +2,9 @@
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Error\ClientAware;
 use GraphQL\Error\CoercionError;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -28,17 +30,13 @@ final class CoerceInputValueTest extends TestCase
 
     private InputObjectType $testInputObject;
 
-    /**
-     * @var ListOfType<ScalarType>
-     */
+    /** @var ListOfType<ScalarType> */
     private ListOfType $testList;
 
-    /**
-     * @var ListOfType<ListOfType<ScalarType>>
-     */
+    /** @var ListOfType<ListOfType<ScalarType>> */
     private ListOfType $testNestedList;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->testNonNull = Type::nonNull(Type::int());
 
@@ -125,9 +123,7 @@ final class CoerceInputValueTest extends TestCase
         $this->expectGraphQLValue($result, null);
     }
 
-    /**
-     * @see it('it('returns a thrown error', () => {', () => {
-     */
+    /** @see it('it('returns a thrown error', () => {', () => { */
     public function testReturnsAThrownError(): void
     {
         $result = Value::coerceInputValue(['error' => 'Some error message'], $this->testScalar);
@@ -152,9 +148,7 @@ final class CoerceInputValueTest extends TestCase
         $this->expectGraphQLValue($barResult, 123456789);
     }
 
-    /**
-     * @see it('returns an error for misspelled enum value', () => {
-     */
+    /** @see it('returns an error for misspelled enum value', () => { */
     public function testReturnsAnErrorForMisspelledEnumValue(): void
     {
         $result = Value::coerceInputValue('foo', $this->testEnum);
@@ -165,9 +159,7 @@ final class CoerceInputValueTest extends TestCase
         )]);
     }
 
-    /**
-     * @see it('returns an error for incorrect value type', () => {
-     */
+    /** @see it('returns an error for incorrect value type', () => { */
     public function testReturnsErrorForIncorrectValueType(): void
     {
         $result1 = Value::coerceInputValue(123, $this->testEnum);
@@ -186,6 +178,34 @@ final class CoerceInputValueTest extends TestCase
         )]);
     }
 
+    public function testPropagatesClientSafeError(): void
+    {
+        $message = 'message';
+        $value = ['value' => 1];
+
+        $clientSafeException = new class($message) extends \Exception implements ClientAware {
+            public function isClientSafe(): bool
+            {
+                return true;
+            }
+        };
+
+        $scalar = new CustomScalarType([
+            'name' => 'TestScalar',
+            'parseValue' => function () use ($clientSafeException) {
+                throw $clientSafeException;
+            },
+            'parseLiteral' => fn () => null,
+        ]);
+
+        $result = Value::coerceInputValue($value, $scalar);
+        $this->expectGraphQLError($result, [CoercionError::make(
+            $message,
+            null,
+            $value,
+        )]);
+    }
+
     /**
      * @see describe('for GraphQLInputObject', () => {
      * @see it('returns no error for a valid input')
@@ -200,18 +220,14 @@ final class CoerceInputValueTest extends TestCase
         $this->expectGraphQLValue($result, ['foo' => 123]);
     }
 
-    /**
-     * @return iterable<int, array{mixed}>
-     */
-    public function validInputObjects(): iterable
+    /** @return iterable<array{mixed}> */
+    public static function validInputObjects(): iterable
     {
         yield [['foo' => 123]];
         yield [(object) ['foo' => 123]];
     }
 
-    /**
-     * @see it('returns an error for a non-object type', () => {
-     */
+    /** @see it('returns an error for a non-object type', () => { */
     public function testReturnsAnErrorForANonObjectType(): void
     {
         $result = Value::coerceInputValue(123, $this->testInputObject);
@@ -222,9 +238,7 @@ final class CoerceInputValueTest extends TestCase
         )]);
     }
 
-    /**
-     * @see it('returns an error for an invalid field', () => {
-     */
+    /** @see it('returns an error for an invalid field', () => { */
     public function testReturnsAnErrorForAnInvalidField(): void
     {
         $notInt = new \stdClass();
@@ -236,9 +250,7 @@ final class CoerceInputValueTest extends TestCase
         )]);
     }
 
-    /**
-     * @see it('returns multiple errors for multiple invalid fields', () => {
-     */
+    /** @see it('returns multiple errors for multiple invalid fields', () => { */
     public function testReturnsMultipleErrorsForMultipleInvalidFields(): void
     {
         $result = Value::coerceInputValue(['foo' => 'abc', 'bar' => 'def'], $this->testInputObject);
@@ -256,9 +268,7 @@ final class CoerceInputValueTest extends TestCase
         ]);
     }
 
-    /**
-     * @see it('returns error for a missing required field', () => {
-     */
+    /** @see it('returns error for a missing required field', () => { */
     public function testReturnsErrorForAMissingRequiredField(): void
     {
         $result = Value::coerceInputValue(['bar' => 123], $this->testInputObject);
@@ -269,9 +279,7 @@ final class CoerceInputValueTest extends TestCase
         )]);
     }
 
-    /**
-     * @see it('returns error for an unknown field', () => {
-     */
+    /** @see it('returns error for an unknown field', () => { */
     public function testReturnsErrorForAnUnknownField(): void
     {
         $result = Value::coerceInputValue(['foo' => 123, 'unknownField' => 123], $this->testInputObject);
@@ -282,9 +290,7 @@ final class CoerceInputValueTest extends TestCase
         )]);
     }
 
-    /**
-     * @see it('returns error for a misspelled field', () => {
-     */
+    /** @see it('returns error for a misspelled field', () => { */
     public function testReturnsErrorForAMisspelledField(): void
     {
         $result = Value::coerceInputValue(['foo' => 123, 'bart' => 123], $this->testInputObject);
@@ -297,6 +303,8 @@ final class CoerceInputValueTest extends TestCase
 
     /**
      * @param mixed $defaultValue Anything goes
+     *
+     * @throws InvariantViolation
      */
     private function makeTestInputObject($defaultValue): InputObjectType
     {
@@ -325,9 +333,7 @@ final class CoerceInputValueTest extends TestCase
         $this->expectGraphQLValue($result, ['foo' => 5]);
     }
 
-    /**
-     * @see it('returns object with default value', () => {
-     */
+    /** @see it('returns object with default value', () => { */
     public function testReturnsObjectWithDefaultValue(): void
     {
         $result = Value::coerceInputValue([], $this->makeTestInputObject(7));
@@ -354,9 +360,7 @@ final class CoerceInputValueTest extends TestCase
         $this->expectGraphQLValue($result, [1, 2, 3]);
     }
 
-    /**
-     * @see it('returns no error for a valid iterable input', () => {
-     */
+    /** @see it('returns no error for a valid iterable input', () => { */
     public function testReturnsNoErrorForAValidIterableInput(): void
     {
         $listGenerator = function (): iterable {
@@ -369,9 +373,7 @@ final class CoerceInputValueTest extends TestCase
         $this->expectGraphQLValue($result, [1, 2, 3]);
     }
 
-    /**
-     * @see it('returns an error for an invalid input', () => {
-     */
+    /** @see it('returns an error for an invalid input', () => { */
     public function testReturnsAnErrorForAnInvalidInput(): void
     {
         $result = Value::coerceInputValue([1, 'b', true, 4], $this->testList);
@@ -389,18 +391,14 @@ final class CoerceInputValueTest extends TestCase
         ]);
     }
 
-    /**
-     * @see it('returns a list for a non-list value', () => {
-     */
+    /** @see it('returns a list for a non-list value', () => { */
     public function testReturnsAListForANonListValue(): void
     {
         $result = Value::coerceInputValue(42, $this->testList);
         $this->expectGraphQLValue($result, [42]);
     }
 
-    /**
-     * @see it('returns a list for a non-list object value', () => {
-     */
+    /** @see it('returns a list for a non-list object value', () => { */
     public function testReturnsAListForANonListObjectValue(): void
     {
         $TestListOfObjects = new ListOfType(
@@ -418,9 +416,7 @@ final class CoerceInputValueTest extends TestCase
         $this->expectGraphQLValue($result, [['length' => 100500]]);
     }
 
-    /**
-     * @see it('returns an error for a non-list invalid value', () => {
-     */
+    /** @see it('returns an error for a non-list invalid value', () => { */
     public function testReturnsAnErrorForANonListInvalidValue(): void
     {
         $result = Value::coerceInputValue('INVALID', $this->testList);
@@ -433,9 +429,7 @@ final class CoerceInputValueTest extends TestCase
         ]);
     }
 
-    /**
-     * @see it('returns null for a null value', () => {
-     */
+    /** @see it('returns null for a null value', () => { */
     public function testReturnsNullForANullValue(): void
     {
         $result = Value::coerceInputValue(null, $this->testList);
@@ -452,36 +446,28 @@ final class CoerceInputValueTest extends TestCase
         $this->expectGraphQLValue($result, [[1], [2, 3]]);
     }
 
-    /**
-     * @see it('returns a list for a non-list value', () => {
-     */
+    /** @see it('returns a list for a non-list value', () => { */
     public function testNestedGraphQLListReturnsAListForANonListValue(): void
     {
         $result = Value::coerceInputValue(42, $this->testNestedList);
         $this->expectGraphQLValue($result, [[42]]);
     }
 
-    /**
-     * @see it('returns null for a null value', () => {
-     */
+    /** @see it('returns null for a null value', () => { */
     public function testNestedGraphQLListReturnsNullForANullValue(): void
     {
         $result = Value::coerceInputValue(null, $this->testNestedList);
         $this->expectGraphQLValue($result, null);
     }
 
-    /**
-     * @see it('returns nested lists for nested non-list values', () => {
-     */
+    /** @see it('returns nested lists for nested non-list values', () => { */
     public function testReturnsNestedListsForNestedNonListValue(): void
     {
         $result = Value::coerceInputValue([1, 2, 3], $this->testNestedList);
         $this->expectGraphQLValue($result, [[1], [2], [3]]);
     }
 
-    /**
-     * @see it('returns nested null for nested null values', () => {
-     */
+    /** @see it('returns nested null for nested null values', () => { */
     public function testReturnsNestedNullForNestedNullValues(): void
     {
         $result = Value::coerceInputValue([42, [null], null], $this->testNestedList);
@@ -493,7 +479,7 @@ final class CoerceInputValueTest extends TestCase
      * @see it('throw error without path', () => {
      * @see it('throw error with path', () => {
      *
-     * Not necessary because we do not implement the callback variant coerceInputValue.
+     * Unnecessary because we do not implement the callback variant coerceInputValue.
      */
 
     /**

@@ -22,6 +22,7 @@ use GraphQL\Validator\Rules\NoFragmentCycles;
 use GraphQL\Validator\Rules\NoUndefinedVariables;
 use GraphQL\Validator\Rules\NoUnusedFragments;
 use GraphQL\Validator\Rules\NoUnusedVariables;
+use GraphQL\Validator\Rules\OneOfInputObjectsRule;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
 use GraphQL\Validator\Rules\PossibleTypeExtensions;
@@ -86,9 +87,11 @@ class DocumentValidator
     /**
      * Validate a GraphQL query against a schema.
      *
-     * @param array<ValidationRule>|null $rules
+     * @param array<ValidationRule>|null $rules Defaults to using all available rules
      *
-     * @return array<int, Error>
+     * @throws \Exception
+     *
+     * @return list<Error>
      *
      * @api
      */
@@ -100,7 +103,7 @@ class DocumentValidator
     ): array {
         $rules ??= static::allRules();
 
-        if (\count($rules) === 0) {
+        if ($rules === []) {
             return [];
         }
 
@@ -127,6 +130,8 @@ class DocumentValidator
     /**
      * Returns all global validation rules.
      *
+     * @throws \InvalidArgumentException
+     *
      * @return array<string, ValidationRule>
      *
      * @api
@@ -134,7 +139,7 @@ class DocumentValidator
     public static function allRules(): array
     {
         if (! self::$initRules) {
-            self::$rules = \array_merge(
+            self::$rules = array_merge(
                 static::defaultRules(),
                 self::securityRules(),
                 self::$rules
@@ -145,9 +150,7 @@ class DocumentValidator
         return self::$rules;
     }
 
-    /**
-     * @return array<class-string<ValidationRule>, ValidationRule>
-     */
+    /** @return array<class-string<ValidationRule>, ValidationRule> */
     public static function defaultRules(): array
     {
         return self::$defaultRules ??= [
@@ -177,11 +180,14 @@ class DocumentValidator
             VariablesInAllowedPosition::class => new VariablesInAllowedPosition(),
             OverlappingFieldsCanBeMerged::class => new OverlappingFieldsCanBeMerged(),
             UniqueInputFieldNames::class => new UniqueInputFieldNames(),
+            OneOfInputObjectsRule::class => new OneOfInputObjectsRule(),
         ];
     }
 
     /**
      * @deprecated just add rules via @see DocumentValidator::addRule()
+     *
+     * @throws \InvalidArgumentException
      *
      * @return array<class-string<QuerySecurityRule>, QuerySecurityRule>
      */
@@ -194,9 +200,7 @@ class DocumentValidator
         ];
     }
 
-    /**
-     * @return array<class-string<ValidationRule>, ValidationRule>
-     */
+    /** @return array<class-string<ValidationRule>, ValidationRule> */
     public static function sdlRules(): array
     {
         return self::$sdlRules ??= [
@@ -226,6 +230,8 @@ class DocumentValidator
      * @example DocumentValidator::getRule(GraphQL\Validator\Rules\QueryComplexity::class);
      *
      * @api
+     *
+     * @throws \InvalidArgumentException
      */
     public static function getRule(string $name): ?ValidationRule
     {
@@ -257,7 +263,9 @@ class DocumentValidator
      *
      * @param array<ValidationRule>|null $rules
      *
-     * @return array<int, Error>
+     * @throws \Exception
+     *
+     * @return list<Error>
      */
     public static function validateSDL(
         DocumentNode $documentAST,
@@ -266,7 +274,7 @@ class DocumentValidator
     ): array {
         $rules ??= self::sdlRules();
 
-        if (\count($rules) === 0) {
+        if ($rules === []) {
             return [];
         }
 
@@ -285,25 +293,31 @@ class DocumentValidator
         return $context->getErrors();
     }
 
+    /**
+     * @throws \Exception
+     * @throws Error
+     */
     public static function assertValidSDL(DocumentNode $documentAST): void
     {
         $errors = self::validateSDL($documentAST);
-        if (\count($errors) > 0) {
-            throw new Error(self::combineErrorMessages($errors));
-        }
-    }
-
-    public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema): void
-    {
-        $errors = self::validateSDL($documentAST, $schema);
-        if (\count($errors) > 0) {
+        if ($errors !== []) {
             throw new Error(self::combineErrorMessages($errors));
         }
     }
 
     /**
-     * @param array<Error> $errors
+     * @throws \Exception
+     * @throws Error
      */
+    public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema): void
+    {
+        $errors = self::validateSDL($documentAST, $schema);
+        if ($errors !== []) {
+            throw new Error(self::combineErrorMessages($errors));
+        }
+    }
+
+    /** @param array<Error> $errors */
     private static function combineErrorMessages(array $errors): string
     {
         $messages = [];
@@ -311,6 +325,6 @@ class DocumentValidator
             $messages[] = $error->getMessage();
         }
 
-        return \implode("\n\n", $messages);
+        return implode("\n\n", $messages);
     }
 }

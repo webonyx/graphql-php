@@ -19,18 +19,14 @@ use GraphQL\Language\AST\TypeExtensionNode;
  * @property string $name
  * @property string|null $description
  * @property (Node&TypeDefinitionNode)|null $astNode
- * @property array<int, Node&TypeExtensionNode> $extensionASTNodes
+ * @property array<Node&TypeExtensionNode> $extensionASTNodes
  */
 interface NamedType
 {
-    /**
-     * @throws Error
-     */
+    /** @throws Error */
     public function assertValid(): void;
 
-    /**
-     * Is this type a built-in type?
-     */
+    /** Is this type a built-in type? */
     public function isBuiltInType(): bool;
 
     public function name(): string;
@@ -40,6 +36,6 @@ interface NamedType
     /** @return (Node&TypeDefinitionNode)|null */
     public function astNode(): ?Node;
 
-    /** @return array<int, Node&TypeExtensionNode> */
+    /** @return array<Node&TypeExtensionNode> */
     public function extensionASTNodes(): array;
 }

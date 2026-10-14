@@ -9,6 +9,8 @@ final class UniqueArgumentDefinitionNamesTest extends ValidatorTestCase
 {
     /**
      * @param array<int, array<string, mixed>> $errors
+     *
+     * @throws \Exception
      */
     private function expectSDLErrors(string $sdlString, ?Schema $schema, array $errors): void
     {
@@ -37,9 +39,7 @@ final class UniqueArgumentDefinitionNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('one argument')
-     */
+    /** @see it('one argument') */
     public function testOneArgument(): void
     {
         $this->expectValidSDL(
@@ -58,9 +58,7 @@ final class UniqueArgumentDefinitionNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('multiple arguments')
-     */
+    /** @see it('multiple arguments') */
     public function testMultipleArguments(): void
     {
         $this->expectValidSDL(
@@ -88,9 +86,7 @@ final class UniqueArgumentDefinitionNamesTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('duplicating arguments')
-     */
+    /** @see it('duplicating arguments') */
     public function testDuplicatingArguments(): void
     {
         $this->expectSDLErrors(

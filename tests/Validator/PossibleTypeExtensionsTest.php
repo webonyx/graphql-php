@@ -10,6 +10,8 @@ final class PossibleTypeExtensionsTest extends ValidatorTestCase
 {
     /**
      * @param array<int, array<string, mixed>> $errors
+     *
+     * @throws \Exception
      */
     private function expectSDLErrors(string $sdlString, ?Schema $schema, array $errors): void
     {
@@ -35,9 +37,7 @@ final class PossibleTypeExtensionsTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('one extension per type')
-     */
+    /** @see it('one extension per type') */
     public function testOneExtensionPerType(): void
     {
         $this->expectValidSDL(
@@ -60,9 +60,7 @@ final class PossibleTypeExtensionsTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('many extensions per type')
-     */
+    /** @see it('many extensions per type') */
     public function testManyExtensionsPerType(): void
     {
         $this->expectValidSDL(
@@ -92,9 +90,7 @@ final class PossibleTypeExtensionsTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('extending unknown type')
-     */
+    /** @see it('extending unknown type') */
     public function testExtendingUnknownType(): void
     {
         $message = 'Cannot extend type "Unknown" because it is not defined. Did you mean "Known"?';
@@ -151,9 +147,7 @@ final class PossibleTypeExtensionsTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('does not consider non-type definitions')
-     */
+    /** @see it('does not consider non-type definitions') */
     public function testDoesNotConsiderNonTypeDefinitions(): void
     {
         $message = 'Cannot extend type "Foo" because it is not defined.';
@@ -212,9 +206,7 @@ final class PossibleTypeExtensionsTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('extending with different kinds')
-     */
+    /** @see it('extending with different kinds') */
     public function testExtendingWithDifferentKinds(): void
     {
         $this->expectSDLErrors(
@@ -281,9 +273,7 @@ final class PossibleTypeExtensionsTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('extending types within existing schema')
-     */
+    /** @see it('extending types within existing schema') */
     public function testExtendingTypesWithinExistingSchema(): void
     {
         $schema = BuildSchema::build('
@@ -309,9 +299,7 @@ final class PossibleTypeExtensionsTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('extending unknown types within existing schema')
-     */
+    /** @see it('extending unknown types within existing schema') */
     public function testExtendingUnknownTypesWithinExistingSchema(): void
     {
         $schema = BuildSchema::build('type Known');
@@ -368,9 +356,7 @@ final class PossibleTypeExtensionsTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @see it('extending types with different kinds within existing schema')
-     */
+    /** @see it('extending types with different kinds within existing schema') */
     public function testExtendingTypesWithDifferentKindsWithinExistingSchema(): void
     {
         $schema = BuildSchema::build('

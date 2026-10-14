@@ -11,9 +11,11 @@ use GraphQL\Utils\BuildSchema;
  *
  * @Warmup(2)
  *
+ * @Sleep(500000)
+ *
  * @Revs(10)
  *
- * @Iterations(2)
+ * @Iterations(5)
  */
 class BuildSchemaBench
 {
@@ -37,7 +39,7 @@ GRAPHQL;
 
     public function makeSchemaString(): void
     {
-        foreach (\range(1, 100) as $i) {
+        foreach (range(1, 100) as $i) {
             $this->schema .= /** @lang GraphQL */ <<<GRAPHQL
 union U{$i} = Foo | Bar
 

@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NameNode;
@@ -30,18 +31,24 @@ final class ValuesTest extends TestCase
 
     /**
      * @param array<string, mixed> $variables
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     private function expectInputVariablesMatchOutputVariables(array $variables): void
     {
         self::assertEquals(
             $variables,
             $this->runTestCase($variables)[1],
-            'Output variables did not match input variables' . "\n" . \var_export($variables, true) . "\n"
+            'Output variables did not match input variables' . "\n" . var_export($variables, true) . "\n"
         );
     }
 
     /**
      * @param array<string, mixed> $variables
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      *
      * @return array{array<int, Error>, null}|array{null, array<string, mixed>}
      */
@@ -50,6 +57,7 @@ final class ValuesTest extends TestCase
         return Values::getVariableValues(self::getSchema(), self::getVariableDefinitionNodes(), $variables);
     }
 
+    /** @throws InvariantViolation */
     private static function getSchema(): Schema
     {
         return self::$schema ??= new Schema([
@@ -71,9 +79,7 @@ final class ValuesTest extends TestCase
         ]);
     }
 
-    /**
-     * @return NodeList<VariableDefinitionNode>
-     */
+    /** @return NodeList<VariableDefinitionNode> */
     private static function getVariableDefinitionNodes(): NodeList
     {
         $idInputDefinition = new VariableDefinitionNode([
@@ -143,12 +149,15 @@ final class ValuesTest extends TestCase
 
     /**
      * @param array<string, mixed> $variables
+     *
+     * @throws \Exception
+     * @throws InvariantViolation
      */
     private function expectGraphQLError(array $variables): void
     {
         $result = $this->runTestCase($variables);
         self::assertNotNull($result[0]);
-        self::assertGreaterThan(0, \count($result[0]));
+        self::assertGreaterThan(0, count($result[0]));
     }
 
     public function testFloatForIDVariableThrowsError(): void
@@ -156,9 +165,7 @@ final class ValuesTest extends TestCase
         $this->expectGraphQLError(['idInput' => 1.0]);
     }
 
-    /**
-     * Helpers for running test cases and making assertions.
-     */
+    /** Helpers for running test cases and making assertions. */
     public function testStringForBooleanVariableThrowsError(): void
     {
         $this->expectGraphQLError(['boolInput' => 'true']);

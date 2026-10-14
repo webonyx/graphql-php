@@ -9,11 +9,10 @@ final class MyCustomType extends ObjectType
 {
     public function __construct()
     {
-        $config = [
+        parent::__construct([
             'fields' => [
                 'a' => Type::string(),
             ],
-        ];
-        parent::__construct($config);
+        ]);
     }
 }

@@ -5,6 +5,7 @@ namespace GraphQL\Tests\Executor;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GraphQL\Deferred;
 use GraphQL\Error\DebugFlag;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\NumberHolder;
@@ -20,9 +21,7 @@ final class MutationsTest extends TestCase
 
     // Execute: Handles mutation execution ordering
 
-    /**
-     * @see it('evaluates mutations serially')
-     */
+    /** @see it('evaluates mutations serially') */
     public function testEvaluatesMutationsSerially(): void
     {
         $doc = 'mutation M {
@@ -53,9 +52,10 @@ final class MutationsTest extends TestCase
                 'fifth' => ['theNumber' => 5],
             ],
         ];
-        self::assertEquals($expected, $mutationResult->toArray());
+        self::assertSame($expected, $mutationResult->toArray());
     }
 
+    /** @throws InvariantViolation */
     private function schema(): Schema
     {
         $numberHolderType = new ObjectType([
@@ -102,10 +102,8 @@ final class MutationsTest extends TestCase
         ]);
     }
 
-    /**
-     * @see it('evaluates mutations correctly in the presense of a failed mutation')
-     */
-    public function testEvaluatesMutationsCorrectlyInThePresenseOfAFailedMutation(): void
+    /** @see it('evaluates mutations correctly in the presence of a failed mutation') */
+    public function testEvaluatesMutationsCorrectlyInThePresenceOfAFailedMutation(): void
     {
         $doc = 'mutation M {
       first: immediatelyChangeTheNumber(newNumber: 1) {

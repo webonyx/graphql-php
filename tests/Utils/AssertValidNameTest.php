@@ -10,9 +10,7 @@ final class AssertValidNameTest extends TestCase
 {
     // Describe: assertValidName()
 
-    /**
-     * @see it('throws for use of leading double underscores')
-     */
+    /** @see it('throws for use of leading double underscores') */
     public function testThrowsForUseOfLeadingDoubleUnderscores(): void
     {
         $this->expectException(Error::class);
@@ -20,9 +18,7 @@ final class AssertValidNameTest extends TestCase
         Utils::assertValidName('__bad');
     }
 
-    /**
-     * @see it('throws for non-strings')
-     */
+    /** @see it('throws for non-strings') */
     public function testThrowsForNonStrings(): void
     {
         $this->expectException(\TypeError::class);
@@ -30,9 +26,7 @@ final class AssertValidNameTest extends TestCase
         Utils::assertValidName([]);
     }
 
-    /**
-     * @see it('throws for names with invalid characters')
-     */
+    /** @see it('throws for names with invalid characters') */
     public function testThrowsForNamesWithInvalidCharacters(): void
     {
         $this->expectException(Error::class);

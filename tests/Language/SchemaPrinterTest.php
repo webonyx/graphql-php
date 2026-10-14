@@ -19,42 +19,37 @@ use function Safe\json_encode;
  */
 final class SchemaPrinterTest extends TestCase
 {
-    /**
-     * @see it('prints minimal ast')
-     */
+    /** @see it('prints minimal ast') */
     public function testPrintsMinimalAst(): void
     {
         $ast = new ScalarTypeDefinitionNode([
             'name' => new NameNode(['value' => 'foo']),
             'directives' => new NodeList([]),
         ]);
-        self::assertEquals('scalar foo', Printer::doPrint($ast));
+        self::assertSame('scalar foo', Printer::doPrint($ast));
     }
 
-    /**
-     * @see it('produces helpful error messages')
-     */
+    /** @see it('produces helpful error messages') */
     public function testProducesHelpfulErrorMessages(): void
     {
         self::markTestSkipped('Not equivalent to the reference implementation because we have runtime types that fail early');
     }
 
-    /**
-     * @see it('prints kitchen sink without altering ast', () => {
-     */
+    /** @see it('prints kitchen sink without altering ast', () => { */
     public function testPrintsKitchenSinkWithoutAlteringAST(): void
     {
         $ast = Parser::parse(file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql'), ['noLocation' => true]);
 
-        $astBeforePrintCall = json_encode($ast);
+        $astBeforePrintCall = json_encode($ast, JSON_THROW_ON_ERROR);
         $printed = Printer::doPrint($ast);
         $printedAST = Parser::parse($printed, ['noLocation' => true]);
 
         self::assertEquals($printedAST, $ast);
-        self::assertSame($astBeforePrintCall, json_encode($ast));
+        self::assertSame($astBeforePrintCall, json_encode($ast, JSON_THROW_ON_ERROR));
 
         self::assertSame(
             <<<'GRAPHQL'
+"""This is a description of the schema as a whole."""
 schema {
   query: QueryType
   mutation: MutationType
@@ -180,9 +175,7 @@ GRAPHQL
         );
     }
 
-    /**
-     * it('prints viral schema correctly', () => {.
-     */
+    /** it('prints viral schema correctly', () => {. */
     public function testPrintsViralSchemaCorrectly(): void
     {
         $schemaSDL = \Safe\file_get_contents(__DIR__ . '/../viralSchema.graphql');

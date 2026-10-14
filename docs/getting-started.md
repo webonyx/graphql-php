@@ -1,7 +1,7 @@
 ## Prerequisites
 
 This documentation assumes your familiarity with GraphQL concepts. If it is not the case -
-first learn about GraphQL on [the official website](https://graphql.org/learn/).
+first learn about GraphQL on [the official website](https://graphql.org/learn).
 
 ## Installation
 
@@ -100,7 +100,7 @@ try {
     ];
 }
 header('Content-Type: application/json');
-echo json_encode($output);
+echo json_encode($output, JSON_THROW_ON_ERROR);
 ```
 
 Our example is finished. Try it by running:

@@ -13,9 +13,9 @@ It is intended to be an alternative to REST and SOAP APIs (even for **existing a
 
 GraphQL itself is a [specification](https://github.com/graphql/graphql-spec) designed by Facebook
 engineers. Various implementations of this specification were written
-[in different languages and environments](https://graphql.org/code/).
+[in different languages and environments](https://graphql.org/code).
 
-Great overview of GraphQL features and benefits is presented on [the official website](https://graphql.org/).
+Great overview of GraphQL features and benefits is presented on [the official website](https://graphql.org).
 All of them equally apply to this PHP implementation.
 
 ## About graphql-php
@@ -46,10 +46,8 @@ existing PHP frameworks, add support for Relay, etc.
 
 The first version of this library (v0.1) was released on August 10th 2015.
 
-The current version supports all features described by GraphQL specification
-as well as some experimental features like
-[schema definition language](schema-definition-language.md) and
-[schema printer](class-reference.md#graphqlutilsschemaprinter).
+Fully compliant with the [October 2021 GraphQL specification](https://spec.graphql.org/October2021).
+[September 2025 specification](https://spec.graphql.org/September2025) compliance is [in progress](https://github.com/webonyx/graphql-php/issues/1931).
 
 Ready for real-world usage.
 

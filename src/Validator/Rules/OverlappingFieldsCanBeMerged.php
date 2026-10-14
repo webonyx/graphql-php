@@ -28,11 +28,13 @@ use GraphQL\Validator\QueryValidationContext;
  *
  * @phpstan-type ReasonOrReasons string|array<array{string, string|array<mixed>}>
  * @phpstan-type Conflict array{array{string, ReasonOrReasons}, array<int, FieldNode>, array<int, FieldNode>}
- * @phpstan-type FieldInfo array{Type, FieldNode, FieldDefinition|null}
+ * @phpstan-type FieldInfo array{Type|null, FieldNode, FieldDefinition|null}
  * @phpstan-type FieldMap array<string, array<int, FieldInfo>>
  */
 class OverlappingFieldsCanBeMerged extends ValidationRule
 {
+    public const DEFAULT_MAX_COMPARISON_COUNT = 100_000;
+
     /**
      * A memoization for when two fragments are compared "between" each other for
      * conflicts. Two fragments may be compared many times, so memoizing this can
@@ -49,10 +51,20 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     protected \SplObjectStorage $cachedFieldsAndFragmentNames;
 
+    protected int $comparisonCount;
+
+    protected int $comparisonLimit;
+
+    public function __construct(int $comparisonLimit = self::DEFAULT_MAX_COMPARISON_COUNT)
+    {
+        $this->comparisonLimit = $comparisonLimit;
+    }
+
     public function getVisitor(QueryValidationContext $context): array
     {
         $this->comparedFragmentPairs = new PairSet();
         $this->cachedFieldsAndFragmentNames = new \SplObjectStorage();
+        $this->comparisonCount = 0;
 
         return [
             NodeKind::SELECTION_SET => function (SelectionSetNode $selectionSet) use ($context): void {
@@ -67,7 +79,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
                     $context->reportError(new Error(
                         static::fieldsConflictMessage($responseName, $reason),
-                        \array_merge($fields1, $fields2)
+                        array_merge($fields1, $fields2)
                     ));
                 }
             },
@@ -78,6 +90,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * Find all conflicts found "within" a selection set, including those found
      * via spreading in fragments. Called when visiting each SelectionSet in the
      * GraphQL Document.
+     *
+     * @throws \Exception
      *
      * @phpstan-return array<int, Conflict>
      */
@@ -102,7 +116,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             $fieldMap
         );
 
-        $fragmentNamesLength = \count($fragmentNames);
+        $fragmentNamesLength = count($fragmentNames);
         if ($fragmentNamesLength !== 0) {
             // (B) Then collect conflicts between these fields and those represented by
             // each spread fragment name found.
@@ -140,6 +154,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * name to field ASTs and definitions) as well as a list of fragment names
      * referenced via fragment spreads.
      *
+     * @throws \Exception
+     *
      * @return array{FieldMap, array<int, string>}
      */
     protected function getFieldsAndFragmentNames(
@@ -162,7 +178,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 $fragmentNames
             );
 
-            return $this->cachedFieldsAndFragmentNames[$selectionSet] = [$astAndDefs, \array_keys($fragmentNames)];
+            return $this->cachedFieldsAndFragmentNames[$selectionSet] = [$astAndDefs, array_keys($fragmentNames)];
         }
 
         return $this->cachedFieldsAndFragmentNames[$selectionSet];
@@ -229,6 +245,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @param array<string, bool> $fragmentNames
      *
      * @phpstan-param FieldMap $astAndDefs
+     *
+     * @throws \Exception
      */
     protected function internalCollectFieldsAndFragmentNames(
         QueryValidationContext $context,
@@ -243,17 +261,13 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                     $fieldName = $selection->name->value;
                     $fieldDef = null;
                     if (
-                        $parentType instanceof ObjectType
-                        || $parentType instanceof InterfaceType
+                        ($parentType instanceof ObjectType || $parentType instanceof InterfaceType)
+                        && $parentType->hasField($fieldName)
                     ) {
-                        if ($parentType->hasField($fieldName)) {
-                            $fieldDef = $parentType->getField($fieldName);
-                        }
+                        $fieldDef = $parentType->getField($fieldName);
                     }
 
-                    $responseName = isset($selection->alias)
-                        ? $selection->alias->value
-                        : $fieldName;
+                    $responseName = $selection->alias->value ?? $fieldName;
 
                     $astAndDefs[$responseName] ??= [];
                     $astAndDefs[$responseName][] = [$parentType, $selection, $fieldDef];
@@ -285,6 +299,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @param array<int, Conflict> $conflicts
      *
      * @phpstan-param FieldMap $fieldMap
+     *
+     * @throws \Exception
      */
     protected function collectConflictsWithin(
         QueryValidationContext $context,
@@ -299,7 +315,15 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             // This compares every field in the list to every other field in this list
             // (except to itself). If the list only has one item, nothing needs to
             // be compared.
-            $fieldsLength = \count($fields);
+            $fieldsLength = count($fields);
+            if ($fieldsLength <= 1) {
+                continue;
+            }
+
+            // Deduplicate structurally identical fields to avoid O(n²) blowup
+            // when a query repeats the same field many times.
+            $fields = $this->deduplicateFields($fields);
+            $fieldsLength = count($fields);
             if ($fieldsLength <= 1) {
                 continue;
             }
@@ -322,11 +346,61 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     }
 
     /**
+     * @phpstan-param array<int, FieldInfo> $fields
+     *
+     * @throws \JsonException
+     *
+     * @phpstan-return array<int, FieldInfo>
+     */
+    protected function deduplicateFields(array $fields): array
+    {
+        $unique = [];
+        $seen = [];
+        foreach ($fields as $field) {
+            $key = $this->fieldFingerprint($field);
+            if (! isset($seen[$key])) {
+                $seen[$key] = true;
+                $unique[] = $field;
+            }
+        }
+
+        return $unique;
+    }
+
+    /**
+     * @phpstan-param FieldInfo $field
+     *
+     * @throws \JsonException
+     */
+    protected function fieldFingerprint(array $field): string
+    {
+        [$parentType, $ast] = $field;
+
+        $parentTypeId = $parentType !== null
+            ? spl_object_id($parentType)
+            : '';
+        $name = $ast->name->value;
+        $selectionSetId = $ast->selectionSet !== null
+            ? spl_object_id($ast->selectionSet)
+            : '';
+
+        $fingerprint = "{$parentTypeId}:{$name}:{$selectionSetId}";
+
+        foreach ($ast->arguments as $argument) {
+            $fingerprint .= ":{$argument->name->value}=" . Printer::doPrint($argument->value);
+        }
+
+        return $fingerprint;
+    }
+
+    /**
      * Determines if there is a conflict between two particular fields, including
      * comparing their sub-fields.
      *
-     * @param array{Type, FieldNode, FieldDefinition|null} $field1
-     * @param array{Type, FieldNode, FieldDefinition|null} $field2
+     * @param array{Type|null, FieldNode, FieldDefinition|null} $field1
+     * @param array{Type|null, FieldNode, FieldDefinition|null} $field2
+     *
+     * @throws \Exception
      *
      * @phpstan-return Conflict|null
      */
@@ -337,6 +411,14 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         array $field1,
         array $field2
     ): ?array {
+        if (++$this->comparisonCount > $this->comparisonLimit) {
+            return [
+                [$responseName, 'Too many field comparisons, query is too complex to validate'],
+                [$field1[1]],
+                [$field2[1]],
+            ];
+        }
+
         [$parentType1, $ast1, $def1] = $field1;
         [$parentType2, $ast2, $def2] = $field2;
 
@@ -425,10 +507,12 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     /**
      * @param NodeList<ArgumentNode> $arguments1 keep
      * @param NodeList<ArgumentNode> $arguments2 keep
+     *
+     * @throws \JsonException
      */
     protected function sameArguments(NodeList $arguments1, NodeList $arguments2): bool
     {
-        if (\count($arguments1) !== \count($arguments2)) {
+        if (count($arguments1) !== count($arguments2)) {
             return false;
         }
 
@@ -453,6 +537,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         return true;
     }
 
+    /** @throws \JsonException */
     protected function sameValue(Node $value1, Node $value2): bool
     {
         return Printer::doPrint($value1) === Printer::doPrint($value2);
@@ -498,6 +583,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * via spreading in fragments. Called when determining if conflicts exist
      * between the sub-fields of two overlapping fields.
      *
+     * @throws \Exception
+     *
      * @return array<int, Conflict>
      */
     protected function findConflictsBetweenSubSelectionSets(
@@ -532,7 +619,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         // (I) Then collect conflicts between the first collection of fields and
         // those referenced by each fragment name associated with the second.
-        $fragmentNames2Length = \count($fragmentNames2);
+        $fragmentNames2Length = count($fragmentNames2);
         if ($fragmentNames2Length !== 0) {
             $comparedFragments = [];
             for ($j = 0; $j < $fragmentNames2Length; ++$j) {
@@ -549,7 +636,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         // (I) Then collect conflicts between the second collection of fields and
         // those referenced by each fragment name associated with the first.
-        $fragmentNames1Length = \count($fragmentNames1);
+        $fragmentNames1Length = count($fragmentNames1);
         if ($fragmentNames1Length !== 0) {
             $comparedFragments = [];
             for ($i = 0; $i < $fragmentNames1Length; ++$i) {
@@ -592,6 +679,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @phpstan-param array<int, Conflict> $conflicts
      * @phpstan-param FieldMap $fieldMap1
      * @phpstan-param FieldMap $fieldMap2
+     *
+     * @throws \Exception
      */
     protected function collectConflictsBetween(
         QueryValidationContext $context,
@@ -611,8 +700,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             }
 
             $fields2 = $fieldMap2[$responseName];
-            $fields1Length = \count($fields1);
-            $fields2Length = \count($fields2);
+            $fields1Length = count($fields1);
+            $fields2Length = count($fields2);
             for ($i = 0; $i < $fields1Length; ++$i) {
                 for ($j = 0; $j < $fields2Length; ++$j) {
                     $conflict = $this->findConflict(
@@ -638,6 +727,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      *
      * @phpstan-param array<int, Conflict> $conflicts
      * @phpstan-param FieldMap $fieldMap
+     *
+     * @throws \Exception
      */
     protected function collectConflictsBetweenFieldsAndFragment(
         QueryValidationContext $context,
@@ -679,7 +770,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         // (E) Then collect any conflicts between the provided collection of fields
         // and any fragment names found in the given fragment.
-        $fragmentNames2Length = \count($fragmentNames2);
+        $fragmentNames2Length = count($fragmentNames2);
         for ($i = 0; $i < $fragmentNames2Length; ++$i) {
             $this->collectConflictsBetweenFieldsAndFragment(
                 $context,
@@ -695,6 +786,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     /**
      * Given a reference to a fragment, return the represented collection of fields
      * as well as a list of nested fragment names referenced via fragment spreads.
+     *
+     * @throws \Exception
      *
      * @phpstan-return array{FieldMap, array<int, string>}
      */
@@ -721,6 +814,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * any nested fragments.
      *
      * @phpstan-param array<int, Conflict> $conflicts
+     *
+     * @throws \Exception
      */
     protected function collectConflictsBetweenFragments(
         QueryValidationContext $context,
@@ -778,7 +873,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         // (G) Then collect conflicts between the first fragment and any nested
         // fragments spread in the second fragment.
-        $fragmentNames2Length = \count($fragmentNames2);
+        $fragmentNames2Length = count($fragmentNames2);
         for ($j = 0; $j < $fragmentNames2Length; ++$j) {
             $this->collectConflictsBetweenFragments(
                 $context,
@@ -791,7 +886,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         // (G) Then collect conflicts between the second fragment and any nested
         // fragments spread in the first fragment.
-        $fragmentNames1Length = \count($fragmentNames1);
+        $fragmentNames1Length = count($fragmentNames1);
         for ($i = 0; $i < $fragmentNames1Length; ++$i) {
             $this->collectConflictsBetweenFragments(
                 $context,
@@ -816,7 +911,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         FieldNode $ast1,
         FieldNode $ast2
     ): ?array {
-        if (\count($conflicts) === 0) {
+        if ($conflicts === []) {
             return null;
         }
 
@@ -868,8 +963,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     public static function reasonMessage($reasonOrReasons): string
     {
-        if (\is_array($reasonOrReasons)) {
-            $reasons = \array_map(
+        if (is_array($reasonOrReasons)) {
+            $reasons = array_map(
                 static function (array $reason): string {
                     [$responseName, $subReason] = $reason;
                     $reasonMessage = static::reasonMessage($subReason);
@@ -879,7 +974,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 $reasonOrReasons
             );
 
-            return \implode(' and ', $reasons);
+            return implode(' and ', $reasons);
         }
 
         return $reasonOrReasons;

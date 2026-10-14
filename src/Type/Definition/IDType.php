@@ -21,11 +21,12 @@ response as a String; however, it is not intended to be human-readable.
 When expected as an input type, any string (such as `"4"`) or integer
 (such as `4`) input value will be accepted as an ID.';
 
+    /** @throws SerializationError */
     public function serialize($value): string
     {
-        $canCast = \is_string($value)
-            || \is_int($value)
-            || (\is_object($value) && \method_exists($value, '__toString'));
+        $canCast = is_string($value)
+            || is_int($value)
+            || (is_object($value) && method_exists($value, '__toString'));
 
         if (! $canCast) {
             $notID = Utils::printSafe($value);
@@ -35,9 +36,10 @@ When expected as an input type, any string (such as `"4"`) or integer
         return (string) $value;
     }
 
+    /** @throws Error */
     public function parseValue($value): string
     {
-        if (\is_string($value) || \is_int($value)) {
+        if (is_string($value) || is_int($value)) {
             return (string) $value;
         }
 
@@ -45,6 +47,10 @@ When expected as an input type, any string (such as `"4"`) or integer
         throw new Error("ID cannot represent a non-string and non-integer value: {$notID}");
     }
 
+    /**
+     * @throws \JsonException
+     * @throws Error
+     */
     public function parseLiteral(Node $valueNode, ?array $variables = null): string
     {
         if ($valueNode instanceof StringValueNode || $valueNode instanceof IntValueNode) {
