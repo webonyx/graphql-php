@@ -40,7 +40,7 @@ class ExecutionResult implements \JsonSerializable
      *
      * @var array<string, mixed>|null
      */
-    public ?array $data = null;
+    public ?array $data;
 
     /**
      * Errors registered during query execution.
@@ -52,7 +52,7 @@ class ExecutionResult implements \JsonSerializable
      *
      * @var list<Error>
      */
-    public array $errors = [];
+    public array $errors;
 
     /**
      * User-defined serializable array of extensions included in serialized result.
@@ -61,7 +61,7 @@ class ExecutionResult implements \JsonSerializable
      *
      * @var array<string, mixed>|null
      */
-    public ?array $extensions = null;
+    public ?array $extensions;
 
     /**
      * @var callable|null
