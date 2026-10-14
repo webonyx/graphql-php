@@ -51,7 +51,7 @@ After merging a PR and releasing:
 
 1. Merge the PR via `gh pr merge --squash`, or `--rebase` when the commit history is already clean (merge commits are disabled)
 2. Pull latest master: `git pull`
-3. Update CHANGELOG.md: move the entry from `## Unreleased` into a new versioned section (e.g. `## v15.32.0`), add the PR URL as a reference, leave an empty `## Unreleased` at the top
+3. Update CHANGELOG.md: add a new versioned section (e.g. `## v15.32.0`) with the entries from the `## Changelog` section of the PR description, each ending with the PR URL
 4. Commit and push the CHANGELOG update to master
 5. Create the release: `gh release create vX.Y.Z --repo=webonyx/graphql-php --title="vX.Y.Z" --notes="<content of the new CHANGELOG section>"`
 6. Comment on the PR thanking the author and linking the release: `gh pr comment <number> --repo=webonyx/graphql-php --body="Thanks @<author>! Released as [vX.Y.Z](<url>)."`
