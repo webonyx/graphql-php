@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792944532374,
+  "lastUpdate": 1792944768799,
   "repoUrl": "https://github.com/webonyx/graphql-php",
   "entries": {
     "Benchmark": [
@@ -23317,6 +23317,200 @@ window.BENCHMARK_DATA = {
           {
             "name": "HugeSchemaBench::benchSmallQueryLazy",
             "value": 15.739,
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "goncharu@adobe.com",
+            "name": "Yaroslav Honcharuk",
+            "username": "yaroslavGoncharuk"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f4cf2101399076798c396039a94e24351ee61a3b",
+          "message": "Detect REQUIRED_ARG_ADDED when the old field had no prior arguments (#1976)\n\n## Problem\n\n`BreakingChangesFinder::findArgChanges()` fails to report\n`REQUIRED_ARG_ADDED` when a\nnew required argument is added to a field that had **zero** arguments in\nthe old\nschema. The same kind of change is detected correctly the moment the\nfield already\nhad at least one argument.\n\n## Root cause\n\nThe \"check if arg was added to the field\" loop was nested inside the\nloop over the\n*old* field's existing args:\n\n```php\nforeach ($oldField->args as $oldArgDef) {\n    // ... existing-arg comparisons (ARG_REMOVED / ARG_CHANGED_KIND) ...\n\n    // Check if arg was added to the field\n    foreach ($newTypeFields[$fieldName]->args as $newTypeFieldArgDef) {\n        // ...\n    }\n}\n```\n\nSince the \"was an arg added\" check only ran as a side effect of\niterating\n`$oldField->args`, an empty `$oldField->args` skipped it entirely —\nregardless of\nhow many args (required or not) the new field had.\n\n```php\n// Reproduces on master:\n$oldType = new ObjectType([\n    'name' => 'Type1',\n    'fields' => ['field1' => ['type' => Type::string(), 'args' => []]],\n]);\n$newType = new ObjectType([\n    'name' => 'Type1',\n    'fields' => ['field1' => [\n        'type' => Type::string(),\n        'args' => ['newRequiredArg' => Type::nonNull(Type::string())],\n    ]],\n]);\n// findArgChanges($oldSchema, $newSchema)['breakingChanges'] === [] (should not be empty)\n```\n\n## Fix\n\nMoved the \"was an arg added\" loop out from under `foreach\n($oldField->args as\n$oldArgDef)` so it runs once per field regardless of whether the old\nfield had any\nargs — pure reordering, no behavior change for the already-working\n(non-empty\nold-args) case. Mirrors how\n`findFieldsThatChangedTypeOnInputObjectTypes()` already\ntreats its own \"was a field added\" check as an independent loop.\n\n## Tests\n\nAdded\n`testShouldDetectIfANonNullFieldArgumentWasAddedToAFieldWithNoPriorArgs()`\nalongside the existing\n`testShouldDetectIfANonNullFieldArgumentWasAdded()`, covering\nthe old-field-has-zero-args case.\n\n## Verification\n\n`composer test` (2015 tests) and `phpstan` (full analysis) both pass;\n`php-cs-fixer`\nreports 0 issues on the changed files. (`composer check`'s `rector` step\ncurrently\nerrors on a clean, unmodified `master` too — an unrelated pre-existing\ntooling issue,\nnot run by CI.)\n\nNo public API changes; this only makes an existing detection function\nmore complete.\n\n## Changelog\n\n### Fixed\n\n- Detect `REQUIRED_ARG_ADDED` in\n`BreakingChangesFinder::findArgChanges()` when the old field had no\nprior arguments\n\n---------\n\nCo-authored-by: Benedikt Franke <benedikt.franke@mll.com>",
+          "timestamp": "2026-10-25T17:10:39+01:00",
+          "tree_id": "d09f00af9d286d96ffdccd34f6f2c9fd162232cc",
+          "url": "https://github.com/webonyx/graphql-php/commit/f4cf2101399076798c396039a94e24351ee61a3b"
+        },
+        "date": 1792944767768,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithoutOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithTypesOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithoutOverride",
+            "value": 0.166,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithTypesOverride",
+            "value": 0.166,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeave",
+            "value": 0.305,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindMap",
+            "value": 0.292,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindCallable",
+            "value": 0.273,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeaveMap",
+            "value": 0.297,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitNestedWithEnterLeave",
+            "value": 0.068,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields100",
+            "value": 3.339,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields500",
+            "value": 16.012,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields1000",
+            "value": 31.455,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields2000",
+            "value": 63.714,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields3000",
+            "value": 95.917,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchIntrospectionQuery",
+            "value": 0.295,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchDeeplyIndentedQuery",
+            "value": 1.939,
+            "unit": "ms"
+          },
+          {
+            "name": "BuildSchemaBench::benchBuildSchema",
+            "value": 25.359,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchSchema",
+            "value": 0.009,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchHeroQuery",
+            "value": 0.345,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchNestedQuery",
+            "value": 0.741,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithFragment",
+            "value": 0.788,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithInterfaceFragment",
+            "value": 0.748,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchStarWarsIntrospectionQuery",
+            "value": 7.31,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchSingleDeferred",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchNestedDeferred",
+            "value": 0.002,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain5",
+            "value": 0.005,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain100",
+            "value": 0.081,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyDeferreds",
+            "value": 0.442,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyNestedDeferreds",
+            "value": 12.724,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::bench1000Chains",
+            "value": 3.47,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchema",
+            "value": 18.577,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchemaLazy",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQuery",
+            "value": 14.959,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQueryLazy",
+            "value": 15.906,
             "unit": "ms"
           }
         ]
