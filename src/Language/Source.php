@@ -33,20 +33,15 @@ class Source
 
     public function getLocation(int $position): SourceLocation
     {
-        $line = 1;
-        $column = $position + 1;
-
         $utfChars = json_decode('"\u2028\u2029"');
         $lineRegexp = '/\r\n|[\n\r' . $utfChars . ']/su';
-        $matches = [];
-        preg_match_all($lineRegexp, mb_substr($this->body, 0, $position, 'UTF-8'), $matches, \PREG_OFFSET_CAPTURE);
+        $bodyBeforePosition = mb_substr($this->body, 0, $position, 'UTF-8');
+        $lines = preg_split($lineRegexp, $bodyBeforePosition);
+        assert(is_array($lines), 'the line regexp is statically known to be valid');
 
-        foreach ($matches[0] as $match) {
-            ++$line;
+        $currentLine = end($lines);
+        assert(is_string($currentLine), 'preg_split always returns at least one element');
 
-            $column = $position + 1 - ($match[1] + mb_strlen($match[0], 'UTF-8'));
-        }
-
-        return new SourceLocation($line, $column);
+        return new SourceLocation(count($lines), mb_strlen($currentLine, 'UTF-8') + 1);
     }
 }
