@@ -2,6 +2,12 @@ name: Benchmarks
 
 on:
   pull_request:
+    paths:
+      - .github/workflows/benchmarks.yml
+      - benchmarks/**
+      - composer.json
+      - phpbench.json
+      - src/**
   push:
     branches:
       - master
@@ -14,10 +20,16 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          path: head
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -25,30 +37,30 @@ jobs:
           php-version: "8.3"
 
       - uses: ramsey/composer-install@v4
-
-      - name: Run PHPBench
-        run: |
-          php -d zend.assertions=-1 vendor/bin/phpbench run \
-            --progress=none \
-            --dump-file=benchmark.xml
-
-      - name: Convert results
-        run: php benchmarks/convert-results.php benchmark.xml > benchmark-results.json
-
-      - uses: benchmark-action/github-action-benchmark@v1
-        if: github.repository == 'webonyx/graphql-php'
         with:
-          tool: customSmallerIsBetter
-          output-file-path: benchmark-results.json
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          auto-push: false
-          gh-pages-branch: benchmark-results
-          benchmark-data-dir-path: dev/bench
-          alert-threshold: '150%'
-          # TODO: switch to true once baseline variance is understood
-          fail-on-alert: false
-          comment-on-alert: true
-          comment-always: false
+          working-directory: base
+
+      - uses: ramsey/composer-install@v4
+        with:
+          working-directory: head
+
+      - name: Run PHPBench on base and head in turns
+        run: |
+          for pass in 1 2 3; do
+            for side in base head; do
+              (cd "$side" && php -d zend.assertions=-1 vendor/bin/phpbench run \
+                --progress=none \
+                --dump-file="../$side-$pass.xml")
+            done
+          done
+
+      - name: Compare results
+        run: |
+          php head/benchmarks/compare-results.php \
+            --base=base-1.xml --head=head-1.xml \
+            --base=base-2.xml --head=head-2.xml \
+            --base=base-3.xml --head=head-3.xml \
+            | tee --append "$GITHUB_STEP_SUMMARY"
 
   benchmark-history:
     name: Track benchmark history

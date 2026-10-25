@@ -5,10 +5,12 @@
  * expected by benchmark-action/github-action-benchmark.
  *
  * Usage: php benchmarks/convert-results.php benchmark.xml > benchmark-results.json
- *
- * stats/@mean is the mean time per revolution in microseconds,
- * computed by phpbench over all non-warm-up iterations.
  */
+
+use GraphQL\Benchmarks\Utils\BenchmarkResults;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
 $xmlFile = $argv[1] ?? null;
 
 if ($xmlFile === null) {
@@ -16,51 +18,13 @@ if ($xmlFile === null) {
     exit(1);
 }
 
-libxml_use_internal_errors(true);
-$xml = simplexml_load_file($xmlFile, SimpleXMLElement::class, LIBXML_NONET);
-
-if ($xml === false) {
-    fwrite(STDERR, "Failed to parse XML file: {$xmlFile}\n");
-    exit(1);
-}
-
 $results = [];
-
-foreach ($xml->suite as $suite) {
-    foreach ($suite->benchmark as $benchmark) {
-        $class = (string) $benchmark['class'];
-        $shortClass = str_replace(['\\GraphQL\\Benchmarks\\', 'GraphQL\\Benchmarks\\'], '', $class);
-
-        foreach ($benchmark->subject as $subject) {
-            $subjectName = (string) $subject['name'];
-            $variants = $subject->variant;
-
-            foreach ($variants as $variant) {
-                if (isset($variant->errors)) {
-                    continue;
-                }
-
-                if (! isset($variant->stats)) {
-                    continue;
-                }
-
-                $meanUs = (float) $variant->stats['mean'];
-                $valueMs = round($meanUs / 1000, 3);
-
-                $parameterSet = $variant->{'parameter-set'};
-                $paramSetName = isset($parameterSet['name']) ? (string) $parameterSet['name'] : '0';
-                $name = count($variants) > 1
-                    ? "{$shortClass}::{$subjectName}#{$paramSetName}"
-                    : "{$shortClass}::{$subjectName}";
-
-                $results[] = [
-                    'name' => $name,
-                    'value' => $valueMs,
-                    'unit' => 'ms',
-                ];
-            }
-        }
-    }
+foreach (BenchmarkResults::read($xmlFile) as $name => $stats) {
+    $results[] = [
+        'name' => $name,
+        'value' => round($stats['mean'] / 1000, 3),
+        'unit' => 'ms',
+    ];
 }
 
 echo json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
