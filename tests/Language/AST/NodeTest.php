@@ -30,16 +30,16 @@ final class NodeTest extends TestCase
         $cloneFields = $clone->fields;
         self::assertNotSameButEquals($nodeFields, $cloneFields);
 
-        $nodeId = $nodeFields[0];
-        $cloneId = $cloneFields[0];
+        $nodeId = $nodeFields->get(0);
+        $cloneId = $cloneFields->get(0);
         self::assertNotSameButEquals($nodeId, $cloneId);
 
         $nodeIdArgs = $nodeId->arguments;
         $cloneIdArgs = $cloneId->arguments;
         self::assertNotSameButEquals($nodeIdArgs, $cloneIdArgs);
 
-        $nodeArg = $nodeIdArgs[0];
-        $cloneArg = $cloneIdArgs[0];
+        $nodeArg = $nodeIdArgs->get(0);
+        $cloneArg = $cloneIdArgs->get(0);
         self::assertNotSameButEquals($nodeArg, $cloneArg);
 
         self::assertSame($node->loc, $clone->loc);

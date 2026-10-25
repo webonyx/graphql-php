@@ -81,7 +81,7 @@ final class BuildSchemaTest extends TestCaseBase
         return Printer::doPrint(new DocumentNode([
             'definitions' => new NodeList([
                 $obj->astNode,
-                ...$obj->extensionASTNodes,
+                ...array_values($obj->extensionASTNodes),
             ]),
         ]));
     }
@@ -404,7 +404,7 @@ final class BuildSchemaTest extends TestCaseBase
             
             GRAPHQL;
 
-        $definition = Parser::parse($sdl)->definitions[0];
+        $definition = Parser::parse($sdl)->definitions->get(0);
         self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $definition);
         self::assertCount(0, $definition->interfaces, 'The interfaces property must be an empty list.');
 

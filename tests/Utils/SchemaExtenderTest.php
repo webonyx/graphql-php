@@ -657,7 +657,7 @@ GRAPHQL,
         self::assertNotNull($testDirective->astNode);
 
         $restoredExtensionAST = new DocumentNode([
-            'definitions' => new NodeList([
+            'definitions' => new NodeList(array_values([
                 $testInput->astNode,
                 $testEnum->astNode,
                 $testUnion->astNode,
@@ -670,7 +670,7 @@ GRAPHQL,
                 ...$someUnion->extensionASTNodes,
                 ...$someInput->extensionASTNodes,
                 ...$someInterface->extensionASTNodes,
-            ]),
+            ])),
         ]);
 
         self::assertSchemaEquals(
