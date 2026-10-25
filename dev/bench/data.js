@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792943669842,
+  "lastUpdate": 1792944492506,
   "repoUrl": "https://github.com/webonyx/graphql-php",
   "entries": {
     "Benchmark": [
@@ -22929,6 +22929,200 @@ window.BENCHMARK_DATA = {
           {
             "name": "HugeSchemaBench::benchSmallQueryLazy",
             "value": 16.19,
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "ruudk@users.noreply.github.com",
+            "name": "Ruud Kamphuis",
+            "username": "ruudk"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ee373a03aa9541b0857014c61cf16080e66d6d2b",
+          "message": "Report QueryComplexity variable coercion errors instead of throwing (#1969)\n\n`DocumentValidator::validate()` is documented to return validation\nerrors, and every other rule reports them through the validation\ncontext. But `QueryComplexity` coerces variable values (it needs them to\nevaluate @include/@skip and to build arguments for `complexityFn`) and\nthrew a raw `Error` when coercion failed. Callers using\n`DocumentValidator` directly rather than `GraphQL::promiseToExecute()` —\nwhich sets the variables and wraps everything in try/catch — got an\nuncaught exception for something that is a plain input problem.\n\nCoercion errors now go to `$context->reportError()` and complexity\nanalysis is abandoned for the rest of the document: without usable\nvariable values the computed complexity is meaningless, so reporting a\nmax-complexity error on top of it would be misleading, and calling a\nuser-supplied `complexityFn` with empty arguments could throw. For the\nsame reason `getQueryComplexity()` is reset to 0, so it cannot hand back\nthe partial sum accumulated before coercion failed.\n\nThis also improves the errors themselves. The old code concatenated the\nmessages of all coercion errors into one `Error`, discarding the source\nlocations; each error is now reported individually with the location of\nits variable definition, matching what the executor produces for the\nsame bad input.\n\nWhile here, `buildFieldArguments()` reuses the per-document coercion\ncache instead of coercing all variables again for every field that has a\n`complexityFn`.\n\nFixes #1967\n\n## Changelog\n\n### Fixed\n\n- Report variable coercion errors from `QueryComplexity` through the\nvalidation context instead of throwing them out of\n`DocumentValidator::validate()`\nhttps://github.com/webonyx/graphql-php/issues/1967\n\nCo-authored-by: Benedikt Franke <benedikt.franke@mll.com>",
+          "timestamp": "2026-10-25T17:06:15+01:00",
+          "tree_id": "9f7df432ef6393f2c92442723f4c40d37da92a96",
+          "url": "https://github.com/webonyx/graphql-php/commit/ee373a03aa9541b0857014c61cf16080e66d6d2b"
+        },
+        "date": 1792944491683,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithoutOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithTypesOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithoutOverride",
+            "value": 0.165,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithTypesOverride",
+            "value": 0.164,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeave",
+            "value": 0.307,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindMap",
+            "value": 0.291,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindCallable",
+            "value": 0.271,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeaveMap",
+            "value": 0.294,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitNestedWithEnterLeave",
+            "value": 0.068,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields100",
+            "value": 3.301,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields500",
+            "value": 16.006,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields1000",
+            "value": 31.43,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields2000",
+            "value": 62.242,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields3000",
+            "value": 92.621,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchIntrospectionQuery",
+            "value": 0.294,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchDeeplyIndentedQuery",
+            "value": 1.924,
+            "unit": "ms"
+          },
+          {
+            "name": "BuildSchemaBench::benchBuildSchema",
+            "value": 25.163,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchSchema",
+            "value": 0.009,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchHeroQuery",
+            "value": 0.342,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchNestedQuery",
+            "value": 0.738,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithFragment",
+            "value": 0.787,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithInterfaceFragment",
+            "value": 0.744,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchStarWarsIntrospectionQuery",
+            "value": 7.24,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchSingleDeferred",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchNestedDeferred",
+            "value": 0.002,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain5",
+            "value": 0.005,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain100",
+            "value": 0.079,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyDeferreds",
+            "value": 0.446,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyNestedDeferreds",
+            "value": 12.248,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::bench1000Chains",
+            "value": 3.43,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchema",
+            "value": 18.357,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchemaLazy",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQuery",
+            "value": 14.692,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQueryLazy",
+            "value": 15.792,
             "unit": "ms"
           }
         ]
