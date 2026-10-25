@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 You can find and compare releases at the [GitHub release page](https://github.com/webonyx/graphql-php/releases).
 
+## v15.38.4
+
+### Fixed
+
+- Detect `REQUIRED_ARG_ADDED` in `BreakingChangesFinder::findArgChanges()` when the old field had no prior arguments https://github.com/webonyx/graphql-php/pull/1976
+
 ## v15.38.3
 
 ### Fixed
