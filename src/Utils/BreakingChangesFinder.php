@@ -537,8 +537,6 @@ class BreakingChangesFinder
                     }
                 }
 
-                // Check if arg was added to the field. This must run even when the old
-                // field had zero args, so it lives outside the loop over $oldField->args.
                 foreach ($newTypeFields[$fieldName]->args as $newTypeFieldArgDef) {
                     $oldArgDef = null;
                     foreach ($oldTypeFields[$fieldName]->args as $oldArg) {
