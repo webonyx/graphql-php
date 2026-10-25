@@ -4,6 +4,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
@@ -18,6 +19,7 @@ use GraphQL\Utils\Utils;
  *   serialize?: callable(mixed): mixed,
  *   parseValue: callable(mixed): mixed,
  *   parseLiteral: callable(ValueNode&Node, array<string, mixed>|null): mixed,
+ *   directives?: array<DirectiveNode>|null,
  *   specifiedByURL?: string|null,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
@@ -28,6 +30,7 @@ use GraphQL\Utils\Utils;
  *   serialize: callable(mixed): mixed,
  *   parseValue?: callable(mixed): mixed,
  *   parseLiteral?: callable(ValueNode&Node, array<string, mixed>|null): mixed,
+ *   directives?: array<DirectiveNode>|null,
  *   specifiedByURL?: string|null,
  *   astNode?: ScalarTypeDefinitionNode|null,
  *   extensionASTNodes?: array<ScalarTypeExtensionNode>|null
