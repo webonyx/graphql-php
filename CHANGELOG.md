@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 You can find and compare releases at the [GitHub release page](https://github.com/webonyx/graphql-php/releases).
 
+## v15.38.2
+
+### Fixed
+
+- Avoid undefined array key warning when visiting nodes with a custom kind https://github.com/webonyx/graphql-php/pull/1952
+
 ## v15.38.1
 
 ### Fixed
