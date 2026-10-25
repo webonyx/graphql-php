@@ -287,6 +287,8 @@ class QueryPlan
      * @param array<string, mixed> $subImplementors
      * @param array<string, mixed> $implementors
      *
+     * @throws InvariantViolation
+     *
      * @return array<mixed>
      */
     private function mergeSubImplementors(Type $parentType, array $fields, array $subImplementors, array &$implementors): array
@@ -297,6 +299,10 @@ class QueryPlan
 
         if ($parentType instanceof AbstractType) {
             foreach ($subImplementors as $name => $implementor) {
+                if (! $this->schema->isSubType($parentType, $implementor['type'])) {
+                    continue;
+                }
+
                 $implementors[$name] = $this->arrayMergeDeep($implementors[$name] ?? [], $implementor);
             }
 

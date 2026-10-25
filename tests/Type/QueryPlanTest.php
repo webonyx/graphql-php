@@ -1210,6 +1210,103 @@ final class QueryPlanTest extends TestCase
         );
     }
 
+    /** @see https://github.com/webonyx/graphql-php/pull/1983#discussion_r4199233381 */
+    public function testQueryPlanOmitsImplementorsOfAbstractFragmentThatParentCannotResolveTo(): void
+    {
+        $vehicle = new InterfaceType([
+            'name' => 'Vehicle',
+            'fields' => [
+                'wheels' => ['type' => Type::int()],
+            ],
+        ]);
+
+        $asset = new InterfaceType([
+            'name' => 'Asset',
+            'fields' => [
+                'value' => ['type' => Type::int()],
+            ],
+        ]);
+
+        $car = new ObjectType([
+            'name' => 'Car',
+            'interfaces' => [$vehicle, $asset],
+            'fields' => [
+                'wheels' => ['type' => Type::int()],
+                'value' => ['type' => Type::int()],
+                'mark' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $building = new ObjectType([
+            'name' => 'Building',
+            'interfaces' => [$asset],
+            'fields' => [
+                'value' => ['type' => Type::int()],
+                'city' => ['type' => Type::string()],
+            ],
+        ]);
+
+        /** @var QueryPlan|null $queryPlan */
+        $queryPlan = null;
+
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'vehicle' => [
+                    'type' => $vehicle,
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) use (&$queryPlan) {
+                        $queryPlan = $info->lookAhead([
+                            'groupImplementorFields' => true,
+                        ]);
+
+                        return null;
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $query,
+            'types' => [$car, $building],
+        ]);
+
+        $result = GraphQL::executeQuery($schema, <<<'GRAPHQL'
+        {
+          vehicle {
+            ... on Asset {
+              ... on Car {
+                mark
+              }
+              ... on Building {
+                city
+              }
+            }
+          }
+        }
+        GRAPHQL)->toArray();
+
+        self::assertSame(['data' => ['vehicle' => null]], $result);
+        self::assertInstanceOf(QueryPlan::class, $queryPlan);
+        self::assertSame(
+            [
+                'fields' => [],
+                'implementors' => [
+                    'Car' => [
+                        'type' => $car,
+                        'fields' => [
+                            'mark' => [
+                                'type' => Type::string(),
+                                'fields' => [],
+                                'args' => [],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            $queryPlan->queryPlan()
+        );
+    }
+
     public function testQueryPlanForMultipleFieldNodes(): void
     {
         /** @var ObjectType|null $entity */
