@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792001722131,
+  "lastUpdate": 1792943506320,
   "repoUrl": "https://github.com/webonyx/graphql-php",
   "entries": {
     "Benchmark": [
@@ -22541,6 +22541,200 @@ window.BENCHMARK_DATA = {
           {
             "name": "DeferredBench::bench1000Chains",
             "value": 3.464,
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "305760598+OpaqueRock@users.noreply.github.com",
+            "name": "OpaqueRock",
+            "username": "OpaqueRock"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ee4e28d8f9b101e8007522245fb2e3f82835b89a",
+          "message": "Fix undefined-array-key warning in visit() for custom Node kinds (#1952)\n\n# Fix undefined-array-key warning in visit() for custom Node kinds\n\n## Problem\n\n`Node::kind` is not required to be one of the built-in `NodeKind`\nconstants — consumers can define custom `Node` subclasses with arbitrary\nkind strings. `Visitor::visit()` resolved a node's child keys like this:\n\n```php\n$keys = ($inList ? $node : $visitorKeys[$node->kind]) ?? [];\n```\n\nThe parentheses are misplaced: `??` only suppresses an\nundefined-index/notice-level warning when it directly wraps the array\naccess it's guarding. Here it wraps the whole ternary instead, so\n`$visitorKeys[$node->kind]` is evaluated as a plain array access when\n`$inList` is false, and PHP emits an undefined-array-key warning\nwhenever a Node with a custom (non-`NodeKind`) kind is visited. The\nresulting value of `$keys` was already correct in that case (it still\nends up `[]`) — only the warning was spurious.\n\n## Fix\n\nMove the `?? []` fallback directly onto the array access so `??` can\nsuppress the warning as intended:\n\n```php\n$keys = $inList ? $node : ($visitorKeys[$node->kind] ?? []);\n```\n\nNo behavior change — custom-kind nodes were already treated as leaves\n(no children); this just removes the spurious warning.\n\n## Tests\n\nAdded regression tests covering generic and kind-specific enter/leave\nvisitors invoked on a custom-kind Node via `visit()`.\n\n## Context\n\nSplit out of #1948, where this pre-existing bug was noticed while\noptimizing `Visitor::visitInParallel()`. It's an independent, smaller\nfix so it can be reviewed/merged on its own.\n\n## Changelog\n\n### Fixed\n\n- Avoid undefined array key warning when visiting nodes with a custom\nkind\n\n---------\n\nCo-authored-by: Benedikt Franke <benedikt.franke@mll.com>\nCo-authored-by: Benedikt Franke <benedikt@franke.tech>",
+          "timestamp": "2026-10-25T16:47:54+01:00",
+          "tree_id": "fcaafc85bd2f6c63deaa7df57c0c308656d6d7b0",
+          "url": "https://github.com/webonyx/graphql-php/commit/ee4e28d8f9b101e8007522245fb2e3f82835b89a"
+        },
+        "date": 1792943505455,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithoutOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithTypesOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithoutOverride",
+            "value": 0.169,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithTypesOverride",
+            "value": 0.167,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeave",
+            "value": 0.311,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindMap",
+            "value": 0.295,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindCallable",
+            "value": 0.273,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeaveMap",
+            "value": 0.3,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitNestedWithEnterLeave",
+            "value": 0.071,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields100",
+            "value": 3.384,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields500",
+            "value": 16.701,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields1000",
+            "value": 33.414,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields2000",
+            "value": 66.131,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields3000",
+            "value": 99.816,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchIntrospectionQuery",
+            "value": 0.298,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchDeeplyIndentedQuery",
+            "value": 1.951,
+            "unit": "ms"
+          },
+          {
+            "name": "BuildSchemaBench::benchBuildSchema",
+            "value": 27.076,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchSchema",
+            "value": 0.01,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchHeroQuery",
+            "value": 0.354,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchNestedQuery",
+            "value": 0.762,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithFragment",
+            "value": 0.815,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithInterfaceFragment",
+            "value": 0.772,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchStarWarsIntrospectionQuery",
+            "value": 7.826,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchSingleDeferred",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchNestedDeferred",
+            "value": 0.003,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain5",
+            "value": 0.005,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain100",
+            "value": 0.081,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyDeferreds",
+            "value": 0.445,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyNestedDeferreds",
+            "value": 24.181,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::bench1000Chains",
+            "value": 3.749,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchema",
+            "value": 19.185,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchemaLazy",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQuery",
+            "value": 16.184,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQueryLazy",
+            "value": 18.099,
             "unit": "ms"
           }
         ]
