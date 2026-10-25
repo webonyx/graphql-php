@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 You can find and compare releases at the [GitHub release page](https://github.com/webonyx/graphql-php/releases).
 
+## v15.38.3
+
+### Fixed
+
+- Report variable coercion errors from `QueryComplexity` through the validation context instead of throwing them out of `DocumentValidator::validate()` https://github.com/webonyx/graphql-php/pull/1969
+
 ## v15.38.2
 
 ### Fixed
