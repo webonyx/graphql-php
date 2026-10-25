@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 You can find and compare releases at the [GitHub release page](https://github.com/webonyx/graphql-php/releases).
 
+## v15.39.0
+
+### Added
+
+- Allow injecting pre-built type instances when building a schema from SDL https://github.com/webonyx/graphql-php/pull/1872
+
 ## v15.38.5
 
 ### Fixed
