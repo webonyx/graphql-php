@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 You can find and compare releases at the [GitHub release page](https://github.com/webonyx/graphql-php/releases).
 
+## v15.38.5
+
+### Fixed
+
+- Report input object `parseValue()` exceptions as variable coercion errors, including operation variable defaults https://github.com/webonyx/graphql-php/pull/1991
+
 ## v15.38.4
 
 ### Fixed
