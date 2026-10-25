@@ -87,7 +87,11 @@ class Values
                 if (! $hasValue && ($varDefNode->defaultValue !== null)) {
                     // If no value was provided to a variable with a default value,
                     // use the default value.
-                    $coercedValues[$varName] = AST::valueFromAST($varDefNode->defaultValue, $varType);
+                    try {
+                        $coercedValues[$varName] = AST::valueFromAST($varDefNode->defaultValue, $varType);
+                    } catch (\Throwable $error) {
+                        $errors[] = Error::createLocatedError($error, $varDefNode);
+                    }
                 } elseif ((! $hasValue || $value === null) && ($varType instanceof NonNull)) {
                     // If no value or a nullish value was provided to a variable with a
                     // non-null type (required), produce an error.
