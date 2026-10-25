@@ -3,13 +3,17 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
+use GraphQL\Language\Parser;
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -18,6 +22,65 @@ use PHPUnit\Framework\TestCase;
 final class ValuesTest extends TestCase
 {
     private static Schema $schema;
+
+    public function testCollectsInputObjectParseValueErrorsFromMultipleVariableDefaults(): void
+    {
+        $safeError = new Error('Default rejected.', null, null, [], null, null, ['code' => 'DEFAULT_INVALID']);
+        $unsafeError = new \TypeError('Private default detail.');
+        $input = new InputObjectType([
+            'name' => 'TestInput',
+            'fields' => ['value' => Type::int()],
+            'parseValue' => static function (array $value) use ($safeError, $unsafeError): void {
+                if ($value['value'] === 1) {
+                    throw $safeError;
+                }
+
+                throw $unsafeError;
+            },
+        ]);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'test' => [
+                        'type' => Type::boolean(),
+                        'args' => ['first' => $input, 'second' => $input],
+                    ],
+                ],
+            ]),
+        ]);
+        $document = Parser::parse(<<<'GRAPHQL'
+            query(
+              $first: TestInput = {value: 1}
+              $second: TestInput = {value: 2}
+            ) {
+              test(first: $first, second: $second)
+            }
+            GRAPHQL);
+        $operation = $document->definitions[0];
+        assert($operation instanceof OperationDefinitionNode);
+
+        [$errors, $values] = Values::getVariableValues($schema, $operation->variableDefinitions, []);
+
+        self::assertNull($values);
+        self::assertNotNull($errors);
+        self::assertCount(2, $errors);
+        self::assertSame([$operation->variableDefinitions[0]], $errors[0]->getNodes());
+        self::assertSame([$operation->variableDefinitions[1]], $errors[1]->getNodes());
+        self::assertSame($safeError, $errors[0]->getPrevious());
+        self::assertSame($unsafeError, $errors[1]->getPrevious());
+        self::assertTrue($errors[0]->isClientSafe());
+        self::assertFalse($errors[1]->isClientSafe());
+        self::assertSame([
+            'message' => 'Default rejected.',
+            'locations' => [['line' => 2, 'column' => 3]],
+            'extensions' => ['code' => 'DEFAULT_INVALID'],
+        ], FormattedError::createFromException($errors[0]));
+        self::assertSame([
+            'message' => 'Internal server error',
+            'locations' => [['line' => 3, 'column' => 3]],
+        ], FormattedError::createFromException($errors[1]));
+    }
 
     public function testGetIDVariableValues(): void
     {
