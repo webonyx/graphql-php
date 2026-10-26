@@ -25,10 +25,14 @@ jobs:
       - uses: actions/checkout@v7
         with:
           path: head
+          fetch-depth: 2
+
+      - id: base-sha
+        run: echo "sha=$(git -C head rev-parse HEAD^1)" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.base.sha }}
+          ref: ${{ steps.base-sha.outputs.sha }}
           path: base
 
       - uses: shivammathur/setup-php@v2
