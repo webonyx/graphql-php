@@ -18,6 +18,7 @@ jobs:
     name: Run benchmarks
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
 
@@ -49,12 +50,12 @@ jobs:
           for pass in 1 2 3; do
             for side in base head; do
               (cd "$side" && php -d zend.assertions=-1 vendor/bin/phpbench run \
-                --progress=none \
                 --dump-file="../$side-$pass.xml")
             done
           done
 
       - name: Compare results
+        shell: bash
         run: |
           php head/benchmarks/compare-results.php \
             --base=base-1.xml --head=head-1.xml \
