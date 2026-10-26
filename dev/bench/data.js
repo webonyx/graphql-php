@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792946947309,
+  "lastUpdate": 1793010164591,
   "repoUrl": "https://github.com/webonyx/graphql-php",
   "entries": {
     "Benchmark": [
@@ -24481,6 +24481,200 @@ window.BENCHMARK_DATA = {
           {
             "name": "HugeSchemaBench::benchSmallQueryLazy",
             "value": 15.801,
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "benedikt@franke.tech",
+            "name": "Benedikt Franke",
+            "username": "spawnia"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "936133ba405b62ca0d0be2a7b5fca917defa4519",
+          "message": "Compare PR benchmarks by instruction count (#1995)\n\nThe benchmarks check fails on PRs that do not change performance,\nbecause wall times on hosted runners are noisy.\nThis PR counts instructions with Valgrind on base and head instead, and\nfails when head needs more than 1.1x.\n\n<details>\n<summary>The red check came from a failed PR comment, the alert from\nrunner variance</summary>\n\nOn fork PRs, `GITHUB_TOKEN` is read-only, so `comment-on-alert` failed\nwith \"Resource not accessible by integration\", for example in\nhttps://github.com/webonyx/graphql-php/actions/runs/38578052847.\nThe alert compared one run against a baseline from another runner at\nanother time.\nIn that run, 30 of 31 benchmarks came out 1.75x to 2.5x slower by the\nsame factor.\n</details>\n\n<details>\n<summary>Instruction counts catch a regression and stay within 0.1% on\nidentical code</summary>\n\nIn https://github.com/webonyx/graphql-php/actions/runs/40303300237, this\nPR changes no `src/` code, and the largest ratio was 1.0007.\nA temporary `array_sum(range(1, 100))` in `Lexer::advance()` failed the\ncheck in\nhttps://github.com/webonyx/graphql-php/actions/runs/40303973119, with\nratios of 1.35 and 1.31 for `LexerBench` and 1.11 for\n`BuildSchemaBench`.\nAn earlier version of this PR compared wall times of base and head on\nthe same runner, and single passes of identical code drifted by up to\n1.43x in\nhttps://github.com/webonyx/graphql-php/actions/runs/40290028062.\n</details>\n\n<details>\n<summary>Each subject runs until it counts about 20 million extra\ninstructions, so setup cost cancels out</summary>\n\n`benchmarks/run-subject.php` runs a PHPBench subject with its\n`@BeforeMethods`, outside of PHPBench.\n`benchmarks/count-instructions.php` runs it under `valgrind\n--tool=cachegrind` with 1 rev, with 2 revs to estimate the cost per rev,\nand with enough revs to count about 20 million more instructions than\nthe 1-rev run.\nThe difference, divided by the extra revs, gives the instructions per\nrev.\nA fixed share of `@Revs` was not enough: the counts of whole processes\nvary by about 1,000 instructions, which made\n`ScalarOverrideBench::benchGetTypeWithTypesOverride` (about 2,300 per\nrev) fail with 1.79 on identical code in\nhttps://github.com/webonyx/graphql-php/actions/runs/40298556123.\n`mt_srand(1)` before setup makes the random schema of `HugeSchemaBench`\nthe same in every run.\nOpcache is off, so Valgrind sees all executed code.\nBase is the first parent of the merge commit that GitHub checks out as\nhead.\nBase and head run in parallel, and the step takes about 6 to 8 minutes.\n`benchmarks/compare-results.php` writes a table to the step summary,\nwhich needs no write token.\nInstruction counts miss cache misses and branch mispredictions, which\nmatter little for this CPU-bound library.\nHardware counters through `perf` are not available on Azure VMs:\nhttps://github.com/actions/runner-images/issues/4974.\n</details>\n\n<details>\n<summary>PHPBench no longer retries iterations, because unlimited\nretries hung CI</summary>\n\n`runner.retry_threshold: 2` reran iterations until their deviation was\nbelow 2%, and PHPBench has no retry limit by default.\nOn noisy runners this hung `DeferredBench::benchManyNestedDeferreds` for\n18 minutes in\nhttps://github.com/webonyx/graphql-php/actions/runs/40285990012, and\nprobably killed the runner in\nhttps://github.com/webonyx/graphql-php/actions/runs/40214562986.\ndoctrine/orm and phpactor set no retry threshold either.\nLocal `composer bench` and the `benchmark-history` job run without\nretries too, so their wall times may vary more.\n\"Count benchmark instructions\" and the \"Benchmarks\" job in `test.yml`\nnow have a timeout.\n</details>\n\n<details>\n<summary>The job skips PRs that change no benchmarked code</summary>\n\nA `paths` filter limits it to `src/`, `benchmarks/`, `composer.json` and\nthe workflow.\n\"Count benchmark instructions\" is not a required check, so a skipped run\nblocks no merge.\n`CONTRIBUTING.md` explains how to reproduce the check locally.\n</details>\n\n<details>\n<summary>Master history tracking still uses PHPBench wall\ntimes</summary>\n\nThe `benchmark-history` job still pushes PHPBench results to\n`benchmark-results`.\n</details>\n\n## Changelog\n\nNone\n\n🤖 Generated with Claude Code\n\n---------\n\nCo-authored-by: autofix-ci[bot] <114827586+autofix-ci[bot]@users.noreply.github.com>",
+          "timestamp": "2026-10-26T11:21:19+01:00",
+          "tree_id": "133c41bff26c219ea5db3cc4189eac6ecef7889b",
+          "url": "https://github.com/webonyx/graphql-php/commit/936133ba405b62ca0d0be2a7b5fca917defa4519"
+        },
+        "date": 1793010163425,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithoutOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithTypesOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithoutOverride",
+            "value": 0.108,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithTypesOverride",
+            "value": 0.109,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeave",
+            "value": 0.22,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindMap",
+            "value": 0.205,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindCallable",
+            "value": 0.19,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeaveMap",
+            "value": 0.206,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitNestedWithEnterLeave",
+            "value": 0.047,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields100",
+            "value": 2.145,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields500",
+            "value": 10.437,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields1000",
+            "value": 20.651,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields2000",
+            "value": 41.685,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields3000",
+            "value": 63.21,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchIntrospectionQuery",
+            "value": 0.218,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchDeeplyIndentedQuery",
+            "value": 1.388,
+            "unit": "ms"
+          },
+          {
+            "name": "BuildSchemaBench::benchBuildSchema",
+            "value": 16.856,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchSchema",
+            "value": 0.008,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchHeroQuery",
+            "value": 0.224,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchNestedQuery",
+            "value": 0.49,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithFragment",
+            "value": 0.54,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithInterfaceFragment",
+            "value": 0.484,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchStarWarsIntrospectionQuery",
+            "value": 4.933,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchSingleDeferred",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchNestedDeferred",
+            "value": 0.002,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain5",
+            "value": 0.004,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain100",
+            "value": 0.054,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyDeferreds",
+            "value": 0.285,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyNestedDeferreds",
+            "value": 10.484,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::bench1000Chains",
+            "value": 2.75,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchema",
+            "value": 14.424,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchemaLazy",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQuery",
+            "value": 9.763,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQueryLazy",
+            "value": 10.452,
             "unit": "ms"
           }
         ]
