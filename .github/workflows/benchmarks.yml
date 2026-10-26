@@ -6,7 +6,6 @@ on:
       - .github/workflows/benchmarks.yml
       - benchmarks/**
       - composer.json
-      - phpbench.json
       - src/**
   push:
     branches:
@@ -15,7 +14,7 @@ on:
 
 jobs:
   benchmark-pr:
-    name: Run benchmarks
+    name: Count benchmark instructions
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -45,24 +44,18 @@ jobs:
         with:
           working-directory: head
 
-      - name: Run PHPBench on base and head in turns
+      - run: sudo apt-get install --yes valgrind
+
+      - name: Count instructions on base and head
         run: |
-          cp head/phpbench.json base/phpbench.json
-          for pass in 1 2 3; do
-            for side in base head; do
-              (cd "$side" && php -d zend.assertions=-1 vendor/bin/phpbench run \
-                --dump-file="../$side-$pass.xml")
-            done
-          done
+          php head/benchmarks/count-instructions.php base > base.json &
+          base_pid=$!
+          php head/benchmarks/count-instructions.php head > head.json
+          wait "$base_pid"
 
       - name: Compare results
         shell: bash
-        run: |
-          php head/benchmarks/compare-results.php \
-            --base=base-1.xml --head=head-1.xml \
-            --base=base-2.xml --head=head-2.xml \
-            --base=base-3.xml --head=head-3.xml \
-            | tee --append "$GITHUB_STEP_SUMMARY"
+        run: php head/benchmarks/compare-results.php base.json head.json | tee --append "$GITHUB_STEP_SUMMARY"
 
   benchmark-history:
     name: Track benchmark history
