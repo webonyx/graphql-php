@@ -1,13 +1,5 @@
 <?php declare(strict_types=1);
 
-/**
- * Counts the instructions per revolution of every PHPBench subject with Valgrind.
- *
- * Usage: php benchmarks/count-instructions.php <checkout> > instructions.json
- *
- * Runs each subject once with 1 rev, once with 1 + a tenth of its @Revs, and divides the difference,
- * so bootstrap, setup and first-run costs cancel out.
- */
 $checkout = $argv[1] ?? null;
 if ($checkout === null) {
     fwrite(STDERR, "Usage: php benchmarks/count-instructions.php <checkout>\n");
@@ -16,47 +8,41 @@ if ($checkout === null) {
 
 require_once "{$checkout}/vendor/autoload.php";
 
-$runSubject = __DIR__ . '/run-subject.php';
-
 /**
  * @param list<string> $command
  *
- * @return array{string, string}
+ * @return string The standard error output
  */
-function run(array $command): array
+function runCommand(array $command): string
 {
-    $process = proc_open(
-        implode(' ', array_map('escapeshellarg', $command)),
-        [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
-        $pipes
-    );
+    $process = proc_open($command, [1 => ['file', '/dev/null', 'w'], 2 => ['pipe', 'w']], $pipes);
+    $commandLine = implode(' ', $command);
     if (! is_resource($process)) {
-        throw new RuntimeException('Failed to start: ' . implode(' ', $command) . '.');
+        throw new RuntimeException("Failed to start: {$commandLine}.");
     }
 
-    $stdout = (string) stream_get_contents($pipes[1]);
     $stderr = (string) stream_get_contents($pipes[2]);
     $exitCode = proc_close($process);
     if ($exitCode !== 0) {
-        throw new RuntimeException("Exit code {$exitCode} from " . implode(' ', $command) . ":\n{$stdout}{$stderr}");
+        throw new RuntimeException("Exit code {$exitCode} from {$commandLine}:\n{$stderr}");
     }
 
-    return [$stdout, $stderr];
+    return $stderr;
 }
 
-function countInstructions(string $runSubject, string $checkout, string $subject, int $revs): int
+function countInstructions(string $checkout, string $subject, int $revs): int
 {
-    [, $stderr] = run([
+    $benchmarksDirectory = __DIR__;
+    $stderr = runCommand([
         'valgrind',
         '--tool=cachegrind',
-        '--cache-sim=no',
         '--cachegrind-out-file=/dev/null',
         PHP_BINARY,
         '-d',
         'zend.assertions=-1',
         '-d',
         'opcache.enable_cli=0',
-        $runSubject,
+        "{$benchmarksDirectory}/run-subject.php",
         $checkout,
         $subject,
         (string) $revs,
@@ -65,12 +51,15 @@ function countInstructions(string $runSubject, string $checkout, string $subject
         throw new RuntimeException("No instruction count for {$subject}:\n{$stderr}");
     }
 
-    return (int) str_replace(',', '', $match[1]);
+    $instructions = str_replace(',', '', $match[1]);
+
+    return (int) $instructions;
 }
 
 function annotatedRevs(ReflectionMethod $method, string $subject): int
 {
-    foreach ([$method->getDocComment(), $method->getDeclaringClass()->getDocComment()] as $docComment) {
+    $docComments = [$method->getDocComment(), $method->getDeclaringClass()->getDocComment()];
+    foreach ($docComments as $docComment) {
         if (is_string($docComment) && preg_match('/@Revs\((.+)\)/', $docComment, $match) === 1) {
             if (preg_match('/^\d+$/', $match[1]) !== 1) {
                 throw new RuntimeException("Only a single integer is supported in @Revs: {$subject}.");
@@ -90,7 +79,8 @@ if ($files === false) {
 
 $instructionsPerRev = [];
 foreach ($files as $file) {
-    $className = 'GraphQL\\Benchmarks\\' . basename($file, '.php');
+    $shortClassName = basename($file, '.php');
+    $className = "GraphQL\\Benchmarks\\{$shortClassName}";
     if (! class_exists($className)) {
         throw new RuntimeException("Failed to load benchmark class: {$className}.");
     }
@@ -103,11 +93,17 @@ foreach ($files as $file) {
 
         $subject = "{$class->getShortName()}::{$method->getName()}";
         $extraRevs = (int) ceil(annotatedRevs($method, $subject) / 10);
-        $warmupInstructions = countInstructions($runSubject, $checkout, $subject, 1);
-        $measuredInstructions = countInstructions($runSubject, $checkout, $subject, 1 + $extraRevs);
-        $instructionsPerRev[$subject] = intdiv($measuredInstructions - $warmupInstructions, $extraRevs);
+        // The 1-rev run holds bootstrap, setup and first-run costs, so the difference cancels them.
+        $baselineInstructions = countInstructions($checkout, $subject, 1);
+        $measuredInstructions = countInstructions($checkout, $subject, 1 + $extraRevs);
+        if ($measuredInstructions <= $baselineInstructions) {
+            throw new RuntimeException("Expected more instructions with more revs: {$subject}.");
+        }
+
+        $instructionsPerRev[$subject] = intdiv($measuredInstructions - $baselineInstructions, $extraRevs);
         fwrite(STDERR, "{$subject}: {$instructionsPerRev[$subject]}\n");
     }
 }
 
-echo json_encode($instructionsPerRev, JSON_PRETTY_PRINT) . "\n";
+$json = json_encode($instructionsPerRev, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
+echo "{$json}\n";
