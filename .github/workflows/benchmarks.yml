@@ -47,6 +47,7 @@ jobs:
 
       - name: Run PHPBench on base and head in turns
         run: |
+          cp head/phpbench.json base/phpbench.json
           for pass in 1 2 3; do
             for side in base head; do
               (cd "$side" && php -d zend.assertions=-1 vendor/bin/phpbench run \
