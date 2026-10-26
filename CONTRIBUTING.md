@@ -151,6 +151,21 @@ Check performance:
 composer bench
 ```
 
+On pull requests, CI counts each benchmark's instructions per revolution with [Valgrind](https://valgrind.org).
+The check fails when any benchmark needs more than 1.1x the instructions of the base branch.
+Of the PHPBench annotations, the counter supports only `@BeforeMethods`.
+
+To reproduce the check, install Valgrind.
+Check out the base branch into a second directory.
+Run `composer install` in that directory.
+Then run:
+
+```sh
+php benchmarks/count-instructions.php ../graphql-php-base > base.json
+php benchmarks/count-instructions.php . > head.json
+php benchmarks/compare-results.php base.json head.json
+```
+
 ## Documentation
 
 We document this library by rendering the Markdown files in [docs](docs) with [MkDocs](https://www.mkdocs.org).
