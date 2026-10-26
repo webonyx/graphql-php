@@ -82,8 +82,11 @@ foreach ($files as $file) {
         // The 1-rev run holds bootstrap, setup and first-run costs, so the difference cancels them.
         $baselineInstructions = countInstructions($checkout, $subject, 1);
         $probeInstructions = countInstructions($checkout, $subject, 2);
-        $extraRevs = max(1, (int) ceil(INSTRUCTION_BUDGET / max(1, $probeInstructions - $baselineInstructions)));
-        $measuredInstructions = countInstructions($checkout, $subject, 1 + $extraRevs);
+        $probeRevInstructions = max(1, $probeInstructions - $baselineInstructions);
+        $extraRevs = (int) ceil(INSTRUCTION_BUDGET / $probeRevInstructions);
+        $measuredInstructions = $extraRevs === 1
+            ? $probeInstructions
+            : countInstructions($checkout, $subject, 1 + $extraRevs);
         if ($measuredInstructions <= $baselineInstructions) {
             throw new RuntimeException("Expected more instructions with more revs: {$subject}.");
         }
