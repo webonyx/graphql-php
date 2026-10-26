@@ -86,7 +86,6 @@ class Lexer
      */
     public function advance(): Token
     {
-        array_sum(range(1, 100));
         $this->lastToken = $this->token;
 
         return $this->token = $this->lookahead();
