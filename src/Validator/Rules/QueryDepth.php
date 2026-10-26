@@ -18,6 +18,12 @@ class QueryDepth extends QuerySecurityRule
     /** @var array<string, bool> Fragment names which are already calculated in recursion */
     protected array $calculatedFragments = [];
 
+    /** @var array<string, int> Depth of each fragment relative to where it is spread, -1 when it has no nested selections; reset per document */
+    private array $fragmentDepths = [];
+
+    /** @var array<string, bool> Fragment names which contain a cycle; reset per document */
+    private array $cyclicFragments = [];
+
     protected int $maxQueryDepth;
 
     /** @throws \InvalidArgumentException */
@@ -28,6 +34,9 @@ class QueryDepth extends QuerySecurityRule
 
     public function getVisitor(QueryValidationContext $context): array
     {
+        $this->fragmentDepths = [];
+        $this->cyclicFragments = [];
+
         return $this->invokeIfNeeded(
             $context,
             [
@@ -86,13 +95,26 @@ class QueryDepth extends QuerySecurityRule
 
                 if ($fragment !== null) {
                     $name = $fragment->name->value;
-                    if (isset($this->calculatedFragments[$name])) {
+                    if (isset($this->calculatedFragments[$name]) || isset($this->cyclicFragments[$name])) {
+                        $this->cyclicFragments += $this->calculatedFragments;
+
                         return $this->maxQueryDepth + 1;
                     }
 
-                    $this->calculatedFragments[$name] = true;
-                    $maxDepth = $this->fieldDepth($fragment, $depth, $maxDepth);
-                    unset($this->calculatedFragments[$name]);
+                    // Measure each fragment once, so spreading it repeatedly does not re-walk it
+                    if (! isset($this->fragmentDepths[$name])) {
+                        $this->calculatedFragments[$name] = true;
+                        $fragmentDepth = $this->fieldDepth($fragment, 0, -1);
+                        unset($this->calculatedFragments[$name]);
+
+                        if (isset($this->cyclicFragments[$name])) {
+                            return $this->maxQueryDepth + 1;
+                        }
+
+                        $this->fragmentDepths[$name] = $fragmentDepth;
+                    }
+
+                    $maxDepth = max($maxDepth, $depth + $this->fragmentDepths[$name]);
                 }
 
                 break;

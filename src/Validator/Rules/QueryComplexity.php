@@ -52,6 +52,9 @@ class QueryComplexity extends QuerySecurityRule
      */
     private bool $variableCoercionFailed = false;
 
+    /** @var array<string, int> Complexity of each fragment by name; reset per document */
+    private array $fragmentComplexities = [];
+
     /** @throws \InvalidArgumentException */
     public function __construct(int $maxQueryComplexity)
     {
@@ -66,6 +69,7 @@ class QueryComplexity extends QuerySecurityRule
         $this->fieldNodeAndDefs = new \ArrayObject();
         $this->coercedVariableValues = null;
         $this->variableCoercionFailed = false;
+        $this->fragmentComplexities = [];
 
         return $this->invokeIfNeeded(
             $context,
@@ -184,7 +188,8 @@ class QueryComplexity extends QuerySecurityRule
                 $fragment = $this->getFragment($node);
 
                 if ($fragment !== null) {
-                    return $this->fieldComplexity($fragment->selectionSet);
+                    // Score each fragment once, so spreading it repeatedly does not re-walk it
+                    return $this->fragmentComplexities[$fragment->name->value] ??= $this->fieldComplexity($fragment->selectionSet);
                 }
         }
 

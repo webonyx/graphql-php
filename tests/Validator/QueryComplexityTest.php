@@ -74,6 +74,42 @@ final class QueryComplexityTest extends QuerySecurityTestCase
         yield ['query { ...humanFragment } fragment humanFragment on QueryRoot { human { dogs { name } } }'];
     }
 
+    /** @dataProvider repeatedFragmentSpreadsProvider */
+    public function testRepeatedFragmentSpreads(int $levels): void
+    {
+        $query = "query MyQuery { human { ...F{$levels} } } fragment F0 on Human { firstName }";
+
+        foreach (range(1, $levels) as $level) {
+            $previous = $level - 1;
+            $query .= " fragment F{$level} on Human { dogs { master { ...F{$previous} ...F{$previous} } } }";
+        }
+
+        // human (1) + F{n}, where F0 = 1 and F{n} = dogs (10) + master (1) + 2 * F{n-1}
+        $complexity = 12 * 2 ** $levels - 10;
+
+        $this->assertDocumentValidator($query, $complexity);
+        $this->assertDocumentValidator($query, $complexity - 1, [self::createFormattedError($complexity - 1, $complexity)]);
+    }
+
+    /** @return iterable<array{int}> */
+    public static function repeatedFragmentSpreadsProvider(): iterable
+    {
+        yield [1];
+        yield [4];
+        yield [50]; // Would never finish if each spread re-walked its fragment
+    }
+
+    public function testRepeatedFragmentSpreadsWithDirectives(): void
+    {
+        $query = 'query MyQuery($withDogs: Boolean!) { human { ...F1 } jeremy: human(name: "Jeremy") { ...F1 ...F1 } } fragment F1 on Human { firstName dogs(name: "Root") @include(if: $withDogs) { name } }';
+
+        $this->getRule()->setRawVariableValues(['withDogs' => true]);
+        $this->assertDocumentValidators($query, 11, 12);
+
+        $this->getRule()->setRawVariableValues(['withDogs' => false]);
+        $this->assertDocumentValidators($query, 5, 6);
+    }
+
     public function testAliasesQueries(): void
     {
         $query = 'query MyQuery { thomas: human(name: "Thomas") { firstName } jeremy: human(name: "Jeremy") { firstName } }';

@@ -99,6 +99,57 @@ final class QueryDepthTest extends QuerySecurityTestCase
         $this->assertDocumentValidator($query, 7, [self::createFormattedError(7, 8)]);
     }
 
+    public function testFragmentSpreadAtDifferentDepths(): void
+    {
+        $query = 'query MyQuery { human { ...F1 dogs { master { ...F1 } } } } fragment F1 on Human { dogs { name } }';
+
+        $this->assertDocumentValidator($query, 3);
+        $this->assertDocumentValidator($query, 2, [self::createFormattedError(2, 3)]);
+    }
+
+    /** @dataProvider repeatedFragmentSpreadsProvider */
+    public function testRepeatedFragmentSpreads(int $levels): void
+    {
+        $query = $this->buildRepeatedFragmentSpreadsQuery($levels);
+        $depth = 2 * $levels;
+
+        $this->assertDocumentValidator($query, $depth);
+        $this->assertDocumentValidator($query, $depth - 1, [self::createFormattedError($depth - 1, $depth)]);
+    }
+
+    /** @return iterable<array{int}> */
+    public static function repeatedFragmentSpreadsProvider(): iterable
+    {
+        yield [1];
+        yield [4];
+        yield [50]; // Would never finish if each spread re-walked its fragment
+    }
+
+    /** Each fragment spreads the one below it twice, so the expanded query doubles in size per level. */
+    private function buildRepeatedFragmentSpreadsQuery(int $levels): string
+    {
+        $query = "query MyQuery { human { ...F{$levels} } } fragment F0 on Human { firstName }";
+
+        foreach (range(1, $levels) as $level) {
+            $previous = $level - 1;
+            $query .= " fragment F{$level} on Human { dogs { master { ...F{$previous} ...F{$previous} } } }";
+        }
+
+        return $query;
+    }
+
+    public function testInfiniteRecursionWithRepeatedFragmentSpreads(): void
+    {
+        $query = 'query MyQuery { human { ...F0 } } fragment F50 on Human { ...F0 }';
+
+        foreach (range(0, 49) as $level) {
+            $next = $level + 1;
+            $query .= " fragment F{$level} on Human { ...F{$next} ...F{$next} }";
+        }
+
+        $this->assertDocumentValidator($query, 7, [self::createFormattedError(7, 8)]);
+    }
+
     /** @return iterable<array{0: int, 1?: int, 2?: array<int, array<string, mixed>>}> */
     public static function queryDataProvider(): iterable
     {
