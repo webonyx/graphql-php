@@ -8,6 +8,9 @@ if ($checkout === null) {
 
 require_once "{$checkout}/vendor/autoload.php";
 
+// Extra revs add up to this many instructions, so the measured work outweighs the noise of setup.
+const INSTRUCTION_BUDGET = 20_000_000;
+
 /**
  * @param list<string> $command
  *
@@ -56,22 +59,6 @@ function countInstructions(string $checkout, string $subject, int $revs): int
     return (int) $instructions;
 }
 
-function annotatedRevs(ReflectionMethod $method, string $subject): int
-{
-    $docComments = [$method->getDocComment(), $method->getDeclaringClass()->getDocComment()];
-    foreach ($docComments as $docComment) {
-        if (is_string($docComment) && preg_match('/@Revs\((.+)\)/', $docComment, $match) === 1) {
-            if (preg_match('/^\d+$/', $match[1]) !== 1) {
-                throw new RuntimeException("Only a single integer is supported in @Revs: {$subject}.");
-            }
-
-            return (int) $match[1];
-        }
-    }
-
-    return 1;
-}
-
 $files = glob("{$checkout}/benchmarks/*Bench.php");
 if ($files === false) {
     throw new RuntimeException("Failed to list benchmarks in {$checkout}.");
@@ -92,9 +79,10 @@ foreach ($files as $file) {
         }
 
         $subject = "{$class->getShortName()}::{$method->getName()}";
-        $extraRevs = (int) ceil(annotatedRevs($method, $subject) / 10);
         // The 1-rev run holds bootstrap, setup and first-run costs, so the difference cancels them.
         $baselineInstructions = countInstructions($checkout, $subject, 1);
+        $probeInstructions = countInstructions($checkout, $subject, 2);
+        $extraRevs = max(1, (int) ceil(INSTRUCTION_BUDGET / max(1, $probeInstructions - $baselineInstructions)));
         $measuredInstructions = countInstructions($checkout, $subject, 1 + $extraRevs);
         if ($measuredInstructions <= $baselineInstructions) {
             throw new RuntimeException("Expected more instructions with more revs: {$subject}.");

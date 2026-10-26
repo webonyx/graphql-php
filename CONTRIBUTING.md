@@ -153,7 +153,7 @@ composer bench
 
 On pull requests, CI counts each benchmark's instructions per revolution with [Valgrind](https://valgrind.org).
 The check fails when any benchmark needs more than 1.1x the instructions of the base branch.
-The counter supports only the `@Revs` and `@BeforeMethods` docblock annotations.
+Of the PHPBench annotations, the counter supports only `@BeforeMethods`.
 
 To reproduce the check, install Valgrind.
 Check out the base branch into a second directory.
