@@ -151,9 +151,14 @@ Check performance:
 composer bench
 ```
 
-On pull requests, CI counts the instructions per revolution of each benchmark with [Valgrind](https://valgrind.org) and fails when one needs more than 1.1x those of the base branch.
+On pull requests, CI counts each benchmark's instructions per revolution with [Valgrind](https://valgrind.org).
+The check fails when any benchmark needs more than 1.1x the instructions of the base branch.
 The counter supports only the `@Revs` and `@BeforeMethods` docblock annotations.
-To reproduce the check, install Valgrind, check out the base branch into a second directory and run `composer install` there, then run:
+
+To reproduce the check, install Valgrind.
+Check out the base branch into a second directory.
+Run `composer install` in that directory.
+Then run:
 
 ```sh
 php benchmarks/count-instructions.php ../graphql-php-base > base.json
