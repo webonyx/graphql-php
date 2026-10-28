@@ -350,7 +350,7 @@ class ResolveInfo
                 $field = $this->parentType->getField($fieldNode->name->value);
                 $fieldType = $field->getType();
 
-                $fields = array_merge_recursive(
+                $fields = array_replace_recursive(
                     $fields,
                     $this->foldSelectionWithAlias($selectionSet, $depth, $fieldType)
                 );
@@ -470,7 +470,10 @@ class ResolveInfo
                     continue;
                 }
 
-                $aliasInfo['selectionSet'] = $this->foldSelectionWithAlias($nestedSelectionSet, $descend - 1, $fieldType);
+                $aliasInfo['selectionSet'] = array_replace_recursive(
+                    $aliasInfo['selectionSet'] ?? [],
+                    $this->foldSelectionWithAlias($nestedSelectionSet, $descend - 1, $fieldType)
+                );
             } elseif ($selection instanceof FragmentSpreadNode) {
                 $spreadName = $selection->name->value;
                 $fragment = $this->fragments[$spreadName] ?? null;
@@ -481,7 +484,7 @@ class ResolveInfo
                 $fieldType = $this->schema->getType($fragment->typeCondition->name->value);
                 assert($fieldType instanceof Type, 'ensured by query validation');
 
-                $fields = array_merge_recursive(
+                $fields = array_replace_recursive(
                     $this->foldSelectionWithAlias($fragment->selectionSet, $descend, $fieldType),
                     $fields
                 );
@@ -500,7 +503,7 @@ class ResolveInfo
                     continue;
                 }
 
-                $fields = array_merge_recursive(
+                $fields = array_replace_recursive(
                     $this->foldSelectionWithAlias($selection->selectionSet, $descend, $fieldType),
                     $fields
                 );
