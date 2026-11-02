@@ -12,7 +12,7 @@ $trimmedString = new CustomScalarType([
     'name' => Type::STRING,
     'serialize' => static fn ($value): string => trim((string) $value),
     'parseValue' => static fn ($value): string => trim((string) $value),
-    'parseLiteral' => static fn ($valueNode): string => trim($valueNode->value),
+    'parseLiteral' => static fn ($valueNode): string => trim(Type::string()->parseLiteral($valueNode)),
 ]);
 
 $queryType = new ObjectType([

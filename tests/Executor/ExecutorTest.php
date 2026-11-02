@@ -1098,6 +1098,7 @@ final class ExecutorTest extends TestCase
     /** @see https://github.com/webonyx/graphql-php/issues/59 */
     public function testSerializesToEmptyObjectVsEmptyArray(): void
     {
+        /** @var InterfaceType|null $iface */
         $iface = null;
 
         $a = new ObjectType([
@@ -1106,6 +1107,8 @@ final class ExecutorTest extends TestCase
                 'id' => Type::id(),
             ],
             'interfaces' => static function () use (&$iface): array {
+                self::assertNotNull($iface);
+
                 return [$iface];
             },
         ]);
@@ -1116,6 +1119,8 @@ final class ExecutorTest extends TestCase
                 'id' => Type::id(),
             ],
             'interfaces' => static function () use (&$iface): array {
+                self::assertNotNull($iface);
+
                 return [$iface];
             },
         ]);
