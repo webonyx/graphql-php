@@ -451,6 +451,7 @@ final class DefinitionTest extends TestCaseBase
     /** @see it('includes interfaces' thunk subtypes in the type map') */
     public function testIncludesInterfacesThunkSubtypesInTheTypeMap(): void
     {
+        /** @var InterfaceType|null $someInterface */
         $someInterface = null;
 
         $someSubtype = new ObjectType([
@@ -459,6 +460,8 @@ final class DefinitionTest extends TestCaseBase
                 'f' => ['type' => Type::int()],
             ],
             'interfaces' => static function () use (&$someInterface): array {
+                self::assertNotNull($someInterface);
+
                 return [$someInterface];
             },
         ]);
@@ -659,6 +662,7 @@ final class DefinitionTest extends TestCaseBase
             'name' => 'InputObject',
             'fields' => static function () use (&$inputObject, &$called): array {
                 $called = true;
+                self::assertNotNull($inputObject);
 
                 return [
                     'value' => ['type' => Type::string()],

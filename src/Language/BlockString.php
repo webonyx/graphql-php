@@ -136,7 +136,6 @@ class BlockString
                 ! $isSingleLine
                 || mb_strlen($value) > 70
                 || $forceTrailingNewline
-                || $forceLeadingNewLine
                 || $hasTrailingTripleQuotes
             );
 
