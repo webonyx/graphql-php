@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793010164591,
+  "lastUpdate": 1793627746146,
   "repoUrl": "https://github.com/webonyx/graphql-php",
   "entries": {
     "Benchmark": [
@@ -24675,6 +24675,200 @@ window.BENCHMARK_DATA = {
           {
             "name": "HugeSchemaBench::benchSmallQueryLazy",
             "value": 10.452,
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7edcffc02fabebe3213bb8e8e1fe038c283b2573",
+          "message": "Update phpstan packages (#1992)\n\nThis PR contains the following updates:\n\n| Package | Change |\n[Age](https://docs.renovatebot.com/merge-confidence/) |\n[Confidence](https://docs.renovatebot.com/merge-confidence/) |\n|---|---|---|---|\n|\n[phpstan/phpstan](https://redirect.github.com/phpstan/phpstan-phar-composer-source)\n| `2.2.17` → `2.3.4` |\n![age](https://developer.mend.io/api/mc/badges/age/packagist/phpstan%2fphpstan/2.3.4?slim=true)\n|\n![confidence](https://developer.mend.io/api/mc/badges/confidence/packagist/phpstan%2fphpstan/2.2.17/2.3.4?slim=true)\n|\n|\n[phpstan/phpstan-phpunit](https://redirect.github.com/phpstan/phpstan-phpunit)\n| `2.0.21` → `2.1.1` |\n![age](https://developer.mend.io/api/mc/badges/age/packagist/phpstan%2fphpstan-phpunit/2.1.1?slim=true)\n|\n![confidence](https://developer.mend.io/api/mc/badges/confidence/packagist/phpstan%2fphpstan-phpunit/2.0.21/2.1.1?slim=true)\n|\n|\n[phpstan/phpstan-strict-rules](https://redirect.github.com/phpstan/phpstan-strict-rules)\n| `2.0.12` → `2.1.1` |\n![age](https://developer.mend.io/api/mc/badges/age/packagist/phpstan%2fphpstan-strict-rules/2.1.1?slim=true)\n|\n![confidence](https://developer.mend.io/api/mc/badges/confidence/packagist/phpstan%2fphpstan-strict-rules/2.0.12/2.1.1?slim=true)\n|\n\n---\n\n### Release Notes\n\n<details>\n<summary>phpstan/phpstan-phar-composer-source\n(phpstan/phpstan)</summary>\n\n###\n[`v2.3.4`](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.3.3...2.3.4)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.3.3...2.3.4)\n\n###\n[`v2.3.3`](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.3.2...2.3.3)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.3.2...2.3.3)\n\n###\n[`v2.3.2`](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.3.1...2.3.2)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.3.1...2.3.2)\n\n###\n[`v2.3.1`](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.3.0...2.3.1)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.3.0...2.3.1)\n\n###\n[`v2.3.0`](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.17...2.3.0)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phar-composer-source/compare/2.2.17...2.3.0)\n\n</details>\n\n<details>\n<summary>phpstan/phpstan-phpunit</summary>\n\n###\n[`v2.1.1`](https://redirect.github.com/phpstan/phpstan-phpunit/releases/tag/2.1.1)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phpunit/compare/2.1.0...2.1.1)\n\n-\n[8d16b84](http://github.com/phpstan/phpstan-phpunit/commit/8d16b8478e523a47f8c02e83bce8981b5b5a3b03)\n- `AssertEmptyIsDiscouragedRule` is auto-fixable\n([#&#8203;342](https://redirect.github.com/phpstan/phpstan-phpunit/issues/342))\n-\n[b73700a](http://github.com/phpstan/phpstan-phpunit/commit/b73700a4464bf4a5bceda8f66cfd6ede0856dde4)\n- Make `AssertSameWithCountRule` auto-fixable\n([#&#8203;259](https://redirect.github.com/phpstan/phpstan-phpunit/issues/259))\n-\n[ac3237e](http://github.com/phpstan/phpstan-phpunit/commit/ac3237e91c23ab70c6f2fef5bb3a03cf83a8eda3)\n- Skip named and unpack arguments when autofixing\n\n###\n[`v2.1.0`](https://redirect.github.com/phpstan/phpstan-phpunit/releases/tag/2.1.0)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-phpunit/compare/2.0.21...2.1.0)\n\n-\n[a31e9de](http://github.com/phpstan/phpstan-phpunit/commit/a31e9dea4b5858dcad4a8dddd97f3384a90d46d1)\n- Merge remote-tracking branch 'origin/2.0.x' into 2.1.x\n-\n[626549b](http://github.com/phpstan/phpstan-phpunit/commit/626549b2d50af57446aafac4738d072bc3f77667)\n- Merge pull request\n[#&#8203;336](https://redirect.github.com/phpstan/phpstan-phpunit/issues/336)\nfrom phpstan/renovate/github-actions\n-\n[ca0a5ae](http://github.com/phpstan/phpstan-phpunit/commit/ca0a5aea6c360d7d361892a20770455d53ae97bf)\n- Update github-actions\n-\n[c38f716](http://github.com/phpstan/phpstan-phpunit/commit/c38f716719003654fb198807b841e6274745ea75)\n- Merge 2.0.x into 2.1.x\n-\n[0d17121](http://github.com/phpstan/phpstan-phpunit/commit/0d17121ebab9c31656fef120c3e5e596ef4d2663)\n- AssertEmptyIsDiscouragedRule: use unique error identifier\n-\n[414a487](http://github.com/phpstan/phpstan-phpunit/commit/414a487e64cd63a99e16dc86963288cd6c1405eb)\n- feat: Discourage assert(Not)Empty if \"empty\" usage is disallowed\n([#&#8203;325](https://redirect.github.com/phpstan/phpstan-phpunit/issues/325))\n-\n[3320043](http://github.com/phpstan/phpstan-phpunit/commit/33200436c2f68e5faea7c3860f76e9cd258798a0)\n- Merge remote-tracking branch 'origin/2.0.x' into 2.1.x\n-\n[ba569da](http://github.com/phpstan/phpstan-phpunit/commit/ba569da0c3c4980d32e8cf26d9a0af846432191d)\n- Name the node types DataProviderDataRule wants\n-\n[e98eb3d](http://github.com/phpstan/phpstan-phpunit/commit/e98eb3dafa847f4b26a5cbfed303d449d8fc4cbd)\n- Require PHPStan 2.3.0\n-\n[33212d9](http://github.com/phpstan/phpstan-phpunit/commit/33212d903ffc0150764492b1ce64ea34bcb01260)\n- Open 2.1.x-dev\n\n</details>\n\n<details>\n<summary>phpstan/phpstan-strict-rules</summary>\n\n###\n[`v2.1.1`](https://redirect.github.com/phpstan/phpstan-strict-rules/releases/tag/2.1.1)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-strict-rules/compare/2.1.0...2.1.1)\n\n-\n[fe4a0af](http://github.com/phpstan/phpstan-strict-rules/commit/fe4a0afae773eedf178fab17ed9361c0061d2804)\n- Report implicit mixed in boolean conditions on level 10\n([#&#8203;340](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/340))\n-\n[a36b813](http://github.com/phpstan/phpstan-strict-rules/commit/a36b8130306f85a10b95c7c1f8299bdb9442b5cf)\n- `UselessCastRule` on native types is auto-fixable\n([#&#8203;344](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/344))\n-\n[65a662a](http://github.com/phpstan/phpstan-strict-rules/commit/65a662a7d345491bc768bab18919b2800a22b50d)\n- Update GitHub Actions\n([#&#8203;343](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/343))\n-\n[3366d07](http://github.com/phpstan/phpstan-strict-rules/commit/3366d075d1cdf9f84629eb115f346189b51e3fa9)\n- Remove Renovate\n-\n[8ff2ec8](http://github.com/phpstan/phpstan-strict-rules/commit/8ff2ec89049e02cdc7496d3fe92388224263636b)\n- Add PHP 8.6 to CI build matrix\n([#&#8203;342](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/342))\n-\n[9756377](http://github.com/phpstan/phpstan-strict-rules/commit/9756377e8d0c5048ca960e606f2e37fa9cb62832)\n- Add Amp orb setup script\n-\n[6a9da3d](http://github.com/phpstan/phpstan-strict-rules/commit/6a9da3d243da1ddd0e345d9fa6b0779d11d908f2)\n- Update github-actions\n([#&#8203;341](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/341))\n-\n[e8b1654](http://github.com/phpstan/phpstan-strict-rules/commit/e8b1654aa0b186d520c4069b3c54516544f5f584)\n- Update github/codeql-action action to v4.39.0\n([#&#8203;339](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/339))\n-\n[e550da1](http://github.com/phpstan/phpstan-strict-rules/commit/e550da1b2c84faf2e2aa3e6e12eddd80559561d0)\n- Update github-actions\n([#&#8203;338](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/338))\n\n###\n[`v2.1.0`](https://redirect.github.com/phpstan/phpstan-strict-rules/releases/tag/2.1.0)\n\n[Compare\nSource](https://redirect.github.com/phpstan/phpstan-strict-rules/compare/2.0.12...2.1.0)\n\n-\n[24ec515](http://github.com/phpstan/phpstan-strict-rules/commit/24ec51589f896f048d0d36de373d993b5cf71786)\n- Update github-actions\n([#&#8203;334](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/334))\n-\n[19b5b5b](http://github.com/phpstan/phpstan-strict-rules/commit/19b5b5bcc9cdf0789acb67e264d0782097e18c08)\n- Name the node types the arithmetic operand rules want\n-\n[25c1a99](http://github.com/phpstan/phpstan-strict-rules/commit/25c1a995b703c650c622ef198b4ceac006114a1a)\n- Merge remote-tracking branch 'origin/2.0.x' into 2.1.x\n-\n[aac2457](http://github.com/phpstan/phpstan-strict-rules/commit/aac24570142b25a4ed1af99257633c89d99c063c)\n- Fix build\n([#&#8203;336](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/336))\n-\n[b39a53a](http://github.com/phpstan/phpstan-strict-rules/commit/b39a53a82886dca51251a05ec00fae1d2f703787)\n- Fix 2.3.x-dev build errors\n([#&#8203;335](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/335))\n-\n[4908484](http://github.com/phpstan/phpstan-strict-rules/commit/49084840349a98b05ba6f4cab11c3ad5f2fd49fe)\n- Report loop variable overwrites only for variables still in use\n-\n[9db0b58](http://github.com/phpstan/phpstan-strict-rules/commit/9db0b581ca05eb00601e38785bff7e4c074ef9b4)\n- Require PHPStan 2.3.0\n-\n[c58b775](http://github.com/phpstan/phpstan-strict-rules/commit/c58b775401b12c06cfbdd17062b13c379c16aa2c)\n- Open 2.1.x-dev\n-\n[3c614d5](http://github.com/phpstan/phpstan-strict-rules/commit/3c614d56f52c978bfa47dcd6b509b8c44760101e)\n- Update github-actions\n([#&#8203;331](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/331))\n-\n[361d3d0](http://github.com/phpstan/phpstan-strict-rules/commit/361d3d093275902b19b394314e6d6cf960e4abe7)\n- Update github-actions\n([#&#8203;330](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/330))\n-\n[33d4b9e](http://github.com/phpstan/phpstan-strict-rules/commit/33d4b9e544e57daf1c82df233c1e386d03218a08)\n- Update github-actions\n([#&#8203;329](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/329))\n-\n[f504dd3](http://github.com/phpstan/phpstan-strict-rules/commit/f504dd37958982f235c5d94399cb556eadaf5a44)\n- Update github-actions\n([#&#8203;328](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/328))\n-\n[b04c8f7](http://github.com/phpstan/phpstan-strict-rules/commit/b04c8f7098fbc85cdfaeaf238bc7bf7e3a329e93)\n- Update github-actions\n([#&#8203;326](https://redirect.github.com/phpstan/phpstan-strict-rules/issues/326))\n\n</details>\n\n---\n\n### Configuration\n\n📅 **Schedule**: (UTC)\n\n- Branch creation\n  - \"before 4am on monday\"\n- Automerge\n  - At any time (no schedule defined)\n\n🚦 **Automerge**: Enabled.\n\n♻ **Rebasing**: Whenever PR is behind base branch, or you tick the\nrebase/retry checkbox.\n\n👻 **Immortal**: This PR will be recreated if closed unmerged. Get\n[config\nhelp](https://redirect.github.com/renovatebot/renovate/discussions) if\nthat's undesired.\n\n---\n\n- [ ] <!-- rebase-check -->If you want to rebase/retry this PR, check\nthis box\n\n---\n\nThis PR was generated by [Mend Renovate](https://mend.io/renovate/).\nView the [repository job\nlog](https://developer.mend.io/github/webonyx/graphql-php).\n\n<!--renovate-debug:eyJjcmVhdGVkSW5WZXIiOiI0NC4xMzQuMSIsInVwZGF0ZWRJblZlciI6IjQ0LjE4OC4yIiwidGFyZ2V0QnJhbmNoIjoibWFzdGVyIiwibGFiZWxzIjpbImRlcGVuZGVuY2llcyJdfQ==-->\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Benedikt Franke <benedikt.franke@mll.com>",
+          "timestamp": "2026-11-02T13:53:57Z",
+          "tree_id": "453568b20052eeee066ee1bc01cca0f58ae6d0ea",
+          "url": "https://github.com/webonyx/graphql-php/commit/7edcffc02fabebe3213bb8e8e1fe038c283b2573"
+        },
+        "date": 1793627745419,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithoutOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchGetTypeWithTypesOverride",
+            "value": 0,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithoutOverride",
+            "value": 0.125,
+            "unit": "ms"
+          },
+          {
+            "name": "ScalarOverrideBench::benchExecuteWithTypesOverride",
+            "value": 0.128,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields100",
+            "value": 3.236,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields500",
+            "value": 16.289,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields1000",
+            "value": 31.078,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields2000",
+            "value": 62.281,
+            "unit": "ms"
+          },
+          {
+            "name": "OverlappingFieldsCanBeMergedBench::benchRepeatedFields3000",
+            "value": 93.903,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchSchema",
+            "value": 0.011,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchHeroQuery",
+            "value": 0.292,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchNestedQuery",
+            "value": 0.651,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithFragment",
+            "value": 0.705,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchQueryWithInterfaceFragment",
+            "value": 0.658,
+            "unit": "ms"
+          },
+          {
+            "name": "StarWarsBench::benchStarWarsIntrospectionQuery",
+            "value": 6.855,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchIntrospectionQuery",
+            "value": 0.3,
+            "unit": "ms"
+          },
+          {
+            "name": "LexerBench::benchDeeplyIndentedQuery",
+            "value": 1.954,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchSingleDeferred",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchNestedDeferred",
+            "value": 0.002,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain5",
+            "value": 0.005,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchChain100",
+            "value": 0.078,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyDeferreds",
+            "value": 0.421,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::benchManyNestedDeferreds",
+            "value": 14.012,
+            "unit": "ms"
+          },
+          {
+            "name": "DeferredBench::bench1000Chains",
+            "value": 3.536,
+            "unit": "ms"
+          },
+          {
+            "name": "BuildSchemaBench::benchBuildSchema",
+            "value": 25.459,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeave",
+            "value": 0.29,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindMap",
+            "value": 0.282,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithKindCallable",
+            "value": 0.267,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitIntrospectionWithEnterLeaveMap",
+            "value": 0.284,
+            "unit": "ms"
+          },
+          {
+            "name": "VisitorBench::benchVisitNestedWithEnterLeave",
+            "value": 0.066,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchema",
+            "value": 20.126,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSchemaLazy",
+            "value": 0.001,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQuery",
+            "value": 14.256,
+            "unit": "ms"
+          },
+          {
+            "name": "HugeSchemaBench::benchSmallQueryLazy",
+            "value": 15.017,
             "unit": "ms"
           }
         ]
