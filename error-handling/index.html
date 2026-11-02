@@ -1,0 +1,906 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="PHP implementation of the GraphQL specification">
+      
+      
+      
+      
+        <link rel="prev" href="../data-fetching/">
+      
+      
+        <link rel="next" href="../security/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Handling Errors - graphql-php</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#errors-in-graphql" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="graphql-php" class="md-header__button md-logo" aria-label="graphql-php" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            graphql-php
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Handling Errors
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/webonyx/graphql-php" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    webonyx/graphql-php
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="graphql-php" class="md-nav__button md-logo" aria-label="graphql-php" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    graphql-php
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/webonyx/graphql-php" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    webonyx/graphql-php
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        Concepts
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../complementary-tools/" class="md-nav__link">
+        Complementary Tools
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schema-definition/" class="md-nav__link">
+        Schema Definition
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" tabindex="0" aria-expanded="false">
+          Type Definitions
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Type Definitions" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Type Definitions
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/" class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/object-types/" class="md-nav__link">
+        Object Types
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/scalars/" class="md-nav__link">
+        Scalars
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/enums/" class="md-nav__link">
+        Enums
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/lists-and-nonnulls/" class="md-nav__link">
+        Lists and Non-Nulls
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/interfaces/" class="md-nav__link">
+        Interfaces
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/unions/" class="md-nav__link">
+        Unions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/inputs/" class="md-nav__link">
+        Inputs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-definitions/directives/" class="md-nav__link">
+        Directives
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schema-definition-language/" class="md-nav__link">
+        Schema Definition Language
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../executing-queries/" class="md-nav__link">
+        Executing Queries
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-fetching/" class="md-nav__link">
+        Fetching Data
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Handling Errors
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Handling Errors
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#errors-in-graphql" class="md-nav__link">
+    Errors in GraphQL
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-error-formatting" class="md-nav__link">
+    Default Error formatting
+  </a>
+  
+    <nav class="md-nav" aria-label="Default Error formatting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#internal-errors" class="md-nav__link">
+    Internal errors
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging-tools" class="md-nav__link">
+    Debugging tools
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-error-handling-and-formatting" class="md-nav__link">
+    Custom Error Handling and Formatting
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema-errors" class="md-nav__link">
+    Schema Errors
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        Security
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../class-reference/" class="md-nav__link">
+        Class Reference
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#errors-in-graphql" class="md-nav__link">
+    Errors in GraphQL
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-error-formatting" class="md-nav__link">
+    Default Error formatting
+  </a>
+  
+    <nav class="md-nav" aria-label="Default Error formatting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#internal-errors" class="md-nav__link">
+    Internal errors
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging-tools" class="md-nav__link">
+    Debugging tools
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-error-handling-and-formatting" class="md-nav__link">
+    Custom Error Handling and Formatting
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema-errors" class="md-nav__link">
+    Schema Errors
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+  <h1>Handling Errors</h1>
+
+<h2 id="errors-in-graphql">Errors in GraphQL<a class="headerlink" href="#errors-in-graphql" title="Permanent link">&para;</a></h2>
+<p>There are 3 types of errors in GraphQL:</p>
+<ul>
+<li><strong>Syntax</strong>: query has invalid syntax and could not be parsed;</li>
+<li><strong>Validation</strong>: query is incompatible with type system (e.g. unknown field is requested);</li>
+<li><strong>Execution</strong>: occurs when some field resolver throws (or returns unexpected value).</li>
+</ul>
+<p>When <strong>Syntax</strong> or <strong>Validation</strong> errors are detected, an exception is thrown
+and the query is not executed.</p>
+<p>Exceptions thrown during query execution are caught and collected in the result.
+They are available in <strong>$errors</strong> prop of <a href="../class-reference/#graphqlexecutorexecutionresult"><code>GraphQL\Executor\ExecutionResult</code></a>.</p>
+<p>GraphQL is forgiving to <strong>Execution</strong> errors which occur in resolvers of nullable fields.
+If such field throws or returns unexpected value the value of the field in response will be simply
+replaced with <strong>null</strong> and error entry will be registered.</p>
+<p>If an exception is thrown in the non-null field - error bubbles up to the first nullable field.
+This nullable field is replaced with <strong>null</strong> and error entry is added to the result.
+If all fields up to the root are non-null - <strong>data</strong> entry will be removed from the result<br />
+and only <strong>errors</strong> key will be presented.</p>
+<p>When the result is converted to a serializable array using its <strong>toArray()</strong> method, all errors are
+converted to arrays as well using default error formatting (see below).</p>
+<p>Alternatively, you can apply <a href="#custom-error-handling-and-formatting">custom error filtering and formatting</a>
+for your specific requirements.</p>
+<h2 id="default-error-formatting">Default Error formatting<a class="headerlink" href="#default-error-formatting" title="Permanent link">&para;</a></h2>
+<p>By default, each error entry is converted to an associative array with following structure:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+    <span class="s1">&#39;message&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Error message&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;extensions&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;key&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;value&#39;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s1">&#39;locations&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="p">[</span><span class="s1">&#39;line&#39;</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;column&#39;</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s1">&#39;path&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;listField&#39;</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;fieldWithException&#39;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">];</span>
+</code></pre></div>
+<p>Entry at key <strong>locations</strong> points to a character in query string which caused the error.
+In some cases (like deep fragment fields) locations will include several entries to track down
+the path to field with the error in query.</p>
+<p>Entry at key <strong>path</strong> exists only for errors caused by exceptions thrown in resolvers.
+It contains a path from the very root field to actual field value producing an error
+(including indexes for list types and field names for composite types).</p>
+<h3 id="internal-errors">Internal errors<a class="headerlink" href="#internal-errors" title="Permanent link">&para;</a></h3>
+<p>As of version <strong>0.10.0</strong>, all exceptions thrown in resolvers are reported with generic message <strong>"Internal server error"</strong>.
+This is done to avoid information leak in production environments (e.g. database connection errors, file access errors, etc).</p>
+<p>Only exceptions implementing interface <a href="../class-reference/#graphqlerrorclientaware"><code>GraphQL\Error\ClientAware</code></a> and claiming themselves as <strong>safe</strong> will
+be reported with a full error message.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\Error\ClientAware</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">MySafeException</span> <span class="k">extends</span> <span class="nx">\Exception</span> <span class="k">implements</span> <span class="nx">ClientAware</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">isClientSafe</span><span class="p">()</span><span class="o">:</span> <span class="nx">bool</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>When such exception is thrown it will be reported with a full error message:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+    <span class="s1">&#39;message&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;My reported error&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;locations&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="p">[</span><span class="s1">&#39;line&#39;</span> <span class="o">=&gt;</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;column&#39;</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s1">&#39;path&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;path&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;to&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;fieldWithException&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">];</span>
+</code></pre></div>
+<p>To change default <strong>"Internal server error"</strong> message to something else, use:</p>
+<div class="highlight"><pre><span></span><code><span class="nx">GraphQL\Error\FormattedError</span><span class="o">::</span><span class="na">setInternalErrorMessage</span><span class="p">(</span><span class="s2">&quot;Unexpected error&quot;</span><span class="p">);</span>
+</code></pre></div>
+<h2 id="debugging-tools">Debugging tools<a class="headerlink" href="#debugging-tools" title="Permanent link">&para;</a></h2>
+<p>During development or debugging, use <code>DebugFlag::INCLUDE_DEBUG_MESSAGE</code> to
+add hidden error messages each formatted error entry under the key <code>extensions.debugMessage</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\GraphQL</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Error\DebugFlag</span><span class="p">;</span>
+
+<span class="nv">$result</span> <span class="o">=</span> <span class="nx">GraphQL</span><span class="o">::</span><span class="na">executeQuery</span><span class="p">(</span><span class="cm">/*args*/</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">toArray</span><span class="p">(</span><span class="nx">DebugFlag</span><span class="o">::</span><span class="na">INCLUDE_DEBUG_MESSAGE</span><span class="p">);</span>
+</code></pre></div>
+<p>If you also want to add the exception trace, pass <code>DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE</code> instead.
+This will make each error entry look like this:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+    <span class="s1">&#39;message&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Internal server error&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;locations&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="p">[</span><span class="s1">&#39;line&#39;</span> <span class="o">=&gt;</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;column&#39;</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="p">],</span>
+    <span class="s1">&#39;path&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;listField&#39;</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;fieldWithException&#39;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s1">&#39;extensions&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;debugMessage&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Actual exception message&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;trace&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="c1">// Formatted original exception trace</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>If you prefer the first resolver exception to be re-thrown, use the following flags:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\GraphQL</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Error\DebugFlag</span><span class="p">;</span>
+
+<span class="nv">$executionResult</span> <span class="o">=</span> <span class="nx">GraphQL</span><span class="o">::</span><span class="na">executeQuery</span><span class="p">(</span><span class="cm">/*args*/</span><span class="p">);</span>
+
+<span class="c1">// Will throw if there was an exception in resolver during execution</span>
+<span class="nv">$executionResult</span> <span class="o">-&gt;</span><span class="na">toArray</span><span class="p">(</span><span class="nx">DebugFlag</span><span class="o">::</span><span class="na">INCLUDE_DEBUG_MESSAGE</span> <span class="o">|</span> <span class="nx">DebugFlag</span><span class="o">::</span><span class="na">RETHROW_INTERNAL_EXCEPTIONS</span><span class="p">);</span>
+</code></pre></div>
+<p>If you only want to re-throw Exceptions that are not marked as safe through the <code>ClientAware</code> interface, use <code>DebugFlag::RETHROW_UNSAFE_EXCEPTIONS</code>.</p>
+<h2 id="custom-error-handling-and-formatting">Custom Error Handling and Formatting<a class="headerlink" href="#custom-error-handling-and-formatting" title="Permanent link">&para;</a></h2>
+<p>It is possible to define custom <strong>formatter</strong> and <strong>handler</strong> for result errors.</p>
+<p><strong>Formatter</strong> is responsible for converting instances of <a href="../class-reference/#graphqlerrorerror"><code>GraphQL\Error\Error</code></a>
+to an array. <strong>Handler</strong> is useful for error filtering and logging.</p>
+<p>For example, these are default formatter and handler:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\GraphQL</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Error\Error</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Error\FormattedError</span><span class="p">;</span>
+
+<span class="nv">$result</span> <span class="o">=</span> <span class="nx">GraphQL</span><span class="o">::</span><span class="na">executeQuery</span><span class="p">(</span><span class="cm">/* $args */</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">setErrorFormatter</span><span class="p">(</span><span class="nx">fn</span> <span class="p">(</span><span class="nx">Error</span> <span class="nv">$error</span><span class="p">)</span><span class="o">:</span> <span class="k">array</span> <span class="o">=&gt;</span> <span class="nx">FormattedError</span><span class="o">::</span><span class="na">createFromException</span><span class="p">(</span><span class="nv">$error</span><span class="p">))</span>
+    <span class="o">-&gt;</span><span class="na">setErrorsHandler</span><span class="p">(</span><span class="nx">fn</span> <span class="p">(</span><span class="k">array</span> <span class="nv">$errors</span><span class="p">,</span> <span class="nx">callable</span> <span class="nv">$formatter</span><span class="p">)</span><span class="o">:</span> <span class="k">array</span> <span class="o">=&gt;</span> <span class="nb">array_map</span><span class="p">(</span><span class="nv">$formatter</span><span class="p">,</span> <span class="nv">$errors</span><span class="p">))</span>
+    <span class="o">-&gt;</span><span class="na">toArray</span><span class="p">();</span>
+</code></pre></div>
+<p>Note that when you pass <a href="#debugging-tools">debug flags</a> to <strong>toArray()</strong> your custom formatter will still be
+decorated with same debugging information mentioned above.</p>
+<h2 id="schema-errors">Schema Errors<a class="headerlink" href="#schema-errors" title="Permanent link">&para;</a></h2>
+<p>So far we only covered errors which occur during query execution process. Schema definition can
+also throw <code>GraphQL\Error\InvariantViolation</code> if there is an error in one of type definitions.</p>
+<p>Usually such errors mean that there is some logical error in your schema.
+In this case it makes sense to return a status code <code>500 (Internal Server Error)</code> for GraphQL endpoint:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\GraphQL</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Type\Schema</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Error\FormattedError</span><span class="p">;</span>
+
+<span class="k">try</span> <span class="p">{</span>
+    <span class="nv">$schema</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Schema</span><span class="p">([</span>
+        <span class="c1">// ...</span>
+    <span class="p">]);</span>
+
+    <span class="nv">$body</span> <span class="o">=</span> <span class="nx">GraphQL</span><span class="o">::</span><span class="na">executeQuery</span><span class="p">(</span><span class="nv">$schema</span><span class="p">,</span> <span class="nv">$query</span><span class="p">);</span>
+    <span class="nv">$status</span> <span class="o">=</span> <span class="mi">200</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="nx">\Exception</span> <span class="nv">$e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$body</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;errors&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="nx">FormattedError</span><span class="o">::</span><span class="na">createFromException</span><span class="p">(</span><span class="nv">$e</span><span class="p">)]</span>
+    <span class="p">];</span>
+    <span class="nv">$status</span> <span class="o">=</span> <span class="mi">500</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nb">header</span><span class="p">(</span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="p">,</span> <span class="k">true</span><span class="p">,</span> <span class="nv">$status</span><span class="p">);</span>
+<span class="k">echo</span> <span class="nb">json_encode</span><span class="p">(</span><span class="nv">$body</span><span class="p">,</span> <span class="nx">JSON_THROW_ON_ERROR</span><span class="p">);</span>
+</code></pre></div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>
