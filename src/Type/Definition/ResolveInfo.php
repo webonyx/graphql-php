@@ -10,6 +10,7 @@ use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\SelectionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
@@ -215,6 +216,39 @@ class ResolveInfo
     }
 
     /**
+     * Returns names of all fields selected in query for `$this->fieldName` up to `$depth` levels,
+     * excluding selections disabled through `@skip` or `@include`.
+     *
+     * This method does not consider conditional typed fragments.
+     * Use it with care for fields of interface and union types.
+     *
+     * @param int $depth How many levels to include in the output beyond the first
+     *
+     * @throws \Exception
+     * @throws Error
+     *
+     * @return array<string, mixed>
+     *
+     * @api
+     */
+    public function getFieldSelectionRespectingDirectives(int $depth = 0): array
+    {
+        $fields = [];
+
+        foreach ($this->fieldNodes as $fieldNode) {
+            $selectionSet = $fieldNode->selectionSet;
+            if ($selectionSet !== null) {
+                $fields = $this->mergeSelectionsRespectingDirectives(
+                    $fields,
+                    $this->foldSelectionSetRespectingDirectives($selectionSet, $depth)
+                );
+            }
+        }
+
+        return $fields;
+    }
+
+    /**
      * Returns names and args of all fields selected in query for `$this->fieldName` up to `$depth` levels, including aliases.
      *
      * The result maps original field names to a map of selections for that field, including aliases.
@@ -379,10 +413,9 @@ class ResolveInfo
         );
     }
 
-    /** @return array<string, bool> */
+    /** @return array<string, mixed> */
     private function foldSelectionSet(SelectionSetNode $selectionSet, int $descend): array
     {
-        /** @var array<string, bool> $fields */
         $fields = [];
 
         foreach ($selectionSet->selections as $selection) {
@@ -413,6 +446,109 @@ class ResolveInfo
         }
 
         return $fields;
+    }
+
+    /**
+     * @throws \Exception
+     * @throws Error
+     *
+     * @return array<string, mixed>
+     */
+    protected function foldSelectionSetRespectingDirectives(SelectionSetNode $selectionSet, int $descend): array
+    {
+        $fields = [];
+
+        foreach ($selectionSet->selections as $selection) {
+            /** @var FragmentSpreadNode|FieldNode|InlineFragmentNode $selection */
+            if (! $this->shouldIncludeSelectionNodeRespectingDirectives($selection)) {
+                continue;
+            }
+
+            if ($selection instanceof FieldNode) {
+                if ($descend > 0 && $selection->selectionSet !== null) {
+                    $existingSelection = $fields[$selection->name->value] ?? [];
+                    assert(is_array($existingSelection));
+                    $fields[$selection->name->value] = $this->mergeSelectionsRespectingDirectives(
+                        $existingSelection,
+                        $this->foldSelectionSetRespectingDirectives($selection->selectionSet, $descend - 1)
+                    );
+                } elseif (! isset($fields[$selection->name->value])) {
+                    $fields[$selection->name->value] = true;
+                }
+
+                continue;
+            }
+
+            if ($selection instanceof FragmentSpreadNode) {
+                $spreadName = $selection->name->value;
+                $fragment = $this->fragments[$spreadName] ?? null;
+                if ($fragment === null) {
+                    continue;
+                }
+
+                $fields = $this->mergeSelectionsRespectingDirectives(
+                    $fields,
+                    $this->foldSelectionSetRespectingDirectives($fragment->selectionSet, $descend)
+                );
+
+                continue;
+            }
+
+            $fields = $this->mergeSelectionsRespectingDirectives(
+                $fields,
+                $this->foldSelectionSetRespectingDirectives($selection->selectionSet, $descend)
+            );
+        }
+
+        return $fields;
+    }
+
+    /**
+     * @param array<string, mixed> $left
+     * @param array<string, mixed> $right
+     *
+     * @return array<string, mixed>
+     */
+    protected function mergeSelectionsRespectingDirectives(array $left, array $right): array
+    {
+        foreach ($right as $field => $selection) {
+            $existingSelection = $left[$field] ?? null;
+            if (is_array($existingSelection) && is_array($selection)) {
+                $left[$field] = $this->mergeSelectionsRespectingDirectives($existingSelection, $selection);
+            } elseif ($existingSelection === null || is_array($selection)) {
+                $left[$field] = $selection;
+            }
+        }
+
+        return $left;
+    }
+
+    /**
+     * @param FragmentSpreadNode|FieldNode|InlineFragmentNode $node
+     *
+     * @throws \Exception
+     * @throws Error
+     */
+    protected function shouldIncludeSelectionNodeRespectingDirectives(SelectionNode $node): bool
+    {
+        $skip = Values::getDirectiveValues(
+            Directive::skipDirective(),
+            $node,
+            $this->variableValues,
+            $this->schema
+        );
+        if (isset($skip['if']) && $skip['if'] === true) {
+            return false;
+        }
+
+        $include = Values::getDirectiveValues(
+            Directive::includeDirective(),
+            $node,
+            $this->variableValues,
+            $this->schema
+        );
+
+        return ! isset($include['if']) || $include['if'] !== false;
     }
 
     /**

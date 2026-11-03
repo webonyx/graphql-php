@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Tests\Type\TestClasses\CustomWithObject;
 use GraphQL\Tests\Type\TestClasses\MyCustomType;
@@ -182,6 +183,42 @@ final class ResolveInfoTest extends TestCase
         self::assertEquals(['data' => ['article' => null]], $result);
         self::assertEquals($expectedDefaultSelection, $actualDefaultSelection);
         self::assertEquals($expectedDeepSelection, $actualDeepSelection);
+    }
+
+    /**
+     * @throws \Exception
+     * @throws InvariantViolation
+     */
+    public function testGetFieldSelectionRespectingDirectives(): void
+    {
+        [$unfilteredSelection, $filteredSelection] = $this->fieldSelections(false, true);
+
+        self::assertEquals([
+            'always' => true,
+            'conditional' => true,
+            'fragment' => [true, true],
+            'inlineFragment' => true,
+            'nested' => [
+                'alwaysNested' => true,
+                'conditionalNested' => true,
+            ],
+            'precedence' => true,
+            'skipped' => true,
+        ], $unfilteredSelection);
+        self::assertEquals([
+            'always' => true,
+            'nested' => ['alwaysNested' => true],
+        ], $filteredSelection);
+
+        [, $includedSelection] = $this->fieldSelections(true, false);
+
+        self::assertEquals([
+            'always' => true,
+            'conditional' => true,
+            'fragment' => true,
+            'inlineFragment' => true,
+            'nested' => ['alwaysNested' => true],
+        ], $includedSelection);
     }
 
     public function testGetFieldSelectionOnScalarTypes(): void
@@ -1248,5 +1285,97 @@ final class ResolveInfoTest extends TestCase
                 ],
             ],
         ], $result);
+    }
+
+    /**
+     * @throws \Exception
+     * @throws InvariantViolation
+     *
+     * @return array{array<string, mixed>, array<string, mixed>}
+     */
+    private function fieldSelections(bool $includeConditional, bool $skipInlineFragment): array
+    {
+        $nested = new ObjectType([
+            'name' => 'Nested',
+            'fields' => [
+                'alwaysNested' => Type::string(),
+                'conditionalNested' => Type::string(),
+            ],
+        ]);
+        $item = new ObjectType([
+            'name' => 'Item',
+            'fields' => [
+                'always' => Type::string(),
+                'conditional' => Type::string(),
+                'fragment' => Type::string(),
+                'inlineFragment' => Type::string(),
+                'nested' => $nested,
+                'precedence' => Type::string(),
+                'skipped' => Type::string(),
+            ],
+        ]);
+        $unfilteredSelection = null;
+        $filteredSelection = null;
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'item' => [
+                    'type' => $item,
+                    'resolve' => static function (
+                        $value,
+                        array $args,
+                        $context,
+                        ResolveInfo $resolveInfo
+                    ) use (
+                        &$unfilteredSelection,
+                        &$filteredSelection
+                    ) {
+                        $unfilteredSelection = $resolveInfo->getFieldSelection(1);
+                        $filteredSelection = $resolveInfo->getFieldSelectionRespectingDirectives(1);
+
+                        return null;
+                    },
+                ],
+            ],
+        ]);
+        $schema = new Schema(['query' => $query]);
+        $result = GraphQL::executeQuery(
+            $schema,
+            <<<'GRAPHQL'
+            query Selection($includeConditional: Boolean!, $skipInlineFragment: Boolean!) {
+              item {
+                always
+                conditional @include(if: $includeConditional)
+                skipped @skip(if: true)
+                precedence @skip(if: true) @include(if: true)
+                ...ConditionalFields @include(if: $includeConditional)
+                ...ConditionalFields @include(if: $includeConditional)
+                ... on Item @skip(if: $skipInlineFragment) {
+                  inlineFragment
+                }
+                nested {
+                  alwaysNested
+                  conditionalNested @include(if: false)
+                }
+              }
+            }
+
+            fragment ConditionalFields on Item {
+              fragment
+            }
+            GRAPHQL,
+            null,
+            null,
+            [
+                'includeConditional' => $includeConditional,
+                'skipInlineFragment' => $skipInlineFragment,
+            ]
+        )->toArray();
+
+        self::assertSame(['data' => ['item' => null]], $result);
+        self::assertIsArray($unfilteredSelection);
+        self::assertIsArray($filteredSelection);
+
+        return [$unfilteredSelection, $filteredSelection];
     }
 }
