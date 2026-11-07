@@ -21,6 +21,7 @@ const ENTRIES = [
     GraphQL\Language\AST\NodeKind::class => ['constants' => true],
     GraphQL\Executor\Executor::class => [],
     GraphQL\Executor\ScopedContext::class => [],
+    GraphQL\Executor\ArrayAccessPropertyFallback::class => [],
     GraphQL\Executor\ExecutionResult::class => [],
     GraphQL\Executor\Promise\PromiseAdapter::class => [],
     GraphQL\Deferred::class => [],
