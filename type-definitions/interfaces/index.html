@@ -1,0 +1,934 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="PHP implementation of the GraphQL specification">
+      
+      
+      
+      
+        <link rel="prev" href="../lists-and-nonnulls/">
+      
+      
+        <link rel="next" href="../unions/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Interfaces - graphql-php</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#interface-type-definition" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="graphql-php" class="md-header__button md-logo" aria-label="graphql-php" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            graphql-php
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Interfaces
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/webonyx/graphql-php" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    webonyx/graphql-php
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="graphql-php" class="md-nav__button md-logo" aria-label="graphql-php" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    graphql-php
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/webonyx/graphql-php" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    webonyx/graphql-php
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/" class="md-nav__link">
+        Concepts
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../complementary-tools/" class="md-nav__link">
+        Complementary Tools
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../schema-definition/" class="md-nav__link">
+        Schema Definition
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_6" type="checkbox" id="__nav_6" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" tabindex="0" aria-expanded="true">
+          Type Definitions
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Type Definitions" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Type Definitions
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../object-types/" class="md-nav__link">
+        Object Types
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalars/" class="md-nav__link">
+        Scalars
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../enums/" class="md-nav__link">
+        Enums
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lists-and-nonnulls/" class="md-nav__link">
+        Lists and Non-Nulls
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Interfaces
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Interfaces
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#writing-interface-types" class="md-nav__link">
+    Writing Interface Types
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    Configuration options
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementing-interface" class="md-nav__link">
+    Implementing interface
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#covariant-return-types-for-interface-fields" class="md-nav__link">
+    Covariant return types for interface fields
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sharing-interface-fields" class="md-nav__link">
+    Sharing Interface fields
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interface-role-in-data-fetching" class="md-nav__link">
+    Interface role in data fetching
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prevent-invisible-types" class="md-nav__link">
+    Prevent invisible types
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unions/" class="md-nav__link">
+        Unions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../inputs/" class="md-nav__link">
+        Inputs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../directives/" class="md-nav__link">
+        Directives
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../schema-definition-language/" class="md-nav__link">
+        Schema Definition Language
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../executing-queries/" class="md-nav__link">
+        Executing Queries
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data-fetching/" class="md-nav__link">
+        Fetching Data
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../error-handling/" class="md-nav__link">
+        Handling Errors
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        Security
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../class-reference/" class="md-nav__link">
+        Class Reference
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#writing-interface-types" class="md-nav__link">
+    Writing Interface Types
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    Configuration options
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementing-interface" class="md-nav__link">
+    Implementing interface
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#covariant-return-types-for-interface-fields" class="md-nav__link">
+    Covariant return types for interface fields
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sharing-interface-fields" class="md-nav__link">
+    Sharing Interface fields
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interface-role-in-data-fetching" class="md-nav__link">
+    Interface role in data fetching
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prevent-invisible-types" class="md-nav__link">
+    Prevent invisible types
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="interface-type-definition">Interface Type Definition<a class="headerlink" href="#interface-type-definition" title="Permanent link">&para;</a></h1>
+<p>An Interface is an abstract type that includes a certain set of fields that a
+type must include to implement the interface.</p>
+<h2 id="writing-interface-types">Writing Interface Types<a class="headerlink" href="#writing-interface-types" title="Permanent link">&para;</a></h2>
+<p>In <strong>graphql-php</strong> interface type is an instance of <code>GraphQL\Type\Definition\InterfaceType</code>
+(or one of its subclasses) which accepts configuration array in a constructor:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\Type\Definition\InterfaceType</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ObjectType</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Type\Definition\Type</span><span class="p">;</span>
+
+<span class="nv">$character</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">InterfaceType</span><span class="p">([</span>
+    <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Character&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;A character in the Star Wars Trilogy&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;fields&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;id&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">nonNull</span><span class="p">(</span><span class="nx">Type</span><span class="o">::</span><span class="na">string</span><span class="p">()),</span>
+            <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;The id of the character.&#39;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">string</span><span class="p">(),</span>
+            <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;The name of the character.&#39;</span>
+        <span class="p">]</span>
+    <span class="p">],</span>
+    <span class="s1">&#39;resolveType&#39;</span> <span class="o">=&gt;</span> <span class="k">function</span> <span class="p">(</span><span class="nv">$value</span><span class="p">)</span><span class="o">:</span> <span class="nx">ObjectType</span> <span class="p">{</span>
+        <span class="k">switch</span> <span class="p">(</span><span class="nv">$value</span><span class="o">-&gt;</span><span class="na">type</span> <span class="o">??</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">case</span> <span class="s1">&#39;human&#39;</span><span class="o">:</span> <span class="k">return</span> <span class="nx">MyTypes</span><span class="o">::</span><span class="na">human</span><span class="p">();</span>
+            <span class="k">case</span> <span class="s1">&#39;droid&#39;</span><span class="o">:</span> <span class="k">return</span> <span class="nx">MyTypes</span><span class="o">::</span><span class="na">droid</span><span class="p">();</span>
+            <span class="k">default</span><span class="o">:</span> <span class="k">throw</span> <span class="k">new</span> <span class="nx">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown Character type: </span><span class="si">{</span><span class="nv">$value</span><span class="o">-&gt;</span><span class="na">type</span> <span class="o">??</span> <span class="k">null</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">]);</span>
+</code></pre></div>
+<p>This example uses <strong>inline</strong> style for Interface definition, but you can also use<br />
+<a href="../#definition-styles">inheritance or schema definition language</a>.</p>
+<h2 id="configuration-options">Configuration options<a class="headerlink" href="#configuration-options" title="Permanent link">&para;</a></h2>
+<p>The constructor of InterfaceType accepts an array. Below is a full list of allowed options:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td><code>string</code></td>
+<td><strong>Required.</strong> Unique name of this interface type within Schema</td>
+</tr>
+<tr>
+<td>fields</td>
+<td><code>array</code></td>
+<td><strong>Required.</strong> List of fields required to be defined by interface implementors. Same as <a href="../object-types/#field-configuration-options">Fields for Object Type</a></td>
+</tr>
+<tr>
+<td>description</td>
+<td><code>string</code></td>
+<td>Plain-text description of this type for clients (e.g. used by <a href="https://github.com/graphql/graphiql">GraphiQL</a> for auto-generated documentation)</td>
+</tr>
+<tr>
+<td>resolveType</td>
+<td><code>callback</code></td>
+<td><strong>function ($value, $context, <a href="../../class-reference/#graphqltypedefinitionresolveinfo">ResolveInfo</a> $info)</strong><br> Receives <strong>$value</strong> from resolver of the parent field and returns concrete interface implementor for this <strong>$value</strong>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="implementing-interface">Implementing interface<a class="headerlink" href="#implementing-interface" title="Permanent link">&para;</a></h2>
+<p>To implement the Interface simply add it to <strong>interfaces</strong> array of Object Type definition:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\Type\Definition\Type</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ObjectType</span><span class="p">;</span>
+
+<span class="nv">$humanType</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ObjectType</span><span class="p">([</span>
+    <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Human&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;fields&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;id&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">nonNull</span><span class="p">(</span><span class="nx">Type</span><span class="o">::</span><span class="na">string</span><span class="p">()),</span>
+            <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;The id of the character.&#39;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">string</span><span class="p">(),</span>
+            <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;The name of the character.&#39;</span>
+        <span class="p">]</span>
+    <span class="p">],</span>
+    <span class="s1">&#39;interfaces&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="nv">$character</span>
+    <span class="p">]</span>
+<span class="p">]);</span>
+</code></pre></div>
+<p>Note that Object Type must include all fields of interface with exact same types
+(including <strong>nonNull</strong> specification) and arguments.</p>
+<p>The only exception is when object's field type is more specific than the type of this field defined in interface
+(see <a href="#covariant-return-types-for-interface-fields">Covariant return types for interface fields</a> below)</p>
+<h2 id="covariant-return-types-for-interface-fields">Covariant return types for interface fields<a class="headerlink" href="#covariant-return-types-for-interface-fields" title="Permanent link">&para;</a></h2>
+<p>Object types implementing interface may change the field type to more specific.
+Example:</p>
+<div class="highlight"><pre><span></span><code>interface A {
+  field1: A
+}
+
+type B implements A {
+  field1: B
+}
+</code></pre></div>
+<h2 id="sharing-interface-fields">Sharing Interface fields<a class="headerlink" href="#sharing-interface-fields" title="Permanent link">&para;</a></h2>
+<p>Since every Object Type implementing an Interface must have the same set of fields - it often makes
+sense to reuse field definitions of Interface in Object Types:</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span> <span class="nx">GraphQL\Type\Definition\Type</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GraphQL\Type\Definition\ObjectType</span><span class="p">;</span>
+
+<span class="nv">$humanType</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ObjectType</span><span class="p">([</span>
+    <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Human&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;interfaces&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="nv">$character</span>
+    <span class="p">],</span>
+    <span class="s1">&#39;fields&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="nv">$character</span><span class="o">-&gt;</span><span class="na">getField</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">),</span>
+        <span class="nv">$character</span><span class="o">-&gt;</span><span class="na">getField</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">),</span>
+        <span class="p">[</span>
+            <span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;height&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="nx">Type</span><span class="o">::</span><span class="na">float</span><span class="p">(),</span>
+        <span class="p">],</span>
+    <span class="p">]</span>
+<span class="p">]);</span>
+</code></pre></div>
+<p>In this case, field definitions are created only once (as a part of the Interface Type) and then reused by all interface implementors.
+It can save several microseconds and kilobytes and ensures that field definitions of Interface and implementors are always in sync.
+Yet it creates a problem with the resolution of such fields.</p>
+<p>There are two ways how shared fields could be resolved:</p>
+<ol>
+<li>
+<p>If the field resolution algorithm is the same for all Interface implementors,
+   you can add the <strong>resolve</strong> option to the field definition in the Interface itself.</p>
+</li>
+<li>
+<p>If field resolution varies for different implementations, you can specify the <strong>resolveField</strong> option
+   in <a href="../object-types/#configuration-options">the Object Type config</a> and handle field resolutions there.
+   (Note: The <strong>resolve</strong> option in field definitions has precedence over the <strong>resolveField</strong> option in object type definitions.)</p>
+</li>
+</ol>
+<h2 id="interface-role-in-data-fetching">Interface role in data fetching<a class="headerlink" href="#interface-role-in-data-fetching" title="Permanent link">&para;</a></h2>
+<p>The only responsibility of interface in Data Fetching process is to return concrete Object Type
+for given <strong>$value</strong> in <strong>resolveType</strong>. Then resolution of fields is delegated to resolvers of this
+concrete Object Type.</p>
+<p>If a <strong>resolveType</strong> option is omitted, graphql-php will loop through all interface implementors and
+use their <strong>isTypeOf</strong> callback to pick the first suitable one. This is obviously less efficient
+than single <strong>resolveType</strong> call. So it is recommended to define <strong>resolveType</strong> whenever possible.</p>
+<h2 id="prevent-invisible-types">Prevent invisible types<a class="headerlink" href="#prevent-invisible-types" title="Permanent link">&para;</a></h2>
+<p>When object types that implement an interface are not directly referenced by a field, they cannot
+be discovered during schema introspection. For example:</p>
+<div class="highlight"><pre><span></span><code>type Query {
+    animal: Animal
+}
+
+interface Animal {...}
+
+type Cat implements Animal {...}
+type Dog implements Animal {...}
+</code></pre></div>
+<p>In this example, <code>Cat</code> and <code>Dog</code> would be considered <em>invisible</em> types. Querying the <code>animal</code> field
+would fail, since no possible implementing types for <code>Animal</code> can be found.</p>
+<p>There are two possible solutions:</p>
+<ol>
+<li>Add fields that reference the invisible types directly, e.g.:</li>
+</ol>
+<div class="highlight"><pre><span></span><code>type Query {
+  dog: Dog
+  cat: Cat
+}
+</code></pre></div>
+<ol>
+<li>Pass the invisible types during schema construction, e.g.:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="k">new</span> <span class="nx">GraphQLSchema</span><span class="p">([</span>
+    <span class="s1">&#39;query&#39;</span> <span class="o">=&gt;</span> <span class="o">...</span><span class="p">,</span>
+    <span class="s1">&#39;types&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="nv">$cat</span><span class="p">,</span> <span class="nv">$dog</span><span class="p">]</span>
+<span class="p">]);</span>
+</code></pre></div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>
