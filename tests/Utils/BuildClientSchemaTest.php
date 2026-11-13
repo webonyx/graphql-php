@@ -6,6 +6,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
@@ -448,6 +449,48 @@ SDL;
             ): String
           }
         ');
+    }
+
+    public function testBuildsASchemaWithAOneOfInputObject(): void
+    {
+        self::assertCycleIntrospection('
+          input LookupInput @oneOf {
+            id: ID
+            name: String
+          }
+
+          type Query {
+            lookup(input: LookupInput): String
+          }
+        ');
+    }
+
+    /** @return iterable<string, array{bool}> */
+    public static function typeIsOneOfOptions(): iterable
+    {
+        yield 'introspection with isOneOf' => [true];
+        yield 'introspection without isOneOf' => [false];
+    }
+
+    /** @dataProvider typeIsOneOfOptions */
+    public function testBuildsOneOfInputObjectFromIntrospection(bool $typeIsOneOf): void
+    {
+        $serverSchema = BuildSchema::build('
+          input LookupInput @oneOf {
+            id: ID
+            name: String
+          }
+
+          type Query {
+            lookup(input: LookupInput): String
+          }
+        ');
+        $introspection = Introspection::fromSchema($serverSchema, ['typeIsOneOf' => $typeIsOneOf]);
+        $clientSchema = BuildClientSchema::build($introspection);
+
+        $lookupInput = $clientSchema->getType('LookupInput');
+        self::assertInstanceOf(InputObjectType::class, $lookupInput);
+        self::assertSame($typeIsOneOf, $lookupInput->isOneOf());
     }
 
     /** it('builds a schema with field arguments with default values', () => {. */
