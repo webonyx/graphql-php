@@ -12,6 +12,7 @@ final class ExecutionResultTest extends TestCase
     {
         $executionResult = new ExecutionResult();
 
+        self::assertFalse($executionResult->executed);
         self::assertSame([], $executionResult->toArray());
     }
 

@@ -961,9 +961,12 @@ final class NonNullTest extends TestCase
             ],
         ];
 
+        $result = Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q');
+
+        self::assertTrue($result->executed);
         self::assertArraySubset(
             $expected,
-            Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
+            $result->toArray()
         );
     }
 
@@ -1005,9 +1008,12 @@ final class NonNullTest extends TestCase
             ],
         ];
 
+        $result = Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q');
+
+        self::assertTrue($result->executed);
         self::assertArraySubset(
             $expected,
-            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
+            $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
         );
     }
 }
