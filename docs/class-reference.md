@@ -2609,6 +2609,15 @@ function setDebugFlag(int $debugFlag = 'GraphQL\\Error\\DebugFlag::INCLUDE_DEBUG
 function setQueryBatching(bool $enableBatching): self
 ```
 
+```php
+/**
+ * Enable GraphQL-over-HTTP handling. Disabled by default for compatibility.
+ *
+ * @api
+ */
+function setGraphQLOverHttp(bool $enabled): self
+```
+
 ## GraphQL\Server\Helper
 
 Contains functionality that could be re-used by various server implementations.
