@@ -48,7 +48,9 @@ jobs:
         with:
           working-directory: head
 
-      - run: sudo apt-get install --yes valgrind
+      - run: |
+          sudo apt-get update
+          sudo apt-get install --yes valgrind
 
       - name: Count instructions on base and head
         run: |
