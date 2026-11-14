@@ -86,7 +86,7 @@ final class HttpHelper
         if (is_array($result)) {
             $body = array_map(fn (ExecutionResult $operation) => $this->createResponse($operation, $mediaType)->body, $result);
 
-            return new HttpResponse($body, 200, $mediaType);
+            return new HttpResponse($body, 200, 'application/json');
         }
 
         $body = $result->toArray();
@@ -108,6 +108,12 @@ final class HttpHelper
             $statusCode = 422;
             foreach ($result->errors as $error) {
                 $cause = $error->getPrevious();
+                if ($cause instanceof HttpRequestError) {
+                    $statusCode = $cause->statusCode;
+                    $headers = $cause->headers;
+                    break;
+                }
+
                 if ($error instanceof SyntaxError || $cause instanceof CannotParseJsonBody) {
                     $statusCode = 400;
                     break;
