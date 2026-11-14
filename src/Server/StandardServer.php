@@ -2,9 +2,12 @@
 
 namespace GraphQL\Server;
 
+use GraphQL\Error\Error;
+use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
+use GraphQL\Server\Exception\HttpMethodNotSupported;
 use GraphQL\Utils\Utils;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -188,6 +191,13 @@ class StandardServer
      */
     public function executePsrRequest(RequestInterface $request)
     {
+        if ($this->config->getGraphQLOverHttp()) {
+            $method = $request->getMethod();
+            if ($method !== 'GET' && $method !== 'POST') {
+                throw new HttpMethodNotSupported("HTTP Method \"{$method}\" is not supported");
+            }
+        }
+
         $parsedBody = $this->helper->parsePsrRequest($request);
 
         return $this->executeRequest($parsedBody);
@@ -212,7 +222,16 @@ class StandardServer
             );
         }
 
-        $result = $execute();
+        try {
+            $result = $execute();
+        } catch (RequestError $error) {
+            $result = new ExecutionResult(null, [Error::createLocatedError($error)]);
+            $result->setErrorFormatter(FormattedError::prepareFormatter(
+                $this->config->getErrorFormatter(),
+                $this->config->getDebugFlag()
+            ));
+            $result->setErrorsHandler($this->config->getErrorsHandler());
+        }
 
         return $result instanceof Promise
             ? $result->then(static fn ($resolved) => $helper->createResponse($resolved, $mediaType))
