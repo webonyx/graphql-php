@@ -7,29 +7,27 @@ use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use Tally\Attribute\Before;
+use Tally\Attribute\Expected;
+use Tally\Attribute\Warmup;
 
-/**
- * @BeforeMethods({"setUp"})
- *
- * @OutputTimeUnit("milliseconds", precision=3)
- *
- * @Warmup(2)
- *
- * @Revs(100)
- *
- * @Iterations(5)
- */
+#[Warmup(1)]
 class ScalarOverrideBench
 {
     private Schema $schemaBaseline;
 
     private Schema $schemaTypes;
 
+    #[Before]
     public function setUp(): void
     {
         $uppercaseString = new CustomScalarType([
             'name' => Type::STRING,
-            'serialize' => static fn ($value): string => strtoupper((string) $value),
+            'serialize' => static function ($value): string {
+                assert(is_string($value), 'The benchmark only resolves strings.');
+
+                return strtoupper($value);
+            },
         ]);
 
         $queryTypeBaseline = new ObjectType([
@@ -60,21 +58,25 @@ class ScalarOverrideBench
         ]);
     }
 
+    #[Expected(instructions: '666', cycles: '1.166K', memory: '0B')]
     public function benchGetTypeWithoutOverride(): void
     {
         $this->schemaBaseline->getType('String');
     }
 
+    #[Expected(instructions: '666', cycles: '1.166K', memory: '0B')]
     public function benchGetTypeWithTypesOverride(): void
     {
         $this->schemaTypes->getType('String');
     }
 
+    #[Expected(instructions: '839.3K', cycles: '1.047M', memory: '64.84KiB')]
     public function benchExecuteWithoutOverride(): void
     {
         GraphQL::executeQuery($this->schemaBaseline, '{ greeting }');
     }
 
+    #[Expected(instructions: '839.9K', cycles: '1.054M', memory: '64.84KiB')]
     public function benchExecuteWithTypesOverride(): void
     {
         GraphQL::executeQuery($this->schemaTypes, '{ greeting }');

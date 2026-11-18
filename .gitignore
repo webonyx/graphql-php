@@ -1,10 +1,10 @@
 .idea
 vendor
-benchmarks/results
+benchmarks/tally-results
 php-cs-fixer/.cache
-.phpbench
 .phpunit.result.cache
 composer.lock
+!benchmarks/composer.lock
 composer.phar
 phpstan.neon
 

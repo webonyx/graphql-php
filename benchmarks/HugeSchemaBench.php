@@ -8,20 +8,11 @@ use GraphQL\GraphQL;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
+use Tally\Attribute\Before;
+use Tally\Attribute\Expected;
+use Tally\Attribute\Warmup;
 
-/**
- * @BeforeMethods({"setUp"})
- *
- * @OutputTimeUnit("milliseconds", precision=3)
- *
- * @Warmup(2)
- *
- * @Sleep(500000)
- *
- * @Revs(10)
- *
- * @Iterations(5)
- */
+#[Warmup(1)]
 class HugeSchemaBench
 {
     private SchemaGenerator $schemaGenerator;
@@ -30,8 +21,10 @@ class HugeSchemaBench
 
     private string $smallQuery;
 
+    #[Before]
     public function setUp(): void
     {
+        mt_srand(1);
         $this->schemaGenerator = new SchemaGenerator([
             'totalTypes' => 600,
             'fieldsPerType' => 8,
@@ -45,6 +38,7 @@ class HugeSchemaBench
         $this->smallQuery = $queryBuilder->buildQuery();
     }
 
+    #[Expected(instructions: '130.5M', cycles: '246.9M', memory: '4.239MiB')]
     public function benchSchema(): void
     {
         $this->schemaGenerator
@@ -52,17 +46,19 @@ class HugeSchemaBench
             ->getTypeMap();
     }
 
-    /** @Revs(1000) */
+    #[Expected(instructions: '9.520K', cycles: '15.07K', memory: '800B')]
     public function benchSchemaLazy(): void
     {
         $this->createLazySchema();
     }
 
+    #[Expected(instructions: '104.8M', cycles: '126.4M', memory: '526.8KiB')]
     public function benchSmallQuery(): void
     {
         GraphQL::executeQuery($this->schema, $this->smallQuery);
     }
 
+    #[Expected(instructions: '109.8M', cycles: '132.8M', memory: '526.8KiB')]
     public function benchSmallQueryLazy(): void
     {
         $schema = $this->createLazySchema();

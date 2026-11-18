@@ -35,7 +35,6 @@ return static function (Rector\Config\RectorConfig $rectorConfig): void {
         Rector\DeadCode\Rector\ClassMethod\RemoveDuplicatedReturnSelfDocblockRector::class, // Overly eager on removing static or $this
     ]);
     $rectorConfig->paths([
-        __DIR__ . '/benchmarks',
         __DIR__ . '/examples',
         __DIR__ . '/phpstan',
         __DIR__ . '/src',

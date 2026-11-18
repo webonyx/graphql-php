@@ -6,7 +6,6 @@ parameters:
     editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
 
     paths:
-        - benchmarks
         - examples
         - generate-class-reference.php
         - src
@@ -44,9 +43,6 @@ parameters:
         ## PHPUnit
         - message: "~Method GraphQL\\\\Tests\\\\.+?Test(CaseBase)?::(test.+?|setUp(BeforeClass)?|tearDown)\\(\\) throws checked exception .+? but it's missing from the PHPDoc @throws tag~"
           path: tests
-        ## PHPBench
-        - message: "~it's missing from the PHPDoc @throws tag~"
-          path: benchmarks
 
         # Simplifies tests
         - message: "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node\\:\\:\\$.+~"

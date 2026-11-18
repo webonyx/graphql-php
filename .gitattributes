@@ -18,7 +18,6 @@
 /generate-class-reference.php export-ignore
 /Makefile export-ignore
 /mkdocs.yml export-ignore
-/phpbench.json export-ignore
 /phpstan.neon.dist export-ignore
 /phpstan-baseline.neon export-ignore
 /phpunit.xml.dist export-ignore

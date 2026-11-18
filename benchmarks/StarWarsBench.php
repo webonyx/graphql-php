@@ -5,32 +5,28 @@ namespace GraphQL\Benchmarks;
 use GraphQL\GraphQL;
 use GraphQL\Tests\StarWarsSchema;
 use GraphQL\Type\Introspection;
+use Tally\Attribute\Before;
+use Tally\Attribute\Expected;
+use Tally\Attribute\Warmup;
 
-/**
- * @BeforeMethods({"setIntroQuery"})
- *
- * @OutputTimeUnit("milliseconds", precision=3)
- *
- * @Warmup(5)
- *
- * @Revs(100)
- *
- * @Iterations(10)
- */
+#[Warmup(1)]
 class StarWarsBench
 {
     private string $introQuery;
 
+    #[Before]
     public function setIntroQuery(): void
     {
         $this->introQuery = Introspection::getIntrospectionQuery();
     }
 
+    #[Expected(instructions: '40.26K', cycles: '56.46K', memory: '17.55KiB')]
     public function benchSchema(): void
     {
         StarWarsSchema::build();
     }
 
+    #[Expected(instructions: '1.757M', cycles: '2.176M', memory: '81.93KiB')]
     public function benchHeroQuery(): void
     {
         $q = '
@@ -47,6 +43,7 @@ class StarWarsBench
         );
     }
 
+    #[Expected(instructions: '4.139M', cycles: '5.228M', memory: '86.55KiB')]
     public function benchNestedQuery(): void
     {
         $q = '
@@ -69,6 +66,7 @@ class StarWarsBench
         );
     }
 
+    #[Expected(instructions: '4.430M', cycles: '5.257M', memory: '96.57KiB')]
     public function benchQueryWithFragment(): void
     {
         $q = '
@@ -93,6 +91,7 @@ class StarWarsBench
         );
     }
 
+    #[Expected(instructions: '4.136M', cycles: '4.909M', memory: '96.33KiB')]
     public function benchQueryWithInterfaceFragment(): void
     {
         $q = '
@@ -116,6 +115,7 @@ class StarWarsBench
         );
     }
 
+    #[Expected(instructions: '47.33M', cycles: '61.28M', memory: '231.0KiB')]
     public function benchStarWarsIntrospectionQuery(): void
     {
         GraphQL::executeQuery(
