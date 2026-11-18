@@ -1,0 +1,14 @@
+{
+  "require": {
+    "phpstan/phpstan": "2.3.5",
+    "phpstan/tally": "1.0.1",
+    "rector/rector": "^2"
+  },
+  "autoload": {
+    "psr-4": {
+      "GraphQL\\": "../src/",
+      "GraphQL\\Benchmarks\\": "./",
+      "GraphQL\\Tests\\": "../tests/"
+    }
+  }
+}

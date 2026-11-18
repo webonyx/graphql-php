@@ -143,28 +143,27 @@ $mustBeArrayOfStringsToInts = identity(['foo' => 42]);
 
 ## Running Benchmarks
 
-We benchmark performance critical code with [PHPBench](https://github.com/phpbench/phpbench).
+We benchmark performance critical code in [benchmarks](benchmarks) with [Tally](https://github.com/phpstan/tally).
+Tally counts the instructions, cycles and memory of each benchmark under a CPU simulation, so the numbers do not depend on the speed of the machine.
+The expected numbers are committed in `#[Expected]` attributes, and CI fails when a benchmark gets slower.
 
-Check performance:
+Tally needs a newer PHP than this library, so it runs in Docker with its own Composer project in `benchmarks`.
 
-```sh
-composer bench
-```
-
-On pull requests, CI counts each benchmark's instructions per revolution with [Valgrind](https://valgrind.org).
-The check fails when any benchmark needs more than 1.1x the instructions of the base branch.
-Of the PHPBench annotations, the counter supports only `@BeforeMethods`.
-
-To reproduce the check, install Valgrind.
-Check out the base branch into a second directory.
-Run `composer install` in that directory.
-Then run:
+Count the benchmarks:
 
 ```sh
-php benchmarks/count-instructions.php ../graphql-php-base > base.json
-php benchmarks/count-instructions.php . > head.json
-php benchmarks/compare-results.php base.json head.json
+make bench
 ```
+
+Counts can differ between machines.
+When a benchmark gets faster, or slower on purpose, accept the numbers of the CI run with [gh](https://cli.github.com) and commit them.
+The run ID is in the URL of the CI run:
+
+```sh
+make bench-accept RUN=<run-id>
+```
+
+Use `make bench-accept` instead of the accept command in the CI job summary, which assumes Tally runs outside Docker.
 
 ## Documentation
 

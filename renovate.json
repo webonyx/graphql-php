@@ -7,6 +7,11 @@
   "rangeStrategy": "replace",
   "packageRules": [
     {
+      "matchFileNames": ["benchmarks/Dockerfile"],
+      "matchPackageNames": ["php"],
+      "schedule": ["before 4am on the first day of the month"]
+    },
+    {
       "matchPackageNames": ["/phpstan/"],
       "groupName": "phpstan packages",
       "groupSlug": "phpstan",

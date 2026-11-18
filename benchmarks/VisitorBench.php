@@ -8,24 +8,17 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Introspection;
+use Tally\Attribute\Before;
+use Tally\Attribute\Warmup;
 
-/**
- * @BeforeMethods({"setUp"})
- *
- * @OutputTimeUnit("milliseconds", precision=3)
- *
- * @Warmup(2)
- *
- * @Revs(100)
- *
- * @Iterations(5)
- */
+#[Warmup(1)]
 class VisitorBench
 {
     private DocumentNode $introspectionAST;
 
     private DocumentNode $nestedAST;
 
+    #[Before]
     public function setUp(): void
     {
         $this->introspectionAST = Parser::parse(Introspection::getIntrospectionQuery());

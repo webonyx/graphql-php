@@ -7,24 +7,17 @@ use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use Tally\Attribute\Before;
+use Tally\Attribute\Warmup;
 
-/**
- * @BeforeMethods({"setUp"})
- *
- * @OutputTimeUnit("milliseconds", precision=3)
- *
- * @Warmup(2)
- *
- * @Revs(100)
- *
- * @Iterations(5)
- */
+#[Warmup(1)]
 class ScalarOverrideBench
 {
     private Schema $schemaBaseline;
 
     private Schema $schemaTypes;
 
+    #[Before]
     public function setUp(): void
     {
         $uppercaseString = new CustomScalarType([

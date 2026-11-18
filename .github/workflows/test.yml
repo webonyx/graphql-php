@@ -83,23 +83,3 @@ jobs:
         with:
           directory: reports
 
-  benchmarks:
-    name: Benchmarks
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Install PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          coverage: none
-          php-version: "7.4"
-
-      - name: Install dependencies with Composer
-        uses: ramsey/composer-install@v4
-
-      - name: Run PHPBench
-        run: composer bench

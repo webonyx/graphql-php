@@ -4,16 +4,9 @@ namespace GraphQL\Benchmarks;
 
 use GraphQL\Deferred;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseQueue;
+use Tally\Attribute\Warmup;
 
-/**
- * @OutputTimeUnit("microseconds", precision=3)
- *
- * @Warmup(5)
- *
- * @Revs(200)
- *
- * @Iterations(10)
- */
+#[Warmup(1)]
 class DeferredBench
 {
     public function benchSingleDeferred(): void

@@ -8,20 +8,10 @@ use GraphQL\GraphQL;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
+use Tally\Attribute\Before;
+use Tally\Attribute\Warmup;
 
-/**
- * @BeforeMethods({"setUp"})
- *
- * @OutputTimeUnit("milliseconds", precision=3)
- *
- * @Warmup(2)
- *
- * @Sleep(500000)
- *
- * @Revs(10)
- *
- * @Iterations(5)
- */
+#[Warmup(1)]
 class HugeSchemaBench
 {
     private SchemaGenerator $schemaGenerator;
@@ -30,8 +20,10 @@ class HugeSchemaBench
 
     private string $smallQuery;
 
+    #[Before]
     public function setUp(): void
     {
+        mt_srand(1);
         $this->schemaGenerator = new SchemaGenerator([
             'totalTypes' => 600,
             'fieldsPerType' => 8,
@@ -52,7 +44,6 @@ class HugeSchemaBench
             ->getTypeMap();
     }
 
-    /** @Revs(1000) */
     public function benchSchemaLazy(): void
     {
         $this->createLazySchema();

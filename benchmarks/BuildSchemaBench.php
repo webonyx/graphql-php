@@ -3,20 +3,10 @@
 namespace GraphQL\Benchmarks;
 
 use GraphQL\Utils\BuildSchema;
+use Tally\Attribute\Before;
+use Tally\Attribute\Warmup;
 
-/**
- * @BeforeMethods({"makeSchemaString"})
- *
- * @OutputTimeUnit("milliseconds", precision=3)
- *
- * @Warmup(2)
- *
- * @Sleep(500000)
- *
- * @Revs(10)
- *
- * @Iterations(5)
- */
+#[Warmup(1)]
 class BuildSchemaBench
 {
     private string $schema = /** @lang GraphQL */ <<<GRAPHQL
@@ -37,6 +27,7 @@ type Bar {
 }
 GRAPHQL;
 
+    #[Before]
     public function makeSchemaString(): void
     {
         foreach (range(1, 100) as $i) {

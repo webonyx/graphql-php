@@ -9,7 +9,7 @@ help: ## Displays this list of targets with descriptions
 setup: vendor phpstan.neon ai-sync ## Set up the project
 
 .PHONY: fix
-fix: rector php-cs-fixer prettier ## Automatic code fixes
+fix: rector bench-rector php-cs-fixer prettier ## Automatic code fixes
 
 .PHONY: rector
 rector: vendor ## Automatic code fixes with Rector
@@ -24,7 +24,7 @@ endef
 php-cs-fixer: ## Fix code style
 	$(call run-php-cs-fixer,php:7.4-cli-bullseye)
 	$(call run-php-cs-fixer,php:8.0-cli-bullseye,--path-mode=intersection src/Type/Definition/Deprecated.php src/Type/Definition/Description.php)
-	$(call run-php-cs-fixer,php:8.1-cli-trixie,--path-mode=intersection src/Type/Definition/PhpEnumType.php tests/Type/PhpEnumType)
+	$(call run-php-cs-fixer,php:8.1-cli-trixie,--path-mode=intersection benchmarks src/Type/Definition/PhpEnumType.php tests/Type/PhpEnumType)
 
 .PHONY: prettier
 prettier: ## Format code with prettier
@@ -45,9 +45,34 @@ baseline: ## Regenerate the PHPStan baseline
 test: ## Runs tests with PHPUnit
 	composer test
 
+ifdef GITHUB_ACTIONS
+benchmarks-github-actions=--env=GITHUB_ACTIONS --env=GITHUB_WORKSPACE=/app --env=GITHUB_STEP_SUMMARY --volume="$(GITHUB_STEP_SUMMARY):$(GITHUB_STEP_SUMMARY)"
+endif
+run-benchmarks=docker build --quiet --tag=graphql-php-benchmarks benchmarks > /dev/null && docker run --rm --volume="$(CURDIR):/app" --user="$(shell id -u):$(shell id -g)" --env=COMPOSER_HOME=/tmp/composer $(benchmarks-github-actions) graphql-php-benchmarks
+
+benchmarks/vendor: benchmarks/composer.json benchmarks/composer.lock
+	$(run-benchmarks) composer validate --no-check-publish
+	$(run-benchmarks) composer install
+	touch benchmarks/vendor
+
 .PHONY: bench
-bench: ## Runs benchmarks with PHPBench
-	composer bench
+bench: benchmarks/vendor ## Counts benchmark instructions with Tally
+	$(run-benchmarks) vendor/bin/tally run --output=tally-results
+
+.PHONY: bench-accept
+bench-accept: benchmarks/vendor ## Accepts the counts of the CI run RUN as expected
+	$(if $(RUN),,$(error Pass the ID of the CI run, e.g. make bench-accept RUN=123))
+	rm -rf benchmarks/tally-results
+	gh run download $(RUN) --repo=webonyx/graphql-php --name=tally-results --dir=benchmarks/tally-results
+	$(run-benchmarks) vendor/bin/tally accept tally-results
+
+.PHONY: bench-stan
+bench-stan: benchmarks/vendor ## Runs static analysis on the benchmarks with PHPStan
+	$(run-benchmarks) vendor/bin/phpstan
+
+.PHONY: bench-rector
+bench-rector: benchmarks/vendor ## Automatic code fixes on the benchmarks with Rector
+	$(run-benchmarks) vendor/bin/rector process
 
 .PHONY: docs
 docs: ## Generate the class-reference docs

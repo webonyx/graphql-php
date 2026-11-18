@@ -5,22 +5,15 @@ namespace GraphQL\Benchmarks;
 use GraphQL\GraphQL;
 use GraphQL\Tests\StarWarsSchema;
 use GraphQL\Type\Introspection;
+use Tally\Attribute\Before;
+use Tally\Attribute\Warmup;
 
-/**
- * @BeforeMethods({"setIntroQuery"})
- *
- * @OutputTimeUnit("milliseconds", precision=3)
- *
- * @Warmup(5)
- *
- * @Revs(100)
- *
- * @Iterations(10)
- */
+#[Warmup(1)]
 class StarWarsBench
 {
     private string $introQuery;
 
+    #[Before]
     public function setIntroQuery(): void
     {
         $this->introQuery = Introspection::getIntrospectionQuery();

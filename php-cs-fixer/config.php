@@ -18,6 +18,7 @@ if (version_compare($phpVersion, '8.0', '<')) {
 
 if (version_compare($phpVersion, '8.1', '<')) {
     $finder->notPath([
+        'benchmarks',
         'src/Type/Definition/PhpEnumType.php',
         'tests/Type/PhpEnumType',
     ]);

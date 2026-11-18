@@ -7,16 +7,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
+use Tally\Attribute\Warmup;
 
-/**
- * @OutputTimeUnit("milliseconds", precision=3)
- *
- * @Warmup(2)
- *
- * @Revs(1)
- *
- * @Iterations(5)
- */
+#[Warmup(1)]
 class OverlappingFieldsCanBeMergedBench
 {
     private Schema $schema;
