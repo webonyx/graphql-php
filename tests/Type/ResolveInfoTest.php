@@ -1048,6 +1048,117 @@ final class ResolveInfoTest extends TestCase
         self::assertEmpty($result10->errors, 'Query With Union type should have no errors');
     }
 
+    /** @dataProvider providerGetFieldSelectionWithAliasesMergedSelections */
+    public function testGetFieldSelectionWithAliasesMergedSelections(string $document, bool $recursiveType): void
+    {
+        $post = new ObjectType([
+            'name' => 'Post',
+            'fields' => [
+                'id' => Type::id(),
+                'text' => Type::string(),
+            ],
+        ]);
+
+        if ($recursiveType) {
+            $post->config['fields'] = [
+                'id' => Type::id(),
+                'text' => Type::string(),
+                'related' => $post,
+            ];
+        }
+
+        $user = new ObjectType([
+            'name' => 'User',
+            'fields' => [
+                'name' => Type::string(),
+                'posts' => [
+                    'type' => Type::nonNull(Type::listOf(Type::nonNull($post))),
+                    'args' => [
+                        'limit' => Type::int(),
+                        'ids' => Type::listOf(Type::int()),
+                    ],
+                ],
+            ],
+        ]);
+
+        $selection = null;
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'user' => [
+                    'type' => $user,
+                    'resolve' => static function ($value, array $args, $context, ResolveInfo $info) use (&$selection) {
+                        $selection = $info->getFieldSelectionWithAliases(1);
+
+                        return null;
+                    },
+                ],
+            ],
+        ]);
+
+        $result = GraphQL::executeQuery(new Schema(['query' => $query]), $document);
+
+        self::assertSame([], $result->errors);
+        self::assertIsArray($selection);
+        self::assertSame($post, $selection['posts']['recent']['type']);
+        self::assertSame(Type::string(), $selection['name']['name']['type']);
+        self::assertSame(['limit' => 2, 'ids' => [1, 2]], $selection['posts']['recent']['args']);
+        self::assertEquals([
+            'name' => [
+                'name' => ['args' => [], 'type' => Type::string()],
+            ],
+            'posts' => [
+                'recent' => [
+                    'args' => ['limit' => 2, 'ids' => [1, 2]],
+                    'type' => $post,
+                    'selectionSet' => [
+                        'id' => [
+                            'id' => ['args' => [], 'type' => Type::id()],
+                        ],
+                        'text' => [
+                            'text' => ['args' => [], 'type' => Type::string()],
+                        ],
+                    ],
+                ],
+            ],
+        ], $selection);
+    }
+
+    /** @return \Generator<string, array{string, bool}> */
+    public static function providerGetFieldSelectionWithAliasesMergedSelections(): \Generator
+    {
+        $first = 'name recent: posts(limit: 2, ids: [1, 2]) { id }';
+        $second = 'name recent: posts(limit: 2, ids: [1, 2]) { text }';
+
+        $documents = [
+            'named fragment after field' => <<<GRAPHQL
+            { user { {$first} ...Posts } }
+            fragment Posts on User { {$second} }
+            GRAPHQL,
+            'named fragment before field' => <<<GRAPHQL
+            { user { ...Posts {$second} } }
+            fragment Posts on User { {$first} }
+            GRAPHQL,
+            'inline fragment after field' => <<<GRAPHQL
+            { user { {$first} ... on User { {$second} } } }
+            GRAPHQL,
+            'inline fragment before field' => <<<GRAPHQL
+            { user { ... on User { {$first} } {$second} } }
+            GRAPHQL,
+            'duplicate root field nodes' => <<<GRAPHQL
+            { user { {$first} } user { {$second} } }
+            GRAPHQL,
+            'duplicate nested field nodes' => <<<GRAPHQL
+            { user { {$first} {$second} } }
+            GRAPHQL,
+        ];
+
+        foreach ($documents as $name => $document) {
+            yield $name => [$document, false];
+            yield "{$name} with recursive type" => [$document, true];
+        }
+    }
+
     public function testPathAndUnaliasedPath(): void
     {
         $resolveInfo = new ObjectType([
