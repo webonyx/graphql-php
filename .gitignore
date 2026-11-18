@@ -1,7 +1,7 @@
 .idea
 vendor
 benchmarks/results
-.php-cs-fixer.cache
+php-cs-fixer/.cache
 .phpbench
 .phpunit.result.cache
 composer.lock

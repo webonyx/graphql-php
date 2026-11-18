@@ -2,7 +2,7 @@
 
 $finder = PhpCsFixer\Finder::create()
     ->notPath('vendor')
-    ->in(__DIR__)
+    ->in(dirname(__DIR__))
     ->name('*.php')
     ->ignoreDotFiles(true)
     ->ignoreVCS(true);
@@ -40,4 +40,6 @@ return MLL\PhpCsFixerConfig\risky($finder, [
         'identical' => false,
         'less_and_greater' => false,
     ],
-])->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect());
+])
+    ->setCacheFile(__DIR__ . '/.cache')
+    ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect());
