@@ -1,0 +1,6 @@
+{
+  "require": {
+    "friendsofphp/php-cs-fixer": "3.95.30",
+    "mll-lab/php-cs-fixer-config": "5.14.0"
+  }
+}
