@@ -7,7 +7,7 @@
   "autoload": {
     "psr-4": {
       "GraphQL\\": "../src/",
-      "GraphQL\\Benchmarks\\": "./",
+      "GraphQL\\Benchmarks\\": "src/",
       "GraphQL\\Tests\\": "../tests/"
     }
   }
