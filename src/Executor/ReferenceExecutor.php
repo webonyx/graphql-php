@@ -281,7 +281,10 @@ class ReferenceExecutor implements ExecutorImplementation
             $data = (array) $data;
         }
 
-        return new ExecutionResult($data, $this->exeContext->errors);
+        $result = new ExecutionResult($data, $this->exeContext->errors);
+        $result->executed = true;
+
+        return $result;
     }
 
     /**

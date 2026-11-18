@@ -36,6 +36,41 @@ final class GraphQLTest extends TestCase
 
         $promise = GraphQL::promiseToExecute($promiseAdapter, $schema, '{ sayHi(name: "John") }');
         $result = $promiseAdapter->wait($promise);
+        self::assertTrue($result->executed);
         self::assertSame(['data' => ['sayHi' => 'Hi John!']], $result->toArray());
+    }
+
+    public function testExecutionOutcomeDistinguishesRequestErrorFromNullData(): void
+    {
+        $schema = new Schema(
+            (new SchemaConfig())
+                ->setQuery(new ObjectType([
+                    'name' => 'Query',
+                    'fields' => [
+                        'required' => [
+                            'type' => Type::nonNull(Type::string()),
+                            'resolve' => static fn () => null,
+                        ],
+                    ],
+                ]))
+        );
+
+        $requestError = GraphQL::executeQuery($schema, 'not a query');
+        self::assertFalse($requestError->executed);
+        self::assertNotEmpty($requestError->errors);
+
+        $executionResult = GraphQL::executeQuery($schema, '{ required }');
+        self::assertTrue($executionResult->executed);
+        self::assertNull($executionResult->data);
+        self::assertSame(
+            [
+                'errors' => [[
+                    'message' => 'Internal server error',
+                    'locations' => [['line' => 1, 'column' => 3]],
+                    'path' => ['required'],
+                ]],
+            ],
+            $executionResult->toArray()
+        );
     }
 }

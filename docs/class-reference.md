@@ -1799,6 +1799,13 @@ public $data;
 public $errors;
 
 /**
+ * Whether GraphQL operation execution occurred.
+ *
+ * @api
+ */
+public $executed;
+
+/**
  * User-defined serializable array of extensions included in serialized result.
  *
  * @api
