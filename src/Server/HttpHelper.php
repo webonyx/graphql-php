@@ -2,7 +2,14 @@
 
 namespace GraphQL\Server;
 
+use GraphQL\Error\SyntaxError;
 use GraphQL\Executor\ExecutionResult;
+use GraphQL\Server\Exception\CannotParseJsonBody;
+use GraphQL\Server\Exception\CannotReadBody;
+use GraphQL\Server\Exception\GetMethodSupportsOnlyQueryOperation;
+use GraphQL\Server\Exception\HttpMethodNotSupported;
+use GraphQL\Server\Exception\MissingContentTypeHeader;
+use GraphQL\Server\Exception\UnexpectedContentType;
 
 /**
  * @internal
@@ -76,10 +83,66 @@ final class HttpHelper
     /** @param ExecutionResult|array<ExecutionResult> $result */
     public function createResponse($result, string $mediaType): HttpResponse
     {
-        $body = $result instanceof ExecutionResult
-            ? $result->toArray()
-            : array_map(static fn (ExecutionResult $operation) => $operation->toArray(), $result);
+        if (is_array($result)) {
+            $body = array_map(fn (ExecutionResult $operation) => $this->createResponse($operation, $mediaType)->body, $result);
 
-        return new HttpResponse($body, 200, $mediaType);
+            return new HttpResponse($body, 200, $mediaType);
+        }
+
+        $body = $result->toArray();
+        $hasData = $result->executed || $result->data !== null;
+        if ($hasData) {
+            // A null execution result must not look like a pre-execution request error.
+            $body['data'] = $result->data === [] ? new \stdClass() : $result->data;
+        }
+
+        // A custom error handler may filter all errors. Keep the HTTP result valid
+        // without exposing the unformatted errors or changing legacy serialization.
+        if ((! $hasData || $result->data === null) && ! isset($body['errors'])) {
+            $body['errors'] = [['message' => 'GraphQL request failed.']];
+        }
+
+        $statusCode = 200;
+        $headers = [];
+        if (! $hasData) {
+            $statusCode = 422;
+            foreach ($result->errors as $error) {
+                $cause = $error->getPrevious();
+                if ($error instanceof SyntaxError || $cause instanceof CannotParseJsonBody) {
+                    $statusCode = 400;
+                    break;
+                }
+
+                if ($cause instanceof GetMethodSupportsOnlyQueryOperation) {
+                    $statusCode = 405;
+                    $headers['Allow'] = 'POST';
+                    break;
+                }
+
+                if ($cause instanceof HttpMethodNotSupported) {
+                    $statusCode = 405;
+                    $headers['Allow'] = 'GET, POST';
+                    break;
+                }
+
+                if ($cause instanceof MissingContentTypeHeader || $cause instanceof UnexpectedContentType) {
+                    $statusCode = 415;
+                    break;
+                }
+
+                if ($cause instanceof CannotReadBody) {
+                    $statusCode = 500;
+                    break;
+                }
+            }
+        }
+
+        // Follow the specification's legacy-client recommendation: only successful
+        // responses substitute application/json for the GraphQL response media type.
+        if ($statusCode >= 400) {
+            $mediaType = 'application/graphql-response+json';
+        }
+
+        return new HttpResponse($body, $statusCode, $mediaType, $headers);
     }
 }

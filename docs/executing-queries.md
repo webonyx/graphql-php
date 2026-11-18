@@ -149,6 +149,34 @@ Negotiated responses include `Vary: Accept`.
 Applications using `executeRequest()` or `executePsrRequest()` to build their own
 responses remain responsible for response negotiation.
 
+In this mode, request failures use HTTP error status codes:
+
+| Failure                                            | Status |
+| -------------------------------------------------- | ------ |
+| Malformed JSON or GraphQL document                 | `400`  |
+| GET mutation or unsupported HTTP method            | `405`  |
+| No acceptable response media type                  | `406`  |
+| Missing request media type                         | `415`  |
+| Invalid parameters, validation, or variable values | `422`  |
+
+Unsupported request media types also produce `415` when using PHP globals.
+The PSR-7 entry point still uses the legacy parser, which treats other media types
+as form-encoded input.
+
+Responses with `405` include `Allow`. Successful execution uses `200`, including
+execution errors that return partial data or `data: null`. The server does not
+use the specification's optional custom `294` status code.
+
+For clients requesting only `application/json`, successful responses use that
+media type. Request-error responses use `application/graphql-response+json`,
+following the specification's legacy-client recommendation.
+
+The HTTP serializer preserves `data: null` after execution. The standalone
+`ExecutionResult::toArray()` behavior remains unchanged. Custom error formatters
+and handlers still apply; if all errors are removed from a result with no usable
+data, the HTTP response includes a generic error to keep the result well formed.
+Other server exceptions remain the responsibility of the hosting framework.
+
 ## Query batching
 
 Standard Server supports query batching ([apollo-style](https://www.apollographql.com/blog/apollo-client/performance/query-batching)).
