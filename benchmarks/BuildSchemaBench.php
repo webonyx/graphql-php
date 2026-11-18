@@ -4,6 +4,7 @@ namespace GraphQL\Benchmarks;
 
 use GraphQL\Utils\BuildSchema;
 use Tally\Attribute\Before;
+use Tally\Attribute\Expected;
 use Tally\Attribute\Warmup;
 
 #[Warmup(1)]
@@ -60,6 +61,7 @@ GRAPHQL;
         }
     }
 
+    #[Expected(instructions: '191.3M', cycles: '214.8M', memory: '2.083MiB')]
     public function benchBuildSchema(): void
     {
         BuildSchema::build($this->schema);

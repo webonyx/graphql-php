@@ -9,6 +9,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Introspection;
 use Tally\Attribute\Before;
+use Tally\Attribute\Expected;
 use Tally\Attribute\Warmup;
 
 #[Warmup(1)]
@@ -51,6 +52,7 @@ class VisitorBench
         ');
     }
 
+    #[Expected(instructions: '2.409M', cycles: '2.486M', memory: '13.74KiB')]
     public function benchVisitIntrospectionWithEnterLeave(): void
     {
         Visitor::visit($this->introspectionAST, [
@@ -59,6 +61,7 @@ class VisitorBench
         ]);
     }
 
+    #[Expected(instructions: '2.347M', cycles: '2.421M', memory: '16.34KiB')]
     public function benchVisitIntrospectionWithKindMap(): void
     {
         Visitor::visit($this->introspectionAST, [
@@ -77,6 +80,7 @@ class VisitorBench
         ]);
     }
 
+    #[Expected(instructions: '2.200M', cycles: '2.272M', memory: '14.12KiB')]
     public function benchVisitIntrospectionWithKindCallable(): void
     {
         Visitor::visit($this->introspectionAST, [
@@ -86,6 +90,7 @@ class VisitorBench
         ]);
     }
 
+    #[Expected(instructions: '2.370M', cycles: '2.463M', memory: '15.23KiB')]
     public function benchVisitIntrospectionWithEnterLeaveMap(): void
     {
         Visitor::visit($this->introspectionAST, [
@@ -100,6 +105,7 @@ class VisitorBench
         ]);
     }
 
+    #[Expected(instructions: '549.4K', cycles: '573.4K', memory: '10.44KiB')]
     public function benchVisitNestedWithEnterLeave(): void
     {
         Visitor::visit($this->nestedAST, [

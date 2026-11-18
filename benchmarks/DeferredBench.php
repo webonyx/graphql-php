@@ -4,23 +4,27 @@ namespace GraphQL\Benchmarks;
 
 use GraphQL\Deferred;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseQueue;
+use Tally\Attribute\Expected;
 use Tally\Attribute\Warmup;
 
 #[Warmup(1)]
 class DeferredBench
 {
+    #[Expected(instructions: '5.269K', cycles: '10.08K', memory: '912B')]
     public function benchSingleDeferred(): void
     {
         new Deferred(static fn () => 'value');
         SyncPromiseQueue::run();
     }
 
+    #[Expected(instructions: '19.52K', cycles: '28.59K', memory: '3.016KiB')]
     public function benchNestedDeferred(): void
     {
         new Deferred(static fn () => new Deferred(static fn () => null));
         SyncPromiseQueue::run();
     }
 
+    #[Expected(instructions: '42.98K', cycles: '63.01K', memory: '6.086KiB')]
     public function benchChain5(): void
     {
         $deferred = new Deferred(static fn () => 'value');
@@ -32,6 +36,7 @@ class DeferredBench
         SyncPromiseQueue::run();
     }
 
+    #[Expected(instructions: '698.7K', cycles: '759.9K', memory: '90.70KiB')]
     public function benchChain100(): void
     {
         $deferred = new Deferred(static fn () => 'value');
@@ -42,6 +47,7 @@ class DeferredBench
         SyncPromiseQueue::run();
     }
 
+    #[Expected(instructions: '4.169M', cycles: '4.350M', memory: '516.0KiB')]
     public function benchManyDeferreds(): void
     {
         $fn = static fn () => null;
@@ -51,6 +57,7 @@ class DeferredBench
         SyncPromiseQueue::run();
     }
 
+    #[Expected(instructions: '101.2M', cycles: '149.1M', memory: '11.06MiB')]
     public function benchManyNestedDeferreds(): void
     {
         for ($i = 0; $i < 5000; ++$i) {
@@ -59,6 +66,7 @@ class DeferredBench
         SyncPromiseQueue::run();
     }
 
+    #[Expected(instructions: '26.57M', cycles: '29.35M', memory: '3.858MiB')]
     public function bench1000Chains(): void
     {
         $promises = [];
