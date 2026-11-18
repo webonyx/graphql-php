@@ -6,6 +6,9 @@ use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\SerializationError;
 use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\ConstListValueNode;
+use GraphQL\Language\AST\ConstObjectValueNode;
+use GraphQL\Language\AST\ConstValueNode;
 use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumValueNode;
@@ -299,7 +302,7 @@ class AST
      * | Enum Value           | Mixed         |
      * | Null Value           | null          |
      *
-     * @param (ValueNode&Node)|null $valueNode
+     * @param (ValueNode&Node)|(ConstValueNode&Node)|null $valueNode
      * @param array<string, mixed>|null $variables
      *
      * @throws \Exception
@@ -308,7 +311,7 @@ class AST
      *
      * @api
      */
-    public static function valueFromAST(?ValueNode $valueNode, Type $type, ?array $variables = null, ?Schema $schema = null)
+    public static function valueFromAST(?Node $valueNode, Type $type, ?array $variables = null, ?Schema $schema = null)
     {
         $undefined = Utils::undefined();
 
@@ -349,7 +352,7 @@ class AST
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
 
-            if ($valueNode instanceof ListValueNode) {
+            if ($valueNode instanceof ListValueNode || $valueNode instanceof ConstListValueNode) {
                 $coercedValues = [];
                 $itemNodes = $valueNode->values;
                 foreach ($itemNodes as $itemNode) {
@@ -386,7 +389,7 @@ class AST
         }
 
         if ($type instanceof InputObjectType) {
-            if (! $valueNode instanceof ObjectValueNode) {
+            if (! $valueNode instanceof ObjectValueNode && ! $valueNode instanceof ConstObjectValueNode) {
                 // Invalid: intentionally return no value.
                 return $undefined;
             }
@@ -466,10 +469,10 @@ class AST
      * Returns true if the provided valueNode is a variable which is not defined
      * in the set of variables.
      *
-     * @param ValueNode&Node $valueNode
+     * @param (ValueNode&Node)|(ConstValueNode&Node) $valueNode
      * @param array<string, mixed>|null $variables
      */
-    private static function isMissingVariable(ValueNode $valueNode, ?array $variables): bool
+    private static function isMissingVariable(Node $valueNode, ?array $variables): bool
     {
         return $valueNode instanceof VariableNode
             && ($variables === null || ! array_key_exists($valueNode->name->value, $variables));
@@ -517,6 +520,7 @@ class AST
                 return $valueNode->value;
 
             case $valueNode instanceof ListValueNode:
+            case $valueNode instanceof ConstListValueNode:
                 $values = [];
                 foreach ($valueNode->values as $node) {
                     $values[] = self::valueFromASTUntyped($node, $variables);
@@ -525,6 +529,7 @@ class AST
                 return $values;
 
             case $valueNode instanceof ObjectValueNode:
+            case $valueNode instanceof ConstObjectValueNode:
                 $values = [];
                 foreach ($valueNode->fields as $field) {
                     $values[$field->name->value] = self::valueFromASTUntyped($field->value, $variables);

@@ -5,6 +5,10 @@ namespace GraphQL\Language;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\ConstListValueNode;
+use GraphQL\Language\AST\ConstObjectFieldNode;
+use GraphQL\Language\AST\ConstObjectValueNode;
+use GraphQL\Language\AST\ConstValueNode;
 use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -69,6 +73,10 @@ use GraphQL\Language\AST\VariableNode;
  *   recursionLimit?: int<0, max>
  * }
  *
+ * @phpstan-import-type ConstValueNodeVariants from ConstValueNode
+ * @phpstan-import-type ValueNodeVariants from ValueNode
+ * @phpstan-import-type TypeNodeVariants from TypeNode
+ *
  * - **noLocation**:
  *   By default, the parser creates AST nodes that know the location in the source.
  *   This configuration flag disables that behavior for performance or testing.
@@ -121,17 +129,17 @@ use GraphQL\Language\AST\VariableNode;
  * @method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, ParserOptions $options = [])
  * @method static FragmentDefinitionNode fragmentDefinition(Source|string $source, ParserOptions $options = [])
  * @method static NameNode fragmentName(Source|string $source, ParserOptions $options = [])
- * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode valueLiteral(Source|string $source, ParserOptions $options = [])
- * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode constValueLiteral(Source|string $source, ParserOptions $options = [])
+ * @method static ValueNodeVariants valueLiteral(Source|string $source, ParserOptions $options = [])
+ * @method static ConstValueNodeVariants constValueLiteral(Source|string $source, ParserOptions $options = [])
  * @method static StringValueNode stringLiteral(Source|string $source, ParserOptions $options = [])
- * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|StringValueNode constValue(Source|string $source, ParserOptions $options = [])
- * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode variableValue(Source|string $source, ParserOptions $options = [])
+ * @method static ConstValueNodeVariants constValue(Source|string $source, ParserOptions $options = [])
+ * @method static ValueNodeVariants variableValue(Source|string $source, ParserOptions $options = [])
  * @method static ListValueNode array(Source|string $source, ParserOptions $options = [])
- * @method static ListValueNode constArray(Source|string $source, ParserOptions $options = [])
+ * @method static ConstListValueNode constArray(Source|string $source, ParserOptions $options = [])
  * @method static ObjectValueNode object(Source|string $source, ParserOptions $options = [])
- * @method static ObjectValueNode constObject(Source|string $source, ParserOptions $options = [])
+ * @method static ConstObjectValueNode constObject(Source|string $source, ParserOptions $options = [])
  * @method static ObjectFieldNode objectField(Source|string $source, ParserOptions $options = [])
- * @method static ObjectFieldNode constObjectField(Source|string $source, ParserOptions $options = [])
+ * @method static ConstObjectFieldNode constObjectField(Source|string $source, ParserOptions $options = [])
  * @method static NodeList<DirectiveNode> directives(Source|string $source, ParserOptions $options = [])
  * @method static NodeList<DirectiveNode> constDirectives(Source|string $source, ParserOptions $options = [])
  * @method static DirectiveNode directive(Source|string $source, ParserOptions $options = [])
@@ -212,17 +220,18 @@ class Parser
      * @throws \JsonException
      * @throws SyntaxError
      *
-     * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode
+     * @return ValueNodeVariants
      *
      * @api
      */
-    public static function parseValue($source, array $options = [])
+    public static function parseValue($source, array $options = []): ValueNode
     {
         $parser = new Parser($source, $options);
         $parser->expect(Token::SOF);
         $value = $parser->parseValueLiteral(false);
         $parser->expect(Token::EOF);
 
+        // @phpstan-ignore-next-line isConst false makes sure this is never a ConstValueNode
         return $value;
     }
 
@@ -243,11 +252,11 @@ class Parser
      * @throws \JsonException
      * @throws SyntaxError
      *
-     * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
+     * @return TypeNodeVariants
      *
      * @api
      */
-    public static function parseType($source, array $options = [])
+    public static function parseType($source, array $options = []): TypeNode
     {
         $parser = new Parser($source, $options);
         $parser->expect(Token::SOF);
@@ -937,9 +946,9 @@ class Parser
      * @throws \JsonException
      * @throws SyntaxError
      *
-     * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|StringValueNode|VariableNode|ListValueNode|ObjectValueNode|NullValueNode
+     * @return ValueNodeVariants|ConstValueNodeVariants
      */
-    private function parseValueLiteral(bool $isConst): ValueNode
+    private function parseValueLiteral(bool $isConst): Node
     {
         $this->increaseRecursionDepth();
 
@@ -1030,8 +1039,9 @@ class Parser
      * @throws \JsonException
      * @throws SyntaxError
      */
-    private function parseConstValue(): ValueNode
+    private function parseConstValue(): ConstValueNode
     {
+        // @phpstan-ignore-next-line return type depends on argument
         return $this->parseValueLiteral(true);
     }
 
@@ -1047,15 +1057,20 @@ class Parser
     /**
      * @throws \JsonException
      * @throws SyntaxError
+     *
+     * @return ListValueNode|ConstListValueNode
      */
-    private function parseArray(bool $isConst): ListValueNode
+    private function parseArray(bool $isConst): Node
     {
         $start = $this->lexer->token;
         $parseFn = $isConst
-            ? fn (): ValueNode => $this->parseConstValue()
+            ? fn (): ConstValueNode => $this->parseConstValue()
             : fn (): ValueNode => $this->parseVariableValue();
+        $class = $isConst
+            ? ConstListValueNode::class
+            : ListValueNode::class;
 
-        return new ListValueNode([
+        return new $class([
             'values' => $this->any(Token::BRACKET_L, $parseFn, Token::BRACKET_R),
             'loc' => $this->loc($start),
         ]);
@@ -1064,8 +1079,10 @@ class Parser
     /**
      * @throws \JsonException
      * @throws SyntaxError
+     *
+     * @return ObjectValueNode|ConstObjectValueNode
      */
-    private function parseObject(bool $isConst): ObjectValueNode
+    private function parseObject(bool $isConst): Node
     {
         $start = $this->lexer->token;
         $this->expect(Token::BRACE_L);
@@ -1073,8 +1090,11 @@ class Parser
         while (! $this->skip(Token::BRACE_R)) {
             $fields[] = $this->parseObjectField($isConst);
         }
+        $class = $isConst
+            ? ConstObjectValueNode::class
+            : ObjectValueNode::class;
 
-        return new ObjectValueNode([
+        return new $class([
             'fields' => new NodeList($fields),
             'loc' => $this->loc($start),
         ]);
@@ -1083,15 +1103,21 @@ class Parser
     /**
      * @throws \JsonException
      * @throws SyntaxError
+     *
+     * @return ObjectFieldNode|ConstObjectFieldNode
      */
-    private function parseObjectField(bool $isConst): ObjectFieldNode
+    private function parseObjectField(bool $isConst): Node
     {
         $start = $this->lexer->token;
         $name = $this->parseName();
 
         $this->expect(Token::COLON);
 
-        return new ObjectFieldNode([
+        $class = $isConst
+            ? ConstObjectFieldNode::class
+            : ObjectFieldNode::class;
+
+        return new $class([
             'name' => $name,
             'value' => $this->parseValueLiteral($isConst),
             'loc' => $this->loc($start),
@@ -1140,7 +1166,7 @@ class Parser
      * @throws \JsonException
      * @throws SyntaxError
      *
-     * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
+     * @return TypeNodeVariants
      */
     private function parseTypeReference(): TypeNode
     {

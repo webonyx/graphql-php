@@ -2,6 +2,9 @@
 
 namespace GraphQL\Language\AST;
 
+/**
+ * @phpstan-import-type ConstValueNodeVariants from ConstValueNode
+ */
 class VariableDefinitionNode extends Node implements DefinitionNode
 {
     public string $kind = NodeKind::VARIABLE_DEFINITION;
@@ -11,8 +14,8 @@ class VariableDefinitionNode extends Node implements DefinitionNode
     /** @var NamedTypeNode|ListTypeNode|NonNullTypeNode */
     public TypeNode $type;
 
-    /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null */
-    public ?ValueNode $defaultValue = null;
+    /** @var ConstValueNodeVariants|null */
+    public ?ConstValueNode $defaultValue = null;
 
     /** @var NodeList<DirectiveNode> */
     public NodeList $directives;
