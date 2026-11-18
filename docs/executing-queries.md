@@ -128,9 +128,10 @@ $config = ServerConfig::create()
 $server = new StandardServer($config);
 ```
 
-### GraphQL-over-HTTP response negotiation
+### GraphQL-over-HTTP
 
-Response negotiation is opt-in, so existing server behavior stays unchanged:
+Support for the [September 2026 GraphQL-over-HTTP specification](https://http-spec.graphql.org/September2026/)
+is opt-in, so existing server behavior stays unchanged:
 
 ```php
 $config = ServerConfig::create()
@@ -156,12 +157,8 @@ In this mode, request failures use HTTP error status codes:
 | Malformed JSON or GraphQL document                 | `400`  |
 | GET mutation or unsupported HTTP method            | `405`  |
 | No acceptable response media type                  | `406`  |
-| Missing request media type                         | `415`  |
+| Missing or unsupported request media type          | `415`  |
 | Invalid parameters, validation, or variable values | `422`  |
-
-Unsupported request media types also produce `415` when using PHP globals.
-The PSR-7 entry point still uses the legacy parser, which treats other media types
-as form-encoded input.
 
 Responses with `405` include `Allow`. Successful execution uses `200`, including
 execution errors that return partial data or `data: null`. The server does not
@@ -177,9 +174,43 @@ and handlers still apply; if all errors are removed from a result with no usable
 data, the HTTP response includes a generic error to keep the result well formed.
 Other server exceptions remain the responsibility of the hosting framework.
 
+The new mode accepts GET URL parameters and POST `application/json` bodies in
+UTF-8. The request must contain a string `query`. Optional `operationName`,
+`variables`, and `extensions` follow the specification's method-specific encoding
+and type rules. Unknown properties are ignored; names are case-sensitive.
+POST bodies must be JSON objects unless [query batching](#query-batching) is enabled.
+
+PSR-7 server requests are decoded from their raw body, not `getParsedBody()`,
+because pre-decoded arrays can lose the distinction between JSON objects and
+lists. Nested JSON objects remain `stdClass` values; normal GraphQL input
+coercion supports these, and custom scalar parsers should accept them as needed.
+
+Form-encoded bodies, raw `application/graphql` bodies, and legacy
+`queryId`/`documentId`/`id` aliases remain legacy-only features. The new mode does
+not infer a persisted query from `extensions.persistedQuery`; it requires the
+standard `query` field. Subscriptions and transport extensions such as `QUERY`
+are outside this implementation.
+
+Passing pre-parsed `OperationParams` bypasses HTTP parameter validation. Such
+applications must validate those parameters themselves.
+
+The hosting application still owns authentication, authorization, CORS, CSRF
+protection, and request size/time limits. In particular, legacy form encodings
+can be browser “simple requests”; enabling this mode is not a substitute for a
+complete CSRF policy.
+
 ## Query batching
 
 Standard Server supports query batching ([apollo-style](https://www.apollographql.com/blog/apollo-client/performance/query-batching)).
+
+With `graphqlOverHttp` enabled, batching remains an extension enabled by
+`queryBatching`. Send a POST with a non-empty JSON array of request objects.
+If any entry has invalid request parameters, the server rejects the entire
+batch with `422` before executing any operation. Accepted batches return
+`200` with an `application/json` array, regardless of the negotiated single-response
+media type. Each operation has its own result in request order, so a GraphQL error
+in one operation does not cancel the others. Trusted, non-empty arrays of
+pre-parsed `OperationParams` are also supported when batching is enabled.
 
 One of the major benefits of Server over a sequence of **executeQuery()** calls is that
 [Deferred resolvers](data-fetching.md#solving-n1-problem) won't be isolated in queries.

@@ -7,7 +7,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
-use GraphQL\Server\Exception\HttpMethodNotSupported;
+use GraphQL\Server\Exception\CannotReadBody;
 use GraphQL\Utils\Utils;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -128,10 +128,22 @@ class StandardServer
     public function executeRequest($parsedBody = null)
     {
         if ($parsedBody === null) {
-            $parsedBody = $this->helper->parseHttpRequest();
+            $parsedBody = $this->config->getGraphQLOverHttp()
+                ? $this->parseHttpRequest()
+                : $this->helper->parseHttpRequest();
         }
 
         if (is_array($parsedBody)) {
+            if ($this->config->getGraphQLOverHttp()) {
+                if (! $this->config->getQueryBatching()) {
+                    throw new HttpRequestError('Batched queries are not supported by this server', 422);
+                }
+
+                if ($parsedBody === []) {
+                    throw new HttpRequestError('A batch must contain at least one operation', 422);
+                }
+            }
+
             return $this->helper->executeBatch($this->config, $parsedBody);
         }
 
@@ -192,15 +204,45 @@ class StandardServer
     public function executePsrRequest(RequestInterface $request)
     {
         if ($this->config->getGraphQLOverHttp()) {
+            $parser = new HttpRequestParser();
             $method = $request->getMethod();
-            if ($method !== 'GET' && $method !== 'POST') {
-                throw new HttpMethodNotSupported("HTTP Method \"{$method}\" is not supported");
+            $parsedBody = $parser->parse(
+                $method,
+                $request->getHeaderLine('Content-Type'),
+                $method === 'POST' ? $request->getBody()->__toString() : '',
+                $parser->parseQueryString($request->getUri()->getQuery())
+            );
+        } else {
+            $parsedBody = $this->helper->parsePsrRequest($request);
+        }
+
+        return $this->executeRequest($parsedBody);
+    }
+
+    /**
+     * @throws RequestError
+     *
+     * @return OperationParams|non-empty-list<OperationParams>
+     */
+    private function parseHttpRequest()
+    {
+        $method = $_SERVER['REQUEST_METHOD'] ?? '';
+        $body = '';
+        if ($method === 'POST') {
+            $body = file_get_contents('php://input');
+            if ($body === false) {
+                throw new CannotReadBody('Cannot read request body.');
             }
         }
 
-        $parsedBody = $this->helper->parsePsrRequest($request);
+        $parser = new HttpRequestParser();
 
-        return $this->executeRequest($parsedBody);
+        return $parser->parse(
+            $method,
+            $_SERVER['CONTENT_TYPE'] ?? '',
+            $body,
+            $parser->parseQueryString($_SERVER['QUERY_STRING'] ?? '')
+        );
     }
 
     /**
