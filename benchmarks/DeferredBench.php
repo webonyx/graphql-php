@@ -24,7 +24,7 @@ class DeferredBench
         SyncPromiseQueue::run();
     }
 
-    #[Expected(instructions: '42.98K', cycles: '63.01K', memory: '6.086KiB')]
+    #[Expected(instructions: '42.20K', cycles: '51.60K', memory: '6.086KiB')]
     public function benchChain5(): void
     {
         $deferred = new Deferred(static fn () => 'value');
