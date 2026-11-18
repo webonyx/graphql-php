@@ -1,6 +1,6 @@
 parameters:
     level: max
     paths:
-        - .
-    excludePaths:
-        - vendor
+        - src
+        - rector.php
+        - tally.php
