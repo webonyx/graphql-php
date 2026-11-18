@@ -9,6 +9,7 @@ use GraphQL\Error\Warning;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
+use GraphQL\Tests\Error\WarningTest;
 use GraphQL\Tests\Executor\TestClasses\Cat;
 use GraphQL\Tests\Executor\TestClasses\Dog;
 use GraphQL\Type\Definition\CustomScalarType;
@@ -125,20 +126,25 @@ final class ExecutorLazySchemaTest extends TestCase
             ],
         ]);
 
-        Warning::suppress(Warning::WARNING_FULL_SCHEMA_SCAN);
-        $result = Executor::execute($schema, Parser::parse($query));
-        self::assertEquals($expected, $result);
+        WarningTest::resetWarningState();
+        $warnings = [];
+        Warning::setWarningHandler(static function (string $errorMessage) use (&$warnings): void {
+            $warnings[] = $errorMessage;
+        });
+        try {
+            Warning::suppress(Warning::WARNING_FULL_SCHEMA_SCAN);
+            $result = Executor::execute($schema, Parser::parse($query));
+            self::assertEquals($expected, $result);
 
-        Warning::enable(Warning::WARNING_FULL_SCHEMA_SCAN);
-        $result = Executor::execute($schema, Parser::parse($query));
-        self::markTestIncomplete('No longer works with PHPUnit 10, reintroduce with https://github.com/webonyx/graphql-php/pull/1393');
-        self::assertCount(1, $result->errors);
-        $error = $result->errors[0] ?? null;
-        self::assertInstanceOf(Error::class, $error);
-        self::assertSame(
-            'GraphQL Interface Type `Pet` returned `null` from its `resolveType` function for value: instance of GraphQL\Tests\Executor\TestClasses\Dog. Switching to slow resolution method using `isTypeOf` of all possible implementations. It requires full schema scan and degrades query performance significantly. Make sure your `resolveType` function always returns a valid implementation or throws.',
-            $error->getMessage()
-        );
+            Warning::enable(Warning::WARNING_FULL_SCHEMA_SCAN);
+            $result = Executor::execute($schema, Parser::parse($query));
+            self::assertEquals($expected, $result);
+            self::assertSame([
+                'GraphQL Interface Type `Pet` returned `null` from its `resolveType` function for value: instance of GraphQL\Tests\Executor\TestClasses\Dog. Switching to slow resolution method using `isTypeOf` of all possible implementations. It requires full schema scan and degrades query performance significantly. Make sure your `resolveType` function always returns a valid implementation or throws.',
+            ], $warnings);
+        } finally {
+            WarningTest::resetWarningState();
+        }
     }
 
     public function testHintsOnConflictingTypeInstancesInDefinitions(): void
