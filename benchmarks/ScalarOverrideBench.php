@@ -23,7 +23,11 @@ class ScalarOverrideBench
     {
         $uppercaseString = new CustomScalarType([
             'name' => Type::STRING,
-            'serialize' => static fn ($value): string => strtoupper((string) $value),
+            'serialize' => static function ($value): string {
+                assert(is_string($value), 'The benchmark only resolves strings.');
+
+                return strtoupper($value);
+            },
         ]);
 
         $queryTypeBaseline = new ObjectType([

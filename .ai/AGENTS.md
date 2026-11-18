@@ -18,7 +18,7 @@ make it             # Run commonly used checks (fix, stan, test, docs)
 make fix            # Automatic code fixes (rector, php-cs-fixer, prettier)
 make stan           # Static analysis with PHPStan
 make test           # Run PHPUnit tests
-make bench          # Count benchmark instructions with Tally, in Docker
+make bench          # Count CPU instructions
 make docs           # Generate class reference docs
 ```
 

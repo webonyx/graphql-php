@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - run: make bench-stan
+      - run: make stan-benchmarks
 
       - run: make bench
 

@@ -9,7 +9,7 @@ help: ## Displays this list of targets with descriptions
 setup: vendor phpstan.neon ai-sync ## Set up the project
 
 .PHONY: fix
-fix: rector bench-rector php-cs-fixer prettier ## Automatic code fixes
+fix: rector rector-benchmarks php-cs-fixer prettier ## Automatic code fixes
 
 .PHONY: rector
 rector: vendor ## Automatic code fixes with Rector
@@ -66,12 +66,12 @@ bench-accept: benchmarks/vendor ## Accepts the counts of the CI run RUN as expec
 	gh run download $(RUN) --repo=webonyx/graphql-php --name=tally-results --dir=benchmarks/tally-results
 	$(run-benchmarks) vendor/bin/tally accept tally-results
 
-.PHONY: bench-stan
-bench-stan: benchmarks/vendor ## Runs static analysis on the benchmarks with PHPStan
+.PHONY: stan-benchmarks
+stan-benchmarks: benchmarks/vendor ## Runs static analysis on the benchmarks with PHPStan
 	$(run-benchmarks) vendor/bin/phpstan
 
-.PHONY: bench-rector
-bench-rector: benchmarks/vendor ## Automatic code fixes on the benchmarks with Rector
+.PHONY: rector-benchmarks
+rector-benchmarks: benchmarks/vendor ## Automatic code fixes on the benchmarks with Rector
 	$(run-benchmarks) vendor/bin/rector process
 
 .PHONY: docs
