@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6c04d1beb2df7a5b9a85a64c266d19af",
+    "content-hash": "b35a9b7d150b628bfb4953c1c823120b",
     "packages": [
         {
             "name": "phpstan/phpstan",
-            "version": "2.3.5",
+            "version": "2.3.7",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/645a1bd6bead15fc1b8474137467961d0fa30a79",
-                "reference": "645a1bd6bead15fc1b8474137467961d0fa30a79",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/90c91c2498849ab8cc4e873864bbf1cb2bf6ea12",
+                "reference": "90c91c2498849ab8cc4e873864bbf1cb2bf6ea12",
                 "shasum": ""
             },
             "require": {
@@ -68,21 +68,21 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-03T12:14:22+00:00",
-            "published-time": "2026-11-03T12:14:36+00:00"
+            "time": "2026-11-19T10:31:11+00:00",
+            "published-time": "2026-11-19T10:31:27+00:00"
         },
         {
             "name": "phpstan/tally",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/tally.git",
-                "reference": "f62fb265cbe7fd916af1e8d61ee49bb2c1af4b21"
+                "reference": "271862815f400ca92b072bd54a0b5df824da0363"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/tally/zipball/f62fb265cbe7fd916af1e8d61ee49bb2c1af4b21",
-                "reference": "f62fb265cbe7fd916af1e8d61ee49bb2c1af4b21",
+                "url": "https://api.github.com/repos/phpstan/tally/zipball/271862815f400ca92b072bd54a0b5df824da0363",
+                "reference": "271862815f400ca92b072bd54a0b5df824da0363",
                 "shasum": ""
             },
             "require": {
@@ -125,10 +125,10 @@
             ],
             "support": {
                 "issues": "https://github.com/phpstan/tally/issues",
-                "source": "https://github.com/phpstan/tally/tree/1.0.1"
+                "source": "https://github.com/phpstan/tally/tree/1.0.2"
             },
-            "time": "2026-11-14T22:36:03+00:00",
-            "published-time": "2026-11-14T22:42:17+00:00"
+            "time": "2026-11-19T13:17:48+00:00",
+            "published-time": "2026-11-19T13:34:31+00:00"
         },
         {
             "name": "rector/rector",

@@ -1,7 +1,7 @@
 {
   "require": {
-    "phpstan/phpstan": "2.3.5",
-    "phpstan/tally": "1.0.1",
+    "phpstan/phpstan": "2.3.7",
+    "phpstan/tally": "1.0.2",
     "rector/rector": "^2"
   },
   "autoload": {
