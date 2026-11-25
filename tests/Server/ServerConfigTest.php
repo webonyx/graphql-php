@@ -36,6 +36,7 @@ final class ServerConfigTest extends TestCase
         self::assertNull($config->getPersistedQueryLoader());
         self::assertSame(DebugFlag::NONE, $config->getDebugFlag());
         self::assertFalse($config->getQueryBatching());
+        self::assertFalse($config->getGraphQLOverHttp());
     }
 
     public function testAllowsSettingSchema(): void

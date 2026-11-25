@@ -70,6 +70,9 @@ class ServerConfig
                 case 'queryBatching':
                     $instance->setQueryBatching($value);
                     break;
+                case 'graphqlOverHttp':
+                    $instance->setGraphQLOverHttp($value);
+                    break;
                 case 'debugFlag':
                     $instance->setDebugFlag($value);
                     break;
@@ -122,6 +125,8 @@ class ServerConfig
     private int $debugFlag = DebugFlag::NONE;
 
     private bool $queryBatching = false;
+
+    private bool $graphqlOverHttp = false;
 
     /**
      * @var array<ValidationRule>|callable|null
@@ -274,6 +279,18 @@ class ServerConfig
         return $this;
     }
 
+    /**
+     * Enable GraphQL-over-HTTP handling. Disabled by default for compatibility.
+     *
+     * @api
+     */
+    public function setGraphQLOverHttp(bool $enabled): self
+    {
+        $this->graphqlOverHttp = $enabled;
+
+        return $this;
+    }
+
     /** @api */
     public function setPromiseAdapter(PromiseAdapter $promiseAdapter): self
     {
@@ -349,5 +366,10 @@ class ServerConfig
     public function getQueryBatching(): bool
     {
         return $this->queryBatching;
+    }
+
+    public function getGraphQLOverHttp(): bool
+    {
+        return $this->graphqlOverHttp;
     }
 }

@@ -82,6 +82,22 @@ class StandardServer
      */
     public function handleRequest($parsedBody = null): void
     {
+        if ($this->config->getGraphQLOverHttp()) {
+            $response = $this->executeHttpRequest(
+                $_SERVER['HTTP_ACCEPT'] ?? '',
+                fn () => $this->executeRequest($parsedBody)
+            );
+            if ($response instanceof Promise) {
+                $response->then(static function (HttpResponse $resolved): void {
+                    $resolved->send();
+                });
+            } else {
+                $response->send();
+            }
+
+            return;
+        }
+
         $result = $this->executeRequest($parsedBody);
         $this->helper->sendResponse($result);
     }
@@ -141,6 +157,17 @@ class StandardServer
         ResponseInterface $response,
         StreamInterface $writableBodyStream
     ) {
+        if ($this->config->getGraphQLOverHttp()) {
+            $result = $this->executeHttpRequest(
+                $request->getHeaderLine('Accept'),
+                fn () => $this->executePsrRequest($request)
+            );
+
+            return $result instanceof Promise
+                ? $result->then(static fn (HttpResponse $resolved) => $resolved->toPsrResponse($response, $writableBodyStream))
+                : $result->toPsrResponse($response, $writableBodyStream);
+        }
+
         $result = $this->executePsrRequest($request);
 
         return $this->helper->toPsrResponse($result, $response, $writableBodyStream);
@@ -164,5 +191,31 @@ class StandardServer
         $parsedBody = $this->helper->parsePsrRequest($request);
 
         return $this->executeRequest($parsedBody);
+    }
+
+    /**
+     * @param callable(): (ExecutionResult|array<ExecutionResult>|Promise) $execute
+     *
+     * @throws \Exception
+     *
+     * @return HttpResponse|Promise
+     */
+    private function executeHttpRequest(string $accept, callable $execute)
+    {
+        $helper = new HttpHelper();
+        $mediaType = $helper->negotiate($accept);
+        if ($mediaType === null) {
+            return new HttpResponse(
+                ['errors' => [['message' => 'No acceptable response media type.']]],
+                406,
+                'application/json'
+            );
+        }
+
+        $result = $execute();
+
+        return $result instanceof Promise
+            ? $result->then(static fn ($resolved) => $helper->createResponse($resolved, $mediaType))
+            : $helper->createResponse($result, $mediaType);
     }
 }

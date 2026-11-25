@@ -128,6 +128,27 @@ $config = ServerConfig::create()
 $server = new StandardServer($config);
 ```
 
+### GraphQL-over-HTTP response negotiation
+
+Response negotiation is opt-in, so existing server behavior stays unchanged:
+
+```php
+$config = ServerConfig::create()
+    ->setSchema($schema)
+    ->setGraphQLOverHttp(true);
+```
+
+The equivalent array option is `'graphqlOverHttp' => true`.
+`handleRequest()` and `processPsrRequest()` then negotiate
+`application/graphql-response+json` or `application/json` using the request's
+`Accept` header, including quality values and wildcards. Without an `Accept`
+header, the server uses `application/graphql-response+json`.
+An unacceptable response media type produces `406` without executing the operation.
+Negotiated responses include `Vary: Accept`.
+
+Applications using `executeRequest()` or `executePsrRequest()` to build their own
+responses remain responsible for response negotiation.
+
 ## Query batching
 
 Standard Server supports query batching ([apollo-style](https://www.apollographql.com/blog/apollo-client/performance/query-batching)).
