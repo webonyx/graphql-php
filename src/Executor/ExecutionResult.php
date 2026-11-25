@@ -55,6 +55,13 @@ class ExecutionResult implements \JsonSerializable
     public array $errors = [];
 
     /**
+     * Whether GraphQL operation execution occurred.
+     *
+     * @api
+     */
+    public bool $executed = false;
+
+    /**
      * User-defined serializable array of extensions included in serialized result.
      *
      * @api
@@ -87,6 +94,7 @@ class ExecutionResult implements \JsonSerializable
         $this->data = $data;
         $this->errors = $errors;
         $this->extensions = $extensions;
+        $this->executed = $data !== null;
     }
 
     /**
