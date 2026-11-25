@@ -452,6 +452,7 @@ class BuildClientSchema
             'name' => $inputObject['name'],
             'description' => $inputObject['description'],
             'fields' => fn (): array => $this->buildInputValueDefMap($inputObject['inputFields']),
+            'isOneOf' => $inputObject['isOneOf'] ?? false,
         ]);
     }
 
