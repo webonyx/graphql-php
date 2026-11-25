@@ -263,7 +263,12 @@ class Helper
                 throw new BatchedQueriesAreNotSupported('Batched queries are not supported by this server');
             }
 
-            $errors = $this->validateOperationParams($op);
+            // The opt-in HTTP parser has already checked parameter shapes. Legacy
+            // heuristics would reject valid maps with numeric keys and mistake an
+            // empty GraphQL document for an absent query parameter.
+            $errors = $config->getGraphQLOverHttp()
+                ? []
+                : $this->validateOperationParams($op);
 
             if ($errors !== []) {
                 $locatedErrors = array_map(

@@ -13,6 +13,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use Nyholm\Psr7\Request;
 use Nyholm\Psr7\Response;
+use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
 use React\Promise\Deferred;
 
@@ -143,6 +144,7 @@ final class HttpServerTest extends ServerTestCase
         yield 'unsupported method without content type' => [new Request('DELETE', '/graphql'), 405, 'GET, POST'];
         yield 'unsupported method with malformed JSON' => [new Request('DELETE', '/graphql', $headers, '{'), 405, 'GET, POST'];
         yield 'missing content type' => [new Request('POST', '/graphql', ['Accept' => 'application/json'], '{"query":"{f1}"}'), 415, null];
+        yield 'unsupported content type' => [new Request('POST', '/graphql', ['Content-Type' => 'image/png'], '{}'), 415, null];
         yield 'malformed JSON' => [new Request('POST', '/graphql', $headers, '{'), 400, null];
         yield 'filtered malformed JSON errors' => [
             new Request('POST', '/graphql', $headers, '{'),
@@ -166,6 +168,8 @@ final class HttpServerTest extends ServerTestCase
             ServerConfig::create()->setErrorFormatter(static fn () => $formattedError),
             [$formattedError],
         ];
+        yield 'empty document is a syntax error' => [new Request('POST', '/graphql', $headers, '{"query":""}'), 400, null];
+        yield 'legacy query alias is not a query' => [new Request('POST', '/graphql', $headers, '{"Query":"{f1}"}'), 422, null];
     }
 
     public function testGetCannotExecuteAMutation(): void
@@ -262,6 +266,170 @@ final class HttpServerTest extends ServerTestCase
         self::assertInstanceOf(Response::class, $response);
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('{"data":{}}', $response->getBody()->__toString());
+    }
+
+    public function testPsrServerRequestUsesRawJsonInsteadOfParsedBody(): void
+    {
+        $server = new StandardServer(ServerConfig::create()
+            ->setSchema($this->buildSchema())
+            ->setGraphQLOverHttp(true));
+        $request = (new ServerRequest(
+            'POST',
+            '/graphql',
+            ['Content-Type' => 'application/json'],
+            '{"query":"{f1}","variables":{"0":"ignored"},"extensions":null,"operationName":null}'
+        ))->withParsedBody(['query' => '{ missing }']);
+        $response = $server->processPsrRequest($request, new Response(), Stream::create());
+
+        self::assertInstanceOf(Response::class, $response);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('{"data":{"f1":"f1"}}', $response->getBody()->__toString());
+    }
+
+    public function testGetIgnoresUnknownParameterNamesWithoutReplacingTheQuery(): void
+    {
+        $server = new StandardServer(ServerConfig::create()
+            ->setSchema($this->buildSchema())
+            ->setGraphQLOverHttp(true));
+        $response = $server->processPsrRequest(
+            new Request('GET', '/graphql?query=%7Bf1%7D&%20query=%7Bmissing%7D&query%5B%5D=%7Bmissing%7D'),
+            new Response(),
+            Stream::create()
+        );
+
+        self::assertInstanceOf(Response::class, $response);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('{"data":{"f1":"f1"}}', $response->getBody()->__toString());
+    }
+
+    public function testBatchReturnsOrderedResultsWithIndividualErrors(): void
+    {
+        $server = new StandardServer(ServerConfig::create()
+            ->setSchema($this->buildSchema())
+            ->setQueryBatching(true)
+            ->setGraphQLOverHttp(true));
+        $response = $server->processPsrRequest(
+            new Request('POST', '/graphql', [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/graphql-response+json, application/json',
+            ], '[{"query":"{ first: f1 }"},{"query":"{ missing }"},{"query":"{ last: f1 }"}]'),
+            new Response(),
+            Stream::create()
+        );
+
+        self::assertInstanceOf(Response::class, $response);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('application/json; charset=utf-8', $response->getHeaderLine('Content-Type'));
+        $body = json_decode($response->getBody()->__toString(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertCount(3, $body);
+        self::assertSame(['data' => ['first' => 'f1']], $body[0]);
+        self::assertArrayNotHasKey('data', $body[1]);
+        self::assertSame('Cannot query field "missing" on type "Query".', $body[1]['errors'][0]['message']);
+        self::assertSame(['data' => ['last' => 'f1']], $body[2]);
+    }
+
+    /**
+     * @runInSeparateProcess
+     *
+     * @preserveGlobalState disabled
+     */
+    public function testHandleRequestAcceptsPreParsedBatch(): void
+    {
+        $_SERVER['HTTP_ACCEPT'] = 'application/json';
+        $server = new StandardServer(ServerConfig::create()
+            ->setSchema($this->buildSchema())
+            ->setQueryBatching(true)
+            ->setGraphQLOverHttp(true));
+
+        ob_start();
+        $server->handleRequest([OperationParams::create(['query' => '{f1}'])]);
+        $body = ob_get_clean();
+
+        self::assertSame(200, http_response_code());
+        self::assertSame('[{"data":{"f1":"f1"}}]', $body);
+    }
+
+    /** @dataProvider provideRejectedBatches */
+    public function testRejectsBatchBeforeExecutingAnyOperation(string $body, bool $batching): void
+    {
+        $calls = 0;
+        $server = new StandardServer(ServerConfig::create()
+            ->setSchema($this->buildSchema())
+            ->setQueryBatching($batching)
+            ->setGraphQLOverHttp(true)
+            ->setContext(static function () use (&$calls): void {
+                ++$calls;
+            }));
+        $response = $server->processPsrRequest(
+            new Request('POST', '/graphql', ['Content-Type' => 'application/json'], $body),
+            new Response(),
+            Stream::create()
+        );
+
+        self::assertInstanceOf(Response::class, $response);
+        self::assertSame(422, $response->getStatusCode());
+        self::assertSame(0, $calls);
+        $error = json_decode($response->getBody()->__toString(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame(['errors'], array_keys($error));
+        self::assertNotEmpty($error['errors']);
+    }
+
+    /** @return \Generator<string, array{string, bool}> */
+    public static function provideRejectedBatches(): \Generator
+    {
+        yield 'batching disabled' => ['[{"query":"{f1}"}]', false];
+        yield 'empty batch' => ['[]', true];
+        yield 'non-object entry' => ['[{"query":"{f1}"},[]]', true];
+        yield 'invalid variables in a later entry' => ['[{"query":"{f1}"},{"query":"{f1}","variables":[]}]', true];
+    }
+
+    /**
+     * @runInSeparateProcess
+     *
+     * @preserveGlobalState disabled
+     */
+    public function testGlobalGetRequestUsesStrictParameterValidation(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['HTTP_ACCEPT'] = 'application/graphql-response+json';
+        $_SERVER['QUERY_STRING'] = 'query=%7Bf1%7D&variables=%5B%5D';
+        $_GET = ['query' => '{f1}', 'variables' => '[]'];
+        $server = new StandardServer(ServerConfig::create()
+            ->setSchema($this->buildSchema())
+            ->setGraphQLOverHttp(true));
+
+        ob_start();
+        $server->handleRequest();
+        $body = ob_get_clean();
+
+        self::assertSame(422, http_response_code());
+        self::assertIsString($body);
+        $decoded = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+        self::assertArrayNotHasKey('data', $decoded);
+        self::assertSame('The "variables" parameter must be an object', $decoded['errors'][0]['message']);
+    }
+
+    /**
+     * @runInSeparateProcess
+     *
+     * @preserveGlobalState disabled
+     */
+    public function testGlobalGetPreservesRawParameterNames(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['HTTP_ACCEPT'] = 'application/graphql-response+json';
+        $_SERVER['QUERY_STRING'] = 'query=%7Bf1%7D&%20query=%7Bmissing%7D';
+        parse_str($_SERVER['QUERY_STRING'], $_GET);
+        $server = new StandardServer(ServerConfig::create()
+            ->setSchema($this->buildSchema())
+            ->setGraphQLOverHttp(true));
+
+        ob_start();
+        $server->handleRequest();
+        $body = ob_get_clean();
+
+        self::assertSame(200, http_response_code());
+        self::assertSame('{"data":{"f1":"f1"}}', $body);
     }
 
     public function testNegotiationIsRetainedUntilAsyncExecutionCompletes(): void
