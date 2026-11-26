@@ -3,13 +3,13 @@
 namespace GraphQL\Language\AST;
 
 /**
- * @phpstan-type ArgumentNodeValue VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode
+ * @phpstan-import-type ValueNodeVariants from ValueNode
  */
 class ArgumentNode extends Node
 {
     public string $kind = NodeKind::ARGUMENT;
 
-    /** @phpstan-var ArgumentNodeValue */
+    /** @var ValueNodeVariants */
     public ValueNode $value;
 
     public NameNode $name;

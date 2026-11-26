@@ -5,6 +5,9 @@ namespace GraphQL\Language;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\ConstListValueNode;
+use GraphQL\Language\AST\ConstObjectFieldNode;
+use GraphQL\Language\AST\ConstObjectValueNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\DocumentNode;
@@ -206,6 +209,7 @@ class Printer
         switch (true) {
             case $node instanceof ArgumentNode:
             case $node instanceof ObjectFieldNode:
+            case $node instanceof ConstObjectFieldNode:
                 return static::p($node->name) . ': ' . static::p($node->value);
 
             case $node instanceof BooleanValueNode:
@@ -420,6 +424,7 @@ class Printer
                 return '[' . static::p($node->type) . ']';
 
             case $node instanceof ListValueNode:
+            case $node instanceof ConstListValueNode:
                 return '[' . static::printList($node->values, ', ') . ']';
 
             case $node instanceof NamedTypeNode:
@@ -456,6 +461,7 @@ class Printer
                 );
 
             case $node instanceof ObjectValueNode:
+            case $node instanceof ConstObjectValueNode:
                 return '{ '
                     . static::printList($node->fields, ', ')
                     . ' }';
@@ -569,9 +575,7 @@ class Printer
     }
 
     /**
-     * @template TNode of Node
-     *
-     * @param NodeList<TNode> $list
+     * @param NodeList<covariant Node> $list
      *
      * @throws \JsonException
      */

@@ -2,7 +2,7 @@
 
 namespace GraphQL\Language\AST;
 
-class EnumValueNode extends Node implements ValueNode
+class EnumValueNode extends Node implements ValueNode, ConstValueNode
 {
     public string $kind = NodeKind::ENUM;
 
