@@ -4,6 +4,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
@@ -21,6 +22,7 @@ use GraphQL\Utils\Utils;
  *   isOneOf?: bool|null,
  *   fields: iterable<FieldConfig>|callable(): iterable<FieldConfig>,
  *   parseValue?: ParseValueFn|null,
+ *   directives?: array<DirectiveNode>|null,
  *   astNode?: InputObjectTypeDefinitionNode|null,
  *   extensionASTNodes?: array<InputObjectTypeExtensionNode>|null
  * }
@@ -46,13 +48,15 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     /** @var array<InputObjectTypeExtensionNode> */
     public array $extensionASTNodes;
 
+    /** @var array<DirectiveNode> */
+    public array $directives;
+
     /** @phpstan-var InputObjectConfig */
     public array $config;
 
     /**
      * @phpstan-param InputObjectConfig $config
      *
-     * @throws InvariantViolation
      * @throws InvariantViolation
      */
     public function __construct(array $config)
@@ -64,6 +68,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         $this->parseValue = $config['parseValue'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? [];
+        $this->directives = $config['directives'] ?? [];
 
         $this->config = $config;
     }

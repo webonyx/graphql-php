@@ -2,6 +2,7 @@
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
 
 /**
@@ -10,6 +11,7 @@ use GraphQL\Language\AST\EnumValueDefinitionNode;
  *   value?: mixed,
  *   deprecationReason?: string|null,
  *   description?: string|null,
+ *   directives?: array<DirectiveNode>|null,
  *   astNode?: EnumValueDefinitionNode|null
  * }
  */
@@ -26,6 +28,9 @@ class EnumValueDefinition
 
     public ?EnumValueDefinitionNode $astNode;
 
+    /** @var array<DirectiveNode> */
+    public array $directives;
+
     /** @phpstan-var EnumValueConfig */
     public array $config;
 
@@ -37,6 +42,7 @@ class EnumValueDefinition
         $this->deprecationReason = $config['deprecationReason'] ?? null;
         $this->description = $config['description'] ?? null;
         $this->astNode = $config['astNode'] ?? null;
+        $this->directives = $config['directives'] ?? [];
 
         $this->config = $config;
     }
