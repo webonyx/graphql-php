@@ -55,6 +55,14 @@ class ExecutionContext
     public PromiseAdapter $promiseAdapter;
 
     /**
+     * When true, resolver results are assumed to be already correctly typed and
+     * serialized, so per-leaf serialize() validation is skipped for performance.
+     *
+     * @see https://github.com/webonyx/graphql-php/issues/1493
+     */
+    public bool $trustResult;
+
+    /**
      * @param array<string, FragmentDefinitionNode> $fragments
      * @param mixed $rootValue
      * @param mixed $contextValue
@@ -73,7 +81,8 @@ class ExecutionContext
         array $errors,
         callable $fieldResolver,
         callable $argsMapper,
-        PromiseAdapter $promiseAdapter
+        PromiseAdapter $promiseAdapter,
+        bool $trustResult = false
     ) {
         $this->schema = $schema;
         $this->fragments = $fragments;
@@ -85,6 +94,7 @@ class ExecutionContext
         $this->fieldResolver = $fieldResolver;
         $this->argsMapper = $argsMapper;
         $this->promiseAdapter = $promiseAdapter;
+        $this->trustResult = $trustResult;
     }
 
     public function addError(Error $error): void

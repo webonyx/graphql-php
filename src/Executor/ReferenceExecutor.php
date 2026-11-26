@@ -105,7 +105,8 @@ class ReferenceExecutor implements ExecutorImplementation
         array $variableValues,
         ?string $operationName,
         callable $fieldResolver,
-        ?callable $argsMapper = null // TODO make non-optional in next major release
+        ?callable $argsMapper = null, // TODO make non-optional in next major release
+        bool $trustResult = false
     ): ExecutorImplementation {
         $exeContext = static::buildExecutionContext(
             $schema,
@@ -117,6 +118,7 @@ class ReferenceExecutor implements ExecutorImplementation
             $fieldResolver,
             $argsMapper ?? Executor::getDefaultArgsMapper(),
             $promiseAdapter,
+            $trustResult,
         );
 
         if (is_array($exeContext)) {
@@ -152,7 +154,8 @@ class ReferenceExecutor implements ExecutorImplementation
         ?string $operationName,
         callable $fieldResolver,
         callable $argsMapper,
-        PromiseAdapter $promiseAdapter
+        PromiseAdapter $promiseAdapter,
+        bool $trustResult = false
     ) {
         /** @var list<Error> $errors */
         $errors = [];
@@ -229,7 +232,8 @@ class ReferenceExecutor implements ExecutorImplementation
             $errors,
             $fieldResolver,
             $argsMapper,
-            $promiseAdapter
+            $promiseAdapter,
+            $trustResult
         );
     }
 
@@ -926,6 +930,13 @@ class ReferenceExecutor implements ExecutorImplementation
                 $schemaType = $this->exeContext->schema->getType($returnType->name);
                 assert($schemaType instanceof LeafType, "Schema must provide a LeafType for built-in scalar \"{$returnType->name}\".");
                 $returnType = $schemaType;
+            }
+
+            // When trustResult is enabled the caller asserts that resolver output is
+            // already correctly typed and serialized, so the per-leaf serialize()
+            // validation (the dominant cost on large payloads) is skipped.
+            if ($this->exeContext->trustResult) {
+                return $result;
             }
 
             return $this->completeLeafValue($returnType, $result);

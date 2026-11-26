@@ -90,7 +90,8 @@ class GraphQL
         ?array $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null,
-        ?array $validationRules = null
+        ?array $validationRules = null,
+        bool $trustResult = false
     ): ExecutionResult {
         $promiseAdapter = new SyncPromiseAdapter();
 
@@ -103,7 +104,8 @@ class GraphQL
             $variableValues,
             $operationName,
             $fieldResolver,
-            $validationRules
+            $validationRules,
+            $trustResult
         );
 
         return $promiseAdapter->wait($promise);
@@ -132,7 +134,8 @@ class GraphQL
         ?array $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null,
-        ?array $validationRules = null
+        ?array $validationRules = null,
+        bool $trustResult = false
     ): Promise {
         try {
             $documentNode = $source instanceof DocumentNode
@@ -168,7 +171,9 @@ class GraphQL
                 $context,
                 $variableValues,
                 $operationName,
-                $fieldResolver
+                $fieldResolver,
+                null,
+                $trustResult
             );
         } catch (Error $e) {
             return $promiseAdapter->createFulfilled(
