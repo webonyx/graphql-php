@@ -10,6 +10,14 @@ use GraphQL\Utils\Utils;
 
 /**
  * @phpstan-import-type PartialEnumValueConfig from EnumType
+ *
+ * @phpstan-type PhpEnumTypeConfig array{
+ *    name?: string|null,
+ *    description?: string|null,
+ *    enumClass: class-string<\UnitEnum>,
+ *    astNode?: EnumTypeDefinitionNode|null,
+ *    extensionASTNodes?: array<int, EnumTypeExtensionNode>|null
+ * }
  */
 class PhpEnumType extends EnumType
 {
@@ -20,23 +28,15 @@ class PhpEnumType extends EnumType
     protected string $enumClass;
 
     /**
-     * @param class-string<\UnitEnum> $enumClass The fully qualified class name of a native PHP enum
-     * @param string|null $name The name the enum will have in the schema, defaults to the basename of the given class
-     * @param string|null $description The description the enum will have in the schema, defaults to PHPDoc of the given class
-     * @param array<EnumTypeExtensionNode>|null $extensionASTNodes
+     * @phpstan-param PhpEnumTypeConfig $config
      *
      * @throws \Exception
      * @throws \ReflectionException
      */
-    public function __construct(
-        string $enumClass,
-        ?string $name = null,
-        ?string $description = null,
-        ?EnumTypeDefinitionNode $astNode = null,
-        ?array $extensionASTNodes = null
-    ) {
-        $this->enumClass = $enumClass;
-        $reflection = new \ReflectionEnum($enumClass);
+    public function __construct(array $config)
+    {
+        $this->enumClass = $config['enumClass'];
+        $reflection = new \ReflectionEnum($this->enumClass);
 
         /**
          * @var array<string, PartialEnumValueConfig> $enumDefinitions
@@ -51,11 +51,12 @@ class PhpEnumType extends EnumType
         }
 
         parent::__construct([
-            'name' => $name ?? $this->baseName($enumClass),
+            'name' => $config['name'] ?? $this->baseName($this->enumClass),
             'values' => $enumDefinitions,
-            'description' => $description ?? $this->extractDescription($reflection),
-            'astNode' => $astNode,
-            'extensionASTNodes' => $extensionASTNodes,
+            'description' => $config['description'] ?? $this->extractDescription($reflection),
+            'enumClass' => $this->enumClass,
+            'astNode' => $config['astNode'] ?? null,
+            'extensionASTNodes' => $config['extensionASTNodes'] ?? null,
         ]);
     }
 
